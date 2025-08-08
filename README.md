@@ -1,6 +1,6 @@
-# Web Model Context API 🧪
+# WebMCP 🧪
 
-This is a repository for the [Web Machine Learning Community Group](https://www.w3.org/groups/cg/webmachinelearning/) ([join](https://webmachinelearning.github.io/community/#join)) to continue discussion on the [Web Model Context API proposal](https://github.com/webmachinelearning/proposals/issues/12).
+This is a repository for the [Web Machine Learning Community Group](https://www.w3.org/groups/cg/webmachinelearning/) ([join](https://webmachinelearning.github.io/community/#join)) to continue discussion on the [proposal](https://github.com/webmachinelearning/proposals/issues/12).
 
 ## Scope of Work
 
