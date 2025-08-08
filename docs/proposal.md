@@ -256,3 +256,7 @@ Handling tool calls on the main thread raises performance concerns, especially i
 One proposal was to expose the WebMCP API only in service workers and let the service worker post messages to individual client windows/tabs as needed in order to update UI. This would have complicated the architecture and required web developers to add a service worker. This would also have required the Session concept described earlier to help the service worker differentiate between agents that are connected to different windows and dispatch requests from a particular agent to the correct window.
 
 For long-running, batched, or expensive tool calls, we expect web developers will dynamically update their UI when these are taking place to temporarily cede control to the agent (e.g. disable or remove human form inputs, indicate via UI that an agent is in control), and take advantage of dedicated workers as needed to offload expensive operations. This can be achieved with existing dedicated or shared workers.
+
+## Acknowledgments
+
+Many thanks to [Alex Nahas](https://github.com/MiguelsPizza) for sharing related [implementation experience](https://github.com/MiguelsPizza/WebMCP). 
