@@ -65,12 +65,12 @@ There are several advantages to using the web to connect agents to services:
 
 WebMCP is a proposal for a web API that enables web pages to provide agent-specific paths in their UI. With WebMCP, agent-service interaction takes place _via app-controlled UI_, providing a shared context available to app, agent, and user. In contrast to backend integrations, WebMCP tools are available to an agent only once it has loaded a page and they execute on the client. Page content and actuation remain available to the agent (and the user) but the agent also has access to tools which it can use to achieve its goal more directly.
 
-![A diagram showing an agent communicating with a third-party service via script tools running in a live web page](../content/explainer_st.svg)
+![A diagram showing an agent communicating with a third-party service via WebMCP running in a live web page](../content/explainer_st.svg)
 
 In contrast, in a backend integration, the agent-service interaction takes place directly, without an associated UI. If
 a UI is required it must be provided by the agent itself or somehow connected to an existing UI manually:
 
-The expected flow using browser agents and Script Tools:
+The expected flow using browser agents and WebMCP:
 
 ![A diagram showing an agent communicating with a third-party service directl via MCP](../content/explainer_mcp.svg)
 
@@ -91,7 +91,7 @@ The expected flow using browser agents and Script Tools:
 
 ## Use Cases
 
-The use cases for script tools are ones in which the user is collaborating with the agent, rather than completely
+The use cases for WebMCP are ones in which the user is collaborating with the agent, rather than completely
 delegating their goal to it. They can also be helpful where interfaces are highly specific or complicated.
 
 ### Example - Creative
@@ -105,7 +105,7 @@ which to choose from so she asks her browser agent for help._
 **Jen**: Show me templates that are spring themed and that prominently feature the date and time. They should be on a
 white background so I don't have to print in color.
 
-_The current document has registered a script tool that the agent notices may be relevant to this query:_
+_The current document has registered a WebMCP tool that the agent notices may be relevant to this query:_
 
 ```js
 /**
@@ -180,7 +180,7 @@ _The agent takes this action using a sequence of tool calls which might look som
 * `AddPage("DUPLICATE")`
 * `EditDesign("Change the call-to-action text to 'Come for the bargains, stay for the cookies'")`
   
-_Jen now has 3 versions of the same yard sale flyer. Easely implements these script tools using AI-based techinques on
+_Jen now has 3 versions of the same yard sale flyer. Easely implements these WebMCP tools using AI-based techinques on
 their backend to allow a natural language interface. Additionally, the UI presents these changes to Jen as an easily
 reversible batch of "uncommitted" changes, allowing her to easily review the agent's actions and make changes or undo as
 necessary. While the site could also implement a chat interface to expose this functionality with their own agent, the
@@ -414,7 +414,7 @@ quickly review the agent's actions and accept/modify/reject them._
 
 ## Assumptions
 
-* For many sites wanting to integrate with agents quickly - augmenting their existing UI with script tools will be
+* For many sites wanting to integrate with agents quickly - augmenting their existing UI with WebMCP tools will be
   easier vs. backend integration
 * Agents will perform quicker and more successfully with specific tools compared to using a human interface.
 * Users might use an agent for a direct action query (e.g. “create a 30 minute meeting with Pat at 3:00pm”), complex
@@ -492,7 +492,7 @@ for remote execution.
 
 ### WebMCP (MCP-B)
 
-[MCP-B](https://mcp-b.ai/), or Model Context Protocol for the Browser, is an open source project found on GitHub [here](https://github.com/MiguelsPizza/WebMCP) and has much the same motivation and solution as described in this proposal. MCP-B's underlying protocol, also named WebMCP, extends MCP with tab transports that allow in-page communicate between a website's MCP server and any client in the same tab. It also extends MCP with extension transports that use Chromium's runtime messaging to make a website's MCP server available to other extension components within the browser (background, sidebar, popup), and to other external MCP clients running on the same machine. MCP-B enables tools from different sites to work together, and for sites to cache tools so that they are discoverable even if the browser isn't currently navigated to the site.
+[MCP-B](https://mcp-b.ai/), or Model Context Protocol for the Browser, is an open source project found on GitHub [here](https://github.com/MiguelsPizza/WebMCP) and has much the same motivation and solution as described in this proposal. MCP-B's underlying protocol, also named WebMCP, extends MCP with tab transports that allow in-page communication between a website's MCP server and any client in the same tab. It also extends MCP with extension transports that use Chromium's runtime messaging to make a website's MCP server available to other extension components within the browser (background, sidebar, popup), and to other external MCP clients running on the same machine. MCP-B enables tools from different sites to work together, and for sites to cache tools so that they are discoverable even if the browser isn't currently navigated to the site.
 
 ### OpenAPI
 

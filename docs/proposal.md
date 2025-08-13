@@ -14,11 +14,11 @@ Only a top-level browsing context, such as a browser tab can be a model context 
   * A natural language description of the parameter
   * The expected type (e.g. Number, String, Enum, etc)
   * Any restrictions on the parameter (e.g. integers greater than 0)
-* A JS callback function that implementings the tool and returns a result
+* A JS callback function that implements the tool and returns a result
 
-When an agent that is connected to the page sends a tool call, the JavaScript callback is invoked, where the page can handle the tool call and respond to the agent. Simple applications can handle tool calls entirely in page script, but more complex applications may choose to delegate computationally heavy operations to workers and respond to the agent asynchronously.
+When an agent that is connected to the page sends a tool call, the JavaScript callback is invoked, where the page can handle the tool call and respond to the agent. The function can be asynchronous and return a promise, in which case the agent will receive the result once the promise is resolved. Simple applications can handle tool calls entirely in page script, but more complex applications may choose to delegate computationally heavy operations to workers and respond to the agent asynchronously.
 
-Handling tool cools in the main thread with the option of delegating to workers serves a few purposes:
+Handling tool calls in the main thread with the option of delegating to workers serves a few purposes:
 
 - Ensures tool calls run one at a time and sequentially.
 - The page can update UI to reflect state changes performed by tools.
@@ -68,7 +68,7 @@ window.agent.provideContext({
 });
 ```
 
-The `provideContext` method can be called multiple times. Subsequent calls clear any pre-existing tools and other context before registering the new ones. This is useful for single-page web apps that frequently change UI state and could benefit from presenting different tools depending on which state the UI is currently in.
+The `provideContext` method can be called multiple times. Subsequent calls clear any pre-existing tools and other context before registering the new ones. This is useful for single-page web apps that frequently change UI state and could benefit from presenting different tools depending on which state the UI is currently in. For a list of tools passed to `provideContext`, each tool name in the list is expected to be unique.
 
 **Advantages:**
 
@@ -132,7 +132,7 @@ Tool calls are handled as events. Since event handler functions can't respond to
 
 ### Recommendation
 
-A **hybrid** approach of both of the examples above is recommended as this would make it easy for web developers to get started adding tools to their page, while leaving open the possibility of manifest-based approaches in the future. To implement this hybrid approach, a `"toolcall"` event is dispatched on every incoming tool call _before_ executing the tool's `execute` function. The event handler can handle the tool call by calling the event's `preventDefault()` method, and then responding to the agent with `respondWith()` as shown above. If the event handle does not call `preventDefault()` then the browser's default behavior for tool calls will occur. The `execute` function for the requested tool is called. If a tool with the requested name does not exist, then the browser responds to the agent with an error.
+A **hybrid** approach of both of the examples above is recommended as this would make it easy for web developers to get started adding tools to their page, while leaving open the possibility of manifest-based approaches in the future. To implement this hybrid approach, a `"toolcall"` event is dispatched on every incoming tool call _before_ executing the tool's `execute` function. The event handler can handle the tool call by calling the event's `preventDefault()` method, and then responding to the agent with `respondWith()` as shown above. If the event handler does not call `preventDefault()` then the browser's default behavior for tool calls will occur. The `execute` function for the requested tool is called. If a tool with the requested name does not exist, then the browser responds to the agent with an error.
 
 ## Example of WebMCP API usage
 
@@ -259,4 +259,4 @@ For long-running, batched, or expensive tool calls, we expect web developers wil
 
 ## Acknowledgments
 
-Many thanks to [Alex Nahas](https://github.com/MiguelsPizza) for sharing related [implementation experience](https://github.com/MiguelsPizza/WebMCP). 
+Many thanks to [Alex Nahas](https://github.com/MiguelsPizza) and [Jason McGhee](https://github.com/jasonjmcghee/) for sharing related [implementation](https://github.com/MiguelsPizza/WebMCP) [experience](https://github.com/jasonjmcghee/WebMCP).
