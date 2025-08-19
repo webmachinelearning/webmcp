@@ -2,6 +2,14 @@
 
 _Enabling web apps to provide JavaScript-based tools that can be accessed by AI agents and assistive technologies to create collaborative, human-in-the-loop workflows._
 
+> August 13, 2025
+>
+> Brandon Walderman <code>&lt;brwalder@microsoft.com&gt;</code><br>
+> Andrew Nolan <code>&lt;annolan@microsoft.com&gt;</code><br>
+> David Bokan <code>&lt;bokan@google.com&gt;</code><br>
+> Khushal Sagar <code>&lt;khushalsagar@google.com&gt;</code><br>
+> Hannah Van Opstal <code>&lt;hvanopstal@google.com&gt;</code>
+
 ## TL;DR
 
 We propose a new JavaScript interface that allows web developers to expose their web application functionality as "tools" - JavaScript functions with natural language descriptions and structured schemas that can be invoked by AI agents, browser assistants, and assistive technologies. Web pages that use WebMCP can be thought of as [Model Context Protocol (MCP)](https://modelcontextprotocol.io/introduction) servers that implement tools in client-side script instead of on the backend. WebMCP enables collaborative workflows where users and agents work together within the same web interface, leveraging existing application logic while maintaining shared context and user control.

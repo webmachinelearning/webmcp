@@ -1,5 +1,13 @@
 # WebMCP API Proposal
 
+> August 13, 2025
+>
+> Brandon Walderman <code>&lt;brwalder@microsoft.com&gt;</code><br>
+> Andrew Nolan <code>&lt;annolan@microsoft.com&gt;</code><br>
+> David Bokan <code>&lt;bokan@google.com&gt;</code><br>
+> Khushal Sagar <code>&lt;khushalsagar@google.com&gt;</code><br>
+> Hannah Van Opstal <code>&lt;hvanopstal@google.com&gt;</code>
+
 ## Definitions
 
 - **Model context provider**: A single top-level browsing context navigated to a page that uses the WebMCP API to provide context (i.e. tools) to agents.
