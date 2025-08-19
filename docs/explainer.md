@@ -5,6 +5,7 @@ _Enabling web apps to provide JavaScript-based tools that can be accessed by AI 
 > August 13, 2025
 >
 > Brandon Walderman <code>&lt;brwalder@microsoft.com&gt;</code><br>
+> Leo Lee <code>&lt;leo.lee@microsoft.com&gt;</code><br>
 > Andrew Nolan <code>&lt;annolan@microsoft.com&gt;</code><br>
 > David Bokan <code>&lt;bokan@google.com&gt;</code><br>
 > Khushal Sagar <code>&lt;khushalsagar@google.com&gt;</code><br>
@@ -64,7 +65,7 @@ There are several advantages to using the web to connect agents to services:
     Users often start with a vague goal which is refined over time. Consider a user browsing for a high-value purchase.
     The user may prefer to start their journey on a specific page, ask their agent to perform some of the more tedious
     actions ("find me some options for a dress that's appropriate for a summer wedding, preferably red or orange, short
-    or no sleeves and no embelishments"), and then take back over to browse among the agent-selected options.
+    or no sleeves and no embellishments"), and then take back over to browse among the agent-selected options.
 
 * **Allows authors to serve humans and agents from one source**
 
@@ -77,8 +78,6 @@ WebMCP is a proposal for a web API that enables web pages to provide agent-speci
 
 In contrast, in a backend integration, the agent-service interaction takes place directly, without an associated UI. If
 a UI is required it must be provided by the agent itself or somehow connected to an existing UI manually:
-
-The expected flow using browser agents and WebMCP:
 
 ![A diagram showing an agent communicating with a third-party service directl via MCP](../content/explainer_mcp.svg)
 
@@ -124,7 +123,7 @@ _The current document has registered a WebMCP tool that the agent notices may be
  filterTemplates(description)
 ```
 
-_The agent invokes the tool: `filterTemplate("sprint themed, date and time displayed prominently, white background")`.
+_The agent invokes the tool: `filterTemplate("spring themed, date and time displayed prominently, white background")`.
 The UI updates to show a filtered list matching this description._
 
 **Agent**: Ok, the remaining templates should now match your description.
@@ -188,7 +187,7 @@ _The agent takes this action using a sequence of tool calls which might look som
 * `AddPage("DUPLICATE")`
 * `EditDesign("Change the call-to-action text to 'Come for the bargains, stay for the cookies'")`
   
-_Jen now has 3 versions of the same yard sale flyer. Easely implements these WebMCP tools using AI-based techinques on
+_Jen now has 3 versions of the same yard sale flyer. Easely implements these WebMCP tools using AI-based techniques on
 their backend to allow a natural language interface. Additionally, the UI presents these changes to Jen as an easily
 reversible batch of "uncommitted" changes, allowing her to easily review the agent's actions and make changes or undo as
 necessary. While the site could also implement a chat interface to expose this functionality with their own agent, the
@@ -207,7 +206,7 @@ an `orderPrints` tool:
  *
  * copies - A number between 0 and 1000 indicating how many copies of the design to print. Required.
  * page_size - The paper type to use. Available options are [Legal, Letter, A4, A5]. Default is "Letter".
- * page_finish - What kind of paper finish to use. Available options are [Regular, Glosys Photo, Matte Photo].
+ * page_finish - What kind of paper finish to use. Available options are [Regular, Glossy Photo, Matte Photo].
  *               Default is "Regular"
  */
 orderPrints(copies, page_size, page_finish);
@@ -354,7 +353,7 @@ getTryRunStatuses();
  *
  * bot_name - The name of the bot, as returned from getTryRunStatuses, to get failure snippet from
  */
-getTryRunFaliureSnippet(bot_name)
+getTryRunFailureSnippet(bot_name)
 ```
 
 _The agent calls `getTryRunStatuses()` to find the names of the failing bots. It returns:_
