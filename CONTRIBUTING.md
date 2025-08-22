@@ -1,6 +1,6 @@
 This repository is being used for work in the W3C Web Machine Learning Community Group,
 governed by the [W3C Community License Agreement (CLA)](https://www.w3.org/community/about/agreements/cla/).
-To make substantive contributions, you must join the CG.
+To make substantive contributions, you must [join](https://webmachinelearning.github.io/community/#join) the CG.
 
 If you are not the sole contributor to a contribution (pull request), please identify all
 contributors in the pull request comment.
