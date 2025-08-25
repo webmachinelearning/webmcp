@@ -2,7 +2,7 @@
 
 _Enabling web apps to provide JavaScript-based tools that can be accessed by AI agents and assistive technologies to create collaborative, human-in-the-loop workflows._
 
-> August 13, 2025
+> First published August 13, 2025
 >
 > Brandon Walderman <code>&lt;brwalder@microsoft.com&gt;</code><br>
 > Leo Lee <code>&lt;leo.lee@microsoft.com&gt;</code><br>
