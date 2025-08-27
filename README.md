@@ -74,12 +74,12 @@ There are several advantages to using the web to connect agents to services:
 
 WebMCP is a proposal for a web API that enables web pages to provide agent-specific paths in their UI. With WebMCP, agent-service interaction takes place _via app-controlled UI_, providing a shared context available to app, agent, and user. In contrast to backend integrations, WebMCP tools are available to an agent only once it has loaded a page and they execute on the client. Page content and actuation remain available to the agent (and the user) but the agent also has access to tools which it can use to achieve its goal more directly.
 
-![A diagram showing an agent communicating with a third-party service via WebMCP running in a live web page](./content/explainer_st.svg)
+![A diagram showing an agent communicating with a third-party service via WebMCP running in a live web page](./content/explainer_webmcp.png)
 
 In contrast, in a backend integration, the agent-service interaction takes place directly, without an associated UI. If
 a UI is required it must be provided by the agent itself or somehow connected to an existing UI manually:
 
-![A diagram showing an agent communicating with a third-party service directl via MCP](./content/explainer_mcp.svg)
+![A diagram showing an agent communicating with a third-party service directl via MCP](./content/explainer_mcp.png)
 
 ## Goals
 
