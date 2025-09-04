@@ -91,7 +91,7 @@ _The agent performs the following sequence:_
 4.	The service worker updates the cart via backend API calls
 5.	Finally calls `placeOrder()`
 
-_ The service worker handles the `placeOrder()` call by:_
+_The service worker handles the `placeOrder()` call by:_
 
 1.	Checking if the user has saved payment information on file
 2.	Since Mike doesn't have a payment method saved, opening a new browser window to `http://freshmart.example/checkout`
