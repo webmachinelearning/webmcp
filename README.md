@@ -20,7 +20,7 @@ For the technical details of the proposal, code examples, API shape, etc. see [p
 ## Terminology Used
 
 ###### Agent
-An autonomous assistant that can understand a user's goals and take actions on the user's behalf to achieve them. Today,
+An autonomous assistant that can understand user's goals and take actions on the user's behalf to achieve them. Today,
 these are typically implemented by large language model (LLM) based AI platforms, interacting with users via text-based
 chat interfaces.
 
