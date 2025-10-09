@@ -51,11 +51,11 @@ Handling tool calls in the main thread with the option of delegating to workers 
 
 ## API
 
-The `window.agent` interface is introduced to represent an abstract AI agent that is connected to the page and uses the page's context. The `agent` object has a single method `provideContext` that's used to update the context (currently just tools) available to the agent. The method takes an object with a `tools` property which is a list of tool descriptors. The tool descriptors look as shown in this example below, which aligns with the Prompt API's [tool use](https://github.com/webmachinelearning/prompt-api#tool-use) specification, and other libraries like the MCP SDK:
+The `window.navigator.modelContext` interface is introduced to represent an abstract AI agent that is connected to the page and uses the page's context. The `modelContext` object has a single method `provideContext` that's used to update the context (currently just tools) available to the agent. The method takes an object with a `tools` property which is a list of tool descriptors. The tool descriptors look as shown in this example below, which aligns with the Prompt API's [tool use](https://github.com/webmachinelearning/prompt-api#tool-use) specification, and other libraries like the MCP SDK:
 
 ```js
 // Declare tool schema and implementation functions.
-window.agent.provideContext({
+window.navigator.modelContext.provideContext({
     tools: [
         {
             name: "add-todo",
@@ -77,6 +77,29 @@ window.agent.provideContext({
 ```
 
 The `provideContext` method can be called multiple times. Subsequent calls clear any pre-existing tools and other context before registering the new ones. This is useful for single-page web apps that frequently change UI state and could benefit from presenting different tools depending on which state the UI is currently in. For a list of tools passed to `provideContext`, each tool name in the list is expected to be unique.
+
+Alternatively, the `registerTool`/`unregisterTool` APIs can be used to add/remove tools from the registered set without resetting the state entirely.
+
+```js
+window.navigator.modelContext.registerTool({
+      execute:
+        async execute({ text }) => {
+          // Add todo item and update UI.
+          return /* structured content response */
+        },
+      name: "add-todo",
+      description: "Add a new todo item to the list",
+      inputSchema: {
+        type: "object",
+        properties: {
+          text: { type: "string", description: "The text of the todo item" }
+        },
+          required: ["text"]
+        },
+    });
+
+window.navigator.modelContext.unregisterTool("add-todo");
+```
 
 **Advantages:**
 
