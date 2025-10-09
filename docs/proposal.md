@@ -247,6 +247,23 @@ To improve the user experience and make it possible for the stamp application to
 
 The author may also wish to change the on-page user experience when a client is connected. For example, if the user is interacting with the page primarily through an AI agent or assistive tool, then the author might choose to disable or hide the HTML form input and use more of the available space to show the stamp collection.
 
+## Intersection with MCP
+
+MCP is a layered protocol enabling client-server communication. The client owns the AI Agent connecting to external systems using this protocol and the server is the external system. The protocol has the following layers:
+
+- Primitives like tools (executable APIs), resources (static context) and prompts (templates for system prompts).
+- Data layer for control messages between the client and server. For example, the client sends a `tools/list` message to request the set of tools from the server.
+- Transport layer to abstract how the control messages are exchanged between the client-server (for example, HTTP POST requests).
+
+This proposal aligns the Web API closely with MCP primitives. This ensures agentic capabilities on the Web declared via WebMCP can be used by any MCP compatible Agent with minimal translation layers; and makes it easier for web authors to reuse code with their MCP service.
+
+Implementation of the data layer to arbitrate access to these primitives for an Agent is left to the browser. This design has the following advantages:
+
+1. It doesn’t directly couple the Web to a specific MCP version. The fact that the control flow is intermediated by the browser, instead of being opaque messages exchanged between the site and the Agent, allows the browser to maintain backwards compatibility as the protocol evolves.
+2. The browser can apply security policies unique to the web platform. For example, embedders would need to manage the capabilities provided to iframes.
+3. The API ergonomics can align with the Web platform. For example, tool response can use `img` or `video` elements for multi-modal output.
+4. There can be a declarative counterpart to imperative tools, see [issue 22](https://github.com/webmachinelearning/webmcp/issues/22).
+
 ## Other API Alternatives considered
 
 ### Web App Manifest, other manifest-based or declarative approaches
