@@ -297,7 +297,7 @@ _The agent calls `getDresses(6)` and receives a JSON object:_
             "id": 4320,
             "description": "A straight midi dress in organic cotton...",
             "price": "€140",
-            "image": "img_4320.png",
+            "image": "img_4320.png"
         },
         ...
     ]
