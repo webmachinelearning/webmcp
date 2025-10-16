@@ -291,7 +291,7 @@ _The agent calls `getDresses(6)` and receives a JSON object:_
             "id": 1021,
             "description": "A short sleeve long dress with full length button placket...",
             "price": "€180",
-            "image": "img_1024.png",
+            "image": "img_1024.png"
         },
         {
             "id": 4320,
