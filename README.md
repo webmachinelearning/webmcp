@@ -198,7 +198,7 @@ information from the user's email service._
 
 _Jen is now happy with these flyers. Normally she'd print to PDF and then take the file to a print shop. However, Easely
 has a new print service that Jen doesn't know about and doesn't notice in the UI. However, the agent knows the page has
-an `orderPrints` tool:
+an `orderPrints` tool:_
 
 ```js
 /**
@@ -285,18 +285,18 @@ _The agent calls `getDresses(6)` and receives a JSON object:_
 
 ```json
 {
-    products: [
+    "products": [
         {
-            id: 1021,
-            description: "A short sleeve long dress with full length button placket...",
-            price: "€180",
-            image: "img_1024.png",
+            "id": 1021,
+            "description": "A short sleeve long dress with full length button placket...",
+            "price": "€180",
+            "image": "img_1024.png",
         },
         {
-            id: 4320,
-            description: "A straight midi dress in organic cotton...",
-            price: "€140",
-            image: "img_4320.png",
+            "id": 4320,
+            "description": "A straight midi dress in organic cotton...",
+            "price": "€140",
+            "image": "img_4320.png",
         },
         ...
     ]
@@ -304,8 +304,7 @@ _The agent calls `getDresses(6)` and receives a JSON object:_
 ```
 
 > [!Note]
-> How to pass images and other non-textual data is something we should improve 
-> Issue #10
+> How to pass images and other non-textual data is something we should improve (See [Issue #10](https://github.com/webmachinelearning/webmcp/issues/10))
 
 _The agent can now process this list, fetching each image, and using the user's criteria to filter the list. When
 completed it makes another call, this time to `showDresses([4320, 8492, 5532, ...])`. This call updates the UI on the
@@ -326,7 +325,7 @@ size into EU units to use it with this site._
 ### Example - Code Review
 
 Some services are very domain specific and/or provide a lot of functionality. A real world example is the Chromium code
-review tool: Gerrit. See [CL#5142508](crrev.com/c/5142508). Gerrit has many features but they're not obvious just by
+review tool: Gerrit. See [CL#5142508](https://crrev.com/c/5142508). Gerrit has many features but they're not obvious just by
 looking at the UI (you can press the '?' key to show a shortcut guide). In order to add a comment to a line, the user
 must know to press the 'c' key. The user can suggest edits but has to open a comment to do so. Results from test runs
 are available but are hidden in a generically-named "Checks" tab.
@@ -378,12 +377,10 @@ _The agent calls `getTryRunStatuses()` to find the names of the failing bots. It
 
 **Agent**: I see that the Mac x86 Android 10 bots are failing. Let me get more details...
 
-The agent now calls `getTryRunFailureSnippet` on each of the failing bots and receives a snippet of the failing log of
+_The agent now calls `getTryRunFailureSnippet` on each of the failing bots and receives a snippet of the failing log of
 each._
 
-**Agent**:
-
-The Mac bot is failing to start with an "Out of Space" error. This is probaby just an ifrastructure issue.
+**Agent**: The Mac bot is failing to start with an "Out of Space" error. This is probaby just an ifrastructure issue.
 
 The Android bot is failing while linking with a missing symbol `gfx::DisplayCompositor`.
 
