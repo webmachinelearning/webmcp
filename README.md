@@ -271,6 +271,7 @@ _The agent notices the dresses page registers several tools:_
  *
  * size - optional - a number between 2 and 14 to filter the results by EU dress size
  * size - optional - a color from [Red, Blue, Green, Yellow, Black, White] to filter dresses by
+ */
 getDresses(size, color)
 
 /*
@@ -290,13 +291,13 @@ _The agent calls `getDresses(6)` and receives a JSON object:_
             "id": 1021,
             "description": "A short sleeve long dress with full length button placket...",
             "price": "€180",
-            "image": "img_1024.png",
+            "image": "img_1024.png"
         },
         {
             "id": 4320,
             "description": "A straight midi dress in organic cotton...",
             "price": "€140",
-            "image": "img_4320.png",
+            "image": "img_4320.png"
         },
         ...
     ]
