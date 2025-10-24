@@ -305,7 +305,7 @@ _The agent calls `getDresses(6)` and receives a JSON object:_
 ```
 
 > [!Note]
-> How to pass images and other non-textual data is something we should improve (See [Issue #10](https://github.com/webmachinelearning/webmcp/issues/10))
+> How to pass images and other non-textual data is something we should improve (See [Issue #41](https://github.com/webmachinelearning/webmcp/issues/41))
 
 _The agent can now process this list, fetching each image, and using the user's criteria to filter the list. When
 completed it makes another call, this time to `showDresses([4320, 8492, 5532, ...])`. This call updates the UI on the
