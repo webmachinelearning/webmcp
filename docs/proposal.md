@@ -68,7 +68,7 @@ window.navigator.modelContext.provideContext({
                 },
                 required: ["text"]
             },
-            async execute({ text }) => {
+            async execute({ text }, agent) => {
                 // Add todo item and update UI.
                 return /* structured content response */
             }
@@ -84,7 +84,7 @@ Alternatively, the `registerTool`/`unregisterTool` APIs can be used to add/remov
 ```js
 window.navigator.modelContext.registerTool({
       execute:
-        async execute({ text }) => {
+        async execute({ text }, agent) => {
           // Add todo item and update UI.
           return /* structured content response */
         },
@@ -100,6 +100,44 @@ window.navigator.modelContext.registerTool({
     });
 
 window.navigator.modelContext.unregisterTool("add-todo");
+```
+### agent
+The `agent` interface is introduced to represent an AI Agent using the functionality declared by the site through the `modelContext`. The lifetime of this interface is scoped to the execution of a tool. It is passed as a parameter when executing a tool's function. This interface provides the dependencies required by the site from the Agent.
+
+The `agent` provides a `requestUserInteraction` API to asynchronously seek user input during the execution of a tool. The API can be invoked multiple times during the execution of a tool.
+
+```js
+  navigator.modelContext.registerTool({
+    execute: buyProduct,
+    name: "buyProduct",
+    description: "Use this tool to purchase a product given its unique product_id.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        "product_id": {
+          description: "The unique identifier for the product to be purchased.",
+          type: "string",
+        }
+      },
+      required: ["product_id"]
+    },
+  });
+async function buyProduct(input, agent) {
+  // Request user confirmation before executing the action.
+  const confirmed = await agent.requestUserInteraction(async () => {
+    return new Promise((resolve) => {
+      const confirmed = confirm(`Buy product ${product_id}?\nClick OK to confirm, Cancel to abort.`);
+      resolve(confirmed);
+    });
+  });
+
+  if (!confirmed) {
+    throw new Error("Purchase cancelled by user.");
+  }
+
+  executePurchase(product_id);
+  return `Product ${product_id} purchased.`;
+}
 ```
 
 ## Alternatives Considered
