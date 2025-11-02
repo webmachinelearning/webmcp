@@ -51,7 +51,8 @@ Handling tool calls in the main thread with the option of delegating to workers 
 
 ## API
 
-The `window.navigator.modelContext` interface is introduced to represent an abstract AI agent that is connected to the page and uses the page's context. The `modelContext` object has a single method `provideContext` that's used to update the context (currently just tools) available to the agent. The method takes an object with a `tools` property which is a list of tool descriptors. The tool descriptors look as shown in this example below, which aligns with the Prompt API's [tool use](https://github.com/webmachinelearning/prompt-api#tool-use) specification, and other libraries like the MCP SDK:
+### modelContext
+The `window.navigator.modelContext` interface is introduced for the site to declare functionality that can be used by an AI Agent. Access to these tools is arbitrated by the browser. The `modelContext` object has a `provideContext` method that's used to update the context (currently just tools) available to these agents. The method takes an object with a `tools` property which is a list of tool descriptors. The tool descriptors look as shown in this example below, which aligns with the Prompt API's [tool use](https://github.com/webmachinelearning/prompt-api#tool-use) specification, and other libraries like the MCP SDK:
 
 ```js
 // Declare tool schema and implementation functions.
@@ -101,19 +102,10 @@ window.navigator.modelContext.registerTool({
 window.navigator.modelContext.unregisterTool("add-todo");
 ```
 
-**Advantages:**
+## Alternatives Considered
+One disadvantage of the current registration approach is that the browser must navigate to the page and run JavaScript to discover tools. If WebMCP gains traction in the web developer community, it will become important to have a way to discover which sites have tools that are relevant to a user's request. Discovery is a topic that may warrant its own explainer, but suffice to say, it may be beneficial to have a way to know what capabilities a page offers without having to navigate to the web site first. As an example, a future iteration of this feature could introduce declarative tools definitions that are placed in an app manifest so that agents would only need to fetch the manifest with a simple HTTP GET request. Agents will of course still need to navigate to the site to actually use its tools, but a manifest makes it far less costly to discover these tools and reason about their relevance to the user's task.
 
-- Aligns with existing APIs.
-- Simple for web developers to use.
-- Enforces a single function per tool.
-
-**Disadvantages:**
-
-- Must navigate to the page and run JavaScript for agent to discover tools.
-
-If WebMCP gains traction in the web developer community, it will become important for agents to have a way to discover which sites have tools that are relevant to a user's request. Discovery is a topic that may warrant its own explainer, but suffice to say, it may be beneficial for agents to have a way to know what capabilities a page offers without having to navigate to the web site first. As an example, a future iteration of this feature could introduce declarative tools definitions that are placed in an app manifest so that agents would only need to fetch the manifest with a simple HTTP GET request. Agents will of course still need to navigate to the site to actually use its tools, but a manifest makes it far less costly to discover these tools and reason about their relevance to the user's task.
-
-To make such a scenario easier, it would be beneficial to support an alternate means of tool call execution; one that separates the tool defintion and schema (which may exist in an external manifest file) from the implementation function.
+To make such a scenario easier, it would be beneficial to consider an alternate means of tool call execution; one that separates the tool defintion and schema (which may exist in an external manifest file) from the implementation function.
 
 One way to do this is to handle tool calls as events, as shown below:
 
@@ -161,9 +153,9 @@ Tool calls are handled as events. Since event handler functions can't respond to
 - Slightly harder to keep definition and implementation in sync.
 - Potentially large switch-case in event handler.
 
-### Recommendation
+### Open Question
 
-A **hybrid** approach of both of the examples above is recommended as this would make it easy for web developers to get started adding tools to their page, while leaving open the possibility of manifest-based approaches in the future. To implement this hybrid approach, a `"toolcall"` event is dispatched on every incoming tool call _before_ executing the tool's `execute` function. The event handler can handle the tool call by calling the event's `preventDefault()` method, and then responding to the agent with `respondWith()` as shown above. If the event handler does not call `preventDefault()` then the browser's default behavior for tool calls will occur. The `execute` function for the requested tool is called. If a tool with the requested name does not exist, then the browser responds to the agent with an error.
+A **hybrid** approach of both of the examples above should be considered as this would make it easy for web developers to get started adding tools to their page, while leaving open the possibility of manifest-based approaches in the future. To implement this hybrid approach, a `"toolcall"` event is dispatched on every incoming tool call _before_ executing the tool's `execute` function. The event handler can handle the tool call by calling the event's `preventDefault()` method, and then responding to the agent with `respondWith()` as shown above. If the event handler does not call `preventDefault()` then the browser's default behavior for tool calls will occur. The `execute` function for the requested tool is called. If a tool with the requested name does not exist, then the browser responds to the agent with an error.
 
 ## Example of WebMCP API usage
 
