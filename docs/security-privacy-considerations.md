@@ -12,6 +12,19 @@ This document assumes agents operate with certain baseline capabilities that sig
 
 These capabilities enable powerful user experiences but also create new risks that must be addressed through a combination of protocol design, agent implementation, and user controls.
 
+## Table of Contents
+
+- [Key Security and Privacy Risks](#key-security-and-privacy-risks)
+  - [1. Prompt Injection Attacks](#1-prompt-injection-attacks)
+    - [Metadata / Description Attacks (Tool Poisoning)](#1-metadata--description-attacks-tool-poisoning)
+    - [Output Injection Attacks](#2-output-injection-attacks)
+    - [Input Injection Attacks](#3-input-injection-attacks)
+  - [2. Misrepresentation of Intent](#2-misrepresentation-of-intent)
+  - [3. Privacy Leakage Through Over-Parameterization](#3-privacy-leakage-through-over-parameterization)
+- [Open Questions for Discussion](#open-questions-for-discussion)
+- [Next Steps](#next-steps)
+- [References](#references)
+
 ## Key Security and Privacy Risks
 
 ### 1. Prompt Injection Attacks
