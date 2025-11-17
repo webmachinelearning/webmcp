@@ -68,7 +68,7 @@ window.navigator.modelContext.provideContext({
                 },
                 required: ["text"]
             },
-            async execute({ text }, agent) => {
+            execute: async execute({ text }, agent) => {
                 // Add todo item and update UI.
                 return /* structured content response */
             }
