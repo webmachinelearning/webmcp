@@ -45,11 +45,11 @@ Prompt injection attacks in WebMCP can be categorized by three distinct attack v
 Malicious instructions embedded in tool metadata (name, description, parameter descriptions) that manipulate agent behavior.
 
 - **Threat Actor**: Malicious websites implementing WebMCP tools
-- **Target**: The agent and its decision-making process
+- **Target**: The agent's subsequent reasoning and actions
 - **Assets at Risk**: 
   - Information carried by the agent (user data, cross-site context)
   - Control of the agent's behavior and decisions
-  - User trust in the agent
+  - Other websites the agent may interact with
 
 **How It Works**: The agent's language model reads tool metadata as part of its context. Malicious instructions embedded in descriptions can override the agent's original instructions or manipulate its behavior.
 
@@ -83,8 +83,8 @@ Malicious instructions embedded in tool return values that influence subsequent 
   - Malicious actors influencing website content (e.g., untrusted user-generated content on platforms like Reddit, forums, review sites)
 - **Target**: The agent's subsequent reasoning and actions
 - **Assets at Risk**:
-  - Information carried by the agent
-  - Control of the agent's future actions
+  - Information carried by the agent (user data, cross-site context)
+  - Control of the agent's behavior and decisions
   - Other websites the agent may interact with
 
 **How It Works**: Tool return values are processed by the agent's language model as trusted information. Embedded instructions in these outputs can manipulate the agent's subsequent decisions and actions.
@@ -141,7 +141,6 @@ Websites exposing valuable functionality through WebMCP tools become targets for
 - **Target**: Websites implementing valuable or sensitive WebMCP tools
 - **Assets at Risk**:
   - High-value actions exposed by the tool (e.g., database access, transactions)
-  - Website's backend systems processing the input
 
 **How It Works**: When websites expose valuable functionality via WebMCP, they become attractive targets for malicious agents. Attackers may attempt to exploit vulnerabilities in the tool's implementation or backend processing logic to execute unauthorized actions.
 
