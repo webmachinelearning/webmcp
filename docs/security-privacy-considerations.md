@@ -31,12 +31,11 @@ These capabilities enable powerful user experiences but also create new risks th
 
 **Issue**: [#11](https://github.com/webmachinelearning/webmcp/issues/11)
 
-Prompt injection represents a critical threat to WebMCP where malicious instructions are embedded in tool metadata, inputs, or outputs to manipulate agent behavior or compromise systems. Unlike traditional injection attacks, these exploits target the language model's interpretation of natural language rather than code execution vulnerabilities.
+Prompt injection represents a threat to WebMCP where malicious instructions are embedded in tool metadata, inputs, or outputs to manipulate agent behavior or compromise systems. Unlike traditional injection attacks, these exploits target the language model's interpretation of natural language rather than code execution vulnerabilities.
 
 **Key Risk Factors**:
-- No cryptographic verification of tool descriptions or schemas
 - Agent decision-making relies on natural language interpretation
-- Tool descriptions and return values are treated as trusted context by agents
+- Tool descriptions and return values could be treated as trusted context by agents
 - Natural language is inherently ambiguous and difficult to sanitize
 
 Prompt injection attacks in WebMCP can be categorized by three distinct attack vectors, each with different threat actors, targets, and assets at risk:
