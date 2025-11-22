@@ -4,6 +4,25 @@ This is a living document that addresses the security and privacy considerations
 
 As WebMCP enables AI agents to interact with web applications through callable JavaScript tools, it introduces new threat vectors and privacy implications that require careful analysis and mitigation strategies.
 
+**Approach to Mitigations**
+
+This document considers mitigations through the following lens:
+
+1. **All entities involved**: Mitigations must consider the roles and responsibilities of:
+   - Site authors
+   - Agent providers
+   - Browser vendors
+   - End-users
+
+2. **Spec limitations and responsibilities**: The WebMCP spec cannot define precise mitigation strategies that agents/browser vendors must provide. Instead, we will:
+   - Clearly define the responsibilities for each system
+   - Document common mitigations as recommendations for agents/browser vendors
+   - Explore these mitigations to inform additions to the WebMCP API
+
+3. **Alignment with MCP**: We will adopt relevant threats and mitigations from MCP to inform discussions in WebMCP.
+
+**Agent Baseline Capabilities**
+
 This document assumes agents operate with certain baseline capabilities that significantly impact the security and privacy landscape:
 
 - **Identity inheritance**: Agents can inherit user identity and authentication context from the browser. When an agent visits a website, it carries the user's logged-in credentials and session state.
@@ -309,12 +328,10 @@ To advance the security and privacy posture of WebMCP, we need community input o
 - Are there specific attack scenarios from existing web security domains (CSRF, XSS, etc.) that apply to WebMCP in novel ways?
 - What risks emerge when combining WebMCP with other emerging web capabilities (Prompt API, Web AI, etc.)?
 
-### 2. Responsibility and Scope
+### 2. Threat Models and Attack Scenarios
 
-- **What protections should be built into the WebMCP specification itself?**
-- What should be left to agent implementations to handle?
-- What should browser vendors be responsible for enforcing?
-- How do we balance innovation/flexibility with baseline security requirements?
+- Are there specific attack scenarios from existing web security domains (CSRF, XSS, etc.) that apply to WebMCP in novel ways?
+- What risks emerge when combining WebMCP with other emerging web capabilities (Prompt API, Web AI, etc.)?
 
 ### 3. Permission Models
 
@@ -322,10 +339,6 @@ To advance the security and privacy posture of WebMCP, we need community input o
 - How do we prevent permission fatigue while maintaining user control?
 - Should some tool categories require elevated permissions or review processes?
 - Related: [Issue #44 - Action-specific permission](https://github.com/webmachinelearning/webmcp/issues/44)
-
-### 4. Comparison with MCP
-
-- **Where should WebMCP follow MCP's security approaches, and where must we differ?**
 
 ## Next Steps
 
@@ -347,3 +360,4 @@ This document is intended to spark discussion and collaboration on WebMCP securi
 We welcome your feedback and contributions to this document. Please file issues or submit pull requests with your suggestions, concerns, and proposed solutions.
 
 ## Acknowledgement
+
