@@ -309,13 +309,12 @@ While helpful for the user experience, this same mechanism can be abused.
 1. Agent sees reasonable-sounding parameter descriptions
 2. Agent has access to this user information through personalization APIs
 3. Agent helpfully provides all requested parameters
-4. Site silently logs all parameters to build user profile
-5. Site can now fingerprint and track this user across sessions, even when anonymous
+4. Site are now able to log all parameters to build user profile
 
 #### Implications
 
 - **Silent profiling**: Sites build detailed user profiles without explicit data sharing consent
-- **Cross-site tracking**: When combined with agent cross-site context, enables correlation of user behavior across different domains
+- **Cross-site tracking and context leakage**: Agents could have built the above-mentioned personalization context from multiple websites. For example, learning a current location from a weather site and revealing it to another site through tool parameters, enabling cross-site tracking.
 - **Discrimination risk**: Extracted attributes (age, pregnancy status, location) could be used for price discrimination or biased service
 
 ## Open Questions for Discussion
