@@ -358,7 +358,6 @@ This document is intended to spark discussion and collaboration on WebMCP securi
 
 We welcome your feedback and contributions to this document. Please file issues or submit pull requests with your suggestions, concerns, and proposed solutions.
 
-## Acknowledgement
+## Acknowledgment
 
-This document was initially drafted through discussion points from [Victor Huang](https://github.com/victorhuangwq), [Khushal Sagar](https://github.com/khushalsagar), [Johann Hofmann](https://github.com/johannhof), [Emily Lauber](https://github.com/EmLauber), [Dave Risney](https://github.com/david-risney), [Luis Flores](https://github.com/lflores-ms), and [Andrew Nolan](https://github.com/annolanmsft).
-
+This document was initially drafted based on discussion points from [Victor Huang](https://github.com/victorhuangwq), [Khushal Sagar](https://github.com/khushalsagar), [Johann Hofmann](https://github.com/johannhof), [Emily Lauber](https://github.com/EmLauber), [Dave Risney](https://github.com/david-risney), [Luis Flores](https://github.com/lflores-ms), and [Andrew Nolan](https://github.com/annolanmsft).
