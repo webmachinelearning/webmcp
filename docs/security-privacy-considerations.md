@@ -6,20 +6,20 @@ As WebMCP enables AI agents to interact with web applications through callable J
 
 **Approach to Mitigations**
 
-This document considers mitigations through the following lens:
+This document evaluates risks and mitigations with the following considerations:
 
-1. **All entities involved**: Mitigations must consider the roles and responsibilities of:
+1. All entities involved: we will take into account the roles and responsibilities of:
    - Site authors
    - Agent providers
    - Browser vendors
    - End-users
 
-2. **Spec limitations and responsibilities**: The WebMCP spec cannot define precise mitigation strategies that agents/browser vendors must provide. Instead, we will:
+2. Spec limitations and responsibilities: The WebMCP spec cannot define precise mitigation strategies that agents/browser vendors must provide. Instead, we will:
    - Clearly define the responsibilities for each system
    - Document common mitigations as recommendations for agents/browser vendors
    - Explore these mitigations to inform additions to the WebMCP API
 
-3. **Alignment with MCP**: We will adopt relevant threats and mitigations from MCP to inform discussions in WebMCP.
+3. Alignment with MCP: we will adopt relevant risk assessments and mitigations from MCP to inform discussions in WebMCP.
 
 **Agent Baseline Capabilities**
 
