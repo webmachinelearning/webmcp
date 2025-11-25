@@ -21,7 +21,7 @@ This document evaluates risks and mitigations with the following considerations:
 
 3. Alignment with MCP: we will adopt relevant risk assessments and mitigations from MCP to inform discussions in WebMCP.
 
-**Agent Baseline Capabilities**
+**Agent baseline capabilities**
 
 This document assumes agents operate with certain baseline capabilities that significantly impact the security and privacy landscape:
 
