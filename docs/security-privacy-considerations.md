@@ -345,18 +345,14 @@ This document is intended to spark discussion and collaboration on WebMCP securi
 
 1. **Review and expand** the identified risks with additional scenarios and concerns
 2. **Discuss and propose specific mitigations** for the risks outlined above
-5. **Contribute to issue discussions**, particularly:
+3. **Contribute to issue discussions**, particularly:
    - [Issue #11 - Prompt injection attacks](https://github.com/webmachinelearning/webmcp/issues/11)
    - [Issue #44 - Action-specific permission](https://github.com/webmachinelearning/webmcp/issues/44)
 
 ## References
 
-- [WebMCP Explainer](./README.md)
-- [WebMCP API Proposal](./proposal.md)
 - [W3C TAG Security and Privacy Questionnaire](https://w3ctag.github.io/security-questionnaire/)
 - [Prompt Injection: What's the worst that can happen?](https://simonwillison.net/2023/Apr/14/worst-that-can-happen/)
-
-We welcome your feedback and contributions to this document. Please file issues or submit pull requests with your suggestions, concerns, and proposed solutions.
 
 ## Acknowledgment
 
