@@ -4,7 +4,7 @@ This is a living document that addresses the security and privacy considerations
 
 As WebMCP enables AI agents to interact with web applications through callable JavaScript tools, it introduces new threat vectors and privacy implications that require careful analysis and mitigation strategies.
 
-**Approach to Mitigations**
+**Approach to risk assessment and mitigations**
 
 This document evaluates risks and mitigations with the following considerations:
 
