@@ -360,3 +360,5 @@ We welcome your feedback and contributions to this document. Please file issues 
 
 ## Acknowledgement
 
+This document was initially drafted through discussion points from [Victor Huang](https://github.com/victorhuangwq), [Khushal Sagar](https://github.com/khushalsagar), [Johann Hofmann](https://github.com/johannhof), [Emily Lauber](https://github.com/EmLauber), [Dave Risney](https://github.com/david-risney), [Luis Flores](https://github.com/lflores-ms), and [Andrew Nolan](https://github.com/annolanmsft).
+
