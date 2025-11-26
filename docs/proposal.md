@@ -197,7 +197,7 @@ A **hybrid** approach of both of the examples above should be considered as this
 
 ## Example of WebMCP API usage
 
-Consider a web application like an example Historical Stamp Database. The complete source is available in the [example/](./example/index.html) folder alongside this explainer.
+Consider a web application like an example Historical Stamp Database. TODO(brwalder): Port the source code for example here.
 
 <img src="../content/screenshot.png" alt="Screenshot of Historical Stamp Database" />
 
@@ -249,8 +249,8 @@ function addStamp(stampName, stampDescription, stampYear, stampImageUrl) {
 To let AI agents use this functionality, the author defines the available tools. The `agent` property on the `Window` is checked to ensure the browser supports WebMCP. If supported, the `provideContext()` method is called, passing in an array of tools with a single item, a definition for the new "Add Stamp" tool. The tool accepts as parameters the same set of fields that are present in the HTML form, since this tool and the form should be functionally equivalent.
 
 ```js
-if ("agent" in window) {
-    window.agent.provideContext({
+if ("modelContext" in window) {
+    window.modelContext.provideContext({
         tools: [
             {
                 name: "add-stamp",
@@ -265,7 +265,7 @@ if ("agent" in window) {
                     },
                     required: ["name", "description", "year"]
                 },
-                async execute({ name, description, year, imageUrl }) {
+                async execute({ name, description, year, imageUrl }, agent) {
                     // TODO
                 }
             }
@@ -277,7 +277,7 @@ if ("agent" in window) {
 Now the author needs to implement the tool. The tool needs to update the stamp database, and refresh the UI to reflect the change to the database. Since the code to do this is already available in the `addStamp()` function written earlier, the tool implementation is very simple and just needs to call this helper when an "add-stamp" tool call is received. After calling the helper, the tool needs to signal completion and should also provide some sort of feedback to the client application that requested the tool call. It returns a text message indicating the stamp was added:
 
 ```js
-async execute({ name, description, year, imageUrl }) {
+async execute({ name, description, year, imageUrl }, agent) {
     addStamp(name, description, year, imageUrl);
 
     return {
