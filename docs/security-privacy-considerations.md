@@ -216,7 +216,7 @@ Agents are designed to be helpful. When a site requests specific parameters, age
 - Cross-site information
 - Inferred or stored user attributes
 
-This creates a **personalization-to-fingerprinting** pipeline where sites can extract private attributes without explicit user consent.
+This creates a personalization-to-fingerprinting pipeline where sites can extract private attributes without explicit user consent.
 
 #### Example from Specification
 
@@ -281,7 +281,7 @@ To advance the security and privacy posture of WebMCP, we need community input o
 
 ### 1. Risk Identification
 
-- **What other security or privacy risks should we be concerned about beyond those listed above?**
+- What other security or privacy risks should we be concerned about beyond those listed above?
 - Are there specific attack scenarios from existing web security domains (CSRF, XSS, etc.) that apply to WebMCP in novel ways?
 - What risks emerge when combining WebMCP with other emerging web capabilities (Prompt API, Web AI, etc.)?
 
