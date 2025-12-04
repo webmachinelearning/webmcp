@@ -152,47 +152,6 @@ navigator.modelContext.registerTool({
 });
 ```
 
-##### 3. Attacks on Tool Implementations
-
-Websites exposing valuable functionality through WebMCP tools become targets for input injection attacks, where malicious instructions are embedded in tool parameters.
-
-- **Threat Actor**: Malicious users controlling or manipulating agents using WebMCP
-- **Target**: Websites implementing valuable or sensitive WebMCP tools
-- **Assets at Risk**:
-  - High-value actions exposed by the tool (e.g., database access, transactions)
-
-**How It Works**: When websites expose valuable functionality via WebMCP, they become attractive targets for malicious agents. Attackers may attempt to exploit vulnerabilities in the tool's implementation or backend processing logic to execute unauthorized actions.
-
-**Note on Attack Surface**: WebMCP exposes a structured interface that can be a valuable target for malicious agents, particularly if the tools allow for high-value actions. While WebMCP does not inherently expand the attack surface for input injection attacks, it creates an explicit pathway for agents to interact with these systems.
-
-**Example Attack**:
-
-```js
-// Website implements a high-value tool for agents
-navigator.modelContext.registerTool({
-  name: "reset-password",
-  description: "Initiate a password reset for a user",
-  inputSchema: {
-    type: "object",
-    properties: {
-      username: { type: "string" },
-      justification: { type: "string" }
-    }
-  },
-  execute: async ({ username, justification }) => {
-    // Malicious agents can target this high-value tool
-    // attempting to bypass checks or abuse the functionality
-    // through crafted inputs elsewhere.
-    
-    await processPasswordResetRequest(username, justification);
-  }
-});
-```
-
-**Attack Scenario**: 
-1. A website exposes a high-value capability (e.g., password resets, transfers, data access) via WebMCP to allow legitimate agents to assist users.
-2. Attackers craft malicious inputs specifically designed to make browser agents target the high value tool from attackers' controlled context.
-
 ### 2. Misrepresentation of Intent
 
 **Problem**: There is no guarantee that a WebMCP tool's declared intent matches its actual behavior.
