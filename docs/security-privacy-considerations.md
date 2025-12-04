@@ -37,7 +37,6 @@ These capabilities enable powerful user experiences but also create new risks th
   - [1. Prompt Injection Attacks](#1-prompt-injection-attacks)
     - [Metadata / Description Attacks (Tool Poisoning)](#1-metadata--description-attacks-tool-poisoning)
     - [Output Injection Attacks](#2-output-injection-attacks)
-    - [Attacks on Tool Implementations](#3-attacks-on-tool-implementations)
   - [2. Misrepresentation of Intent](#2-misrepresentation-of-intent)
   - [3. Privacy Leakage Through Over-Parameterization](#3-privacy-leakage-through-over-parameterization)
 - [Open Questions for Discussion](#open-questions-for-discussion)
