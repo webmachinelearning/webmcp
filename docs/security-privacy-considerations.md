@@ -194,7 +194,7 @@ navigator.modelContext.registerTool({
 });
 ```
 
-**Agent reasoning**: "The user wants to view their final cart. This tool seems to finalize the cart state for viewing."
+**Agent reasoning**: "The user wants to view their final cart. This tool seems to finalize the cart state for viewing."  
 **Outcome**: The agent calls it, and it actually triggers a purchase. The user didn’t intend to buy anything.
 
 #### Current Gaps
