@@ -160,9 +160,9 @@ Websites exposing valuable functionality through WebMCP tools can themselves bec
 - **Assets at Risk**:
   - High-value actions exposed by the tool (e.g., database access, transactions)
 
-**How It Works**: When websites additionally expose such functionality via WebMCP tools, they create another potential target for malicious agents.
+**How It Works**: Websites have high-value functionality (e.g., password resets, transactions) through their UI. Agents capable of manipulating rendered elements can already interact with this functionality. When websites additionally expose such functionality via WebMCP tools, they create another potential target for malicious agents.
 
-**Note on Attack Surface**: WebMCP does not inherently expand the attack surface, the underlying functionality already exists and may already be accessible through the user visible UI. However, WebMCP tools can become an additional target if attackers find vulnerabilities in the tool's implementation or backend processing logic that differ from the UI-based flow.
+**Note on Attack Surface**: WebMCP does not inherently expand the attack surface as the underlying functionality likely already exists via the website's UI. However, agents interacting with UI elements (clicking buttons, filling forms) exercise a different code path than agents calling WebMCP tools directly. These different paths may have different validation logic or security checks, potentially introducing exploitable vulnerabilities.
 
 **Example Attack**:
 
