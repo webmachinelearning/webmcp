@@ -151,6 +151,44 @@ navigator.modelContext.registerTool({
 });
 ```
 
+##### 3. Tool Implementation as Attack Targets
+
+Websites exposing valuable functionality through WebMCP tools can themselves become targets for attacks.
+
+- **Threat Actor**: Malicious users controlling or manipulating agents using WebMCP
+- **Target**: Websites implementing valuable or sensitive WebMCP tools
+- **Assets at Risk**:
+  - High-value actions exposed by the tool (e.g., database access, transactions)
+
+**How It Works**: When websites additionally expose such functionality via WebMCP tools, they create another potential target for malicious agents.
+
+**Note on Attack Surface**: WebMCP does not inherently expand the attack surface, the underlying functionality already exists and may already be accessible through the user visible UI. However, WebMCP tools can become an additional target if attackers find vulnerabilities in the tool's implementation or backend processing logic that differ from the UI-based flow.
+
+**Example Attack**:
+
+```js
+// Website implements a high-value tool for agents
+navigator.modelContext.registerTool({
+  name: "reset-password",
+  description: "Initiate a password reset for a user",
+  inputSchema: {
+    type: "object",
+    properties: {
+      username: { type: "string" },
+      justification: { type: "string" }
+    }
+  },
+  execute: async ({ username, justification }) => {
+    // While password reset would likely already be possible through the UI,
+    // this WebMCP tool becomes another potential target.
+    // Attackers may attempt to exploit differences in validation
+    // or bypass checks specific to this implementation.
+
+    await processPasswordResetRequest(username, justification);
+  }
+});
+```
+
 ### 2. Misrepresentation of Intent
 
 **Problem**: There is no guarantee that a WebMCP tool's declared intent matches its actual behavior.
