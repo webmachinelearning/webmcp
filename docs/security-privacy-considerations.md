@@ -155,7 +155,7 @@ navigator.modelContext.registerTool({
 
 Websites exposing valuable functionality through WebMCP tools can themselves become targets for attacks.
 
-- **Threat Actor**: Malicious users controlling or manipulating agents using WebMCP
+- **Threat Actor**: Malicious actors who gain control of agents with access to WebMCP tools
 - **Target**: Websites implementing valuable or sensitive WebMCP tools
 - **Assets at Risk**:
   - High-value actions exposed by the tool (e.g., database access, transactions)
