@@ -68,7 +68,7 @@ window.navigator.modelContext.provideContext({
                 },
                 required: ["text"]
             },
-            execute: async execute({ text }, agent) => {
+            execute: ({ text }, agent) => {
                 // Add todo item and update UI.
                 return /* structured content response */
             }
@@ -84,7 +84,7 @@ Alternatively, the `registerTool`/`unregisterTool` APIs can be used to add/remov
 ```js
 window.navigator.modelContext.registerTool({
       execute:
-        async execute({ text }, agent) => {
+        ({ text }, agent) => {
           // Add todo item and update UI.
           return /* structured content response */
         },
@@ -107,7 +107,7 @@ The `agent` interface is introduced to represent an AI Agent using the functiona
 The `agent` provides a `requestUserInteraction` API to asynchronously seek user input during the execution of a tool. The API can be invoked multiple times during the execution of a tool.
 
 ```js
-  navigator.modelContext.registerTool({
+  window.navigator.modelContext.registerTool({
     execute: buyProduct,
     name: "buyProduct",
     description: "Use this tool to purchase a product given its unique product_id.",
@@ -122,7 +122,7 @@ The `agent` provides a `requestUserInteraction` API to asynchronously seek user 
       required: ["product_id"]
     },
   });
-async function buyProduct(input, agent) {
+async function buyProduct({ product_id }, agent) {
   // Request user confirmation before executing the action.
   const confirmed = await agent.requestUserInteraction(async () => {
     return new Promise((resolve) => {
@@ -249,8 +249,8 @@ function addStamp(stampName, stampDescription, stampYear, stampImageUrl) {
 To let AI agents use this functionality, the author defines the available tools. The `agent` property on the `Window` is checked to ensure the browser supports WebMCP. If supported, the `provideContext()` method is called, passing in an array of tools with a single item, a definition for the new "Add Stamp" tool. The tool accepts as parameters the same set of fields that are present in the HTML form, since this tool and the form should be functionally equivalent.
 
 ```js
-if ("modelContext" in window) {
-    window.modelContext.provideContext({
+if ("modelContext" in window.navigator) {
+    window.navigator.modelContext.provideContext({
         tools: [
             {
                 name: "add-stamp",
@@ -265,7 +265,7 @@ if ("modelContext" in window) {
                     },
                     required: ["name", "description", "year"]
                 },
-                async execute({ name, description, year, imageUrl }, agent) {
+                execute({ name, description, year, imageUrl }, agent) {
                     // TODO
                 }
             }
@@ -277,7 +277,7 @@ if ("modelContext" in window) {
 Now the author needs to implement the tool. The tool needs to update the stamp database, and refresh the UI to reflect the change to the database. Since the code to do this is already available in the `addStamp()` function written earlier, the tool implementation is very simple and just needs to call this helper when an "add-stamp" tool call is received. After calling the helper, the tool needs to signal completion and should also provide some sort of feedback to the client application that requested the tool call. It returns a text message indicating the stamp was added:
 
 ```js
-async execute({ name, description, year, imageUrl }, agent) {
+execute({ name, description, year, imageUrl }, agent) {
     addStamp(name, description, year, imageUrl);
 
     return {
