@@ -1,0 +1,12 @@
+# See the documentation at
+# https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference
+version: 2
+updates:
+  # Update actions used by .github/workflows in this repository.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      actions-org: # Groups all Github-authored actions into a single PR.
+        patterns: ["actions/*"]
