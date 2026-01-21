@@ -1,0 +1,71 @@
+<pre class='metadata'>
+Title: WebMCP
+Shortname: webmcp
+Level: None
+Status: CG-DRAFT
+Group: webml
+Repository: webmachinelearning/webmcp
+URL: https://webmachinelearning.github.io/webmcp
+Editor:
+Abstract: The WebMCP API enables web applications to provide JavaScript-based tools to AI agents.
+Markup Shorthands: markdown yes, css no
+Complain About: accidental-2119 yes, missing-example-ids yes
+Assume Explicit For: yes
+Default Biblio Status: current
+Boilerplate: omit conformance
+Indent: 2
+Die On: warning
+</pre>
+
+<h2 id="intro">Introduction</h2>
+
+WebMCP API is a new JavaScript interface that allows web developers to expose their web application functionality as “tools” - JavaScript functions with natural language descriptions and structured schemas that can be invoked by [=agents=], [=browser's agents=], and [=assistive technologies=]. Web pages that use WebMCP can be thought of as Model Context Protocol [[!MCP]] servers that implement tools in client-side script instead of on the backend. WebMCP enables collaborative workflows where users and agents work together within the same web interface, leveraging existing application logic while maintaining shared context and user control.
+
+<h2 id="terminology">Terminology</h2>
+
+<!--
+TODO: Define any reusable high-level terms here that are not specific to algorithms and not defined elsewhere (https://respec.org/xref/), consider exporting (https://speced.github.io/bikeshed/#dfn-export) if useful for other specs
+-->
+
+An <dfn>agent</dfn> is an autonomous assistant that can understand a user’s goals and take actions on the user’s behalf to achieve them. Today, these are typically implemented by large language model (LLM) based [=AI platforms=], interacting with users via text-based chat interfaces.
+
+A <dfn>browser’s agent</dfn> is an [=agent=] provided by or through the browser that could be built directly into the browser or hosted by it, for example, via an extension or plug-in.
+
+An <dfn>AI platform</dfn> is a provider of agentic assistants such as OpenAI’s ChatGPT, Anthropic’s Claude, or Google’s Gemini.
+
+<h2 id="security-privacy">Security and privacy considerations</h2>
+
+<!--
+TODO: Reuse as applicable
+https://github.com/webmachinelearning/webmcp/blob/main/docs/security-privacy-considerations.md
+-->
+
+<h2 id="accessibility">Accessibility considerations</h2>
+
+<h2 id="api">API</h2>
+
+<!--
+TODO: Convert API described in proposal.md into WebIDL, sketch initial algorithms, define attributes and methods etc.
+https://github.com/webmachinelearning/webmcp/blob/main/docs/proposal.md#api
+https://dlaliberte.github.io/bikeshed-intro/#a-strategy-for-incremental-development
+-->
+
+<xmp class="idl">
+partial interface Navigator {
+  [SecureContext, SameObject] readonly attribute ModelContextContainer modelContext;
+};
+
+[Exposed=Window, SecureContext]
+interface ModelContextContainer {
+};
+</xmp>
+
+<pre class="biblio">
+{
+  "mcp": {
+    "href": "https://modelcontextprotocol.io/specification/latest",
+    "title": "Model Context Protocol (MCP) Specification",
+    "publisher": "The Linux Foundation"
+  }
+}
+</pre>
