@@ -6,7 +6,9 @@ Status: CG-DRAFT
 Group: webml
 Repository: webmachinelearning/webmcp
 URL: https://webmachinelearning.github.io/webmcp
-Editor:
+Editor: Brandon Walderman, Microsoft https://www.microsoft.com, brwalder@microsoft.com, w3cid 115877
+Editor: Khushal Sagar, Google https://www.google.com, khushalsagar@google.com, w3cid 122787
+Editor: Dominic Farolino, Google https://www.google.com, domfarolino@google.com, w3cid 102763
 Abstract: The WebMCP API enables web applications to provide JavaScript-based tools to AI agents.
 Markup Shorthands: markdown yes, css no
 Complain About: accidental-2119 yes, missing-example-ids yes
