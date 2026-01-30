@@ -71,3 +71,19 @@ interface ModelContextContainer {
   }
 }
 </pre>
+
+<h2 id="acknowledgements">Acknowledgements</h2>
+
+Thanks to
+Brandon Walderman,
+Leo Lee,
+Andrew Nolan,
+David Bokan,
+Khushal Sagar,
+Hannah Van Opstal,
+Sushanth Rajasankar
+for the initial explainer, proposals and discussions that established the foundation for this specification.
+
+Also many thanks to Alex Nahas and Jason McGhee for sharing early implementation experience.
+
+Finally, thanks to the participants of the Web Machine Learning Community Group for feedback and suggestions.
