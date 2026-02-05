@@ -107,18 +107,83 @@ https://github.com/webmachinelearning/webmcp/blob/main/docs/security-privacy-con
 <h2 id="api">API</h2>
 
 <!--
-TODO: Convert API described in proposal.md into WebIDL, sketch initial algorithms, define attributes and methods etc.
+TODO: Sketch initial algorithms, define attributes and methods etc.
 https://github.com/webmachinelearning/webmcp/blob/main/docs/proposal.md#api
 https://dlaliberte.github.io/bikeshed-intro/#a-strategy-for-incremental-development
 -->
 
+<h3 id="navigator-extension">Extensions to the Navigator Interface</h3>
+
+The {{Navigator}} interface is extended to provide access to the {{ModelContext}}.
+
 <xmp class="idl">
 partial interface Navigator {
-  [SecureContext, SameObject] readonly attribute ModelContextContainer modelContext;
+  [SecureContext, SameObject] readonly attribute ModelContext modelContext;
+};
+</xmp>
+
+<h3 id="model-context-container">ModelContext Interface</h3>
+
+The {{ModelContext}} interface provides methods for web applications to register and manage tools that can be invoked by [=agents=].
+
+<xmp class="idl">
+[Exposed=Window, SecureContext]
+interface ModelContext {
+  undefined provideContext(optional ModelContextOptions options);
+  undefined registerTool(ModelContextTool tool);
+  undefined unregisterTool(DOMString name);
+};
+</xmp>
+
+<h3 id="model-context-options">ModelContextOptions Dictionary</h3>
+
+<xmp class="idl">
+dictionary ModelContextOptions {
+  sequence<ModelContextTool> tools = [];
+};
+</xmp>
+
+<h3 id="model-context-tool">ModelContextTool Dictionary</h3>
+
+The {{ModelContextTool}} dictionary describes a tool that can be invoked by [=agents=].
+The {{ModelContextTool/inputSchema}} property is a JSON Schema [[!JSON-SCHEMA]] object that describes the expected input parameters for the tool.
+
+<xmp class="idl">
+dictionary ModelContextTool {
+  required DOMString name;
+  required DOMString description;
+  required object inputSchema;
+  ToolExecuteCallback execute;
 };
 
+callback ToolExecuteCallback = ToolResponse (object input, ModelContextClient client);
+</xmp>
+
+<h3 id="model-context-client">ModelContextClient Interface</h3>
+
+The {{ModelContextClient}} interface represents an [=agent=] executing a tool provided by the site through the {{ModelContext}} API.
+
+<xmp class="idl">
 [Exposed=Window, SecureContext]
-interface ModelContextContainer {
+interface ModelContextClient {
+  Promise<any> requestUserInteraction(UserInteractionCallback callback);
+};
+
+callback UserInteractionCallback = Promise<any> ();
+</xmp>
+
+<h3 id="tool-response">ToolResponse Dictionary</h3>
+
+The {{ToolResponse}} dictionary represents the structured content response returned by a tool execution.
+
+<xmp class="idl">
+dictionary ToolResponse {
+  sequence<ToolContent> content;
+};
+
+dictionary ToolContent {
+  required DOMString type;
+  DOMString text;
 };
 </xmp>
 
@@ -128,6 +193,11 @@ interface ModelContextContainer {
     "href": "https://modelcontextprotocol.io/specification/latest",
     "title": "Model Context Protocol (MCP) Specification",
     "publisher": "The Linux Foundation"
+  },
+  "json-schema": {
+    "href": "https://json-schema.org/draft/2020-12/json-schema-core.html",
+    "title": "JSON Schema: A Media Type for Describing JSON Documents",
+    "publisher": "JSON Schema"
   }
 }
 </pre>
