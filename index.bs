@@ -112,7 +112,7 @@ https://github.com/webmachinelearning/webmcp/blob/main/docs/proposal.md#api
 https://dlaliberte.github.io/bikeshed-intro/#a-strategy-for-incremental-development
 -->
 
-<h3 id="navigator-extension">Extensions to the Navigator Interface</h3>
+<h3 id="navigator-extension">Extensions to the {{Navigator}} Interface</h3>
 
 The {{Navigator}} interface is extended to provide access to the {{ModelContext}}.
 
@@ -130,29 +130,47 @@ The {{ModelContext}} interface provides methods for web applications to register
 [Exposed=Window, SecureContext]
 interface ModelContext {
   undefined provideContext(optional ModelContextOptions options = {});
+  undefined clearContext();
   undefined registerTool(ModelContextTool tool);
   undefined unregisterTool(DOMString name);
 };
 </xmp>
 
+<dl class="domintro">
+  <dt><code><var ignore>navigator</var>.{{Navigator/modelContext}}.{{ModelContext/provideContext(options)}}</code></dt>
+  <dd>
+    <p>Registers the provided context (tools) with the browser. This method clears any pre-existing tools and other context before registering the new ones.
+  </dd>
+
+  <dt><code><var ignore>navigator</var>.{{Navigator/modelContext}}.{{ModelContext/registerTool(tool)}}</code></dt>
+  <dd>
+    <p>Registers a single tool without clearing the existing set of tools. The method throws an error, if a tool with the same name already exists, or if the {{ModelContextTool/inputSchema}} is invalid.
+  </dd>
+
+  <dt><code><var ignore>navigator</var>.{{Navigator/modelContext}}.{{ModelContext/unregisterTool(name)}}</code></dt>
+  <dd>
+    <p>Removes the tool with the specified name from the registered set.
+  </dd>
+</dl>
+
 <dl>
   <dt><dfn method for="ModelContext">provideContext(options)</dfn></dt>
   <dd>
-    Registers the provided context (tools) with the browser. This method clears any pre-existing tools and other context before registering the new ones.
+    <p>TODO: fill this out</p>
   </dd>
 
   <dt><dfn method for="ModelContext">registerTool(tool)</dfn></dt>
   <dd>
-    Registers a single tool without clearing the existing set of tools. If a tool with the same name already exists, the method throws an Error.
+    <p>TODO: fill this out</p>
   </dd>
 
   <dt><dfn method for="ModelContext">unregisterTool(name)</dfn></dt>
   <dd>
-    Removes the tool with the specified name from the registered set.
+    <p>TODO: fill this out</p>
   </dd>
 </dl>
 
-<h3 id="model-context-options">ModelContextOptions Dictionary</h3>
+<h4 id="model-context-options">ModelContextOptions Dictionary</h4>
 
 <xmp class="idl">
 dictionary ModelContextOptions {
@@ -160,14 +178,21 @@ dictionary ModelContextOptions {
 };
 </xmp>
 
-<dl>
-  <dt><dfn dict-member for="ModelContextOptions">tools</dfn></dt>
+<dl class="domintro">
+  <dt><code><var ignore>options</var>["{{ModelContextOptions/tools}}"]</code></dt>
   <dd>
-    A list of tools to register with the browser. Each tool name in the list is expected to be unique.
+    <p>A list of {{ModelContextOptions/tools}} to register with the browser. Each tool name in the list is expected to be unique.
   </dd>
 </dl>
 
-<h3 id="model-context-tool">ModelContextTool Dictionary</h3>
+<dl>
+  <dt><dfn dict-member for="ModelContextOptions">tools</dfn></dt>
+  <dd>
+    <p>TODO: fill this out</p>
+  </dd>
+</dl>
+
+<h4 id="model-context-tool">ModelContextTool Dictionary</h4>
 
 The {{ModelContextTool}} dictionary describes a tool that can be invoked by [=agents=].
 
@@ -175,56 +200,91 @@ The {{ModelContextTool}} dictionary describes a tool that can be invoked by [=ag
 dictionary ModelContextTool {
   required DOMString name;
   required DOMString description;
-  required object inputSchema;
-  ToolExecuteCallback execute;
+  object inputSchema;
+  required ToolExecuteCallback execute;
   ToolAnnotations annotations;
 };
 
 dictionary ToolAnnotations {
-  boolean readOnly;
+  boolean readOnlyHint;
 };
 
-callback ToolExecuteCallback = ToolResponse (object input, ModelContextClient client);
+callback ToolExecuteCallback = Promise<any> (object input, ModelContextClient client);
 </xmp>
+
+<dl class="domintro">
+  <dt><code><var ignore>tool</var>["{{ModelContextTool/name}}"]</code></dt>
+  <dd>
+    <p>A unique identifier for the tool. This is used by [=agents=] to reference the tool when making tool calls.
+  </dd>
+
+  <dt><code><var ignore>tool</var>["{{ModelContextTool/description}}"]</code></dt>
+  <dd>
+    <p>A natural language description of the tool's functionality. This helps [=agents=] understand when and how to use the tool.
+  </dd>
+
+  <dt><code><var ignore>tool</var>["{{ModelContextTool/inputSchema}}"]</code></dt>
+  <dd>
+    <p>A JSON Schema [[!JSON-SCHEMA]] object describing the expected input parameters for the tool.
+  </dd>
+
+  <dt><code><var ignore>tool</var>["{{ModelContextTool/execute}}"]</code></dt>
+  <dd>
+    <p>A callback function that is invoked when an [=agent=] calls the tool. The function receives the input parameters and a {{ModelContextClient}} object.
+
+    <p>The function can be asynchronous and return a promise, in which case the [=agent=] will receive the result once the promise is resolved.
+  </dd>
+
+  <dt><code><var ignore>tool</var>["{{ModelContextTool/annotations}}"]</code></dt>
+  <dd>
+    <p>Optional annotations providing additional metadata about the tool's behavior.
+  </dd>
+</dl>
 
 <dl>
   <dt><dfn dict-member for="ModelContextTool">name</dfn></dt>
   <dd>
-    A unique identifier for the tool. This is used by [=agents=] to reference the tool when making tool calls.
+    <p>TODO: fill this out</p>
   </dd>
 
   <dt><dfn dict-member for="ModelContextTool">description</dfn></dt>
   <dd>
-    A natural language description of the tool's functionality. This helps [=agents=] understand when and how to use the tool.
+    <p>TODO: fill this out</p>
   </dd>
 
   <dt><dfn dict-member for="ModelContextTool">inputSchema</dfn></dt>
   <dd>
-    A JSON Schema [[!JSON-SCHEMA]] object describing the expected input parameters for the tool.
+    <p>TODO: fill this out</p>
   </dd>
 
   <dt><dfn dict-member for="ModelContextTool">execute</dfn></dt>
   <dd>
-    A callback function that is invoked when an [=agent=] calls the tool. The function receives the input parameters and a {{ModelContextClient}} object.
-    The function can be asynchronous and return a promise, in which case the [=agent=] will receive the result once the promise is resolved.
+    <p>TODO: fill this out</p>
   </dd>
 
   <dt><dfn dict-member for="ModelContextTool">annotations</dfn></dt>
   <dd>
-    Optional annotations providing additional metadata about the tool's behavior.
+    <p>TODO: fill this out</p>
   </dd>
 </dl>
 
 The {{ToolAnnotations}} dictionary provides optional metadata about a tool:
 
-<dl>
-  <dt><dfn dict-member for="ToolAnnotations">readOnly</dfn></dt>
+<dl class="domintro">
+  <dt><code><var ignore>annotations</var>["{{ToolAnnotations/readOnlyHint}}"]</code></dt>
   <dd>
-    If true, indicates that the tool does not modify any state and only reads data. This hint can help [=agents=] make decisions about when it is safe to call the tool.
+    <p>If true, indicates that the tool does not modify any state and only reads data. This hint can help [=agents=] make decisions about when it is safe to call the tool.
   </dd>
 </dl>
 
-<h3 id="model-context-client">ModelContextClient Interface</h3>
+<dl>
+  <dt><dfn dict-member for="ToolAnnotations">readOnlyHint</dfn></dt>
+  <dd>
+    <p>TODO: fill this out</p>
+  </dd>
+</dl>
+
+<h4 id="model-context-client">ModelContextClient Interface</h4>
 
 The {{ModelContextClient}} interface represents an [=agent=] executing a tool provided by the site through the {{ModelContext}} API.
 
@@ -237,47 +297,19 @@ interface ModelContextClient {
 callback UserInteractionCallback = Promise<any> ();
 </xmp>
 
+<dl class="domintro">
+  <dt><code><var ignore>client</var>.{{ModelContextClient/requestUserInteraction(callback)}}</code></dt>
+  <dd>
+    <p>Asynchronously requests user input during the execution of a tool.
+
+    <p>The callback function is invoked to perform the user interaction (e.g., showing a confirmation dialog), and the promise resolves with the result of the callback.
+  </dd>
+</dl>
+
 <dl>
   <dt><dfn method for="ModelContextClient">requestUserInteraction(callback)</dfn></dt>
   <dd>
-    Asynchronously requests user input during the execution of a tool.
-    The callback function is invoked to perform the user interaction (e.g., showing a confirmation dialog), and the promise resolves with the result of the callback.
-  </dd>
-</dl>
-
-<h3 id="tool-response">ToolResponse Dictionary</h3>
-
-The {{ToolResponse}} dictionary represents the structured content response returned by a tool execution.
-
-<xmp class="idl">
-dictionary ToolResponse {
-  sequence<ToolContent> content;
-};
-
-dictionary ToolContent {
-  required DOMString type;
-  DOMString text;
-};
-</xmp>
-
-<dl>
-  <dt><dfn dict-member for="ToolResponse">content</dfn></dt>
-  <dd>
-    An array of content items representing the tool's response to the [=agent=].
-  </dd>
-</dl>
-
-The {{ToolContent}} dictionary represents an individual content item in a tool response:
-
-<dl>
-  <dt><dfn dict-member for="ToolContent">type</dfn></dt>
-  <dd>
-    The type of content. For example, "text" for plain text content.
-  </dd>
-
-  <dt><dfn dict-member for="ToolContent">text</dfn></dt>
-  <dd>
-    The text content of the response when {{ToolContent/type}} is "text".
+    <p>TODO: fill this out</p>
   </dd>
 </dl>
 
