@@ -154,6 +154,11 @@ dictionary ModelContextTool {
   required DOMString description;
   required object inputSchema;
   ToolExecuteCallback execute;
+  ToolAnnotations annotations;
+};
+
+dictionary ToolAnnotations {
+  boolean readOnly;
 };
 
 callback ToolExecuteCallback = ToolResponse (object input, ModelContextClient client);
