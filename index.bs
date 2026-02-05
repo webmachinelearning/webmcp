@@ -135,6 +135,23 @@ interface ModelContext {
 };
 </xmp>
 
+<dl>
+  <dt><dfn method for="ModelContext">provideContext(options)</dfn></dt>
+  <dd>
+    Registers the provided context (tools) with the browser. This method clears any pre-existing tools and other context before registering the new ones.
+  </dd>
+
+  <dt><dfn method for="ModelContext">registerTool(tool)</dfn></dt>
+  <dd>
+    Registers a single tool without clearing the existing set of tools. If a tool with the same name already exists, the method throws an Error.
+  </dd>
+
+  <dt><dfn method for="ModelContext">unregisterTool(name)</dfn></dt>
+  <dd>
+    Removes the tool with the specified name from the registered set.
+  </dd>
+</dl>
+
 <h3 id="model-context-options">ModelContextOptions Dictionary</h3>
 
 <xmp class="idl">
@@ -143,10 +160,16 @@ dictionary ModelContextOptions {
 };
 </xmp>
 
+<dl>
+  <dt><dfn dict-member for="ModelContextOptions">tools</dfn></dt>
+  <dd>
+    A list of tools to register with the browser. Each tool name in the list is expected to be unique.
+  </dd>
+</dl>
+
 <h3 id="model-context-tool">ModelContextTool Dictionary</h3>
 
 The {{ModelContextTool}} dictionary describes a tool that can be invoked by [=agents=].
-The {{ModelContextTool/inputSchema}} property is a JSON Schema [[!JSON-SCHEMA]] object that describes the expected input parameters for the tool.
 
 <xmp class="idl">
 dictionary ModelContextTool {
@@ -164,6 +187,43 @@ dictionary ToolAnnotations {
 callback ToolExecuteCallback = ToolResponse (object input, ModelContextClient client);
 </xmp>
 
+<dl>
+  <dt><dfn dict-member for="ModelContextTool">name</dfn></dt>
+  <dd>
+    A unique identifier for the tool. This is used by [=agents=] to reference the tool when making tool calls.
+  </dd>
+
+  <dt><dfn dict-member for="ModelContextTool">description</dfn></dt>
+  <dd>
+    A natural language description of the tool's functionality. This helps [=agents=] understand when and how to use the tool.
+  </dd>
+
+  <dt><dfn dict-member for="ModelContextTool">inputSchema</dfn></dt>
+  <dd>
+    A JSON Schema [[!JSON-SCHEMA]] object describing the expected input parameters for the tool.
+  </dd>
+
+  <dt><dfn dict-member for="ModelContextTool">execute</dfn></dt>
+  <dd>
+    A callback function that is invoked when an [=agent=] calls the tool. The function receives the input parameters and a {{ModelContextClient}} object.
+    The function can be asynchronous and return a promise, in which case the [=agent=] will receive the result once the promise is resolved.
+  </dd>
+
+  <dt><dfn dict-member for="ModelContextTool">annotations</dfn></dt>
+  <dd>
+    Optional annotations providing additional metadata about the tool's behavior.
+  </dd>
+</dl>
+
+The {{ToolAnnotations}} dictionary provides optional metadata about a tool:
+
+<dl>
+  <dt><dfn dict-member for="ToolAnnotations">readOnly</dfn></dt>
+  <dd>
+    If true, indicates that the tool does not modify any state and only reads data. This hint can help [=agents=] make decisions about when it is safe to call the tool.
+  </dd>
+</dl>
+
 <h3 id="model-context-client">ModelContextClient Interface</h3>
 
 The {{ModelContextClient}} interface represents an [=agent=] executing a tool provided by the site through the {{ModelContext}} API.
@@ -176,6 +236,14 @@ interface ModelContextClient {
 
 callback UserInteractionCallback = Promise<any> ();
 </xmp>
+
+<dl>
+  <dt><dfn method for="ModelContextClient">requestUserInteraction(callback)</dfn></dt>
+  <dd>
+    Asynchronously requests user input during the execution of a tool.
+    The callback function is invoked to perform the user interaction (e.g., showing a confirmation dialog), and the promise resolves with the result of the callback.
+  </dd>
+</dl>
 
 <h3 id="tool-response">ToolResponse Dictionary</h3>
 
@@ -191,6 +259,27 @@ dictionary ToolContent {
   DOMString text;
 };
 </xmp>
+
+<dl>
+  <dt><dfn dict-member for="ToolResponse">content</dfn></dt>
+  <dd>
+    An array of content items representing the tool's response to the [=agent=].
+  </dd>
+</dl>
+
+The {{ToolContent}} dictionary represents an individual content item in a tool response:
+
+<dl>
+  <dt><dfn dict-member for="ToolContent">type</dfn></dt>
+  <dd>
+    The type of content. For example, "text" for plain text content.
+  </dd>
+
+  <dt><dfn dict-member for="ToolContent">text</dfn></dt>
+  <dd>
+    The text content of the response when {{ToolContent/type}} is "text".
+  </dd>
+</dl>
 
 <pre class="biblio">
 {
