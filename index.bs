@@ -129,7 +129,7 @@ The {{ModelContext}} interface provides methods for web applications to register
 <xmp class="idl">
 [Exposed=Window, SecureContext]
 interface ModelContext {
-  undefined provideContext(optional ModelContextOptions options);
+  undefined provideContext(optional ModelContextOptions options = {});
   undefined registerTool(ModelContextTool tool);
   undefined unregisterTool(DOMString name);
 };
