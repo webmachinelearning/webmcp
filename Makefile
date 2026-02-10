@@ -15,7 +15,7 @@ ifdef LOCAL_BIKESHED
 .PHONY: lint watch
 
 lint: index.bs
-	bikeshed --print=plain --dry-run --force spec --line-numbers $<
+	bikeshed --print=plain --dry-run --die-when=late --line-numbers spec $<
 
 watch: index.bs
 	@echo 'Browse to file://${PWD}/index.html'
