@@ -19,66 +19,6 @@ Indent: 2
 Die On: warning
 </pre>
 
-<style>
-/* domintro and XXX from https://resources.whatwg.org/standard.css */
-.domintro {
-  position: relative;
-  color: green;
-  background: #DDFFDD;
-  margin: 2.5em 0 2em 0;
-  padding: 1.5em 1em 0.5em 2em;
-}
-
-.domintro dt, .domintro dt * {
-  color: black;
-  font-size: inherit;
-}
-.domintro dd {
-  margin: 0.5em 0 1em 2em; padding: 0;
-}
-.domintro dd p {
-  margin: 0.5em 0;
-}
-.domintro::before {
-  content: 'For web developers (non-normative)';
-  background: green;
-  color: white;
-  padding: 0.15em 0.25em;
-  font-style: normal;
-  position: absolute;
-  top: -0.8em;
-  left: -0.8em;
-}
-
-.XXX {
-  color: #D50606;
-  background: white;
-  border: solid #D50606;
-}
-
-/* dl.props from https://resources.whatwg.org/standard.css */
-dl.props { display: grid; grid-template-columns: max-content auto; row-gap: 0.25em; column-gap: 1em; }
-dl.props > dt { grid-column-start: 1; margin: 0; }
-dl.props > dd { grid-column-start: 2; margin: 0; }
-p + dl.props { margin-top: -0.5em; }
-
-/* Put nice boxes around each algorithm. */
-[data-algorithm]:not(.heading) {
-  padding: .5em;
-  border: thin solid #ddd; border-radius: .5em;
-  margin: .5em calc(-0.5em - 1px);
-}
-[data-algorithm]:not(.heading) > :first-child {
-  margin-top: 0;
-}
-[data-algorithm]:not(.heading) > :last-child {
-  margin-bottom: 0;
-}
-[data-algorithm] [data-algorithm] {
-  margin: 1em 0;
-}
-</style>
-
 <h2 id="intro">Introduction</h2>
 
 WebMCP API is a new JavaScript interface that allows web developers to expose their web application functionality as “tools” - JavaScript functions with natural language descriptions and structured schemas that can be invoked by [=agents=], [=browser's agents=], and [=assistive technologies=]. Web pages that use WebMCP can be thought of as Model Context Protocol [[!MCP]] servers that implement tools in client-side script instead of on the backend. WebMCP enables collaborative workflows where users and agents work together within the same web interface, leveraging existing application logic while maintaining shared context and user control.
@@ -131,19 +71,3 @@ interface ModelContextContainer {
   }
 }
 </pre>
-
-<h2 id="acknowledgements">Acknowledgements</h2>
-
-Thanks to
-Brandon Walderman,
-Leo Lee,
-Andrew Nolan,
-David Bokan,
-Khushal Sagar,
-Hannah Van Opstal,
-Sushanth Rajasankar
-for the initial explainer, proposals and discussions that established the foundation for this specification.
-
-Also many thanks to Alex Nahas and Jason McGhee for sharing early implementation experience.
-
-Finally, thanks to the participants of the Web Machine Learning Community Group for feedback and suggestions.
