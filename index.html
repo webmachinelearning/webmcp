@@ -8,68 +8,9 @@
   <meta content="Bikeshed version 3c53a5b02, updated Thu Nov 27 17:03:30 2025 +0000" name="generator">
   <link href="https://webmachinelearning.github.io/webmcp" rel="canonical">
   <link href="https://www.w3.org/2008/site/images/favicon.ico" rel="icon">
-  <meta content="a7191cb0e5273b2e9d3a38f4f9c15896ad779018" name="revision">
+  <meta content="bb006122b70baeb9903d4294eb0af23136416591" name="revision">
   <meta content="dark light" name="color-scheme">
   <link href="https://www.w3.org/StyleSheets/TR/2021/dark.css" media="(prefers-color-scheme: dark)" rel="stylesheet" type="text/css">
-<style>
-/* domintro and XXX from https://resources.whatwg.org/standard.css */
-.domintro {
-  position: relative;
-  color: green;
-  background: #DDFFDD;
-  margin: 2.5em 0 2em 0;
-  padding: 1.5em 1em 0.5em 2em;
-}
-
-.domintro dt, .domintro dt * {
-  color: black;
-  font-size: inherit;
-}
-.domintro dd {
-  margin: 0.5em 0 1em 2em; padding: 0;
-}
-.domintro dd p {
-  margin: 0.5em 0;
-}
-.domintro::before {
-  content: 'For web developers (non-normative)';
-  background: green;
-  color: white;
-  padding: 0.15em 0.25em;
-  font-style: normal;
-  position: absolute;
-  top: -0.8em;
-  left: -0.8em;
-}
-
-.XXX {
-  color: #D50606;
-  background: white;
-  border: solid #D50606;
-}
-
-/* dl.props from https://resources.whatwg.org/standard.css */
-dl.props { display: grid; grid-template-columns: max-content auto; row-gap: 0.25em; column-gap: 1em; }
-dl.props > dt { grid-column-start: 1; margin: 0; }
-dl.props > dd { grid-column-start: 2; margin: 0; }
-p + dl.props { margin-top: -0.5em; }
-
-/* Put nice boxes around each algorithm. */
-[data-algorithm]:not(.heading) {
-  padding: .5em;
-  border: thin solid #ddd; border-radius: .5em;
-  margin: .5em calc(-0.5em - 1px);
-}
-[data-algorithm]:not(.heading) > :first-child {
-  margin-top: 0;
-}
-[data-algorithm]:not(.heading) > :last-child {
-  margin-bottom: 0;
-}
-[data-algorithm] [data-algorithm] {
-  margin: 1em 0;
-}
-</style>
 <style>/* Boilerplate: style-autolinks */
 .css.css, .property.property, .descriptor.descriptor {
     color: var(--a-normal-text);
@@ -809,7 +750,6 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
     <li><a href="#security-privacy"><span class="secno">3</span> <span class="content">Security and privacy considerations</span></a>
     <li><a href="#accessibility"><span class="secno">4</span> <span class="content">Accessibility considerations</span></a>
     <li><a href="#api"><span class="secno">5</span> <span class="content">API</span></a>
-    <li><a href="#acknowledgements"><span class="secno">6</span> <span class="content">Acknowledgements</span></a>
     <li>
      <a href="#index"><span class="secno"></span> <span class="content">Index</span></a>
      <ol class="toc">
@@ -842,18 +782,6 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
 <c- b>interface</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="modelcontextcontainer"><code><c- g>ModelContextContainer</c-></code></dfn> {
 };
 </pre>
-   <h2 class="heading settled" data-level="6" id="acknowledgements"><span class="secno">6. </span><span class="content">Acknowledgements</span><a class="self-link" href="#acknowledgements"></a></h2>
-   <p>Thanks to
-Brandon Walderman,
-Leo Lee,
-Andrew Nolan,
-David Bokan,
-Khushal Sagar,
-Hannah Van Opstal,
-Sushanth Rajasankar
-for the initial explainer, proposals and discussions that established the foundation for this specification.</p>
-   <p>Also many thanks to Alex Nahas and Jason McGhee for sharing early implementation experience.</p>
-   <p>Finally, thanks to the participants of the Web Machine Learning Community Group for feedback and suggestions.</p>
   </main>
   <script src="https://www.w3.org/scripts/TR/2021/fixup.js"></script>
   <h2 class="heading no-num no-ref settled" id="index"><span class="content">Index</span><a class="self-link" href="#index"></a></h2>
