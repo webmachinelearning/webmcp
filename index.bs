@@ -142,6 +142,11 @@ interface ModelContext {
     <p>Registers the provided context (tools) with the browser. This method clears any pre-existing tools and other context before registering the new ones.
   </dd>
 
+  <dt><code><var ignore>navigator</var>.{{Navigator/modelContext}}.{{ModelContext/clearContext()}}</code></dt>
+  <dd>
+    <p>Unregisters all context (tools) with the browser.
+  </dd>
+
   <dt><code><var ignore>navigator</var>.{{Navigator/modelContext}}.{{ModelContext/registerTool(tool)}}</code></dt>
   <dd>
     <p>Registers a single tool without clearing the existing set of tools. The method throws an error, if a tool with the same name already exists, or if the {{ModelContextTool/inputSchema}} is invalid.
@@ -153,22 +158,34 @@ interface ModelContext {
   </dd>
 </dl>
 
-<dl>
-  <dt><dfn method for="ModelContext">provideContext(options)</dfn></dt>
-  <dd>
-    <p>TODO: fill this out</p>
-  </dd>
+<div algorithm>
+The <dfn method for=ModelContext>provideContext(<var ignore>options</var>)</dfn> method steps are:
 
-  <dt><dfn method for="ModelContext">registerTool(tool)</dfn></dt>
-  <dd>
-    <p>TODO: fill this out</p>
-  </dd>
+1. TODO: fill this out.
 
-  <dt><dfn method for="ModelContext">unregisterTool(name)</dfn></dt>
-  <dd>
-    <p>TODO: fill this out</p>
-  </dd>
-</dl>
+</div>
+
+<div algorithm>
+The <dfn method for=ModelContext>clearContext()</dfn> method steps are:
+
+1. TODO: fill this out.
+
+</div>
+
+
+<div algorithm>
+The <dfn method for=ModelContext>registerTool(<var ignore>tool</var>)</dfn> method steps are:
+
+1. TODO: fill this out.
+
+</div>
+
+<div algorithm>
+The <dfn method for=ModelContext>unregisterTool(<var ignore>name</var>)</dfn> method steps are:
+
+1. TODO: fill this out.
+
+</div>
 
 <h4 id="model-context-options">ModelContextOptions Dictionary</h4>
 
@@ -182,13 +199,6 @@ dictionary ModelContextOptions {
   <dt><code><var ignore>options</var>["{{ModelContextOptions/tools}}"]</code></dt>
   <dd>
     <p>A list of {{ModelContextOptions/tools}} to register with the browser. Each tool name in the list is expected to be unique.
-  </dd>
-</dl>
-
-<dl>
-  <dt><dfn dict-member for="ModelContextOptions">tools</dfn></dt>
-  <dd>
-    <p>TODO: fill this out</p>
   </dd>
 </dl>
 
@@ -241,46 +251,12 @@ callback ToolExecuteCallback = Promise<any> (object input, ModelContextClient cl
   </dd>
 </dl>
 
-<dl>
-  <dt><dfn dict-member for="ModelContextTool">name</dfn></dt>
-  <dd>
-    <p>TODO: fill this out</p>
-  </dd>
-
-  <dt><dfn dict-member for="ModelContextTool">description</dfn></dt>
-  <dd>
-    <p>TODO: fill this out</p>
-  </dd>
-
-  <dt><dfn dict-member for="ModelContextTool">inputSchema</dfn></dt>
-  <dd>
-    <p>TODO: fill this out</p>
-  </dd>
-
-  <dt><dfn dict-member for="ModelContextTool">execute</dfn></dt>
-  <dd>
-    <p>TODO: fill this out</p>
-  </dd>
-
-  <dt><dfn dict-member for="ModelContextTool">annotations</dfn></dt>
-  <dd>
-    <p>TODO: fill this out</p>
-  </dd>
-</dl>
-
 The {{ToolAnnotations}} dictionary provides optional metadata about a tool:
 
 <dl class="domintro">
   <dt><code><var ignore>annotations</var>["{{ToolAnnotations/readOnlyHint}}"]</code></dt>
   <dd>
     <p>If true, indicates that the tool does not modify any state and only reads data. This hint can help [=agents=] make decisions about when it is safe to call the tool.
-  </dd>
-</dl>
-
-<dl>
-  <dt><dfn dict-member for="ToolAnnotations">readOnlyHint</dfn></dt>
-  <dd>
-    <p>TODO: fill this out</p>
   </dd>
 </dl>
 
@@ -306,12 +282,12 @@ callback UserInteractionCallback = Promise<any> ();
   </dd>
 </dl>
 
-<dl>
-  <dt><dfn method for="ModelContextClient">requestUserInteraction(callback)</dfn></dt>
-  <dd>
-    <p>TODO: fill this out</p>
-  </dd>
-</dl>
+<div algorithm>
+The <dfn method for=ModelContextClient>requestUserInteraction(<var ignore>callback</var>)</dfn> method steps are:
+
+1. TODO: fill this out.
+
+</div>
 
 <pre class="biblio">
 {
