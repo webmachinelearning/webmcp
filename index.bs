@@ -107,20 +107,187 @@ https://github.com/webmachinelearning/webmcp/blob/main/docs/security-privacy-con
 <h2 id="api">API</h2>
 
 <!--
-TODO: Convert API described in proposal.md into WebIDL, sketch initial algorithms, define attributes and methods etc.
+TODO: Sketch initial algorithms, define attributes and methods etc.
 https://github.com/webmachinelearning/webmcp/blob/main/docs/proposal.md#api
 https://dlaliberte.github.io/bikeshed-intro/#a-strategy-for-incremental-development
 -->
 
+<h3 id="navigator-extension">Extensions to the {{Navigator}} Interface</h3>
+
+The {{Navigator}} interface is extended to provide access to the {{ModelContext}}.
+
 <xmp class="idl">
 partial interface Navigator {
-  [SecureContext, SameObject] readonly attribute ModelContextContainer modelContext;
-};
-
-[Exposed=Window, SecureContext]
-interface ModelContextContainer {
+  [SecureContext, SameObject] readonly attribute ModelContext modelContext;
 };
 </xmp>
+
+<h3 id="model-context-container">ModelContext Interface</h3>
+
+The {{ModelContext}} interface provides methods for web applications to register and manage tools that can be invoked by [=agents=].
+
+<xmp class="idl">
+[Exposed=Window, SecureContext]
+interface ModelContext {
+  undefined provideContext(optional ModelContextOptions options = {});
+  undefined clearContext();
+  undefined registerTool(ModelContextTool tool);
+  undefined unregisterTool(DOMString name);
+};
+</xmp>
+
+<dl class="domintro">
+  <dt><code><var ignore>navigator</var>.{{Navigator/modelContext}}.{{ModelContext/provideContext(options)}}</code></dt>
+  <dd>
+    <p>Registers the provided context (tools) with the browser. This method clears any pre-existing tools and other context before registering the new ones.
+  </dd>
+
+  <dt><code><var ignore>navigator</var>.{{Navigator/modelContext}}.{{ModelContext/clearContext()}}</code></dt>
+  <dd>
+    <p>Unregisters all context (tools) with the browser.
+  </dd>
+
+  <dt><code><var ignore>navigator</var>.{{Navigator/modelContext}}.{{ModelContext/registerTool(tool)}}</code></dt>
+  <dd>
+    <p>Registers a single tool without clearing the existing set of tools. The method throws an error, if a tool with the same name already exists, or if the {{ModelContextTool/inputSchema}} is invalid.
+  </dd>
+
+  <dt><code><var ignore>navigator</var>.{{Navigator/modelContext}}.{{ModelContext/unregisterTool(name)}}</code></dt>
+  <dd>
+    <p>Removes the tool with the specified name from the registered set.
+  </dd>
+</dl>
+
+<div algorithm>
+The <dfn method for=ModelContext>provideContext(<var ignore>options</var>)</dfn> method steps are:
+
+1. TODO: fill this out.
+
+</div>
+
+<div algorithm>
+The <dfn method for=ModelContext>clearContext()</dfn> method steps are:
+
+1. TODO: fill this out.
+
+</div>
+
+
+<div algorithm>
+The <dfn method for=ModelContext>registerTool(<var ignore>tool</var>)</dfn> method steps are:
+
+1. TODO: fill this out.
+
+</div>
+
+<div algorithm>
+The <dfn method for=ModelContext>unregisterTool(<var ignore>name</var>)</dfn> method steps are:
+
+1. TODO: fill this out.
+
+</div>
+
+<h4 id="model-context-options">ModelContextOptions Dictionary</h4>
+
+<xmp class="idl">
+dictionary ModelContextOptions {
+  sequence<ModelContextTool> tools = [];
+};
+</xmp>
+
+<dl class="domintro">
+  <dt><code><var ignore>options</var>["{{ModelContextOptions/tools}}"]</code></dt>
+  <dd>
+    <p>A list of {{ModelContextOptions/tools}} to register with the browser. Each tool name in the list is expected to be unique.
+  </dd>
+</dl>
+
+<h4 id="model-context-tool">ModelContextTool Dictionary</h4>
+
+The {{ModelContextTool}} dictionary describes a tool that can be invoked by [=agents=].
+
+<xmp class="idl">
+dictionary ModelContextTool {
+  required DOMString name;
+  required DOMString description;
+  object inputSchema;
+  required ToolExecuteCallback execute;
+  ToolAnnotations annotations;
+};
+
+dictionary ToolAnnotations {
+  boolean readOnlyHint;
+};
+
+callback ToolExecuteCallback = Promise<any> (object input, ModelContextClient client);
+</xmp>
+
+<dl class="domintro">
+  <dt><code><var ignore>tool</var>["{{ModelContextTool/name}}"]</code></dt>
+  <dd>
+    <p>A unique identifier for the tool. This is used by [=agents=] to reference the tool when making tool calls.
+  </dd>
+
+  <dt><code><var ignore>tool</var>["{{ModelContextTool/description}}"]</code></dt>
+  <dd>
+    <p>A natural language description of the tool's functionality. This helps [=agents=] understand when and how to use the tool.
+  </dd>
+
+  <dt><code><var ignore>tool</var>["{{ModelContextTool/inputSchema}}"]</code></dt>
+  <dd>
+    <p>A JSON Schema [[!JSON-SCHEMA]] object describing the expected input parameters for the tool.
+  </dd>
+
+  <dt><code><var ignore>tool</var>["{{ModelContextTool/execute}}"]</code></dt>
+  <dd>
+    <p>A callback function that is invoked when an [=agent=] calls the tool. The function receives the input parameters and a {{ModelContextClient}} object.
+
+    <p>The function can be asynchronous and return a promise, in which case the [=agent=] will receive the result once the promise is resolved.
+  </dd>
+
+  <dt><code><var ignore>tool</var>["{{ModelContextTool/annotations}}"]</code></dt>
+  <dd>
+    <p>Optional annotations providing additional metadata about the tool's behavior.
+  </dd>
+</dl>
+
+The {{ToolAnnotations}} dictionary provides optional metadata about a tool:
+
+<dl class="domintro">
+  <dt><code><var ignore>annotations</var>["{{ToolAnnotations/readOnlyHint}}"]</code></dt>
+  <dd>
+    <p>If true, indicates that the tool does not modify any state and only reads data. This hint can help [=agents=] make decisions about when it is safe to call the tool.
+  </dd>
+</dl>
+
+<h4 id="model-context-client">ModelContextClient Interface</h4>
+
+The {{ModelContextClient}} interface represents an [=agent=] executing a tool provided by the site through the {{ModelContext}} API.
+
+<xmp class="idl">
+[Exposed=Window, SecureContext]
+interface ModelContextClient {
+  Promise<any> requestUserInteraction(UserInteractionCallback callback);
+};
+
+callback UserInteractionCallback = Promise<any> ();
+</xmp>
+
+<dl class="domintro">
+  <dt><code><var ignore>client</var>.{{ModelContextClient/requestUserInteraction(callback)}}</code></dt>
+  <dd>
+    <p>Asynchronously requests user input during the execution of a tool.
+
+    <p>The callback function is invoked to perform the user interaction (e.g., showing a confirmation dialog), and the promise resolves with the result of the callback.
+  </dd>
+</dl>
+
+<div algorithm>
+The <dfn method for=ModelContextClient>requestUserInteraction(<var ignore>callback</var>)</dfn> method steps are:
+
+1. TODO: fill this out.
+
+</div>
 
 <pre class="biblio">
 {
@@ -128,6 +295,11 @@ interface ModelContextContainer {
     "href": "https://modelcontextprotocol.io/specification/latest",
     "title": "Model Context Protocol (MCP) Specification",
     "publisher": "The Linux Foundation"
+  },
+  "json-schema": {
+    "href": "https://json-schema.org/draft/2020-12/json-schema-core.html",
+    "title": "JSON Schema: A Media Type for Describing JSON Documents",
+    "publisher": "JSON Schema"
   }
 }
 </pre>
