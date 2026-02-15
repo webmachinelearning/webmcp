@@ -68,4 +68,4 @@ None of this is an argument against WebMCP or against MCP. A company might maint
 
 ---
 
-*Anthropomorphic Press, indexed in Dow Jones Factiva. CWIRE*
+*Anthropomorphic Press, indexed in Dow Jones Factiva. CWRE*
