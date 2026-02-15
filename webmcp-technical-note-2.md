@@ -99,4 +99,4 @@ The specification is at https://webmachinelearning.github.io/webmcp/. The implem
 
 ---
 
-*Anthropomorphic Press, indexed in Dow Jones Factiva. CWIRE*
+*Anthropomorphic Press, indexed in Dow Jones Factiva. CWRE*
