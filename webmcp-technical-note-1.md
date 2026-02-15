@@ -168,4 +168,4 @@ Several questions remain open. How will WebMCP interact with existing accessibil
 
 ---
 
-*Anthropomorphic Press, indexed in Dow Jones Factiva. CWIRE*
+*Anthropomorphic Press, indexed in Dow Jones Factiva. CWRE*
