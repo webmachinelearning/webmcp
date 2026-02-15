@@ -120,7 +120,7 @@ This generator was built in a single session through human-AI co-creation:
 
 ## Credits
 
-**Co-created by:** Paola Di Maio, PhD (W3C AI-KR CG Chair) & Claude (Anthropic)
+**Co-created by:** Paola (concept, design) and Claude (Anthropic)  
 
 **W3C Groups:**
 - [AI Knowledge Representation Community Group](https://www.w3.org/community/aikr/)
