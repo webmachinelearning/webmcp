@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebMCP -- The Complete Guide for Paola</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  :root {
+    --ink: #1a1a2e;
+    --paper: #f5f0e8;
+    --accent: #2d5016;
+    --accent-light: #e8f0e2;
+    --code-bg: #2a2a3a;
+    --code-fg: #e0ddd4;
+    --warm: #8b6914;
+    --border: #c8bfa8;
+    --highlight: #fff3cd;
+    --blue: #1a4a6e;
+    --blue-light: #e6f0f7;
+  }
+  
+  body {
+    font-family: 'Source Serif 4', Georgia, serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+    line-height: 1.7;
+  }
+  
+  .container { max-width: 720px; margin: 0 auto; }
+  
+  header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid var(--ink);
+  }
+  
+  header h1 { font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.3rem; }
+  header .sub { font-style: italic; color: #666; font-size: 1rem; }
+  
+  nav.toc {
+    background: white;
+    border: 1.5px solid var(--border);
+    padding: 1.5rem 2rem;
+    margin-bottom: 3rem;
+    border-radius: 3px;
+  }
+  
+  nav.toc h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    margin-bottom: 0.8rem;
+  }
+  
+  nav.toc a {
+    display: block;
+    color: var(--ink);
+    text-decoration: none;
+    padding: 0.25rem 0;
+    font-size: 0.95rem;
+  }
+  
+  nav.toc a:hover { color: var(--accent); }
+  nav.toc a .num { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--accent); margin-right: 0.5rem; }
+  
+  section {
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    margin-bottom: 0.3rem;
+  }
+  
+  h2 { font-size: 1.4rem; margin-bottom: 1.2rem; }
+  h3 { font-size: 1.1rem; margin-top: 1.5rem; margin-bottom: 0.8rem; color: var(--blue); }
+  
+  p { margin-bottom: 1rem; font-size: 1rem; }
+  
+  .analogy {
+    background: var(--highlight);
+    border-left: 3px solid var(--warm);
+    padding: 1rem 1.2rem;
+    margin: 1.2rem 0;
+    font-style: italic;
+  }
+  
+  .analogy::before {
+    content: "Think of it this way: ";
+    font-weight: 600;
+    font-style: normal;
+    color: var(--warm);
+  }
+  
+  .key-point {
+    background: var(--accent-light);
+    border-left: 3px solid var(--accent);
+    padding: 1rem 1.2rem;
+    margin: 1.2rem 0;
+  }
+  
+  .key-point::before {
+    content: "Key point: ";
+    font-weight: 700;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+  }
+  
+  .meeting-note {
+    background: var(--blue-light);
+    border-left: 3px solid var(--blue);
+    padding: 1rem 1.2rem;
+    margin: 1.2rem 0;
+  }
+  
+  .meeting-note::before {
+    content: "For the meeting: ";
+    font-weight: 700;
+    color: var(--blue);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+  }
+  
+  .term {
+    display: block;
+    margin: 1.2rem 0;
+    padding: 1rem 1.2rem;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+  }
+  
+  .term-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--accent);
+    margin-bottom: 0.4rem;
+  }
+  
+  .term-plain { font-size: 0.95rem; }
+  
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    background: #e8e4dc;
+    padding: 0.15rem 0.4rem;
+    border-radius: 2px;
+  }
+  
+  .code-block {
+    background: var(--code-bg);
+    color: var(--code-fg);
+    padding: 1.2rem 1.5rem;
+    border-radius: 4px;
+    margin: 1.2rem 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.8;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  
+  .code-block .comment { color: #7a9a6a; }
+  .code-block .keyword { color: #c9a0dc; }
+  .code-block .string { color: #e8c47c; }
+  .code-block .func { color: #7cc5e8; }
+  
+  .vs-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.2rem 0;
+    font-size: 0.9rem;
+  }
+  
+  .vs-table th {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 0.7rem 1rem;
+    text-align: left;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+  }
+  
+  .vs-table td {
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  
+  .vs-table tr:nth-child(even) td { background: white; }
+  
+  .diagram {
+    text-align: center;
+    margin: 2rem 0;
+    padding: 2rem;
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 3px;
+  }
+  
+  .diagram svg { max-width: 100%; }
+  
+  .five-tools {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.8rem;
+    margin: 1.2rem 0;
+  }
+  
+  .tool-card {
+    padding: 1rem 1.2rem;
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 3px;
+    border-left: 4px solid var(--accent);
+  }
+  
+  .tool-card .tool-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--accent);
+    margin-bottom: 0.3rem;
+  }
+  
+  .tool-card .tool-desc { font-size: 0.9rem; }
+  .tool-card .tool-url { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #888; margin-top: 0.3rem; }
+  
+  footer {
+    text-align: center;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.8rem;
+    color: #888;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>WebMCP: Everything You Need to Know</h1>
+  <div class="sub">A plain-language guide from Claude to Paola -- meeting prep for Andre Bandarra</div>
+</header>
+
+<nav class="toc">
+  <h2>Contents</h2>
+  <a href="#s1"><span class="num">01</span> The Big Picture -- What Problem Does WebMCP Solve?</a>
+  <a href="#s2"><span class="num">02</span> The Key Players and How They Relate</a>
+  <a href="#s3"><span class="num">03</span> MCP vs WebMCP vs MCP-B -- The Family Tree</a>
+  <a href="#s4"><span class="num">04</span> The API -- Every Term Explained</a>
+  <a href="#s5"><span class="num">05</span> Security -- How WebMCP Stays Safe</a>
+  <a href="#s6"><span class="num">06</span> The Consent Gap -- Our Key Concern</a>
+  <a href="#s7"><span class="num">07</span> Our Five Tools -- What Each One Does</a>
+  <a href="#s8"><span class="num">08</span> The Standards Process -- Where This Is Going</a>
+  <a href="#s9"><span class="num">09</span> Glossary -- Every Technical Term in Plain Language</a>
+</nav>
+
+<!-- SECTION 1 -->
+<section id="s1">
+<div class="section-num">Section 01</div>
+<h2>The Big Picture -- What Problem Does WebMCP Solve?</h2>
+
+<p>Right now, when an AI agent (like me, or ChatGPT, or Gemini) wants to do something on a website -- book a flight, fill a form, check a price -- it has two bad options:</p>
+
+<p><strong>Option A: Screen scraping.</strong> The agent looks at the website like a human would, tries to figure out where the buttons are, and clicks them. This is fragile, slow, and breaks whenever the website changes its layout. It is like trying to operate a machine by looking at a photo of the control panel.</p>
+
+<p><strong>Option B: Backend API.</strong> The website builds a separate server-side MCP server that the agent connects to. This works well but requires backend engineering, server infrastructure, and maintenance. Many websites will never do this.</p>
+
+<p><strong>WebMCP is Option C:</strong> The website itself tells the agent what it can do, directly in the browser. The website says: "Here are my tools -- you can search products, add to cart, check availability. Here is what each tool needs as input, and here is what it will give you back." The agent does not need to look at the screen. It just calls the tools.</p>
+
+<div class="analogy">A restaurant menu. Instead of the AI agent walking into the kitchen and trying to figure out how to cook, the website hands it a menu: "Here is what we serve, here is what each dish needs, here is how to order." The agent reads the menu and places orders.</div>
+
+<div class="key-point">WebMCP makes any website into an AI-friendly service, with no backend needed. The website's existing JavaScript code does the work. The AI agent just needs to know what tools are available.</div>
+</section>
+
+<!-- SECTION 2 -->
+<section id="s2">
+<div class="section-num">Section 02</div>
+<h2>The Key Players and How They Relate</h2>
+
+<h3>Agent</h3>
+<p>An autonomous assistant that understands goals and takes actions. Today, these are typically LLM-based: Claude, ChatGPT, Gemini. The agent is the one calling the tools that websites expose.</p>
+
+<h3>Browser's Agent</h3>
+<p>An agent that lives inside the browser itself, rather than in a separate app. Google is building this into Chrome (think of it as an AI assistant built into your browser toolbar). This is different from an external agent like Claude Desktop connecting to the browser.</p>
+
+<h3>AI Platform</h3>
+<p>The company providing the agent -- Anthropic (us), OpenAI, Google. The AI platform's agent connects to WebMCP tools.</p>
+
+<h3>Web Developer</h3>
+<p>The person who builds the website. They are the ones who will use WebMCP to register tools on their site. Our tooling helps them document what they build.</p>
+
+<h3>User</h3>
+<p>The human sitting at the browser. WebMCP is designed for "user-present" interactions -- the human is there, watching, and can be asked for confirmation before the agent does something important.</p>
+
+<div class="analogy">The user is at a restaurant (the website). The agent is their personal assistant, reading the menu (WebMCP tools) and placing orders on their behalf. The browser is the restaurant building. The AI platform is the agency that employs the assistant.</div>
+</section>
+
+<!-- SECTION 3 -->
+<section id="s3">
+<div class="section-num">Section 03</div>
+<h2>MCP vs WebMCP vs MCP-B -- The Family Tree</h2>
+
+<table class="vs-table">
+  <tr>
+    <th>What</th>
+    <th>Who made it</th>
+    <th>Where it runs</th>
+    <th>What it does</th>
+  </tr>
+  <tr>
+    <td><strong>MCP</strong><br>(Model Context Protocol)</td>
+    <td>Anthropic</td>
+    <td>On a server (backend)</td>
+    <td>The original protocol. Applications expose tools, resources, and prompts to AI models through a server that runs on the backend. Claude Desktop, OpenAI Agents SDK, and many others support it.</td>
+  </tr>
+  <tr>
+    <td><strong>WebMCP</strong><br>(Web Model Context Protocol)</td>
+    <td>W3C Web Machine Learning Community Group (Google, Microsoft engineers leading)</td>
+    <td>In the browser (frontend)</td>
+    <td>Adapts MCP concepts for the web. Websites expose tools through JavaScript in the browser. No backend server needed. Uses the browser's own security model. Currently a draft specification.</td>
+  </tr>
+  <tr>
+    <td><strong>MCP-B</strong><br>(MCP for Browser)</td>
+    <td>Community project (WebMCP-org on GitHub)</td>
+    <td>Browser extension + JavaScript library</td>
+    <td>A bridge. Since browsers do not natively support WebMCP yet, MCP-B provides a polyfill (temporary code that fills the gap) implementing the navigator.modelContext API, and translates between WebMCP format and the MCP wire protocol so existing MCP clients can talk to WebMCP-enabled sites.</td>
+  </tr>
+</table>
+
+<div class="key-point">MCP is the foundation protocol (backend). WebMCP brings the same ideas to the browser (frontend). MCP-B is the bridge that makes WebMCP work today before browsers add native support. They are complementary, not competing.</div>
+
+<div class="meeting-note">Andre works on the WebMCP spec. He knows MCP well because WebMCP builds on its concepts. When talking to him, "MCP" means the Anthropic protocol, "WebMCP" means the browser API his team is building. Do not mix them up.</div>
+</section>
+
+<!-- SECTION 4 -->
+<section id="s4">
+<div class="section-num">Section 04</div>
+<h2>The API -- Every Term Explained</h2>
+
+<p>The WebMCP API is surprisingly small. There are only a few pieces, and each one does something specific. Here they are:</p>
+
+<h3>navigator.modelContext</h3>
+<p>This is the entry point. <code>navigator</code> is a built-in browser object that gives access to browser features (like <code>navigator.geolocation</code> gives access to GPS). WebMCP adds <code>modelContext</code> to it. So <code>navigator.modelContext</code> is where all WebMCP functionality lives.</p>
+
+<div class="analogy">The navigator object is like the browser's control panel. modelContext is a new button on that control panel labeled "AI Tools."</div>
+
+<h3>Four Methods (Actions You Can Take)</h3>
+
+<div class="term">
+  <div class="term-name">provideContext(options)</div>
+  <div class="term-plain">Registers a complete set of tools all at once. If there were any tools registered before, it clears them first and replaces with the new set. Use this when you want to say: "Here is everything this page offers."</div>
+</div>
+
+<div class="term">
+  <div class="term-name">clearContext()</div>
+  <div class="term-plain">Removes all registered tools. The page goes quiet -- no tools available for agents. Use this when navigating away or when the page should stop offering AI-callable functionality.</div>
+</div>
+
+<div class="term">
+  <div class="term-name">registerTool(tool)</div>
+  <div class="term-plain">Adds one single tool to the existing set without removing anything. Use this when you want to add new capabilities dynamically -- for example, a "checkout" tool that only appears after the user adds items to their cart.</div>
+</div>
+
+<div class="term">
+  <div class="term-name">unregisterTool(name)</div>
+  <div class="term-plain">Removes one specific tool by its name. Use this when a capability is no longer available -- for example, removing the "apply discount" tool after the discount has been applied.</div>
+</div>
+
+<div class="key-point">provideContext = "here is everything" (replaces all). registerTool = "add one more" (keeps existing). clearContext = "remove everything." unregisterTool = "remove just this one."</div>
+
+<h3>The Tool Object -- What a Tool Looks Like</h3>
+
+<p>Every tool you register has these parts:</p>
+
+<div class="term">
+  <div class="term-name">name</div>
+  <div class="term-plain">A unique identifier, like "addToCart" or "searchProducts". The agent uses this name to call the tool. Must be unique on the page -- you cannot have two tools with the same name.</div>
+</div>
+
+<div class="term">
+  <div class="term-name">description</div>
+  <div class="term-plain">A natural language explanation of what the tool does. This is what the AI agent reads to decide whether to use this tool. Example: "Add a product to the shopping cart by product ID and quantity." Write it for an AI, not for a programmer.</div>
+</div>
+
+<div class="term">
+  <div class="term-name">inputSchema</div>
+  <div class="term-plain">A JSON Schema describing what inputs the tool expects. It says: "I need a productId (text) and a quantity (number, minimum 1)." The agent reads this to know what data to send. If the agent sends the wrong kind of data, the browser rejects it.</div>
+</div>
+
+<div class="term">
+  <div class="term-name">execute</div>
+  <div class="term-plain">The actual function that runs when the agent calls the tool. This is your website's existing JavaScript code -- the same code that runs when a human clicks a button. The function receives the input data and returns a result.</div>
+</div>
+
+<div class="term">
+  <div class="term-name">annotations (optional)</div>
+  <div class="term-plain">Extra metadata about the tool. Currently only one annotation exists: <code>readOnlyHint</code>. If set to true, it tells the agent: "This tool only reads data -- it does not change anything." This helps agents decide which tools are safe to call without asking the user first.</div>
+</div>
+
+<p>Here is what a complete tool registration looks like in code:</p>
+
+<div class="code-block"><span class="comment">// Register a tool that searches products on an e-commerce site</span>
+navigator.modelContext.<span class="func">registerTool</span>({
+  <span class="string">name</span>: <span class="string">'searchProducts'</span>,
+  <span class="string">description</span>: <span class="string">'Search for products by keyword, category, or price range'</span>,
+  <span class="string">inputSchema</span>: {
+    type: <span class="string">'object'</span>,
+    properties: {
+      query: { type: <span class="string">'string'</span>, description: <span class="string">'Search keywords'</span> },
+      maxPrice: { type: <span class="string">'number'</span>, description: <span class="string">'Maximum price filter'</span> }
+    },
+    required: [<span class="string">'query'</span>]
+  },
+  <span class="string">annotations</span>: { readOnlyHint: <span class="keyword">true</span> },  <span class="comment">// Safe -- only reads, doesn't change anything</span>
+  <span class="keyword">async</span> <span class="func">execute</span>(input, client) {
+    <span class="comment">// This calls the site's existing search function</span>
+    <span class="keyword">const</span> results = <span class="keyword">await</span> searchAPI(input.query, input.maxPrice);
+    <span class="keyword">return</span> { products: results };
+  }
+});</div>
+
+<h3>ModelContextClient -- The Agent's Identity</h3>
+
+<div class="term">
+  <div class="term-name">ModelContextClient</div>
+  <div class="term-plain">When an agent calls a tool, the execute function receives two things: the input data, and a <code>client</code> object representing the agent. This client object has one crucial method: <code>requestUserInteraction()</code>.</div>
+</div>
+
+<div class="term">
+  <div class="term-name">requestUserInteraction(callback)</div>
+  <div class="term-plain">This is the human-in-the-loop mechanism. During tool execution, the code can pause and ask the user for input. For example: "The agent wants to purchase this item for $49.99. Confirm?" The user clicks yes or no, and the tool continues or cancels based on their response.</div>
+</div>
+
+<div class="analogy">Your personal assistant calls the restaurant to make a reservation. Midway through, the assistant says: "They only have a table at 9pm instead of 8pm. Should I take it?" You say yes or no. That pause-and-ask is requestUserInteraction.</div>
+
+<div class="meeting-note">This is one of the best design decisions in the spec. It means agents cannot silently take irreversible actions. Our question to Andre is whether this mechanism is sufficient, or whether there should also be a preview/approval step before tools are even discoverable by agents.</div>
+</section>
+
+<!-- SECTION 5 -->
+<section id="s5">
+<div class="section-num">Section 05</div>
+<h2>Security -- How WebMCP Stays Safe</h2>
+
+<h3>Origin-Based Security</h3>
+<p>The web has a concept called "origin" -- it is the combination of protocol + domain + port. For example, <code>https://amazon.com</code> is one origin, and <code>https://evil-site.com</code> is a different origin. Browsers enforce strict rules about what one origin can access from another.</p>
+
+<p>WebMCP inherits this model. A tool registered on amazon.com can only access amazon.com's data. An agent calling that tool operates within amazon.com's security boundary. A malicious site cannot register tools that access another site's data.</p>
+
+<div class="analogy">Each website is like a separate building with its own locks and keys. WebMCP tools can only open doors inside their own building. They cannot reach into the building next door.</div>
+
+<h3>SecureContext Requirement</h3>
+<p>The spec requires <code>SecureContext</code>, which means WebMCP only works on HTTPS pages (encrypted connections). It will not work on plain HTTP. This prevents eavesdropping on tool calls.</p>
+
+<h3>User-Present Model</h3>
+<p>WebMCP is designed for situations where the user is present at the browser. This is different from server-side MCP, where agents might operate autonomously in the background. The user-present assumption is why <code>requestUserInteraction()</code> exists -- the spec expects a human to be available for confirmation.</p>
+
+<div class="key-point">WebMCP's security comes from three layers: origin isolation (each site is sandboxed), HTTPS requirement (encrypted connections), and user-present design (human in the loop). It builds on what the web already does rather than inventing new security from scratch.</div>
+</section>
+
+<!-- SECTION 6 -->
+<section id="s6">
+<div class="section-num">Section 06</div>
+<h2>The Consent Gap -- Our Key Concern</h2>
+
+<p>Here is the question we sent to Andre through your LinkedIn message:</p>
+
+<p>Currently, any website can register any number of tools the moment you visit it. An AI agent connected to your browser can immediately discover and potentially call those tools. There is no step where the user sees: "This website wants to expose 12 tools to your AI agent. Allow?"</p>
+
+<p>Compare this to how other browser capabilities evolved:</p>
+
+<table class="vs-table">
+  <tr>
+    <th>Capability</th>
+    <th>Permission model</th>
+  </tr>
+  <tr>
+    <td>Camera / Microphone</td>
+    <td>Browser shows a prompt: "This site wants to use your camera. Allow / Block"</td>
+  </tr>
+  <tr>
+    <td>Location (GPS)</td>
+    <td>Browser shows a prompt: "This site wants to know your location. Allow / Block"</td>
+  </tr>
+  <tr>
+    <td>Notifications</td>
+    <td>Browser shows a prompt: "This site wants to send you notifications. Allow / Block"</td>
+  </tr>
+  <tr>
+    <td>WebMCP tools</td>
+    <td>Currently: no prompt. Tools are silently registered and discoverable.</td>
+  </tr>
+</table>
+
+<p>This does not mean WebMCP is dangerous right now. The <code>requestUserInteraction()</code> mechanism provides per-action consent. But it means an agent could discover tools without the user knowing, even if it needs permission to execute them.</p>
+
+<div class="meeting-note">This is a design question, not a criticism. Ask Andre: does the spec team envision a permission layer for tool discovery, or is the current thinking that the AI client (Claude, ChatGPT) handles that at its own level? Both approaches are valid -- we want to understand the intended architecture.</div>
+</section>
+
+<!-- SECTION 7 -->
+<section id="s7">
+<div class="section-num">Section 07</div>
+<h2>Our Five Tools -- What Each One Does</h2>
+
+<p>We built five tools that work together as a quality pipeline for the MCP ecosystem. Here they are:</p>
+
+<div class="five-tools">
+  <div class="tool-card">
+    <div class="tool-name">1. MCP Server Generator</div>
+    <div class="tool-desc">You describe what you want your MCP server to do, and this tool generates production-ready code for you. Like a scaffold builder -- it creates the structure so you just fill in the custom logic.</div>
+    <div class="tool-url">github.com/Starborn/MCP-Server-Generator</div>
+  </div>
+  
+  <div class="tool-card">
+    <div class="tool-name">2. MCP Server Validator</div>
+    <div class="tool-desc">Checks your MCP server code for problems without running it. Finds hardcoded passwords, missing security, naming mistakes, known vulnerability patterns. Gives you a score from Critical (below 25%) to Excellent (90-100%) with specific fix instructions.</div>
+    <div class="tool-url">github.com/Starborn/MCP-Server-Validator</div>
+  </div>
+  
+  <div class="tool-card">
+    <div class="tool-name">3. MCP Model Card Generator</div>
+    <div class="tool-desc">Creates standardized documentation for your MCP server. Like a product data sheet -- it captures what the server does, what tools it offers, what security it has, how it performs. Outputs both JSON (for machines) and Markdown (for humans).</div>
+    <div class="tool-url">github.com/Starborn/MCP-Model-Card-Generator</div>
+  </div>
+  
+  <div class="tool-card">
+    <div class="tool-name">4. MCP Model Card Specification v1.0</div>
+    <div class="tool-desc">The formal definition of what a model card should contain. Six sections: server identity, tool documentation, operational characteristics, security profile, deployment context, evaluation results. This is the standard that the generators follow.</div>
+    <div class="tool-url">starborn.github.io/MCP-Model-Card-Generator/</div>
+  </div>
+  
+  <div class="tool-card">
+    <div class="tool-name">5. WebMCP Model Card Generator</div>
+    <div class="tool-desc">The newest tool. Like #3 but specifically for browser-side WebMCP tools instead of backend MCP servers. Has 12 sections covering browser-specific concerns: navigator.modelContext API modes, origin-based security, user interaction patterns, browser compatibility testing. Built within five days of the WebMCP spec being published.</div>
+    <div class="tool-url">starborn.github.io/webmcp/</div>
+  </div>
+</div>
+
+<div class="key-point">Tools 1-4 are for backend MCP servers. Tool 5 is for browser-side WebMCP tools. Together they cover the entire ecosystem -- both server-side and client-side AI tool infrastructure.</div>
+
+<div class="meeting-note">If Andre asks "why a separate generator for WebMCP?" the answer is: browser-side tools have fundamentally different concerns. Origin security instead of API keys. No server infrastructure. User-present interaction patterns. The documentation fields are different because the engineering context is different.</div>
+</section>
+
+<!-- SECTION 8 -->
+<section id="s8">
+<div class="section-num">Section 08</div>
+<h2>The Standards Process -- Where This Is Going</h2>
+
+<h3>Current Status</h3>
+<p>WebMCP is a <strong>Draft Community Group Report</strong>. In W3C terms, this means it is a proposal being discussed in a Community Group (the Web Machine Learning CG). It is not yet on the W3C Standards Track, and it is not a W3C Recommendation (the final stage of a web standard).</p>
+
+<h3>What That Means Practically</h3>
+<p>The spec is early and open to change. This is exactly the right time to contribute -- before designs are locked in. Our technical notes and tooling arrive at a moment when the spec team is actively soliciting feedback.</p>
+
+<h3>The Path Forward</h3>
+<p>Typically: Community Group Report leads to a Working Group charter, which leads to a Working Draft, then Candidate Recommendation, then full W3C Recommendation. This process takes years. Chrome may implement experimental support (behind a flag) much sooner.</p>
+
+<h3>Our Role</h3>
+<p>Through the W3C AI Knowledge Representation Community Group (which you chair), we are a recognized participant in the standards ecosystem. Our contribution is not unsolicited commentary -- it is peer group engagement within the W3C community structure.</p>
+
+<div class="meeting-note">Andre knows the standards process. What he may not know is that the AI-KR CG has been working on adjacent issues (agent interoperability, model cards, protocol documentation) for some time. Position our work as complementary infrastructure, not competition. We are helping his spec succeed.</div>
+</section>
+
+<!-- SECTION 9 -->
+<section id="s9">
+<div class="section-num">Section 09</div>
+<h2>Glossary -- Every Technical Term in Plain Language</h2>
+
+<div class="term">
+  <div class="term-name">API (Application Programming Interface)</div>
+  <div class="term-plain">A set of rules for how software talks to other software. WebMCP is an API -- it defines how websites talk to AI agents.</div>
+</div>
+
+<div class="term">
+  <div class="term-name">AST (Abstract Syntax Tree)</div>
+  <div class="term-plain">A structured representation of code that lets you analyze it without running it. Our validator uses AST analysis to find problems in MCP server code safely.</div>
+</div>
+
+<div class="term">
+  <div class="term-name">Callback</div>
+  <div class="term-plain">A function you hand to someone else to run later. In WebMCP, the <code>execute</code> function is a callback -- you define it, but the agent triggers it when it calls your tool.</div>
+</div>
+
+<div class="term">
+  <div class="term-name">Client-side / Frontend</div>
+  <div class="term-plain">Code that runs in the user's browser, on their device. WebMCP tools run client-side. Contrast with server-side / backend.</div>
+</div>
+
+<div class="term">
+  <div class="term-name">Dictionary (in WebIDL)</div>
+  <div class="term-plain">A structured bundle of named values. ModelContextTool is a dictionary -- it bundles together a name, description, schema, and execute function into one package.</div>
+</div>
+
+<div class="term">
+  <div class="term-name">DOM (Document Object Model)</div>
+  <div class="term-plain">The browser's internal representation of a web page. When JavaScript modifies a page, it changes the DOM.</div>
+</div>
+
+<div class="term">
+  <div class="term-name">DOMString</div>
+  <div class="term-plain">Just a text string in browser terms. When the spec says a tool's name is a DOMString, it means it is text.</div>
+</div>
+
+<div class="term">
+  <div class="term-name">Exposed=Window</div>
+  <div class="term-plain">Means this feature is available in regular web pages (as opposed to service workers or other background contexts). WebMCP tools only work in normal browser tabs where a user is present.</div>
+</div>
+
+<div class="term">
+  <div class="term-name">Interface</div>
+  <div class="term-plain">A blueprint defining what methods and properties an object has. ModelContext is an interface -- it defines that any modelContext object will have provideContext, clearContext, registerTool, and unregisterTool methods.</div>
+</div>
+
+<div class="term">
+  <div class="term-name">JSON Schema</div>
+  <div class="term-plain">A standard way to describe the shape of data. When a tool says its inputSchema requires a "query" string and an optional "maxPrice" number, that is JSON Schema. It lets the agent know what data to send.</div>
+</div>
+
+<div class="term">
+  <div class="term-name">Navigator</div>
+  <div class="term-plain">A built-in browser object that provides access to browser features. You already use navigator.geolocation (GPS), navigator.clipboard (copy/paste). WebMCP adds navigator.modelContext (AI tools).</div>
+</div>
+
+<div class="term">
+  <div class="term-name">Origin</div>
+  <div class="term-plain">The identity of a website: protocol + domain + port. <code>https://amazon.com:443</code> is one origin. Two different origins cannot access each other's data. This is the foundation of web security and the foundation of WebMCP security.</div>
+</div>
+
+<div class="term">
+  <div class="term-name">Polyfill</div>
+  <div class="term-plain">Temporary code that provides a feature before browsers add native support. MCP-B is a polyfill for WebMCP -- it makes navigator.modelContext work today even though browsers have not implemented it natively yet.</div>
+</div>
+
+<div class="term">
+  <div class="term-name">Promise</div>
+  <div class="term-plain">A way to handle things that take time. When a tool's execute function returns a Promise, it means: "I am working on it and will give you the result when I am done." The agent waits for the Promise to resolve.</div>
+</div>
+
+<div class="term">
+  <div class="term-name">SameObject</div>
+  <div class="term-plain">Every time you access navigator.modelContext, you get the exact same object -- not a copy. This ensures all tool registrations go to the same place.</div>
+</div>
+
+<div class="term">
+  <div class="term-name">SecureContext</div>
+  <div class="term-plain">Means the feature only works on HTTPS pages (encrypted connection). No WebMCP on unencrypted HTTP. This is a security requirement.</div>
+</div>
+
+<div class="term">
+  <div class="term-name">Server-side / Backend</div>
+  <div class="term-plain">Code that runs on a remote server, not in the user's browser. Traditional MCP servers run server-side. WebMCP specifically avoids this -- tools run in the browser.</div>
+</div>
+
+<div class="term">
+  <div class="term-name">Tool Poisoning</div>
+  <div class="term-plain">A security attack where a malicious MCP server exposes tools with misleading descriptions to trick agents into performing harmful actions. Our validator detects patterns associated with this.</div>
+</div>
+
+<div class="term">
+  <div class="term-name">Transport</div>
+  <div class="term-plain">The mechanism for sending messages between systems. MCP uses different transports (stdio, HTTP). MCP-B adds "tab transport" (communication within a browser tab) and "extension transport" (communication through browser extensions).</div>
+</div>
+
+<div class="term">
+  <div class="term-name">WebIDL (Web Interface Definition Language)</div>
+  <div class="term-plain">The formal language used to write web API specifications. When you see code blocks in the spec with words like <code>interface</code>, <code>dictionary</code>, <code>readonly attribute</code> -- that is WebIDL. It is the blueprint language for browser APIs.</div>
+</div>
+
+<div class="term">
+  <div class="term-name">Wire Protocol</div>
+  <div class="term-plain">The actual format of messages sent between systems. MCP's wire protocol uses JSON-RPC (structured messages in JSON format). MCP-B translates between WebMCP's browser-native format and MCP's wire protocol.</div>
+</div>
+
+</section>
+
+<footer>
+  Prepared by Claude for Paola Di Maio, PhD<br>
+  Epistemic Systems Lab, Ronin Institute | W3C AI-KR Community Group<br>
+  February 2026
+</footer>
+
+</div>
+</body>
+</html>
