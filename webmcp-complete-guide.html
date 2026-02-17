@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WebMCP -- The Complete Guide </title>
+<title>WebMCP -- The Complete Guide</title>
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -117,21 +117,6 @@
     content: "Key point: ";
     font-weight: 700;
     color: var(--accent);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.8rem;
-  }
-  
-  .meeting-note {
-    background: var(--blue-light);
-    border-left: 3px solid var(--blue);
-    padding: 1rem 1.2rem;
-    margin: 1.2rem 0;
-  }
-  
-  .meeting-note::before {
-    content: "For the meeting: ";
-    font-weight: 700;
-    color: var(--blue);
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.8rem;
   }
@@ -258,7 +243,7 @@
 
 <header>
   <h1>WebMCP: Everything You Need to Know</h1>
-  <div class="sub">A plain-language guide</div>
+  <div class="sub">A plain-language technical guide to Google's proposed browser API for AI agent-website interaction</div>
 </header>
 
 <nav class="toc">
@@ -268,8 +253,8 @@
   <a href="#s3"><span class="num">03</span> MCP vs WebMCP vs MCP-B -- The Family Tree</a>
   <a href="#s4"><span class="num">04</span> The API -- Every Term Explained</a>
   <a href="#s5"><span class="num">05</span> Security -- How WebMCP Stays Safe</a>
-  <a href="#s6"><span class="num">06</span> The Consent Gap -- Our Key Concern</a>
-  <a href="#s7"><span class="num">07</span> Our Five Tools -- What Each One Does</a>
+  <a href="#s6"><span class="num">06</span> The Consent Gap -- A Key Open Question</a>
+  <a href="#s7"><span class="num">07</span> Five Quality Tools for the MCP Ecosystem</a>
   <a href="#s8"><span class="num">08</span> The Standards Process -- Where This Is Going</a>
   <a href="#s9"><span class="num">09</span> Glossary -- Every Technical Term in Plain Language</a>
 </nav>
@@ -304,10 +289,10 @@
 <p>An agent that lives inside the browser itself, rather than in a separate app. Google is building this into Chrome (think of it as an AI assistant built into your browser toolbar). This is different from an external agent like Claude Desktop connecting to the browser.</p>
 
 <h3>AI Platform</h3>
-<p>The company providing the agent -- Anthropic (us), OpenAI, Google. The AI platform's agent connects to WebMCP tools.</p>
+<p>The company providing the agent -- Anthropic, OpenAI, Google. The AI platform's agent connects to WebMCP tools.</p>
 
 <h3>Web Developer</h3>
-<p>The person who builds the website. They are the ones who will use WebMCP to register tools on their site. Our tooling helps them document what they build.</p>
+<p>The person who builds the website. They are the ones who will use WebMCP to register tools on their site.</p>
 
 <h3>User</h3>
 <p>The human sitting at the browser. WebMCP is designed for "user-present" interactions -- the human is there, watching, and can be asked for confirmation before the agent does something important.</p>
@@ -348,8 +333,6 @@
 </table>
 
 <div class="key-point">MCP is the foundation protocol (backend). WebMCP brings the same ideas to the browser (frontend). MCP-B is the bridge that makes WebMCP work today before browsers add native support. They are complementary, not competing.</div>
-
-<div class="meeting-note">Andre works on the WebMCP spec. He knows MCP well because WebMCP builds on its concepts. When talking to him, "MCP" means the Anthropic protocol, "WebMCP" means the browser API his team is building. Do not mix them up.</div>
 </section>
 
 <!-- SECTION 4 -->
@@ -453,7 +436,7 @@ navigator.modelContext.<span class="func">registerTool</span>({
 
 <div class="analogy">Your personal assistant calls the restaurant to make a reservation. Midway through, the assistant says: "They only have a table at 9pm instead of 8pm. Should I take it?" You say yes or no. That pause-and-ask is requestUserInteraction.</div>
 
-<div class="meeting-note">This is one of the best design decisions in the spec. It means agents cannot silently take irreversible actions. Our question to Andre is whether this mechanism is sufficient, or whether there should also be a preview/approval step before tools are even discoverable by agents.</div>
+<div class="key-point">The requestUserInteraction mechanism provides human-in-the-loop consent for consequential actions. An open question for the specification is whether there should also be a preview or approval step before tools are even discoverable by agents.</div>
 </section>
 
 <!-- SECTION 5 -->
@@ -480,11 +463,11 @@ navigator.modelContext.<span class="func">registerTool</span>({
 <!-- SECTION 6 -->
 <section id="s6">
 <div class="section-num">Section 06</div>
-<h2>The Consent Gap -- Our Key Concern</h2>
+<h2>The Consent Gap -- A Key Open Question</h2>
 
-<p>Here is the question we sent to Andre through your LinkedIn message:</p>
+<p>A key question for the WebMCP specification:</p>
 
-<p>Currently, any website can register any number of tools the moment you visit it. An AI agent connected to your browser can immediately discover and potentially call those tools. There is no step where the user sees: "This website wants to expose 12 tools to your AI agent. Allow?"</p>
+<p>Currently, any website can register any number of tools the moment a user visits it. An AI agent connected to the browser can immediately discover and potentially call those tools. There is no step where the user sees: "This website wants to expose 12 tools to your AI agent. Allow?"</p>
 
 <p>Compare this to how other browser capabilities evolved:</p>
 
@@ -513,15 +496,15 @@ navigator.modelContext.<span class="func">registerTool</span>({
 
 <p>This does not mean WebMCP is dangerous right now. The <code>requestUserInteraction()</code> mechanism provides per-action consent. But it means an agent could discover tools without the user knowing, even if it needs permission to execute them.</p>
 
-<div class="meeting-note">This is a design question, not a criticism. Ask Andre: does the spec team envision a permission layer for tool discovery, or is the current thinking that the AI client (Claude, ChatGPT) handles that at its own level? Both approaches are valid -- we want to understand the intended architecture.</div>
+<div class="key-point">This is a design question, not a criticism. Does the spec team envision a permission layer for tool discovery, or is the current thinking that the AI client (Claude, ChatGPT) handles that at its own level? Both approaches are valid -- the intended architecture matters for implementers and for user trust.</div>
 </section>
 
 <!-- SECTION 7 -->
 <section id="s7">
 <div class="section-num">Section 07</div>
-<h2>Our Five Tools -- What Each One Does</h2>
+<h2>Five Quality Tools for the MCP Ecosystem</h2>
 
-<p>We built five tools that work together as a quality pipeline for the MCP ecosystem. Here they are:</p>
+<p>Five open-source tools that work together as a quality pipeline for the MCP ecosystem:</p>
 
 <div class="five-tools">
   <div class="tool-card">
@@ -557,7 +540,7 @@ navigator.modelContext.<span class="func">registerTool</span>({
 
 <div class="key-point">Tools 1-4 are for backend MCP servers. Tool 5 is for browser-side WebMCP tools. Together they cover the entire ecosystem -- both server-side and client-side AI tool infrastructure.</div>
 
-<div class="meeting-note">If Andre asks "why a separate generator for WebMCP?" the answer is: browser-side tools have fundamentally different concerns. Origin security instead of API keys. No server infrastructure. User-present interaction patterns. The documentation fields are different because the engineering context is different.</div>
+<div class="key-point">A separate generator exists for WebMCP because browser-side tools have fundamentally different concerns from backend servers: origin security instead of API keys, no server infrastructure, user-present interaction patterns. The documentation fields differ because the engineering context differs.</div>
 </section>
 
 <!-- SECTION 8 -->
@@ -569,15 +552,14 @@ navigator.modelContext.<span class="func">registerTool</span>({
 <p>WebMCP is a <strong>Draft Community Group Report</strong>. In W3C terms, this means it is a proposal being discussed in a Community Group (the Web Machine Learning CG). It is not yet on the W3C Standards Track, and it is not a W3C Recommendation (the final stage of a web standard).</p>
 
 <h3>What That Means Practically</h3>
-<p>The spec is early and open to change. This is exactly the right time to contribute -- before designs are locked in. Our technical notes and tooling arrive at a moment when the spec team is actively soliciting feedback.</p>
+<p>The spec is early and open to change. This is exactly the right time to contribute -- before designs are locked in. The spec team is actively soliciting feedback.</p>
 
 <h3>The Path Forward</h3>
 <p>Typically: Community Group Report leads to a Working Group charter, which leads to a Working Draft, then Candidate Recommendation, then full W3C Recommendation. This process takes years. Chrome may implement experimental support (behind a flag) much sooner.</p>
 
-<h3>Our Role</h3>
-<p>Through the W3C AI Knowledge Representation Community Group (which you chair), we are a recognized participant in the standards ecosystem. Our contribution is not unsolicited commentary -- it is peer group engagement within the W3C community structure.</p>
+<h3>Contributing</h3>
+<p>The W3C community structure provides established channels for participation. Technical notes, tooling, and quality infrastructure are complementary contributions that help the specification succeed by addressing practical implementation concerns.</p>
 
-<div class="meeting-note">Andre knows the standards process. What he may not know is that the AI-KR CG has been working on adjacent issues (agent interoperability, model cards, protocol documentation) for some time. Position our work as complementary infrastructure, not competition. We are helping his spec succeed.</div>
 </section>
 
 <!-- SECTION 9 -->
@@ -592,7 +574,7 @@ navigator.modelContext.<span class="func">registerTool</span>({
 
 <div class="term">
   <div class="term-name">AST (Abstract Syntax Tree)</div>
-  <div class="term-plain">A structured representation of code that lets you analyze it without running it. Our validator uses AST analysis to find problems in MCP server code safely.</div>
+  <div class="term-plain">A structured representation of code that lets you analyze it without running it. The MCP Server Validator uses AST analysis to find problems in MCP server code safely.</div>
 </div>
 
 <div class="term">
@@ -672,7 +654,7 @@ navigator.modelContext.<span class="func">registerTool</span>({
 
 <div class="term">
   <div class="term-name">Tool Poisoning</div>
-  <div class="term-plain">A security attack where a malicious MCP server exposes tools with misleading descriptions to trick agents into performing harmful actions. Our validator detects patterns associated with this.</div>
+  <div class="term-plain">A security attack where a malicious MCP server exposes tools with misleading descriptions to trick agents into performing harmful actions. The MCP Server Validator detects patterns associated with this.</div>
 </div>
 
 <div class="term">
@@ -693,8 +675,8 @@ navigator.modelContext.<span class="func">registerTool</span>({
 </section>
 
 <footer>
-  <br>
-  February 2026
+  WebMCP Complete Guide | February 2026<br>
+  Based on the W3C Web Machine Learning Community Group Draft Report
 </footer>
 
 </div>
