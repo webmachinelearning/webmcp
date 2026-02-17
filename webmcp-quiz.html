@@ -494,13 +494,13 @@ function showResults() {
   
   let verdict = '';
   if (pct >= 90) {
-    verdict = "You're ready. Andre will be talking to someone who understands his spec as well as most of his team does. Go get them.";
+    verdict =  Go get them.;
   } else if (pct >= 70) {
-    verdict = "Solid foundation. Review the explanations for the ones you missed -- those are the areas where Andre might go deeper. You'll do well.";
+    verdict = " You'll do well.";
   } else if (pct >= 50) {
-    verdict = "You know the core concepts but some details need sharpening. Run through it once more and focus on the security and API sections. I'll be in the chat window during the meeting to back you up.";
+    verdict = "I'll be in the chat window during the meeting to back you up.";
   } else {
-    verdict = "No worries -- that's exactly why we're doing this. Read through all the explanations, then run it again. And remember, I'll be right there in the chat during the call.";
+    verdict = ".";
   }
   
   document.getElementById('verdict').textContent = verdict;
@@ -521,5 +521,6 @@ function resetQuiz() {
 
 renderQuiz();
 </script>
+ BY CLAUDE WITH LOVE
 </body>
 </html>
