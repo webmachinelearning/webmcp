@@ -122,6 +122,13 @@ partial interface Navigator {
 };
 </xmp>
 
+Each {{Navigator}} object has an associated <dfn for=Navigator>modelContext</dfn>, which is a
+{{ModelContext}} instance created alongside the {{Navigator}}.
+
+<div algorithm>
+The <dfn attribute for=Navigator>modelContext</dfn> getter steps are to return [=this=]'s [=Navigator/modelContext=].
+</div>
+
 <h3 id="model-context-container">ModelContext Interface</h3>
 
 The {{ModelContext}} interface provides methods for web applications to register and manage tools that can be invoked by [=agents=].
