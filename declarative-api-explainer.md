@@ -56,8 +56,42 @@ When forms with these attributes are inserted, removed, or these attributes are 
 creates a new declarative WebMCP tool whose input schema is generated according to
 [Input schema synthesis](#input-schema-synthesis).
 
-TODO(domfarolino): Describe the `toolparamname` and `toolparamdescription` attributes, and how they
-are processed on form-associated elements.
+We also introduce the new `toolparamname` and `toolparamdescription` attributes, which apply to form
+control elements. They contribute to a declarative form tool's input schema, by specifying the name
+and description of individual parameters inside that schema. In this sense, the following imperative
+structure:
+
+```js
+window.navigator.modelContext.provideContext({
+  tools: [
+    {
+      name: "search-cars",
+      description: "Perform a car make/model search",
+      inputSchema: {
+        type: "object",
+        properties: {
+          make: { type: "string", description: "The vehicle's make (e.g., BMW, Ford)" },
+          model: { type: "string", description: "The vehicle's model (e.g., 330i, F-150)" },
+        },
+        required: ["make", "model"]
+      },
+      execute({make, model}, agent) {
+        ...
+      }
+    }
+  ]
+});
+```
+
+... is equivalent to the following declarative form:
+
+```html
+<form toolname="search-cars" tooldescription="Perform a car make/model search" [...]>
+ <input type=text toolparamname="make" toolparamdescription="The vehicle's make (i.e., BMW, Ford)" required>
+ <input type=text toolparamname="model" toolparamdescription="The vehicle's model (i.e., 330i, F-150)" required>
+ <button type=submit>Search</button>
+</form>
+```
 
 ## Processing model
 
@@ -105,7 +139,15 @@ interface SubmitEvent : Event {
 
 **`toolactivated` and `toolcanceled` events
 
-TODO: Fill this out.
+We introduce these new events that get fired against he `Window` object when a WebMCP tool is run,
+and when its invocation is canceled. Some open questions:
+
+> [!WARNING]
+> Should these events fire for imperative tool call invocations as well?
+
+> [!WARNING]
+> For declarative, should they be fired at `Window` or at the `<form>` that registered the tool in
+> the first place, and bubble up to the document that way?
 
 ## Integration with other imperative API bits
 
