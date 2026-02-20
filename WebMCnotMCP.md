@@ -1,11 +1,13 @@
-# WebMCP Technical Note 3: WebMCP Is Not an MCP Server
+# WebMCP Technical Note: WebMCP Is Not an MCP Server
 
-**Anthropomorphic Press -- Technical Note 3**
-**15 February 2026**
+WebMCP is not MCP -- a clarification for implementers
+The WebMCP README offers a useful pedagogical framing: "web pages that use WebMCP can be thought of as MCP servers that implement tools in client-side script instead of on the backend."
+This analogy helps developers orient quickly. But it should not be taken as architectural equivalence, and treating it as such produces design errors.
+What the analogy captures: both WebMCP and MCP expose tools that agents can invoke. At the functional surface, they look similar.
+What the analogy obscures: they operate at different layers with different security models, different trust assumptions, and different governance boundaries.
 
----
-
-A persistent claim in the WebMCP ecosystem is that WebMCP turns a website into an MCP server. The W3C specification repository itself states that web pages using WebMCP "can be thought of as Model Context Protocol (MCP) servers that implement tools in client-side script instead of on the backend." Early independent implementations by Jason McGhee and Alex Nahas (MCP-B) literally did function as MCP servers, bridging browser JavaScript to MCP clients through localhost websocket connections using the standard MCP protocol.
+MCP is a network-layer protocol. Trust is established between client and server across a network boundary. The security model is connection-based.
+WebMCP is a browser-layer architecture. Trust is mediated by the browser's origin model, user consent mechanisms, and permission policies. The security model is origin-based.
 ([W3C spec repo](https://github.com/webmachinelearning/webmcp))
 ([McGhee implementation](https://github.com/jasonjmcghee/WebMCP))
 ([Nahas MCP-B](https://github.com/MiguelsPizza/WebMCP))
@@ -66,6 +68,3 @@ The analogy is useful for first contact. A developer unfamiliar with WebMCP can 
 
 None of this is an argument against WebMCP or against MCP. A company might maintain an MCP server for direct API integrations with AI platforms and simultaneously implement WebMCP tools on its consumer-facing website for browser-based agent interaction. The two are complementary, not competing, and not identical. Recognizing the distinction is necessary for evaluating each on its own merits.
 
----
-
-*Anthropomorphic Press, indexed in Dow Jones Factiva. CWRE*
