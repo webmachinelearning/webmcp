@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebMCP Model Card Generator</title>
+  <meta name="description" content="Generate standardized documentation for WebMCP browser-side tools. Extends MCP Model Card Specification v1.0 for the browser ecosystem.">
+  <meta name="author" content="Paola Di Maio, PhD (W3C AI-KR CG Chair) & Claude (Anthropic)">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'DM Sans', sans-serif; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useCallback, useRef } = React;
+
+
+const SECTIONS = [
+  "identity", "apiMode", "tools", "session", "browser",
+  "security", "interaction", "context", "limitations",
+  "discovery", "testing", "backendRelationship",
+];
+
+const SECTION_LABELS = {
+  identity: "Identity & Provenance",
+  apiMode: "API Mode",
+  tools: "Tool Documentation",
+  session: "Session & Auth",
+  browser: "Browser Compat",
+  security: "Security",
+  interaction: "Interaction",
+  context: "Context Reqs",
+  limitations: "Limitations",
+  discovery: "Discovery",
+  testing: "Testing",
+  backendRelationship: "Backend MCP",
+};
+
+const SECTION_ICONS = {
+  identity: "\u{1F3F7}\uFE0F", apiMode: "\u{2699}\uFE0F", tools: "\u{1F527}",
+  session: "\u{1F512}", browser: "\u{1F310}", security: "\u{1F6E1}\uFE0F",
+  interaction: "\u{1F504}", context: "\u{1F4CB}", limitations: "\u{26A0}\uFE0F",
+  discovery: "\u{1F50D}", testing: "\u{2705}", backendRelationship: "\u{1F517}",
+};
+
+// -- TUTORIAL CONTENT per section --
+// Each entry: { title, intro, mcpWay, webmcpWay, keyDifference, tips }
+
+const TUTORIAL = {
+  identity: {
+    title: "What is a WebMCP Model Card?",
+    intro: "A model card is standardized documentation -- like a nutrition label for your tool. It tells agents and developers exactly what they're getting.",
+    mcpWay: "In Anthropic's MCP, servers run on backends (Node.js, Python). Identity includes server name, version, npm package, and JSON-RPC transport.",
+    webmcpWay: "In WebMCP, tools live inside web pages. Identity includes the page URL where tools are registered, plus the HTML page itself becomes the 'server'. No separate infrastructure needed.",
+    keyDifference: "MCP = backend server with its own process. WebMCP = your web page IS the server.",
+    tips: [
+      "Page URL is critical -- it's where agents will find your tools",
+      "Attribution matters: document whether AI helped create the tool",
+      "Version your tools independently from your website version",
+    ],
+    codeExample: null,
+  },
+  apiMode: {
+    title: "Two Ways to Register Tools",
+    intro: "WebMCP offers something MCP doesn't: a declarative HTML-only path alongside the programmatic approach.",
+    mcpWay: "MCP servers define tools in code using JSON-RPC handlers. Every tool requires a server-side function:\n\nserver.setRequestHandler(ListToolsRequestSchema, async () => ({\n  tools: [{ name: 'search', ... }]\n}));",
+    webmcpWay: "WebMCP provides TWO registration paths:\n\nDeclarative -- just add attributes to HTML forms:\n<form toolname=\"searchFlights\" tooldescription=\"Search flights\">\n  <input name=\"origin\" type=\"text\" required>\n</form>\n\nImperative -- JavaScript registration:\nnavigator.modelContext.registerTool({\n  name: 'searchFlights',\n  description: 'Search flights',\n  inputSchema: {...},\n  execute: async (input) => {...}\n});",
+    keyDifference: "MCP requires code for every tool. WebMCP lets you expose existing HTML forms to agents with zero JavaScript.",
+    tips: [
+      "Start with declarative for existing forms -- it's the fastest path",
+      "Use imperative for complex logic, multi-step flows, or dynamic tools",
+      "MCP-B (@mcp-b/global) is a community polyfill before native browser support",
+      "The webmcp.js widget is another option for quick integration",
+    ],
+  },
+  tools: {
+    title: "Documenting Your Tools",
+    intro: "Tool documentation is the heart of any model card. It tells agents what they can call, what to send, and what to expect back.",
+    mcpWay: "MCP tools use JSON Schema for inputSchema, return content arrays with text/image blocks, and annotate with readOnlyHint, destructiveHint, etc.",
+    webmcpWay: "WebMCP tools use the same JSON Schema for inputSchema (great!), but the execute callback runs in the browser -- it can access DOM, session cookies, and framework state. New: requestUserInteraction() lets a tool pause and ask the human for confirmation mid-execution.",
+    keyDifference: "MCP tools run on a server and return data. WebMCP tools run in the browser and can interact with the visible page AND the human.",
+    tips: [
+      "The inputSchema format is identical between MCP and WebMCP -- reuse schemas!",
+      "readOnlyHint in annotations helps agents decide what's safe to call autonomously",
+      "requestUserInteraction() is unique to WebMCP -- use it for destructive actions",
+      "Document error states clearly; agents need to know what can go wrong",
+    ],
+  },
+  session: {
+    title: "Authentication: Inherited, Not Configured",
+    intro: "This is one of the biggest architectural differences between MCP and WebMCP.",
+    mcpWay: "MCP servers manage their own auth: API keys in environment variables, OAuth flows, personal access tokens. The client must configure credentials separately.\n\nGITHUB_TOKEN=ghp_xxx npx mcp-server-github",
+    webmcpWay: "WebMCP inherits the browser session automatically. If the user is logged into the website, the tool has the same privileges. No separate credential management needed.\n\nThe browser's cookie jar, OAuth tokens, and session storage are all available to the execute callback -- because it runs in the same origin.",
+    keyDifference: "MCP = you configure API keys for each server. WebMCP = the browser session IS the authentication.",
+    tips: [
+      "This is both a strength and a risk -- document what privileges the tool inherits",
+      "If some tools need elevated permissions, note which user roles are required",
+      "Mixed auth (some tools public, some need login) is common -- document clearly",
+    ],
+  },
+  browser: {
+    title: "Browser as Runtime",
+    intro: "WebMCP runs inside a web browser. This is fundamentally different from MCP's server-side execution model.",
+    mcpWay: "MCP servers run as standalone processes -- Node.js, Python, Docker containers. They communicate via stdio or HTTP+SSE. Browser compatibility isn't a concept.",
+    webmcpWay: "WebMCP tools execute inside the browser's JavaScript engine. Currently Chrome 146+ Canary only (behind a flag). The MCP-B community project provides a polyfill/extension for broader support.\n\nWhen WebMCP isn't available, the page should degrade gracefully -- human users still see the normal UI.",
+    keyDifference: "MCP = server process, always running. WebMCP = browser tab, only alive while the page is open.",
+    tips: [
+      "Always implement graceful degradation -- not every visitor has WebMCP",
+      "Chrome DevTools MCP bridge connects Claude Desktop to browser tools",
+      "Test in Chrome Canary with chrome://flags > 'WebMCP for testing'",
+      "Edge support expected mid-2026 (Microsoft co-authors the spec)",
+    ],
+  },
+  security: {
+    title: "The Lethal Trifecta",
+    intro: "WebMCP introduces unique security concerns because tools run in the browser with access to user sessions and page content.",
+    mcpWay: "MCP security centers on: API key management, least-privilege scopes, rate limiting, and the trust boundary between client and server.",
+    webmcpWay: "WebMCP adds browser-specific risks. The 'lethal trifecta' identified by security researchers:\n\n1. Data access (tool reads user data)\n2. Untrusted content (page shows third-party content)\n3. External communication (tool can send data out)\n\nAll three together = exfiltration risk. WebMCP mitigates with same-origin scope, CSP compatibility, and mandatory human-in-the-loop design.",
+    keyDifference: "MCP's trust boundary is API keys. WebMCP's trust boundary is the browser's same-origin policy + human oversight.",
+    tips: [
+      "Check the lethal trifecta box honestly -- it's a real risk assessment",
+      "Human-in-the-loop is a design principle, not just a checkbox",
+      "Same-origin scope means tools can only access data from their own domain",
+      "CSP headers affect what your tools can do -- document compatibility",
+    ],
+  },
+  interaction: {
+    title: "Stateful Pages, Stateless Protocols",
+    intro: "Web pages maintain rich visual state. This creates interaction patterns MCP servers don't have.",
+    mcpWay: "MCP tools are typically stateless -- each call is independent. State lives in the backend service (database, API). The MCP protocol itself is stateless.",
+    webmcpWay: "WebMCP tools can be deeply stateful because they share the page's JavaScript runtime. A searchFlights tool might populate results that a bookFlight tool then references. Tools can modify the visible DOM, triggering UI updates the human can see and verify.",
+    keyDifference: "MCP tools return data. WebMCP tools can change what the human sees on screen.",
+    tips: [
+      "Document tool dependencies: which tools must run before others?",
+      "If a tool modifies page state, the human can see the change -- this IS the human-in-the-loop",
+      "Latency matters differently: users see the page, so blocking tools freeze the UI",
+      "Stateful tools need careful error handling -- what if the page state is unexpected?",
+    ],
+  },
+  context: {
+    title: "Page Context as Input",
+    intro: "WebMCP tools can read the rich context of the page they live on. MCP servers only know what's explicitly passed to them.",
+    mcpWay: "MCP tools receive only their explicit input parameters. Any context (user preferences, previous results) must be passed in each call by the client.",
+    webmcpWay: "WebMCP tools can access:\n- DOM state (what's visible on the page)\n- React/Redux/Vue state (framework data)\n- Navigation state (current URL, route)\n- Session data (cookies, localStorage)\n- provideContext() data (explicitly shared by the page)\n\nThis rich context means tools can be much smarter about what the user is doing.",
+    keyDifference: "MCP = explicit input only. WebMCP = the entire page is your context.",
+    tips: [
+      "Document what context your tool reads -- agents need to know what influences behavior",
+      "provideContext() lets you explicitly share data with agents (recommended over implicit DOM reading)",
+      "If your tool reads React state, note which framework version is required",
+      "Navigation dependencies mean agents need to be on the right page first",
+    ],
+  },
+  limitations: {
+    title: "Honest Boundaries",
+    intro: "Good documentation is honest about what tools can't do. This is especially important for WebMCP because browser constraints are different from server constraints.",
+    mcpWay: "MCP limitations are typically: API rate limits, missing features, version requirements, network dependencies.",
+    webmcpWay: "WebMCP adds browser-specific limitations:\n- 50 tools per page recommended (performance)\n- Tools only work while the tab is open\n- No background execution\n- Cross-origin restrictions\n- Mobile browser support varies\n- Extensions may interfere",
+    keyDifference: "MCP limits are about the service. WebMCP limits are about the browser environment.",
+    tips: [
+      "Be specific about failure modes -- what does the agent see when something breaks?",
+      "Edge cases are more common in browsers (ad blockers, extensions, network changes)",
+      "The 50-tool-per-page recommendation is practical, not a hard limit",
+      "Scale limits help agents choose which tools to prioritize",
+    ],
+  },
+  discovery: {
+    title: "Finding Tools Before You Visit",
+    intro: "Discovery is an unsolved problem in WebMCP. Unlike MCP servers, browser tools only exist when you're on the page.",
+    mcpWay: "MCP has established discovery: MCP Registry, GitHub listings, npm packages, .well-known/mcp endpoints. Agents can discover servers before connecting.",
+    webmcpWay: "WebMCP discovery is nascent:\n- Tools are only visible after navigating to the page\n- .well-known/webmcp is proposed but not standardized\n- No equivalent of the MCP Registry for browser tools yet\n- Chrome DevTools MCP can aggregate tools across open tabs\n\nThis is a gap the model card itself helps fill -- it makes tools discoverable via documentation.",
+    keyDifference: "MCP tools can be found before use. WebMCP tools currently require visiting the page first.",
+    tips: [
+      "Model cards themselves aid discovery -- publish them alongside your site",
+      ".well-known/webmcp support would enable pre-visit discovery (advocate for it!)",
+      "The W3C AI-KR CG is working on documentation standards for exactly this gap",
+      "Consider listing your WebMCP tools in your site's structured data / sitemap",
+    ],
+  },
+  testing: {
+    title: "Testing with Real Agents",
+    intro: "WebMCP tools should be tested with actual AI agents, not just unit tests.",
+    mcpWay: "MCP testing: MCP Inspector tool, protocol compliance checks, tool schema validation, integration tests with Claude Desktop or other clients.",
+    webmcpWay: "WebMCP testing adds:\n- Chrome Model Context Tool Inspector extension\n- Live demo testing (travel-demo.bandarra.me)\n- Token usage benchmarks (structured calls vs screenshots)\n- Multi-agent testing (does it work with Claude, GPT, Gemini?)\n- The DevTools quickstart includes benchmark scripts",
+    keyDifference: "MCP tests protocol compliance. WebMCP tests real-world agent interaction in a browser.",
+    tips: [
+      "Test with multiple agents -- tool descriptions that work for Claude may confuse GPT",
+      "Benchmark token usage: one WebMCP call should replace many screenshot interactions",
+      "The Chrome extension lets you inspect tool registrations in real-time",
+      "Document which agents you've tested -- it builds trust",
+    ],
+  },
+  backendRelationship: {
+    title: "Bridging Browser and Backend",
+    intro: "Many applications will have BOTH a backend MCP server and browser-side WebMCP tools. Documenting the relationship between them is crucial.",
+    mcpWay: "MCP servers are standalone. They don't know or care about browser-side tools. Each server is an independent process with its own auth and capabilities.",
+    webmcpWay: "WebMCP tools often complement a backend MCP server:\n- Backend handles: payment processing, database writes, heavy computation\n- Browser handles: UI updates, session-aware searches, human confirmations\n- Auth can be shared (browser session authenticates backend calls)\n\nExample: A flight booking site might have a backend MCP server for payment and a WebMCP tool for search + UI.",
+    keyDifference: "MCP and WebMCP are complementary, not competitive. One spec, two profiles.",
+    tips: [
+      "Document which capabilities are browser-only vs backend-only",
+      "Auth sharing simplifies the developer experience -- note if it works",
+      "Agents may use both in a single workflow: WebMCP for browsing, MCP for transactions",
+      "This is where the 'one spec, two profiles' approach pays off",
+    ],
+  },
+};
+
+// -- Form defaults --
+const defaultForm = {
+  toolName: "", version: "", author: "", creationDate: new Date().toISOString().split("T")[0],
+  license: "MIT", pageUrl: "", attribution: "human", sourceRepo: "", description: "",
+  apiMode: "imperative", declarativeFormName: "", declarativeFormDescription: "",
+  imperativeRegistration: "registerTool",
+  sessionType: "authenticated", permissionsRequired: "", oauthDependencies: "", inheritsSession: true,
+  chromeVersion: "146", mcpbPolyfill: false, browserNotes: "", gracefulDegradation: "",
+  sameOrigin: true, cspCompatible: true, humanInTheLoop: true, dataExposure: "",
+  exfiltrationRisk: "low", rateLimiting: "", lethalTrifecta: false,
+  statefulness: "stateless", toolDependencies: "", pageStateModification: false,
+  latencyEstimate: "", blocking: false,
+  provideContextData: "", domStateAccess: false, reactReduxAccess: false, navigationDependencies: "",
+  cannotDo: "", edgeCases: "", scaleLimits: "50 tools per page recommended", failureModes: "",
+  registryListed: false, wellKnownWebmcp: false, preVisitDiscoverability: "",
+  testMethodology: "", agentsTested: [], passFailCriteria: "", testSuiteLink: "",
+  hasBackendMcp: false, backendServerName: "", capabilityDifferences: "", authSharing: false,
+};
+
+const defaultTool = {
+  name: "", description: "",
+  inputSchema: '{\n  "type": "object",\n  "properties": {},\n  "required": []\n}',
+  outputFormat: "json", errorStates: "", multimodalSupport: false,
+  readOnlyHint: false, destructive: false, async: true, requiresUserInteraction: false,
+};
+
+// -- UI Components --
+
+const S = {
+  input: {
+    width: "100%", padding: "8px 10px", border: "1.5px solid #d1d5db", borderRadius: 7,
+    fontSize: 12.5, fontFamily: "'DM Mono', 'Fira Code', monospace", background: "#fafbfc",
+    color: "#1a1a2e", outline: "none", transition: "border-color 0.2s", boxSizing: "border-box",
+  },
+  focused: { borderColor: "#2563eb", boxShadow: "0 0 0 2px rgba(37,99,235,0.08)" },
+};
+
+function Field({ label, req, hint, children }) {
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#1a1a2e", marginBottom: 3, fontFamily: "'DM Sans', sans-serif" }}>
+        {label}{req && <span style={{ color: "#e63946", marginLeft: 2 }}>*</span>}
+      </label>
+      {hint && <div style={{ fontSize: 10.5, color: "#6b7280", marginBottom: 4, lineHeight: 1.3, fontFamily: "'DM Sans', sans-serif" }}>{hint}</div>}
+      {children}
+    </div>
+  );
+}
+
+function TI({ value, onChange, placeholder, ...p }) {
+  const [f, setF] = useState(false);
+  return <input type="text" value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
+    style={{ ...S.input, ...(f ? S.focused : {}) }} onFocus={() => setF(true)} onBlur={() => setF(false)} {...p} />;
+}
+
+function TA({ value, onChange, placeholder, rows = 3, mono = false }) {
+  const [f, setF] = useState(false);
+  return <textarea value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} rows={rows}
+    style={{ ...S.input, fontFamily: mono ? "'DM Mono', monospace" : "'DM Sans', sans-serif", resize: "vertical", minHeight: 50, ...(f ? S.focused : {}) }}
+    onFocus={() => setF(true)} onBlur={() => setF(false)} />;
+}
+
+function Sel({ value, onChange, options }) {
+  return <select value={value} onChange={e => onChange(e.target.value)}
+    style={{ ...S.input, fontFamily: "'DM Sans', sans-serif", cursor: "pointer" }}>
+    {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+  </select>;
+}
+
+function CB({ checked, onChange, label }) {
+  return <label style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer", fontSize: 12, fontFamily: "'DM Sans', sans-serif", color: "#374151", marginBottom: 5 }}>
+    <input type="checkbox" checked={checked} onChange={e => onChange(e.target.checked)} style={{ accentColor: "#2563eb", width: 15, height: 15 }} />
+    {label}
+  </label>;
+}
+
+function MC({ options, selected, onChange }) {
+  const toggle = v => selected.includes(v) ? onChange(selected.filter(s => s !== v)) : onChange([...selected, v]);
+  return <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+    {options.map(o => <label key={o.value} style={{
+      display: "flex", alignItems: "center", gap: 4, padding: "4px 9px", borderRadius: 6,
+      border: selected.includes(o.value) ? "1.5px solid #2563eb" : "1.5px solid #e5e7eb",
+      background: selected.includes(o.value) ? "#eff6ff" : "#fafbfc", cursor: "pointer",
+      fontSize: 11, fontFamily: "'DM Sans', sans-serif", transition: "all 0.15s",
+    }}>
+      <input type="checkbox" checked={selected.includes(o.value)} onChange={() => toggle(o.value)}
+        style={{ accentColor: "#2563eb", width: 13, height: 13 }} />
+      {o.label}
+    </label>)}
+  </div>;
+}
+
+// -- Tutorial Sidebar --
+
+function TutorialPanel({ section }) {
+  const t = TUTORIAL[section];
+  if (!t) return null;
+
+  const boxStyle = (bg, border, titleColor) => ({
+    padding: "10px 12px", borderRadius: 8, marginBottom: 10,
+    background: bg, border: `1px solid ${border}`,
+  });
+  const titleStyle = (color) => ({
+    fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em",
+    color, marginBottom: 5, fontFamily: "'DM Sans', sans-serif",
+  });
+  const bodyStyle = {
+    fontSize: 11.5, lineHeight: 1.55, color: "#e2e8f0", fontFamily: "'DM Sans', sans-serif",
+    whiteSpace: "pre-wrap",
+  };
+
+  return (
+    <div style={{
+      background: "linear-gradient(180deg, #0f172a 0%, #1e293b 100%)",
+      borderRadius: 14, padding: "18px 16px", height: "100%",
+      border: "1px solid rgba(255,255,255,0.06)",
+      overflowY: "auto",
+    }}>
+      <h3 style={{
+        fontSize: 15, fontWeight: 700, color: "#f1f5f9", margin: "0 0 4px",
+        fontFamily: "'Outfit', sans-serif",
+      }}>{t.title}</h3>
+      <p style={{ ...bodyStyle, color: "#94a3b8", marginBottom: 14, fontSize: 11.5 }}>{t.intro}</p>
+
+      {/* MCP Way */}
+      <div style={boxStyle("rgba(239,68,68,0.06)", "rgba(239,68,68,0.15)")}>
+        <div style={titleStyle("#f87171")}>Anthropic MCP (Backend)</div>
+        <div style={bodyStyle}>{t.mcpWay}</div>
+      </div>
+
+      {/* WebMCP Way */}
+      <div style={boxStyle("rgba(34,197,94,0.06)", "rgba(34,197,94,0.15)")}>
+        <div style={titleStyle("#4ade80")}>W3C WebMCP (Browser)</div>
+        <div style={bodyStyle}>{t.webmcpWay}</div>
+      </div>
+
+      {/* Key Difference */}
+      <div style={{
+        padding: "10px 12px", borderRadius: 8, marginBottom: 10,
+        background: "linear-gradient(135deg, rgba(37,99,235,0.1), rgba(124,58,237,0.1))",
+        border: "1px solid rgba(37,99,235,0.2)",
+      }}>
+        <div style={titleStyle("#60a5fa")}>Key Difference</div>
+        <div style={{ ...bodyStyle, fontWeight: 600, color: "#93c5fd" }}>{t.keyDifference}</div>
+      </div>
+
+      {/* Tips */}
+      <div style={{ marginTop: 6 }}>
+        <div style={{ ...titleStyle("#fbbf24"), marginBottom: 6 }}>Tips</div>
+        {t.tips.map((tip, i) => (
+          <div key={i} style={{
+            display: "flex", gap: 6, marginBottom: 5, fontSize: 11, lineHeight: 1.45,
+            color: "#cbd5e1", fontFamily: "'DM Sans', sans-serif",
+          }}>
+            <span style={{ color: "#fbbf24", flexShrink: 0 }}>--</span>
+            <span>{tip}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// -- Section Forms --
+
+function IdentitySection({ form, sf }) {
+  return <>
+    <Field label="Tool/Page Name" req hint={'What\'s your tool called? Give it a clear, recognizable name. Example: "Flight Search Demo" or "Todo Manager"'}>
+      <TI value={form.toolName} onChange={v => sf("toolName", v)} placeholder="e.g. Flight Search Demo" />
+    </Field>
+    <Field label="Version" req hint={'Use major.minor.patch format. First release? Type 1.0.0. Early prototype? Type 0.1.0. Not sure? Just type 1.0.0'}>
+      <TI value={form.version} onChange={v => sf("version", v)} placeholder="1.0.0" />
+    </Field>
+    <Field label="Description" req hint={'In 1-2 sentences, what does your page let AI agents do? Example: "Travel booking page exposing flight search and hotel filtering tools via WebMCP"'}>
+      <TA value={form.description} onChange={v => sf("description", v)} placeholder="Travel booking page exposing flight search, hotel filtering, and itinerary tools via WebMCP declarative and imperative APIs" />
+    </Field>
+    <Field label="Author" hint={'Your name, your team, or your company. Example: "Jane Smith" or "Acme Dev Team". Leave blank if you prefer.'}>
+      <TI value={form.author} onChange={v => sf("author", v)} placeholder="Jane Smith" />
+    </Field>
+    <Field label="Creation Date" hint="Auto-filled with today. Change it if you built the tool earlier.">
+      <TI value={form.creationDate} onChange={v => sf("creationDate", v)} />
+    </Field>
+    <Field label="License" req hint="MIT is the most common and permissive. Pick Proprietary if closed-source. Not sure? MIT is safe.">
+      <Sel value={form.license} onChange={v => sf("license", v)} options={[
+        { value: "MIT", label: "MIT -- most permissive, most common" },
+        { value: "Apache-2.0", label: "Apache 2.0 -- permissive + patent protection" },
+        { value: "GPL-3.0", label: "GPL 3.0 -- copyleft, derivatives must be open" },
+        { value: "Proprietary", label: "Proprietary -- closed source" },
+        { value: "W3C-CLA", label: "W3C Community CLA -- for W3C group work" },
+      ]} />
+    </Field>
+    <Field label="Page URL" hint={'The web address where your tools live. This is where agents go. Example: "https://travel-demo.bandarra.me/" -- type "tbd" if not deployed yet.'}>
+      <TI value={form.pageUrl} onChange={v => sf("pageUrl", v)} placeholder="https://mysite.com/booking" />
+    </Field>
+    <Field label="Attribution" req hint="Be honest! Human-authored = you wrote it all. AI co-created = you and AI built it together. AI-generated = AI wrote it, you reviewed.">
+      <Sel value={form.attribution} onChange={v => sf("attribution", v)} options={[
+        { value: "human", label: "Human-authored -- a person wrote all the code" },
+        { value: "ai-co-created", label: "AI co-created -- human + AI built it together" },
+        { value: "ai-generated", label: "AI-generated -- AI wrote it, human reviewed" },
+      ]} />
+    </Field>
+    <Field label="Source Repository" hint={'Link to your code on GitHub/GitLab. Example: "https://github.com/user/my-webmcp-app". Leave blank if closed source.'}>
+      <TI value={form.sourceRepo} onChange={v => sf("sourceRepo", v)} placeholder="https://github.com/user/my-webmcp-app" />
+    </Field>
+  </>;
+}
+
+function ApiModeSection({ form, sf }) {
+  return <>
+    <Field label="Primary API Mode" req hint="How do agents talk to your tools? Declarative = you just add attributes to HTML forms (easiest). Imperative = you write JavaScript to register tools (more powerful). Both = you use a mix.">
+      <Sel value={form.apiMode} onChange={v => sf("apiMode", v)} options={[
+        { value: "declarative", label: "Declarative -- just HTML form attributes (easiest)" },
+        { value: "imperative", label: "Imperative -- JavaScript registration (most common)" },
+        { value: "both", label: "Both -- forms for simple, JS for complex" },
+      ]} />
+    </Field>
+    {(form.apiMode === "declarative" || form.apiMode === "both") && <>
+      <Field label="Form toolname" hint={'The exact toolname attribute on your HTML <form> tag. Example: if your form says toolname="searchFlights", type searchFlights here.'}>
+        <TI value={form.declarativeFormName} onChange={v => sf("declarativeFormName", v)} placeholder="searchFlights" />
+      </Field>
+      <Field label="Form tooldescription" hint={'The human-readable description in your form tag. Agents read this to understand what the form does. Example: "Search flights by origin and destination"'}>
+        <TI value={form.declarativeFormDescription} onChange={v => sf("declarativeFormDescription", v)} placeholder="Search flights by origin and destination" />
+      </Field>
+    </>}
+    {(form.apiMode === "imperative" || form.apiMode === "both") &&
+      <Field label="Registration Method" hint="How do you register tools in your JavaScript? The W3C standard is registerTool(). If you use the MCP-B library or the webmcp.js widget, pick those instead. Not sure? Pick registerTool().">
+        <Sel value={form.imperativeRegistration} onChange={v => sf("imperativeRegistration", v)} options={[
+          { value: "registerTool", label: "registerTool() -- W3C standard (recommended)" },
+          { value: "provideContext", label: "provideContext() -- registers multiple tools at once" },
+          { value: "mcp-b-global", label: "MCP-B @mcp-b/global -- community polyfill library" },
+          { value: "webmcp-widget", label: "WebMCP widget -- just a <script> tag (simplest)" },
+        ]} />
+      </Field>
+    }
+  </>;
+}
+
+function ToolsSection({ tools, setTools }) {
+  const [c, setC] = useState({ ...defaultTool });
+  const add = () => { if (!c.name || !c.description) return; setTools([...tools, { ...c }]); setC({ ...defaultTool }); };
+  const rm = i => setTools(tools.filter((_, j) => j !== i));
+  return <>
+    <div style={{ marginBottom: 12, padding: 12, background: "#f0f7ff", borderRadius: 9, border: "1px solid #bfdbfe" }}>
+      <div style={{ fontSize: 11, fontWeight: 600, color: "#1e40af", marginBottom: 2, fontFamily: "'DM Sans', sans-serif" }}>
+        Add a Tool ({tools.length} added)
+      </div>
+      <div style={{ fontSize: 10, color: "#6b7280", marginBottom: 10, fontFamily: "'DM Sans', sans-serif" }}>
+        Fill in one tool at a time, then click "+ Add Tool". Repeat for each tool your page exposes. You can skip this tab if you just want to test the generator.
+      </div>
+      <Field label="Tool Name" req hint={'The exact function name agents will call. Must match your code. Example: "searchFlights", "addToCart", "toggleTheme". Keep it short and descriptive.'}>
+        <TI value={c.name} onChange={v => setC({ ...c, name: v })} placeholder="searchFlights" />
+      </Field>
+      <Field label="Description" req hint={'Tell agents what this tool does in plain language. Example: "Search for available flights between two airports on a given date. Returns flights with prices and times." The better your description, the better agents will use your tool.'}>
+        <TA value={c.description} onChange={v => setC({ ...c, description: v })} placeholder="Search for available flights between two airports on a given date. Returns a list with prices, times, and airlines." />
+      </Field>
+      <Field label="Input Schema (JSON Schema)" req hint={'Describes what data the tool accepts. A default empty schema is pre-filled. If your tool takes parameters, list them inside "properties". Don\'t know JSON Schema? The default is fine for testing.'}>
+        <TA value={c.inputSchema} onChange={v => setC({ ...c, inputSchema: v })} rows={5} mono />
+      </Field>
+      <Field label="Output Format" hint="What kind of data does the tool return? JSON is most common (structured data). Pick Text for simple messages, HTML for rich content, Mixed if it varies.">
+        <Sel value={c.outputFormat} onChange={v => setC({ ...c, outputFormat: v })} options={[
+          { value: "json", label: "JSON -- structured data (most common)" },
+          { value: "text", label: "Text -- plain text response" },
+          { value: "html", label: "HTML -- rich content fragment" },
+          { value: "mixed", label: "Mixed -- varies by call" },
+        ]} />
+      </Field>
+      <Field label="Error States" hint={'What can go wrong? One error per line. Example:\nInvalidInput: origin must be 3-letter airport code\nNetworkError: API timeout after 30s\nLeave blank if you\'re not sure yet.'}>
+        <TA value={c.errorStates} onChange={v => setC({ ...c, errorStates: v })} placeholder={"InvalidInput: origin must be 3-letter IATA code\nNetworkError: upstream API timeout after 30s\nAuthRequired: user must be logged in"} />
+      </Field>
+      <div style={{ fontSize: 10, color: "#6b7280", marginBottom: 6, fontFamily: "'DM Sans', sans-serif" }}>
+        Check the boxes that apply. Not sure? Read-only = only fetches data. Async = almost always yes. The rest are special cases.
+      </div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 8 }}>
+        <CB checked={c.readOnlyHint} onChange={v => setC({ ...c, readOnlyHint: v })} label="Read-only (only fetches data, changes nothing)" />
+        <CB checked={c.destructive} onChange={v => setC({ ...c, destructive: v })} label="Destructive (deletes or irreversibly changes data)" />
+        <CB checked={c.async} onChange={v => setC({ ...c, async: v })} label="Async (makes network calls -- almost always yes)" />
+        <CB checked={c.requiresUserInteraction} onChange={v => setC({ ...c, requiresUserInteraction: v })} label="Asks the human mid-execution (WebMCP-only feature!)" />
+        <CB checked={c.multimodalSupport} onChange={v => setC({ ...c, multimodalSupport: v })} label="Handles images/audio/video (not just text)" />
+      </div>
+      <button onClick={add} disabled={!c.name || !c.description} style={{
+        padding: "7px 16px", background: c.name && c.description ? "#2563eb" : "#94a3b8",
+        color: "#fff", border: "none", borderRadius: 7, fontSize: 12, fontWeight: 600,
+        cursor: c.name && c.description ? "pointer" : "not-allowed", fontFamily: "'DM Sans', sans-serif",
+      }}>+ Add Tool</button>
+    </div>
+    {tools.map((t, i) => (
+      <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 10px", marginBottom: 4, background: "#f9fafb", borderRadius: 7, border: "1px solid #e5e7eb" }}>
+        <div><span style={{ fontFamily: "'DM Mono', monospace", fontSize: 12, fontWeight: 600, color: "#1e40af" }}>{t.name}</span>
+          <span style={{ fontSize: 10, color: "#6b7280", marginLeft: 6 }}>{t.description.slice(0, 50)}{t.description.length > 50 ? "..." : ""}</span></div>
+        <button onClick={() => rm(i)} style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer", fontSize: 14, fontWeight: 700 }}>x</button>
+      </div>
+    ))}
+  </>;
+}
+
+function SessionSection({ form, sf }) {
+  return <>
+    <Field label="Session Type" req hint="Does the user need to be logged in? Authenticated = yes, login required (most real apps). Anonymous = no login needed (public demos, search). Mixed = some tools public, some need login.">
+      <Sel value={form.sessionType} onChange={v => sf("sessionType", v)} options={[
+        { value: "authenticated", label: "Authenticated -- user must be logged in" },
+        { value: "anonymous", label: "Anonymous -- works for anyone, no login" },
+        { value: "mixed", label: "Mixed -- some tools public, some need login" },
+      ]} />
+    </Field>
+    <Field label="Permissions Required" hint={'What access level does the user need? Examples: "Any logged-in user", "Admin role", "Premium subscriber". Leave blank if anonymous.'}>
+      <TI value={form.permissionsRequired} onChange={v => sf("permissionsRequired", v)} placeholder="Any logged-in user" />
+    </Field>
+    <Field label="OAuth / Cookie Dependencies" hint={'What auth mechanisms does the tool rely on? One per line. Examples:\nSession cookie from login flow\nOAuth2 bearer token for API calls\nLeave blank if anonymous or not sure.'}>
+      <TA value={form.oauthDependencies} onChange={v => sf("oauthDependencies", v)} placeholder={"Session cookie from login flow\nOAuth2 bearer token for API calls"} />
+    </Field>
+    <CB checked={form.inheritsSession} onChange={v => sf("inheritsSession", v)} label="Inherits browser session automatically (almost always yes -- this is the big difference from backend MCP!)" />
+  </>;
+}
+
+function BrowserSection({ form, sf }) {
+  return <>
+    <Field label="Minimum Chrome Version" req hint="WebMCP currently only works in Chrome 146 Canary with a flag enabled. Leave the default (146) unless you know otherwise.">
+      <TI value={form.chromeVersion} onChange={v => sf("chromeVersion", v)} placeholder="146" />
+    </Field>
+    <CB checked={form.mcpbPolyfill} onChange={v => sf("mcpbPolyfill", v)} label="Also works with MCP-B Chrome extension (community polyfill for current browsers)" />
+    <Field label="Browser-Specific Notes" hint={'Anything developers should know about browser support. One note per line. Examples:\nChrome DevTools MCP bridge needed for Claude Desktop\nEdge support expected mid-2026\nMobile not yet supported'}>
+      <TA value={form.browserNotes} onChange={v => sf("browserNotes", v)} placeholder={"Chrome DevTools MCP bridge required for Claude Desktop\nEdge support expected mid-2026\nMobile Chrome: not yet supported"} />
+    </Field>
+    <Field label="Graceful Degradation" hint={'What happens for users without WebMCP? Example: "Falls back to standard HTML form submission -- UI works normally for human users." This is important because most visitors won\'t have WebMCP yet.'}>
+      <TA value={form.gracefulDegradation} onChange={v => sf("gracefulDegradation", v)} placeholder="Falls back to standard HTML form submission. UI remains fully functional for human users." />
+    </Field>
+  </>;
+}
+
+function SecuritySection({ form, sf }) {
+  return <>
+    <div style={{ fontSize: 10, color: "#6b7280", marginBottom: 8, fontFamily: "'DM Sans', sans-serif", lineHeight: 1.4 }}>
+      These checkboxes are pre-set to safe defaults. Only uncheck if you know your tool behaves differently.
+    </div>
+    <CB checked={form.sameOrigin} onChange={v => sf("sameOrigin", v)} label="Same-origin only (tool only accesses data from its own domain -- almost always yes)" />
+    <CB checked={form.cspCompatible} onChange={v => sf("cspCompatible", v)} label="CSP compatible (works with Content Security Policy headers -- yes if you use CSP)" />
+    <CB checked={form.humanInTheLoop} onChange={v => sf("humanInTheLoop", v)} label="Human-in-the-loop (a person can see what the agent is doing -- core WebMCP principle)" />
+    <Field label="Data Exposure" hint={'What user data can agents see through your tools? Be specific. Examples: "Search results with flight prices", "User profile name and email", or "No user data exposed -- only public catalog info"'}>
+      <TA value={form.dataExposure} onChange={v => sf("dataExposure", v)} placeholder={"Search results including flight prices and availability\nNo personal user data exposed"} />
+    </Field>
+    <Field label="Exfiltration Risk" req hint={'The "lethal trifecta" test: Does your tool have ALL THREE of (1) access to user data + (2) untrusted content on the page (ads, user posts) + (3) ability to send data externally? If yes = High. If only 1-2 = Medium. If none or read-only = Low. Most tools are Low.'}>
+      <Sel value={form.exfiltrationRisk} onChange={v => sf("exfiltrationRisk", v)} options={[
+        { value: "low", label: "Low -- read-only or no external calls (most tools)" },
+        { value: "medium", label: "Medium -- some data access, but controlled" },
+        { value: "high", label: "High -- all 3 trifecta factors present (rare, be careful)" },
+      ]} />
+    </Field>
+    <CB checked={form.lethalTrifecta} onChange={v => sf("lethalTrifecta", v)} label="LETHAL TRIFECTA PRESENT -- all 3 factors: user data + untrusted page content + external communication (only check if truly all three)" />
+    <Field label="Rate Limiting" hint={'Any limits on how often the tool can be called? Examples: "10 calls/minute per session", "100 calls/hour", "No rate limiting". Leave blank if not sure.'}>
+      <TI value={form.rateLimiting} onChange={v => sf("rateLimiting", v)} placeholder="10 calls/minute per session" />
+    </Field>
+  </>;
+}
+
+function InteractionSection({ form, sf }) {
+  return <>
+    <Field label="Statefulness" req hint="Does each tool call stand alone, or do they build on each other? Stateless = each call is independent (e.g. a search). Stateful = results from one call feed into the next (e.g. search then book). Mixed = some of each.">
+      <Sel value={form.statefulness} onChange={v => sf("statefulness", v)} options={[
+        { value: "stateless", label: "Stateless -- each call is independent (most common)" },
+        { value: "stateful", label: "Stateful -- calls build on each other" },
+        { value: "mixed", label: "Mixed -- some independent, some chained" },
+      ]} />
+    </Field>
+    <Field label="Tool Dependencies" hint={'Does calling one tool require another to have been called first? One per line. Example:\nbookFlight needs searchFlights to have run first\nselectSeat needs bookFlight confirmation\nLeave blank if all tools are independent.'}>
+      <TA value={form.toolDependencies} onChange={v => sf("toolDependencies", v)} placeholder={"bookFlight depends on searchFlights result\nselectSeat depends on bookFlight confirmation"} />
+    </Field>
+    <CB checked={form.pageStateModification} onChange={v => sf("pageStateModification", v)} label="Tool changes what the user sees on screen (e.g. updates search results, toggles UI elements)" />
+    <Field label="Latency Estimate" hint={'How long do tool calls typically take? Examples: "Under 100ms" (fast, local), "200-500ms" (API call), "1-3 seconds" (complex operation). Leave blank if not sure.'}>
+      <TI value={form.latencyEstimate} onChange={v => sf("latencyEstimate", v)} placeholder="200-500ms for searches, 1-3s for bookings" />
+    </Field>
+    <CB checked={form.blocking} onChange={v => sf("blocking", v)} label="Freezes the page while running (ideally no -- tools should run without blocking the user)" />
+  </>;
+}
+
+function ContextSection({ form, sf }) {
+  return <>
+    <Field label="provideContext() Data" hint={'What information does your page explicitly share with agents? This is data you proactively give agents via the provideContext() API. Example: "Current search filters, selected travel dates, number of passengers, user locale". Leave blank if you don\'t use provideContext().'}>
+      <TA value={form.provideContextData} onChange={v => sf("provideContextData", v)} placeholder={"Current search filters, selected dates, passenger count\nUser locale and currency preference"} />
+    </Field>
+    <CB checked={form.domStateAccess} onChange={v => sf("domStateAccess", v)} label="Tool reads the visible page (HTML elements, form values, text on screen)" />
+    <CB checked={form.reactReduxAccess} onChange={v => sf("reactReduxAccess", v)} label="Tool reads framework state (React hooks, Redux store, Vue data) -- means your tool is coupled to a specific framework" />
+    <Field label="Navigation Dependencies" hint={'Does the tool only work on certain pages or routes? Example: "Must be on /search-results page for bookFlight to work". Type "Works on any page" or leave blank if no restriction.'}>
+      <TI value={form.navigationDependencies} onChange={v => sf("navigationDependencies", v)} placeholder="Works on any page" />
+    </Field>
+  </>;
+}
+
+function LimitationsSection({ form, sf }) {
+  return <>
+    <Field label="Cannot Do" req hint={'Be honest about what your tool CAN\'T do. One limitation per line. This builds trust! Examples:\nCannot process payments directly\nMaximum 10 passengers per search\nNo wheelchair-accessible seat filtering yet'}>
+      <TA value={form.cannotDo} onChange={v => sf("cannotDo", v)} rows={3} placeholder={"Cannot process payments directly\nMaximum 10 results per search\nDoes not support multi-city routing"} />
+    </Field>
+    <Field label="Edge Cases" hint={'Things that might surprise users or agents. Weird scenarios, known quirks. Examples:\nDates more than 330 days out return empty results\nSearch during maintenance windows returns stale data\nLeave blank if none known yet.'}>
+      <TA value={form.edgeCases} onChange={v => sf("edgeCases", v)} placeholder={"Dates more than 330 days out return empty results\nAirports with only charter flights may not appear"} />
+    </Field>
+    <Field label="Scale Limits" hint='The default "50 tools per page" is the WebMCP performance recommendation. Adjust if your page has specific limits.'>
+      <TI value={form.scaleLimits} onChange={v => sf("scaleLimits", v)} />
+    </Field>
+    <Field label="Failure Modes" hint={'How does the tool fail? What does the agent see when something goes wrong? Examples:\nReturns {error: "TIMEOUT"} after 30 seconds\nThrows TypeError if page not fully loaded\nReturns empty array (not error) when no matches found'}>
+      <TA value={form.failureModes} onChange={v => sf("failureModes", v)} placeholder={'Returns {error: "TIMEOUT", message: "..."} after 30s\nReturns empty results array when no matches found'} />
+    </Field>
+  </>;
+}
+
+function DiscoverySection({ form, sf }) {
+  return <>
+    <div style={{ fontSize: 10, color: "#6b7280", marginBottom: 8, fontFamily: "'DM Sans', sans-serif", lineHeight: 1.4 }}>
+      Discovery is an unsolved problem in WebMCP -- agents can only find tools after visiting a page. These fields document what discovery mechanisms exist (if any). Most people will leave these unchecked, and that's fine.
+    </div>
+    <CB checked={form.registryListed} onChange={v => sf("registryListed", v)} label="Listed in a tool registry or catalog (check if your tools appear in any searchable directory)" />
+    <CB checked={form.wellKnownWebmcp} onChange={v => sf("wellKnownWebmcp", v)} label="Site serves .well-known/webmcp file (proposed standard -- check if you've implemented this, most haven't)" />
+    <Field label="Pre-Visit Discoverability" hint={'Can agents know your tools exist BEFORE visiting your page? Be honest -- for most WebMCP tools the answer is "no" and that\'s okay. This model card itself helps with discovery! Examples:\n"Documented in this model card"\n"Listed in site sitemap"\n"No pre-visit discovery -- tools available after page load"'}>
+      <TA value={form.preVisitDiscoverability} onChange={v => sf("preVisitDiscoverability", v)} placeholder={"Documented in this model card\nNo pre-visit discovery -- tools only available after page load"} />
+    </Field>
+  </>;
+}
+
+function TestingSection({ form, sf }) {
+  return <>
+    <Field label="Test Methodology" hint={'How did you test your tools with AI agents? Examples:\nManual testing via Chrome DevTools MCP bridge\nAutomated benchmark comparing token usage\nUser testing with 3 people using Claude Desktop\nOr just: "Not yet tested" -- honesty is fine here.'}>
+      <TA value={form.testMethodology} onChange={v => sf("testMethodology", v)} placeholder={"Manual testing via Chrome DevTools MCP bridge\nBenchmark comparing structured calls vs screenshot method"} />
+    </Field>
+    <Field label="Agents Tested" hint="Check every AI agent you've tested your tools with. This builds trust -- agents that know they've been tested get used more confidently. None tested yet? Leave all unchecked.">
+      <MC options={[
+        { value: "claude", label: "Claude" }, { value: "gpt", label: "GPT / ChatGPT" },
+        { value: "gemini", label: "Gemini" }, { value: "copilot", label: "Copilot" },
+        { value: "other", label: "Other" },
+      ]} selected={form.agentsTested} onChange={v => sf("agentsTested", v)} />
+    </Field>
+    <Field label="Pass/Fail Criteria" hint={'What counts as "it works"? Examples:\nReturns valid JSON with results\nNo console errors during execution\nCompletes within 5 seconds\nHuman can see and verify changes'}>
+      <TA value={form.passFailCriteria} onChange={v => sf("passFailCriteria", v)} placeholder={"Returns valid JSON with results array\nNo console errors during execution\nCompletes within 5 seconds"} />
+    </Field>
+    <Field label="Test Suite Link" hint="URL to your test scripts or CI pipeline. Leave blank if no automated tests yet -- you can add this later.">
+      <TI value={form.testSuiteLink} onChange={v => sf("testSuiteLink", v)} placeholder="https://github.com/user/repo/tree/main/tests" />
+    </Field>
+  </>;
+}
+
+function BackendSection({ form, sf }) {
+  return <>
+    <div style={{ fontSize: 10, color: "#6b7280", marginBottom: 8, fontFamily: "'DM Sans', sans-serif", lineHeight: 1.4 }}>
+      Many real apps have BOTH: a backend MCP server (Anthropic-style, runs on Node.js/Python) AND browser-side WebMCP tools. This section documents the relationship. If your tool is browser-only, just leave unchecked.
+    </div>
+    <CB checked={form.hasBackendMcp} onChange={v => sf("hasBackendMcp", v)} label="This service also has a backend MCP server (check if there's a separate server-side MCP alongside the browser tools)" />
+    {form.hasBackendMcp && <>
+      <Field label="Backend Server Name" hint={'The name of the backend MCP server. Example: "flights-mcp-server" or "@company/booking-mcp". This is the npm package or server name, not the WebMCP tool name.'}>
+        <TI value={form.backendServerName} onChange={v => sf("backendServerName", v)} placeholder="flights-mcp-server" />
+      </Field>
+      <Field label="Capability Differences" hint={'What does the browser tool do that the backend doesn\'t, and vice versa? Example:\nBrowser: live UI updates, session-aware search, human confirmation\nBackend: payment processing, database writes, heavy computation\nThis helps agents choose which to use.'}>
+        <TA value={form.capabilityDifferences} onChange={v => sf("capabilityDifferences", v)} placeholder={"Browser: live UI updates, session-aware search, human confirmations\nBackend: payment processing, database writes, batch operations\nBrowser inherits user session; backend needs separate API key"} />
+      </Field>
+      <CB checked={form.authSharing} onChange={v => sf("authSharing", v)} label="Same authentication works for both browser and backend (e.g. same OAuth token)" />
+    </>}
+  </>;
+}
+
+// -- Generator --
+
+function generateJSON(form, tools) {
+  const card = {
+    webmcp_model_card_version: "1.0.0",
+    specification: "WebMCP Model Card Specification v1.0",
+    specification_basis: "MCP Model Card Specification v1.0 (Extended for WebMCP)",
+    w3c_groups: ["W3C AI Knowledge Representation CG", "W3C Web Machine Learning CG"],
+    generated_at: new Date().toISOString(),
+    identity: {
+      name: form.toolName, version: form.version, description: form.description,
+      author: form.author, creation_date: form.creationDate, license: form.license,
+      page_url: form.pageUrl, attribution: form.attribution, source_repository: form.sourceRepo,
+    },
+    api_mode: {
+      primary: form.apiMode,
+      ...(form.apiMode !== "imperative" ? { declarative: { form_toolname: form.declarativeFormName, form_tooldescription: form.declarativeFormDescription } } : {}),
+      ...(form.apiMode !== "declarative" ? { imperative: { registration_method: form.imperativeRegistration } } : {}),
+    },
+    tools: tools.map(t => {
+      let ps; try { ps = JSON.parse(t.inputSchema); } catch { ps = { error: "Invalid JSON" }; }
+      return { name: t.name, description: t.description, input_schema: ps, output_format: t.outputFormat,
+        error_states: t.errorStates ? t.errorStates.split("\n").filter(Boolean) : [],
+        annotations: { read_only_hint: t.readOnlyHint, destructive: t.destructive, async: t.async,
+          requires_user_interaction: t.requiresUserInteraction, multimodal_support: t.multimodalSupport } };
+    }),
+    session: { type: form.sessionType, permissions_required: form.permissionsRequired,
+      oauth_dependencies: form.oauthDependencies ? form.oauthDependencies.split("\n").filter(Boolean) : [],
+      inherits_browser_session: form.inheritsSession },
+    browser_compatibility: { minimum_chrome_version: form.chromeVersion, mcpb_polyfill_support: form.mcpbPolyfill,
+      browser_notes: form.browserNotes ? form.browserNotes.split("\n").filter(Boolean) : [],
+      graceful_degradation: form.gracefulDegradation },
+    security: { same_origin_scope: form.sameOrigin, csp_compatible: form.cspCompatible,
+      human_in_the_loop: form.humanInTheLoop, data_exposure: form.dataExposure,
+      exfiltration_risk: form.exfiltrationRisk, lethal_trifecta_present: form.lethalTrifecta,
+      rate_limiting: form.rateLimiting },
+    interaction_patterns: { statefulness: form.statefulness,
+      tool_dependencies: form.toolDependencies ? form.toolDependencies.split("\n").filter(Boolean) : [],
+      page_state_modification: form.pageStateModification, latency_estimate: form.latencyEstimate, blocking: form.blocking },
+    context_requirements: { provide_context_data: form.provideContextData, dom_state_access: form.domStateAccess,
+      framework_state_access: form.reactReduxAccess, navigation_dependencies: form.navigationDependencies },
+    limitations: { cannot_do: form.cannotDo ? form.cannotDo.split("\n").filter(Boolean) : [],
+      edge_cases: form.edgeCases ? form.edgeCases.split("\n").filter(Boolean) : [],
+      scale_limits: form.scaleLimits, failure_modes: form.failureModes ? form.failureModes.split("\n").filter(Boolean) : [] },
+    discovery: { registry_listed: form.registryListed, well_known_webmcp: form.wellKnownWebmcp,
+      pre_visit_discoverability: form.preVisitDiscoverability },
+    testing: { methodology: form.testMethodology, agents_tested: form.agentsTested,
+      pass_fail_criteria: form.passFailCriteria, test_suite_link: form.testSuiteLink },
+    backend_relationship: { has_backend_mcp: form.hasBackendMcp, backend_server_name: form.backendServerName,
+      capability_differences: form.capabilityDifferences, auth_sharing: form.authSharing },
+  };
+  return JSON.stringify(card, null, 2);
+}
+
+function generateMarkdown(form, tools) {
+  const L = [];
+  L.push(`# WebMCP Model Card: ${form.toolName || "Untitled"}\n`);
+  L.push(`> Generated by WebMCP Model Card Generator v1.0`);
+  L.push(`> Based on MCP Model Card Specification v1.0 (Extended for WebMCP)`);
+  L.push(`> W3C AI-KR CG + W3C Web Machine Learning CG`);
+  L.push(`> ${new Date().toISOString()}\n---\n`);
+
+  L.push(`## 1. Identity & Provenance\n`);
+  L.push(`| Field | Value |\n|-------|-------|\n| **Name** | ${form.toolName} |\n| **Version** | ${form.version} |\n| **Description** | ${form.description} |`);
+  if (form.author) L.push(`| **Author** | ${form.author} |`);
+  L.push(`| **Created** | ${form.creationDate} |\n| **License** | ${form.license} |\n| **Attribution** | ${form.attribution} |`);
+  if (form.pageUrl) L.push(`| **Page URL** | ${form.pageUrl} |`);
+  if (form.sourceRepo) L.push(`| **Repository** | ${form.sourceRepo} |`);
+  L.push("");
+
+  L.push(`## 2. API Mode\n\n**Primary**: ${form.apiMode}\n`);
+  if (form.apiMode !== "imperative") L.push(`- Declarative form: \`${form.declarativeFormName}\` -- "${form.declarativeFormDescription}"`);
+  if (form.apiMode !== "declarative") L.push(`- Imperative: \`${form.imperativeRegistration}\``);
+  L.push("");
+
+  L.push(`## 3. Tool Catalog\n`);
+  if (tools.length === 0) L.push("*No tools documented.*\n");
+  else tools.forEach((t, i) => {
+    L.push(`### 3.${i+1} \`${t.name}\`\n\n${t.description}\n`);
+    L.push(`| Property | Value |\n|----------|-------|\n| Read-only | ${t.readOnlyHint?"Yes":"No"} |\n| Destructive | ${t.destructive?"Yes":"No"} |\n| Async | ${t.async?"Yes":"No"} |\n| User interaction | ${t.requiresUserInteraction?"Yes":"No"} |\n| Output | ${t.outputFormat} |\n`);
+    L.push("```json\n" + t.inputSchema + "\n```\n");
+    if (t.errorStates) { L.push("**Errors**:"); t.errorStates.split("\n").filter(Boolean).forEach(e => L.push(`- ${e}`)); L.push(""); }
+  });
+
+  L.push(`## 4. Session & Auth\n\n- Type: ${form.sessionType}\n- Inherits session: ${form.inheritsSession?"Yes":"No"}`);
+  if (form.permissionsRequired) L.push(`- Permissions: ${form.permissionsRequired}`);
+  L.push("");
+
+  L.push(`## 5. Browser Compatibility\n\n- Chrome ${form.chromeVersion}+\n- MCP-B polyfill: ${form.mcpbPolyfill?"Yes":"No"}`);
+  if (form.gracefulDegradation) L.push(`- Degradation: ${form.gracefulDegradation}`);
+  L.push("");
+
+  L.push(`## 6. Security\n\n| Property | Value |\n|----------|-------|\n| Same-origin | ${form.sameOrigin?"Yes":"No"} |\n| CSP | ${form.cspCompatible?"Yes":"No"} |\n| Human-in-loop | ${form.humanInTheLoop?"Yes":"No"} |\n| Exfiltration risk | ${form.exfiltrationRisk} |\n| Lethal trifecta | ${form.lethalTrifecta?"PRESENT":"No"} |\n`);
+
+  L.push(`## 7. Interaction\n\n- Statefulness: ${form.statefulness}\n- Modifies page: ${form.pageStateModification?"Yes":"No"}\n- Blocking: ${form.blocking?"Yes":"No"}`);
+  if (form.latencyEstimate) L.push(`- Latency: ${form.latencyEstimate}`);
+  L.push("");
+
+  L.push(`## 8. Context Requirements\n\n- DOM access: ${form.domStateAccess?"Yes":"No"}\n- Framework state: ${form.reactReduxAccess?"Yes":"No"}`);
+  if (form.provideContextData) L.push(`- provideContext(): ${form.provideContextData}`);
+  L.push("");
+
+  L.push(`## 9. Limitations\n`);
+  if (form.cannotDo) form.cannotDo.split("\n").filter(Boolean).forEach(l => L.push(`- ${l}`));
+  if (form.scaleLimits) L.push(`\nScale: ${form.scaleLimits}`);
+  L.push("");
+
+  L.push(`## 10. Discovery\n\n- Registry: ${form.registryListed?"Yes":"No"}\n- .well-known/webmcp: ${form.wellKnownWebmcp?"Yes":"No"}\n`);
+
+  L.push(`## 11. Testing\n`);
+  if (form.agentsTested.length) L.push(`Agents: ${form.agentsTested.join(", ")}`);
+  if (form.testMethodology) L.push(`Method: ${form.testMethodology}`);
+  L.push("");
+
+  L.push(`## 12. Backend MCP\n\n- Has backend: ${form.hasBackendMcp?"Yes":"No"}`);
+  if (form.hasBackendMcp && form.backendServerName) L.push(`- Server: ${form.backendServerName}`);
+  L.push("");
+
+  L.push(`---\n\n*Co-created by Paola Di Maio, PhD (W3C AI-KR CG Chair) & Claude (Anthropic)*\n*Extends MCP Model Card Specification v1.0 for the WebMCP browser ecosystem*`);
+  return L.join("\n");
+}
+
+// -- MAIN APP --
+
+function App() {
+  const [form, setForm] = useState({ ...defaultForm });
+  const [tools, setTools] = useState([]);
+  const [sec, setSec] = useState("identity");
+  const [output, setOutput] = useState(null);
+  const [fmt, setFmt] = useState("json");
+  const [showTutorial, setShowTutorial] = useState(true);
+  const outRef = useRef(null);
+
+  const sf = useCallback((k, v) => setForm(p => ({ ...p, [k]: v })), []);
+  const si = SECTIONS.indexOf(sec);
+
+  const gen = () => {
+    setOutput({ json: generateJSON(form, tools), md: generateMarkdown(form, tools) });
+    setFmt("json");
+    setTimeout(() => outRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+  };
+
+  const copy = () => navigator.clipboard.writeText(fmt === "json" ? output.json : output.md);
+
+  const renderSec = () => {
+    const p = { form, sf };
+    switch (sec) {
+      case "identity": return <IdentitySection {...p} />;
+      case "apiMode": return <ApiModeSection {...p} />;
+      case "tools": return <ToolsSection tools={tools} setTools={setTools} />;
+      case "session": return <SessionSection {...p} />;
+      case "browser": return <BrowserSection {...p} />;
+      case "security": return <SecuritySection {...p} />;
+      case "interaction": return <InteractionSection {...p} />;
+      case "context": return <ContextSection {...p} />;
+      case "limitations": return <LimitationsSection {...p} />;
+      case "discovery": return <DiscoverySection {...p} />;
+      case "testing": return <TestingSection {...p} />;
+      case "backendRelationship": return <BackendSection {...p} />;
+      default: return null;
+    }
+  };
+
+  const navBtn = (label, onClick, primary = false, disabled = false) => (
+    <button onClick={onClick} disabled={disabled} style={{
+      padding: "7px 16px", fontSize: 12, fontWeight: 600, fontFamily: "'DM Sans', sans-serif",
+      background: disabled ? "#94a3b8" : primary ? "linear-gradient(135deg, #2563eb, #3b82f6)" : "#f1f5f9",
+      color: disabled ? "#cbd5e1" : primary ? "#fff" : "#374151",
+      border: primary ? "none" : "1px solid #e5e7eb", borderRadius: 7,
+      cursor: disabled ? "not-allowed" : "pointer", transition: "all 0.2s",
+    }}>{label}</button>
+  );
+
+  return (
+    <div style={{ minHeight: "100vh", background: "linear-gradient(165deg, #0f172a 0%, #1e293b 40%, #0f172a 100%)", fontFamily: "'DM Sans', sans-serif" }}>
+      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+
+      {/* Header */}
+      <div style={{ background: "linear-gradient(135deg, rgba(37,99,235,0.12), rgba(124,58,237,0.08))", borderBottom: "1px solid rgba(255,255,255,0.06)", padding: "20px 20px 16px" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ width: 38, height: 38, borderRadius: 10, background: "linear-gradient(135deg, #2563eb, #7c3aed)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, color: "#fff", fontWeight: 700, boxShadow: "0 4px 16px rgba(37,99,235,0.3)" }}>W</div>
+            <div>
+              <h1 style={{ fontSize: 19, fontWeight: 800, color: "#f1f5f9", margin: 0, fontFamily: "'Outfit', sans-serif", letterSpacing: "-0.02em" }}>WebMCP Model Card Generator</h1>
+              <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 1 }}>MCP Model Card Spec v1.0 -- Extended for browser-side tools</div>
+            </div>
+          </div>
+          <button onClick={() => setShowTutorial(!showTutorial)} style={{
+            padding: "6px 14px", fontSize: 11, fontWeight: 600,
+            background: showTutorial ? "rgba(34,197,94,0.15)" : "rgba(255,255,255,0.05)",
+            color: showTutorial ? "#4ade80" : "#94a3b8",
+            border: showTutorial ? "1px solid rgba(34,197,94,0.3)" : "1px solid rgba(255,255,255,0.08)",
+            borderRadius: 7, cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
+          }}>
+            {showTutorial ? "Tutorial ON" : "Tutorial OFF"}
+          </button>
+        </div>
+      </div>
+
+      {/* Section Tabs */}
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "12px 20px 0", display: "flex", flexWrap: "wrap", gap: 3 }}>
+        {SECTIONS.map((s, i) => (
+          <button key={s} onClick={() => setSec(s)} style={{
+            padding: "5px 10px", fontSize: 10.5, fontWeight: sec === s ? 700 : 500,
+            fontFamily: "'DM Sans', sans-serif",
+            background: sec === s ? "linear-gradient(135deg, #2563eb, #3b82f6)" : "rgba(255,255,255,0.04)",
+            color: sec === s ? "#fff" : "#94a3b8",
+            border: sec === s ? "none" : "1px solid rgba(255,255,255,0.06)",
+            borderRadius: 7, cursor: "pointer", transition: "all 0.15s", whiteSpace: "nowrap",
+          }}>
+            <span style={{ marginRight: 3 }}>{SECTION_ICONS[s]}</span>
+            {i + 1}. {SECTION_LABELS[s]}
+          </button>
+        ))}
+      </div>
+
+      {/* Main: Form + Tutorial Side-by-Side */}
+      <div style={{
+        maxWidth: 1200, margin: "14px auto 0", padding: "0 20px",
+        display: "grid",
+        gridTemplateColumns: showTutorial ? "1fr 340px" : "1fr",
+        gap: 16, alignItems: "start",
+      }}>
+        {/* Form Panel */}
+        <div style={{
+          background: "#fff", borderRadius: 14, padding: "20px 22px",
+          boxShadow: "0 6px 30px rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.08)",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, paddingBottom: 12, borderBottom: "1px solid #e5e7eb" }}>
+            <span style={{ fontSize: 22 }}>{SECTION_ICONS[sec]}</span>
+            <div>
+              <h2 style={{ fontSize: 15, fontWeight: 700, color: "#1a1a2e", margin: 0, fontFamily: "'Outfit', sans-serif" }}>
+                {si + 1}. {SECTION_LABELS[sec]}
+              </h2>
+              <div style={{ fontSize: 10, color: "#6b7280", marginTop: 1 }}>{si + 1} of {SECTIONS.length}</div>
+            </div>
+          </div>
+
+          {renderSec()}
+
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 18, paddingTop: 14, borderTop: "1px solid #e5e7eb" }}>
+            {navBtn("Previous", () => si > 0 && setSec(SECTIONS[si - 1]), false, si === 0)}
+            <div style={{ display: "flex", gap: 6 }}>
+              <button onClick={gen} style={{
+                padding: "7px 18px", fontSize: 12, fontWeight: 700,
+                background: "linear-gradient(135deg, #059669, #10b981)", color: "#fff",
+                border: "none", borderRadius: 7, cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
+                boxShadow: "0 2px 8px rgba(5,150,105,0.3)",
+              }}>Generate</button>
+              {si < SECTIONS.length - 1 && navBtn("Next", () => setSec(SECTIONS[si + 1]), true)}
+            </div>
+          </div>
+        </div>
+
+        {/* Tutorial Panel */}
+        {showTutorial && <TutorialPanel section={sec} />}
+      </div>
+
+      {/* Output */}
+      {output && (
+        <div ref={outRef} style={{ maxWidth: 1200, margin: "16px auto", padding: "0 20px 36px" }}>
+          <div style={{ background: "#fff", borderRadius: 14, padding: "20px 22px", boxShadow: "0 6px 30px rgba(0,0,0,0.2)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+              <h2 style={{ fontSize: 15, fontWeight: 700, color: "#1a1a2e", margin: 0, fontFamily: "'Outfit', sans-serif" }}>Generated Model Card</h2>
+              <div style={{ display: "flex", gap: 5 }}>
+                {["json", "md"].map(f => (
+                  <button key={f} onClick={() => setFmt(f)} style={{
+                    padding: "4px 12px", fontSize: 11, fontWeight: 600,
+                    background: fmt === f ? "#2563eb" : "#f1f5f9",
+                    color: fmt === f ? "#fff" : "#374151",
+                    border: "none", borderRadius: 5, cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
+                  }}>{f === "json" ? "JSON" : "Markdown"}</button>
+                ))}
+                <button onClick={copy} style={{
+                  padding: "4px 12px", fontSize: 11, fontWeight: 600, background: "#059669",
+                  color: "#fff", border: "none", borderRadius: 5, cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
+                }}>Copy</button>
+              </div>
+            </div>
+            <pre style={{
+              background: "#0f172a", color: "#e2e8f0", padding: 16, borderRadius: 9,
+              fontSize: 11, lineHeight: 1.55, fontFamily: "'DM Mono', monospace",
+              overflow: "auto", maxHeight: 440, border: "1px solid rgba(255,255,255,0.06)",
+            }}>
+              {fmt === "json" ? output.json : output.md}
+            </pre>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+    ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+  </script>
+</body>
+</html>

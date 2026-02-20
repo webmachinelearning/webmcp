@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebMCP & MCP Tooling -- Quiz by Claude</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  :root {
+    --ink: #1a1a2e;
+    --paper: #f5f0e8;
+    --accent: #2d5016;
+    --accent-light: #e8f0e2;
+    --correct: #2d5016;
+    --wrong: #8b1a1a;
+    --warm: #d4a574;
+    --border: #c8bfa8;
+  }
+  
+  body {
+    font-family: 'Source Serif 4', Georgia, serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+  
+  .container {
+    max-width: 680px;
+    margin: 0 auto;
+  }
+  
+  header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid var(--ink);
+  }
+  
+  header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+  }
+  
+  header p {
+    font-style: italic;
+    color: #666;
+    font-size: 1rem;
+  }
+  
+  .score-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 4px;
+    margin-bottom: 2.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+  }
+  
+  .score-bar .progress {
+    opacity: 0.7;
+  }
+  
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+  
+  .question-block {
+    margin-bottom: 2.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .question-block.answered .option { pointer-events: none; }
+  
+  .question-text {
+    font-size: 1.15rem;
+    line-height: 1.6;
+    margin-bottom: 1.2rem;
+    font-weight: 600;
+  }
+  
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  
+  .option {
+    padding: 0.9rem 1.2rem;
+    border: 1.5px solid var(--border);
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    background: white;
+  }
+  
+  .option:hover {
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+  
+  .option.correct {
+    border-color: var(--correct);
+    background: var(--accent-light);
+    border-width: 2px;
+  }
+  
+  .option.correct::before {
+    content: "\2713  ";
+    color: var(--correct);
+    font-weight: 700;
+  }
+  
+  .option.wrong {
+    border-color: var(--wrong);
+    background: #fdf0f0;
+    border-width: 2px;
+    text-decoration: line-through;
+    opacity: 0.7;
+  }
+  
+  .option.wrong::before {
+    content: "\2717  ";
+    color: var(--wrong);
+    font-weight: 700;
+  }
+  
+  .option.dimmed {
+    opacity: 0.4;
+  }
+  
+  .explanation {
+    display: none;
+    margin-top: 1rem;
+    padding: 1rem 1.2rem;
+    background: var(--accent-light);
+    border-left: 3px solid var(--accent);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+  
+  .explanation.visible { display: block; }
+  
+  .explanation strong {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--accent);
+  }
+  
+  .results {
+    display: none;
+    text-align: center;
+    padding: 3rem 2rem;
+    border: 2px solid var(--ink);
+    margin-top: 2rem;
+  }
+  
+  .results.visible { display: block; }
+  
+  .results h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .results .final-score {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+  
+  .results .verdict {
+    font-style: italic;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  
+  .reset-btn {
+    margin-top: 2rem;
+    padding: 0.8rem 2rem;
+    font-family: 'Source Serif 4', serif;
+    font-size: 1rem;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  
+  .reset-btn:hover { opacity: 0.85; }
+  
+  footer {
+    text-align: center;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.8rem;
+    color: #888;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>INTRO: WebMCP & MCP Tooling</h1>
+    <p>15 questions -</p>
+  </header>
+  
+  <div class="score-bar">
+    <span class="progress" id="progress">Question 0 / 15</span>
+    <span id="score">Score: 0</span>
+  </div>
+  
+  <div id="quiz"></div>
+  
+  <div class="results" id="results">
+    <h2>Meeting Readiness</h2>
+    <div class="final-score" id="finalScore"></div>
+    <div class="verdict" id="verdict"></div>
+    <button class="reset-btn" onclick="resetQuiz()">Run it again</button>
+  </div>
+  
+  <footer>
+  </footer>
+</div>
+
+<script>
+const questions = [
+  {
+    section: "What is WebMCP",
+    q: "What does WebMCP allow websites to do?",
+    options: [
+      "Run AI models directly in the browser",
+      "Expose JavaScript functions as AI-callable tools through the browser",
+      "Replace backend servers with AI agents",
+      "Train language models on website content"
+    ],
+    correct: 1,
+    explain: "WebMCP lets websites register 'tools' -- JavaScript functions with descriptions and schemas -- that AI agents can discover and invoke through the browser's navigator.modelContext API. The AI models themselves run elsewhere."
+  },
+  {
+    section: "What is WebMCP",
+    q: "Where does WebMCP sit in the standards process?",
+    options: [
+      "It is a final W3C Recommendation",
+      "It is a Google proprietary API in Chrome only",
+      "It is a proposal being incubated in the W3C Web Machine Learning Community Group",
+      "It is part of the MCP specification maintained by Anthropic"
+    ],
+    correct: 2,
+    explain: "WebMCP is a proposed standard being incubated in the W3C Web Machine Learning Community Group. It is not a final standard yet, and it is distinct from Anthropic's MCP specification, though they share concepts."
+  },
+  {
+    section: "What is WebMCP",
+    q: "What is the key difference between WebMCP and server-side MCP?",
+    options: [
+      "WebMCP is faster",
+      "WebMCP tools run in client-side JavaScript in the browser, not on a backend server",
+      "WebMCP only works with Claude",
+      "WebMCP does not use JSON schemas"
+    ],
+    correct: 1,
+    explain: "Server-side MCP servers run on a backend. WebMCP tools are implemented in client-side JavaScript -- the website itself acts as the MCP server. This means no backend infrastructure is needed, but it also means different security considerations apply (origin-based security, user-present interaction)."
+  },
+  {
+    section: "Security",
+    q: "What security model does WebMCP rely on?",
+    options: [
+      "API keys and tokens",
+      "OAuth 2.0 authentication",
+      "The browser's origin-based security model",
+      "End-to-end encryption"
+    ],
+    correct: 2,
+    explain: "WebMCP leverages the browser's existing origin-based security -- the same model that governs cookies, localStorage, and CORS. This is one of its architectural strengths: it doesn't invent a new trust layer but builds on established web security primitives."
+  },
+  {
+    section: "Security",
+    q: "What consent gap did we identify in the WebMCP spec?",
+    options: [
+      "Users cannot log in to websites",
+      "There is no mechanism for users to preview or approve which tools a site exposes before an agent acts on them",
+      "WebMCP does not support HTTPS",
+      "AI agents can modify the browser's security settings"
+    ],
+    correct: 1,
+    explain: "Currently any page can register tools that agents can discover, with no user permission prompt. We compared this to how browsers evolved permission prompts for camera and microphone access, and asked whether a similar layer should emerge for WebMCP tool registration."
+  },
+  {
+    section: "The navigator.modelContext API",
+    q: "How does a website register a tool in WebMCP?",
+    options: [
+      "By adding a meta tag to the HTML head",
+      "By calling navigator.modelContext.registerTool() with a name, description, schema, and handler function",
+      "By uploading a configuration file to a W3C server",
+      "By embedding an iframe from the AI provider"
+    ],
+    correct: 1,
+    explain: "The core API is navigator.modelContext.registerTool(), which accepts a ModelContextTool object containing the tool's name, a natural language description, a JSON Schema for input parameters, and an execute callback function."
+  },
+  {
+    section: "The navigator.modelContext API",
+    q: "What does requestUserInteraction() do in the WebMCP API?",
+    options: [
+      "Asks the user to install the WebMCP browser extension",
+      "Allows a tool to pause execution and request input from the user during a tool call",
+      "Sends a notification to the AI provider",
+      "Opens a new browser tab"
+    ],
+    correct: 1,
+    explain: "requestUserInteraction() is a human-in-the-loop mechanism. During tool execution, the handler can pause and request user input -- for example, showing a confirmation dialog before completing a purchase. This keeps humans in control during agent-driven actions."
+  },
+  {
+    section: "Our MCP tooling suite",
+    q: "How many tools are in our MCP quality infrastructure suite?",
+    options: [
+      "Three",
+      "Four",
+      "Five",
+      "Seven"
+    ],
+    correct: 2,
+    explain: "Five tools: MCP Server Generator, MCP Server Validator, MCP Model Card Generator, MCP Model Card Specification v1.0, and the WebMCP Model Card Generator. The first four address server-side MCP; the fifth extends the framework to browser-side WebMCP tools."
+  },
+  {
+    section: "Our MCP tooling suite",
+    q: "What does the MCP Server Validator detect?",
+    options: [
+      "Spelling errors in tool descriptions",
+      "Hardcoded credentials, missing authentication, naming violations, and security vulnerabilities through AST-based static analysis",
+      "Whether the server is online",
+      "How many users are connected"
+    ],
+    correct: 1,
+    explain: "The validator performs static analysis by examining the server's abstract syntax tree (AST) without executing the code. It catches hardcoded credentials, missing authentication patterns, naming convention violations, and known vulnerability patterns like tool poisoning vectors."
+  },
+  {
+    section: "Our MCP tooling suite",
+    q: "What does the MCP Model Card Specification define?",
+    options: [
+      "A standard for AI model training procedures",
+      "A structured metadata format for documenting MCP server capabilities, security, performance, and deployment requirements",
+      "A visual design standard for MCP user interfaces",
+      "A certification program for MCP developers"
+    ],
+    correct: 1,
+    explain: "The Model Card Specification v1.0 defines fields across six domains: server metadata, tool documentation, operational characteristics, security profile, deployment context, and evaluation results. It adapts the ML model card tradition for protocol infrastructure."
+  },
+  {
+    section: "Our MCP tooling suite",
+    q: "What makes the WebMCP Model Card Generator different from the MCP Model Card Generator?",
+    options: [
+      "It is written in a different programming language",
+      "It covers browser-specific concerns like origin security, navigator.modelContext API modes, and user-present interaction patterns",
+      "It only works with Google Chrome",
+      "It generates PDF documents instead of JSON"
+    ],
+    correct: 1,
+    explain: "The WebMCP generator has 12 sections tailored to browser-side tools: covering tool identity, API modes (registerTool vs addTool), browser compatibility, origin-based security, user interaction patterns, and testing in browser environments. These are distinct concerns from server-side MCP."
+  },
+  {
+    section: "Standards landscape",
+    q: "What is the relationship between MCP and WebMCP?",
+    options: [
+      "WebMCP replaces MCP",
+      "They are the same specification",
+      "MCP is the underlying protocol; WebMCP adapts its concepts for browser-side implementation through a web API",
+      "WebMCP is an older version of MCP"
+    ],
+    correct: 2,
+    explain: "MCP (by Anthropic) is the protocol for applications to interface with AI models. WebMCP adapts MCP concepts -- tools, schemas, descriptions -- into a browser-native JavaScript API. A WebMCP-enabled web page can be thought of as an MCP server implemented in client-side script."
+  },
+  {
+    section: "Standards landscape",
+    q: "What is MCP-B?",
+    options: [
+      "A competing standard from Microsoft",
+      "A browser extension and polyfill that bridges WebMCP's web API with the MCP protocol for cross-compatibility",
+      "A mobile version of MCP",
+      "The beta version of MCP"
+    ],
+    correct: 1,
+    explain: "MCP-B provides a polyfill implementing navigator.modelContext for browsers that don't yet have native support, and translates between WebMCP's web-native format and the MCP wire protocol. It bridges the gap while native browser implementations are being developed."
+  },
+  {
+    section: "Meeting talking points",
+    q: "Why did we argue that documentation tooling should not be an afterthought for WebMCP?",
+    options: [
+      "Because documentation is required by law",
+      "Because MCP's own server ecosystem shows what happens when protocols grow without standardized documentation -- fragmentation and security gaps",
+      "Because Google requires documentation for all APIs",
+      "Because users will not adopt WebMCP without tutorials"
+    ],
+    correct: 1,
+    explain: "MCP grew to 10,000+ servers without standardized documentation, creating fragmentation and security risks. Our tooling suite exists to address that gap retroactively. The argument to the spec team is: bake documentation conventions into WebMCP guidance early so the ecosystem doesn't repeat the same pattern."
+  },
+  {
+    section: "Meeting talking points",
+    q: "Under which institutional affiliation is this work published?",
+    options: [
+      "Google Web Machine Learning Group",
+      "Anthropic Research",
+      "Epistemic Systems Lab, Ronin Institute, under the W3C AI Knowledge Representation Community Group",
+      "Stanford AI Lab"
+    ],
+    correct: 2,
+    explain: "The work is produced through the Epistemic Systems Lab at the Ronin Institute (ronin-institute.org), and the standards work is conducted through the W3C AI Knowledge Representation Community Group."
+  }
+];
+
+let answered = 0;
+let score = 0;
+
+function renderQuiz() {
+  const container = document.getElementById('quiz');
+  let currentSection = '';
+  
+  questions.forEach((item, qi) => {
+    let sectionHTML = '';
+    if (item.section !== currentSection) {
+      currentSection = item.section;
+      sectionHTML = `<div class="section-label">${currentSection}</div>`;
+    }
+    
+    const optionsHTML = item.options.map((opt, oi) => 
+      `<div class="option" data-q="${qi}" data-o="${oi}" onclick="answer(${qi}, ${oi})">${opt}</div>`
+    ).join('');
+    
+    container.innerHTML += `
+      ${sectionHTML}
+      <div class="question-block" id="qblock-${qi}">
+        <div class="question-text">${qi + 1}. ${item.q}</div>
+        <div class="options">${optionsHTML}</div>
+        <div class="explanation" id="explain-${qi}"><strong>Context:</strong> ${item.explain}</div>
+      </div>
+    `;
+  });
+}
+
+function answer(qi, oi) {
+  const block = document.getElementById(`qblock-${qi}`);
+  if (block.classList.contains('answered')) return;
+  
+  block.classList.add('answered');
+  answered++;
+  
+  const item = questions[qi];
+  const options = block.querySelectorAll('.option');
+  
+  if (oi === item.correct) {
+    score++;
+    options[oi].classList.add('correct');
+  } else {
+    options[oi].classList.add('wrong');
+    options[item.correct].classList.add('correct');
+  }
+  
+  options.forEach((opt, i) => {
+    if (i !== oi && i !== item.correct) opt.classList.add('dimmed');
+  });
+  
+  document.getElementById(`explain-${qi}`).classList.add('visible');
+  document.getElementById('score').textContent = `Score: ${score}`;
+  document.getElementById('progress').textContent = `Question ${answered} / ${questions.length}`;
+  
+  if (answered === questions.length) {
+    showResults();
+  }
+}
+
+function showResults() {
+  const pct = Math.round((score / questions.length) * 100);
+  document.getElementById('finalScore').textContent = `${score} / ${questions.length} (${pct}%)`;
+  
+  let verdict = '';
+  if (pct >= 90) {
+    verdict = "Go get them.";
+  } else if (pct >= 70) {
+    verdict = " You'll do well.";
+  } else if (pct >= 50) {
+    verdict = "I'll be in the chat window during the meeting to back you up.";
+  } else {
+    verdict = ".";
+  }
+  
+  document.getElementById('verdict').textContent = verdict;
+  document.getElementById('results').classList.add('visible');
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+}
+
+function resetQuiz() {
+  answered = 0;
+  score = 0;
+  document.getElementById('quiz').innerHTML = '';
+  document.getElementById('results').classList.remove('visible');
+  document.getElementById('score').textContent = 'Score: 0';
+  document.getElementById('progress').textContent = 'Question 0 / 15';
+  renderQuiz();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+renderQuiz();
+</script>
+ BY CLAUDE WITH LOVE
+</body>
+</html>
