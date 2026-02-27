@@ -253,8 +253,8 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>)</dfn> method step
        "<code>inputSchema: { toJSON() {return HTMLDivElement;}}</code>", or
        "<code>innputSchema: { toJSON() {return undefined;}}</code>".</p></li>
 
-       <li><p><i>Re-throws exceptions</i> thrown by "<code>JSON.stringify()</code>". For example,
-       "<code>inputSchema: objectWithCircularReference</code>", etc.</p></li>
+       <li><p><i>Re-throws exceptions</i> thrown by "<code>JSON.stringify()</code>", e.g., when
+       "<code>inputSchema</code>" is an object with a circular reference, etc.</p></li>
      </ol>
 
      <p class="XXX">Currently, the only implementation of this spec (Chromium) does not throw
@@ -288,9 +288,14 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>)</dfn> method step
 </div>
 
 <div algorithm>
-The <dfn method for=ModelContext>unregisterTool(<var ignore>name</var>)</dfn> method steps are:
+The <dfn method for=ModelContext>unregisterTool(<var>name</var>)</dfn> method steps are:
 
-1. TODO: fill this out.
+1. Let |tool map| be [=this=]'s [=ModelContext/internal context=]'s [=model context/tool map=].
+
+1. If |tool map|[|name|] does not [=map/exist=], then [=exception/throw=] an {{InvalidStateError}}
+   {{DOMException}}.
+
+1. [=map/Remove=] |tool map|[|name|].
 
 </div>
 
