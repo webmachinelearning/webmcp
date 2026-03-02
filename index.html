@@ -8,7 +8,7 @@
   <meta content="Bikeshed version 3c53a5b02, updated Thu Nov 27 17:03:30 2025 +0000" name="generator">
   <link href="https://webmachinelearning.github.io/webmcp" rel="canonical">
   <link href="https://www.w3.org/2008/site/images/favicon.ico" rel="icon">
-  <meta content="ab7630d2b1790689aac6d37cfd31891acad347ec" name="revision">
+  <meta content="643b92c3e5fb5be34621ae4fa2d32f874071e697" name="revision">
   <meta content="dark light" name="color-scheme">
   <link href="https://www.w3.org/StyleSheets/TR/2021/dark.css" media="(prefers-color-scheme: dark)" rel="stylesheet" type="text/css">
 <style>
@@ -44,7 +44,8 @@
 
 .XXX {
   color: #D50606;
-  background: white;
+  /* The value #111 is what WHATWG uses in dark mode: `--xxx-bg: #111;`. */
+  background: light-dark(white, #111);
   border: solid #D50606;
 }
 
@@ -751,6 +752,49 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
     c-[il] { color: #657b83 } /* Literal.Number.Integer.Long */
 }
 </style>
+<style>/* Boilerplate: style-var-click-highlighting */
+/*
+Colors were chosen in Lab using https://nixsensor.com/free-color-converter/
+D50 2deg illuminant, L in [0,100], a and b in [-128, 128]
+0 = lab(85,0,85)
+1 = lab(85,80,30)
+2 = lab(85,-40,40)
+3 = lab(85,-50,0)
+4 = lab(85,5,15)
+5 = lab(85,-10,-50)
+6 = lab(85,35,-15)
+
+For darkmode:
+0 = oklab(50%   0%  108%)
+1 = oklab(50% -51%   51%)
+2 = oklab(50% -64%  -20%)
+3 = oklab(50%   6%   19%)
+4 = oklab(50% -12%  -64%)
+5 = oklab(50%  44%  -19%)  
+6 = oklab(50% 102%   38%)
+*/
+
+[data-algorithm] var { cursor: pointer; }
+var[data-var-color] { background-color: var(--var-bg); box-shadow: 0 0 0 2px var(--var-bg); }
+
+var[data-var-color] { --var-bg: #F4D200; }
+var[data-var-color="1"] { --var-bg: #FF87A2; }
+var[data-var-color="2"] { --var-bg: #96E885; }
+var[data-var-color="3"] { --var-bg: #3EEED2; }
+var[data-var-color="4"] { --var-bg: #EACFB6; }
+var[data-var-color="5"] { --var-bg: #82DDFF; }
+var[data-var-color="6"] { --var-vg: #FFBCF2; }
+
+@media (prefers-color-scheme: dark) {
+	var[data-var-color] { --var-bg: #bc1a00; }
+	var[data-var-color="1"] { --var-bg: #007f00; }
+	var[data-var-color="2"] { --var-bg: #008698; }
+	var[data-var-color="3"] { --var-bg: #7f5b2b; }
+	var[data-var-color="4"] { --var-bg: #004df3; }
+	var[data-var-color="5"] { --var-bg: #a1248a; }
+	var[data-var-color="6"] { --var-vg: #ff0000; }
+}
+</style>
  <body class="h-entry">
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://webmachinelearning.github.io/">
@@ -759,7 +803,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
 </p>
    <h1 class="no-ref p-name" id="title">WebMCP</h1>
    <p id="w3c-state"><a href="https://www.w3.org/standards/types/#CG-DRAFT">Draft Community Group Report</a>,
-    <time class="dt-updated" datetime="2026-02-27">27 February 2026</time></p>
+    <time class="dt-updated" datetime="2026-03-02">2 March 2026</time></p>
    <details open>
     <summary>More details about this document</summary>
     <div data-fill-with="spec-metadata">
@@ -806,21 +850,23 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
    <ol class="toc">
     <li><a href="#intro"><span class="secno">1</span> <span class="content">Introduction</span></a>
     <li><a href="#terminology"><span class="secno">2</span> <span class="content">Terminology</span></a>
-    <li><a href="#security-privacy"><span class="secno">3</span> <span class="content">Security and privacy considerations</span></a>
-    <li><a href="#accessibility"><span class="secno">4</span> <span class="content">Accessibility considerations</span></a>
+    <li><a href="#supporting-concepts"><span class="secno">3</span> <span class="content">Supporting concepts</span></a>
     <li>
-     <a href="#api"><span class="secno">5</span> <span class="content">API</span></a>
+     <a href="#api"><span class="secno">4</span> <span class="content">API</span></a>
      <ol class="toc">
-      <li><a href="#navigator-extension"><span class="secno">5.1</span> <span class="content">Extensions to the <code class="idl"><span>Navigator</span></code> Interface</span></a>
+      <li><a href="#navigator-extension"><span class="secno">4.1</span> <span class="content">Extensions to the <code class="idl"><span>Navigator</span></code> Interface</span></a>
       <li>
-       <a href="#model-context-container"><span class="secno">5.2</span> <span class="content">ModelContext Interface</span></a>
+       <a href="#model-context-container"><span class="secno">4.2</span> <span class="content">ModelContext Interface</span></a>
        <ol class="toc">
-        <li><a href="#model-context-options"><span class="secno">5.2.1</span> <span class="content">ModelContextOptions Dictionary</span></a>
-        <li><a href="#model-context-tool"><span class="secno">5.2.2</span> <span class="content">ModelContextTool Dictionary</span></a>
-        <li><a href="#model-context-client"><span class="secno">5.2.3</span> <span class="content">ModelContextClient Interface</span></a>
+        <li><a href="#model-context-options"><span class="secno">4.2.1</span> <span class="content">ModelContextOptions Dictionary</span></a>
+        <li><a href="#model-context-tool"><span class="secno">4.2.2</span> <span class="content">ModelContextTool Dictionary</span></a>
+        <li><a href="#model-context-client"><span class="secno">4.2.3</span> <span class="content">ModelContextClient Interface</span></a>
        </ol>
+      <li><a href="#declarative-api"><span class="secno">4.3</span> <span class="content">Declarative WebMCP</span></a>
      </ol>
-    <li><a href="#acknowledgements"><span class="secno">6</span> <span class="content">Acknowledgements</span></a>
+    <li><a href="#security-privacy"><span class="secno">5</span> <span class="content">Security and privacy considerations</span></a>
+    <li><a href="#accessibility"><span class="secno">6</span> <span class="content">Accessibility considerations</span></a>
+    <li><a href="#acknowledgements"><span class="secno">7</span> <span class="content">Acknowledgements</span></a>
     <li>
      <a href="#index"><span class="secno"></span> <span class="content">Index</span></a>
      <ol class="toc">
@@ -842,10 +888,46 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
    <p>An <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="agent">agent</dfn> is an autonomous assistant that can understand a user’s goals and take actions on the user’s behalf to achieve them. Today, these are typically implemented by large language model (LLM) based <a data-link-type="dfn" href="#ai-platform" id="ref-for-ai-platform">AI platforms</a>, interacting with users via text-based chat interfaces.</p>
    <p>A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="browsers-agent">browser’s agent</dfn> is an <a data-link-type="dfn" href="#agent" id="ref-for-agent①">agent</a> provided by or through the browser that could be built directly into the browser or hosted by it, for example, via an extension or plug-in.</p>
    <p>An <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="ai-platform">AI platform</dfn> is a provider of agentic assistants such as OpenAI’s ChatGPT, Anthropic’s Claude, or Google’s Gemini.</p>
-   <h2 class="heading settled" data-level="3" id="security-privacy"><span class="secno">3. </span><span class="content">Security and privacy considerations</span><a class="self-link" href="#security-privacy"></a></h2>
-   <h2 class="heading settled" data-level="4" id="accessibility"><span class="secno">4. </span><span class="content">Accessibility considerations</span><a class="self-link" href="#accessibility"></a></h2>
-   <h2 class="heading settled" data-level="5" id="api"><span class="secno">5. </span><span class="content">API</span><a class="self-link" href="#api"></a></h2>
-   <h3 class="heading settled" data-level="5.1" id="navigator-extension"><span class="secno">5.1. </span><span class="content">Extensions to the <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/system-state.html#navigator" id="ref-for-navigator">Navigator</a></code> Interface</span><a class="self-link" href="#navigator-extension"></a></h3>
+   <h2 class="heading settled" data-level="3" id="supporting-concepts"><span class="secno">3. </span><span class="content">Supporting concepts</span><a class="self-link" href="#supporting-concepts"></a></h2>
+   <p>A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="model-context">model context</dfn> is a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#struct" id="ref-for-struct">struct</a> with the following <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#struct-item" id="ref-for-struct-item">items</a>:</p>
+   <dl>
+    <dt data-md><dfn class="dfn-paneled" data-dfn-for="model context" data-dfn-type="dfn" data-noexport id="model-context-tool-map">tool map</dfn>
+    <dd data-md>
+     <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-map" id="ref-for-ordered-map">map</a> whose <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-getting-the-keys" id="ref-for-map-getting-the-keys">keys</a> are <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string">strings</a> and whose <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-getting-the-values" id="ref-for-map-getting-the-values">values</a> are <a data-link-type="dfn" href="#tool-definition" id="ref-for-tool-definition">tool definition</a>
+ <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#struct" id="ref-for-struct①">structs</a>.</p>
+   </dl>
+   <p>A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="tool-definition">tool definition</dfn> is a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#struct" id="ref-for-struct②">struct</a> with the following <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#struct-item" id="ref-for-struct-item①">items</a>:</p>
+   <dl>
+    <dt data-md><dfn class="dfn-paneled" data-dfn-for="tool definition" data-dfn-type="dfn" data-noexport id="tool-definition-name">name</dfn>
+    <dd data-md>
+     <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①">string</a> uniquely identifying a tool registered within a <a data-link-type="dfn" href="#model-context" id="ref-for-model-context">model context</a>’s <a data-link-type="dfn" href="#model-context-tool-map" id="ref-for-model-context-tool-map">tool map</a>; it is the same as the <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-key" id="ref-for-map-key">key</a> identifying this object.</p>
+    <dt data-md><dfn class="dfn-paneled" data-dfn-for="tool definition" data-dfn-type="dfn" data-noexport id="tool-definition-description">description</dfn>
+    <dd data-md>
+     <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string②">string</a>.</p>
+    <dt data-md><dfn class="dfn-paneled" data-dfn-for="tool definition" data-dfn-type="dfn" data-noexport id="tool-definition-input-schema">input schema</dfn>
+    <dd data-md>
+     <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string③">string</a>.</p>
+     <p class="note" role="note"><span class="marker">Note:</span> For tools registered by the imperative form of this API (i.e.,
+ <code class="idl"><a data-link-type="idl" href="#dom-modelcontext-registertool" id="ref-for-dom-modelcontext-registertool">registerTool()</a></code>), this is the stringified representation of
+ <code class="idl"><a data-link-type="idl" href="#dom-modelcontexttool-inputschema" id="ref-for-dom-modelcontexttool-inputschema">inputSchema</a></code>. For tools registered
+ <a href="https://github.com/webmachinelearning/webmcp/pull/76">declaratively</a>, this will be a
+ stringified JSON Schema object created by the
+ <a data-link-type="dfn" href="#synthesize-a-declarative-json-schema-object-algorithm" id="ref-for-synthesize-a-declarative-json-schema-object-algorithm">synthesize a declarative JSON Schema object algorithm</a>.
+ <a data-link-type="biblio" href="#biblio-json-schema" title="JSON Schema: A Media Type for Describing JSON Documents">[JSON-SCHEMA]</a></p>
+    <dt data-md><dfn class="dfn-paneled" data-dfn-for="tool definition" data-dfn-type="dfn" data-noexport id="tool-definition-execute-steps">execute steps</dfn>
+    <dd data-md>
+     <p>a set of steps to invoke the tool.</p>
+     <p class="note" role="note"><span class="marker">Note:</span> For tools registered imperatively, these steps will simply invoke the supplied
+ <code class="idl"><a data-link-type="idl" href="#callbackdef-toolexecutecallback" id="ref-for-callbackdef-toolexecutecallback">ToolExecuteCallback</a></code> callback. For tools registered
+ <a href="https://github.com/webmachinelearning/webmcp/pull/76">declaratively</a>, this will be a set of
+ "internal" steps that have not been defined yet, that describe how to fill out a <code><a data-link-type="element" href="https://html.spec.whatwg.org/multipage/forms.html#the-form-element" id="ref-for-the-form-element">form</a></code> and
+ its <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/forms.html#form-associated-element" id="ref-for-form-associated-element">form-associated elements</a>.</p>
+    <dt data-md><dfn class="dfn-paneled" data-dfn-for="tool definition" data-dfn-type="dfn" data-noexport id="tool-definition-read-only-hint">read-only hint</dfn>
+    <dd data-md>
+     <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#boolean" id="ref-for-boolean">boolean</a>, initially false.</p>
+   </dl>
+   <h2 class="heading settled" data-level="4" id="api"><span class="secno">4. </span><span class="content">API</span><a class="self-link" href="#api"></a></h2>
+   <h3 class="heading settled" data-level="4.1" id="navigator-extension"><span class="secno">4.1. </span><span class="content">Extensions to the <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/system-state.html#navigator" id="ref-for-navigator">Navigator</a></code> Interface</span><a class="self-link" href="#navigator-extension"></a></h3>
    <p>The <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/system-state.html#navigator" id="ref-for-navigator①">Navigator</a></code> interface is extended to provide access to the <code class="idl"><a data-link-type="idl" href="#modelcontext" id="ref-for-modelcontext">ModelContext</a></code>.</p>
 <pre class="def highlight idl"><c- b>partial</c-> <c- b>interface</c-> <a class="idl-code" data-link-type="interface" href="https://html.spec.whatwg.org/multipage/system-state.html#navigator" id="ref-for-navigator②"><c- g>Navigator</c-></a> {
   [<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#SecureContext" id="ref-for-SecureContext"><c- g>SecureContext</c-></a>, <a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#SameObject" id="ref-for-SameObject"><c- g>SameObject</c-></a>] <c- b>readonly</c-> <c- b>attribute</c-> <a data-link-type="idl-name" href="#modelcontext" id="ref-for-modelcontext①"><c- n>ModelContext</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="ModelContext" href="#dom-navigator-modelcontext" id="ref-for-dom-navigator-modelcontext"><c- g>modelContext</c-></a>;
@@ -856,16 +938,18 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
    <div class="algorithm" data-algorithm="modelContext" data-algorithm-for="Navigator">
 The <dfn class="dfn-paneled idl-code" data-dfn-for="Navigator" data-dfn-type="attribute" data-export id="dom-navigator-modelcontext"><code>modelContext</code></dfn> getter steps are to return <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this">this</a>’s <a data-link-type="dfn" href="#navigator-modelcontext" id="ref-for-navigator-modelcontext">modelContext</a>.
 </div>
-   <h3 class="heading settled" data-level="5.2" id="model-context-container"><span class="secno">5.2. </span><span class="content">ModelContext Interface</span><a class="self-link" href="#model-context-container"></a></h3>
+   <h3 class="heading settled" data-level="4.2" id="model-context-container"><span class="secno">4.2. </span><span class="content">ModelContext Interface</span><a class="self-link" href="#model-context-container"></a></h3>
    <p>The <code class="idl"><a data-link-type="idl" href="#modelcontext" id="ref-for-modelcontext③">ModelContext</a></code> interface provides methods for web applications to register and manage tools that can be invoked by <a data-link-type="dfn" href="#agent" id="ref-for-agent②">agents</a>.</p>
 <pre class="def highlight idl">[<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Exposed" id="ref-for-Exposed"><c- g>Exposed</c-></a>=<c- n>Window</c->, <a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#SecureContext" id="ref-for-SecureContext①"><c- g>SecureContext</c-></a>]
 <c- b>interface</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="modelcontext"><code><c- g>ModelContext</c-></code></dfn> {
   <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-undefined" id="ref-for-idl-undefined"><c- b>undefined</c-></a> <a class="idl-code" data-link-type="method" href="#dom-modelcontext-providecontext" id="ref-for-dom-modelcontext-providecontext"><c- g>provideContext</c-></a>(<c- b>optional</c-> <a data-link-type="idl-name" href="#dictdef-modelcontextoptions" id="ref-for-dictdef-modelcontextoptions"><c- n>ModelContextOptions</c-></a> <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContext/provideContext(options), ModelContext/provideContext()" data-dfn-type="argument" data-export id="dom-modelcontext-providecontext-options-options"><code><c- g>options</c-></code></dfn> = {});
   <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-undefined" id="ref-for-idl-undefined①"><c- b>undefined</c-></a> <a class="idl-code" data-link-type="method" href="#dom-modelcontext-clearcontext" id="ref-for-dom-modelcontext-clearcontext"><c- g>clearContext</c-></a>();
-  <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-undefined" id="ref-for-idl-undefined②"><c- b>undefined</c-></a> <a class="idl-code" data-link-type="method" href="#dom-modelcontext-registertool" id="ref-for-dom-modelcontext-registertool"><c- g>registerTool</c-></a>(<a data-link-type="idl-name" href="#dictdef-modelcontexttool" id="ref-for-dictdef-modelcontexttool"><c- n>ModelContextTool</c-></a> <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContext/registerTool(tool)" data-dfn-type="argument" data-export id="dom-modelcontext-registertool-tool-tool"><code><c- g>tool</c-></code></dfn>);
+  <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-undefined" id="ref-for-idl-undefined②"><c- b>undefined</c-></a> <a class="idl-code" data-link-type="method" href="#dom-modelcontext-registertool" id="ref-for-dom-modelcontext-registertool①"><c- g>registerTool</c-></a>(<a data-link-type="idl-name" href="#dictdef-modelcontexttool" id="ref-for-dictdef-modelcontexttool"><c- n>ModelContextTool</c-></a> <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContext/registerTool(tool)" data-dfn-type="argument" data-export id="dom-modelcontext-registertool-tool-tool"><code><c- g>tool</c-></code></dfn>);
   <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-undefined" id="ref-for-idl-undefined③"><c- b>undefined</c-></a> <a class="idl-code" data-link-type="method" href="#dom-modelcontext-unregistertool" id="ref-for-dom-modelcontext-unregistertool"><c- g>unregisterTool</c-></a>(<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-DOMString" id="ref-for-idl-DOMString"><c- b>DOMString</c-></a> <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContext/unregisterTool(name)" data-dfn-type="argument" data-export id="dom-modelcontext-unregistertool-name-name"><code><c- g>name</c-></code></dfn>);
 };
 </pre>
+   <p>Each <code class="idl"><a data-link-type="idl" href="#modelcontext" id="ref-for-modelcontext④">ModelContext</a></code> object has an associated <dfn class="dfn-paneled" data-dfn-for="ModelContext" data-dfn-type="dfn" data-noexport id="modelcontext-internal-context">internal context</dfn>, which
+is a <a data-link-type="dfn" href="#model-context" id="ref-for-model-context①">model context</a> <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#struct" id="ref-for-struct③">struct</a> created alongside the <code class="idl"><a data-link-type="idl" href="#modelcontext" id="ref-for-modelcontext⑤">ModelContext</a></code>.</p>
    <dl class="domintro">
     <dt><code><var>navigator</var>.<code class="idl"><a data-link-type="idl" href="#dom-navigator-modelcontext" id="ref-for-dom-navigator-modelcontext①">modelContext</a></code>.<code class="idl"><a data-link-type="idl" href="#dom-modelcontext-providecontext" id="ref-for-dom-modelcontext-providecontext①">provideContext(options)</a></code></code>
     <dd>
@@ -875,9 +959,9 @@ The <dfn class="dfn-paneled idl-code" data-dfn-for="Navigator" data-dfn-type="at
     <dd>
      <p>Unregisters all context (tools) with the browser.
   </p>
-    <dt><code><var>navigator</var>.<code class="idl"><a data-link-type="idl" href="#dom-navigator-modelcontext" id="ref-for-dom-navigator-modelcontext③">modelContext</a></code>.<code class="idl"><a data-link-type="idl" href="#dom-modelcontext-registertool" id="ref-for-dom-modelcontext-registertool①">registerTool(tool)</a></code></code>
+    <dt><code><var>navigator</var>.<code class="idl"><a data-link-type="idl" href="#dom-navigator-modelcontext" id="ref-for-dom-navigator-modelcontext③">modelContext</a></code>.<code class="idl"><a data-link-type="idl" href="#dom-modelcontext-registertool" id="ref-for-dom-modelcontext-registertool②">registerTool(tool)</a></code></code>
     <dd>
-     <p>Registers a single tool without clearing the existing set of tools. The method throws an error, if a tool with the same name already exists, or if the <code class="idl"><a data-link-type="idl" href="#dom-modelcontexttool-inputschema" id="ref-for-dom-modelcontexttool-inputschema">inputSchema</a></code> is invalid.
+     <p>Registers a single tool without clearing the existing set of tools. The method throws an error, if a tool with the same name already exists, or if the <code class="idl"><a data-link-type="idl" href="#dom-modelcontexttool-inputschema" id="ref-for-dom-modelcontexttool-inputschema①">inputSchema</a></code> is invalid.
   </p>
     <dt><code><var>navigator</var>.<code class="idl"><a data-link-type="idl" href="#dom-navigator-modelcontext" id="ref-for-dom-navigator-modelcontext④">modelContext</a></code>.<code class="idl"><a data-link-type="idl" href="#dom-modelcontext-unregistertool" id="ref-for-dom-modelcontext-unregistertool①">unregisterTool(name)</a></code></code>
     <dd>
@@ -911,7 +995,61 @@ The <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContext" data-dfn-type=
 
     <ol>
      <li data-md>
-      <p>TODO: fill this out.</p>
+      <p>Let <var>tool map</var> be <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①">this</a>’s <a data-link-type="dfn" href="#modelcontext-internal-context" id="ref-for-modelcontext-internal-context">internal context</a>’s <a data-link-type="dfn" href="#model-context-tool-map" id="ref-for-model-context-tool-map①">tool map</a>.</p>
+     <li data-md>
+      <p>Let <var>tool name</var> be <var>tool</var>’s <code class="idl"><a data-link-type="idl" href="#dom-modelcontexttool-name" id="ref-for-dom-modelcontexttool-name">name</a></code>.</p>
+     <li data-md>
+      <p>If <var>tool map</var>[<var>tool name</var>] <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists">exists</a>, then <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-throw" id="ref-for-dfn-throw">throw</a> an <code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#invalidstateerror" id="ref-for-invalidstateerror">InvalidStateError</a></code>
+ <code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#idl-DOMException" id="ref-for-idl-DOMException">DOMException</a></code>.</p>
+     <li data-md>
+      <p>If either <var>tool name</var> or <code class="idl"><a data-link-type="idl" href="#dom-modelcontexttool-description" id="ref-for-dom-modelcontexttool-description">description</a></code> is the empty string, then
+ <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-throw" id="ref-for-dfn-throw①">throw</a> an <code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#invalidstateerror" id="ref-for-invalidstateerror①">InvalidStateError</a></code> <code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#idl-DOMException" id="ref-for-idl-DOMException①">DOMException</a></code>.</p>
+     <li data-md>
+      <p>Let <var>stringified input schema</var> be the empty string.</p>
+     <li data-md>
+      <p>If <var>tool</var>’s <code class="idl"><a data-link-type="idl" href="#dom-modelcontexttool-inputschema" id="ref-for-dom-modelcontexttool-inputschema②">inputSchema</a></code> <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists①">exists</a>, then set <var>stringified input schema</var>
+ to the result of <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#serialize-a-javascript-value-to-a-json-string" id="ref-for-serialize-a-javascript-value-to-a-json-string">serializing a JavaScript value to a JSON string</a>, given <var>tool</var>’s
+ <code class="idl"><a data-link-type="idl" href="#dom-modelcontexttool-inputschema" id="ref-for-dom-modelcontexttool-inputschema③">inputSchema</a></code>.</p>
+      <div class="note" role="note">
+       <p>The serialization algorithm above throws exceptions in the following cases:</p>
+       <ol>
+        <li>
+         <p><i>Throws a new <code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#exceptiondef-typeerror" id="ref-for-exceptiondef-typeerror">TypeError</a></code></i> when the backing "<code>JSON.stringify()</code>"
+     yields undefined, e.g.,
+     "<code>inputSchema: { toJSON() {return HTMLDivElement;}}</code>", or
+     "<code>innputSchema: { toJSON() {return undefined;}}</code>".</p>
+        <li>
+         <p><i>Re-throws exceptions</i> thrown by "<code>JSON.stringify()</code>", e.g., when
+     "<code>inputSchema</code>" is an object with a circular reference, etc.</p>
+       </ol>
+       <p class="XXX">Currently, the only implementation of this spec (Chromium) does not throw
+   exceptions in the first case above. And for the second case, Chromium throws new <code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#exceptiondef-typeerror" id="ref-for-exceptiondef-typeerror①">TypeError</a></code>
+   exceptions, as opposed to <em>re-throwing</em> the original exception. We <span class="allow-2119">should</span> reconcile this difference.</p>
+      </div>
+     <li data-md>
+      <p>Let <var>read-only hint</var> be true if <var>tool</var>’s <code class="idl"><a data-link-type="idl" href="#dom-modelcontexttool-annotations" id="ref-for-dom-modelcontexttool-annotations">annotations</a></code> <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists②">exists</a>, and if
+ its <code class="idl"><a data-link-type="idl" href="#dom-toolannotations-readonlyhint" id="ref-for-dom-toolannotations-readonlyhint">readOnlyHint</a></code> <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists③">exists</a> and is true. Otherwise, let it be false.</p>
+     <li data-md>
+      <p>Let <var>tool definition</var> be a new <a data-link-type="dfn" href="#tool-definition" id="ref-for-tool-definition①">tool definition</a>, with the following <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#struct-item" id="ref-for-struct-item②">items</a>:</p>
+      <dl>
+       <dt data-md><a data-link-type="dfn" href="#tool-definition-name" id="ref-for-tool-definition-name">name</a>
+       <dd data-md>
+        <p><var>tool name</var></p>
+       <dt data-md><a data-link-type="dfn" href="#tool-definition-description" id="ref-for-tool-definition-description">description</a>
+       <dd data-md>
+        <p><var>tool</var>’s <code class="idl"><a data-link-type="idl" href="#dom-modelcontexttool-description" id="ref-for-dom-modelcontexttool-description①">description</a></code></p>
+       <dt data-md><a data-link-type="dfn" href="#tool-definition-input-schema" id="ref-for-tool-definition-input-schema">input schema</a>
+       <dd data-md>
+        <p><var>stringified input schema</var></p>
+       <dt data-md><a data-link-type="dfn" href="#tool-definition-execute-steps" id="ref-for-tool-definition-execute-steps">execute steps</a>
+       <dd data-md>
+        <p>steps that invoke <var>tool</var>’s <code class="idl"><a data-link-type="idl" href="#dom-modelcontexttool-execute" id="ref-for-dom-modelcontexttool-execute">execute</a></code></p>
+       <dt data-md><a data-link-type="dfn" href="#tool-definition-read-only-hint" id="ref-for-tool-definition-read-only-hint">read-only hint</a>
+       <dd data-md>
+        <p><var>read-only hint</var></p>
+      </dl>
+     <li data-md>
+      <p>Set <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this②">this</a>’s <a data-link-type="dfn" href="#modelcontext-internal-context" id="ref-for-modelcontext-internal-context①">internal context</a>[<var>tool name</var>] to <var>tool definition</var>.</p>
     </ol>
    </div>
    <div class="algorithm" data-algorithm="unregisterTool(name)" data-algorithm-for="ModelContext">
@@ -921,10 +1059,15 @@ The <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContext" data-dfn-type=
 
     <ol>
      <li data-md>
-      <p>TODO: fill this out.</p>
+      <p>Let <var>tool map</var> be <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this③">this</a>’s <a data-link-type="dfn" href="#modelcontext-internal-context" id="ref-for-modelcontext-internal-context②">internal context</a>’s <a data-link-type="dfn" href="#model-context-tool-map" id="ref-for-model-context-tool-map②">tool map</a>.</p>
+     <li data-md>
+      <p>If <var>tool map</var>[<var>name</var>] does not <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists④">exist</a>, then <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-throw" id="ref-for-dfn-throw②">throw</a> an <code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#invalidstateerror" id="ref-for-invalidstateerror②">InvalidStateError</a></code>
+ <code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#idl-DOMException" id="ref-for-idl-DOMException②">DOMException</a></code>.</p>
+     <li data-md>
+      <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-remove" id="ref-for-map-remove">Remove</a> <var>tool map</var>[<var>name</var>].</p>
     </ol>
    </div>
-   <h4 class="heading settled" data-level="5.2.1" id="model-context-options"><span class="secno">5.2.1. </span><span class="content">ModelContextOptions Dictionary</span><a class="self-link" href="#model-context-options"></a></h4>
+   <h4 class="heading settled" data-level="4.2.1" id="model-context-options"><span class="secno">4.2.1. </span><span class="content">ModelContextOptions Dictionary</span><a class="self-link" href="#model-context-options"></a></h4>
 <pre class="def highlight idl"><c- b>dictionary</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="dictionary" data-export id="dictdef-modelcontextoptions"><code><c- g>ModelContextOptions</c-></code></dfn> {
   <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#idl-sequence" id="ref-for-idl-sequence"><c- b>sequence</c-></a>&lt;<a data-link-type="idl-name" href="#dictdef-modelcontexttool" id="ref-for-dictdef-modelcontexttool①"><c- n>ModelContextTool</c-></a>> <dfn class="dfn-paneled idl-code" data-default="[]" data-dfn-for="ModelContextOptions" data-dfn-type="dict-member" data-export data-type="sequence<ModelContextTool>" id="dom-modelcontextoptions-tools"><code><c- g>tools</c-></code></dfn> = [];
 };
@@ -935,13 +1078,13 @@ The <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContext" data-dfn-type=
      <p>A list of <code class="idl"><a data-link-type="idl" href="#dom-modelcontextoptions-tools" id="ref-for-dom-modelcontextoptions-tools①">tools</a></code> to register with the browser. Each tool name in the list is expected to be unique.
   </p>
    </dl>
-   <h4 class="heading settled" data-level="5.2.2" id="model-context-tool"><span class="secno">5.2.2. </span><span class="content">ModelContextTool Dictionary</span><a class="self-link" href="#model-context-tool"></a></h4>
+   <h4 class="heading settled" data-level="4.2.2" id="model-context-tool"><span class="secno">4.2.2. </span><span class="content">ModelContextTool Dictionary</span><a class="self-link" href="#model-context-tool"></a></h4>
    <p>The <code class="idl"><a data-link-type="idl" href="#dictdef-modelcontexttool" id="ref-for-dictdef-modelcontexttool②">ModelContextTool</a></code> dictionary describes a tool that can be invoked by <a data-link-type="dfn" href="#agent" id="ref-for-agent③">agents</a>.</p>
 <pre class="def highlight idl"><c- b>dictionary</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="dictionary" data-export id="dictdef-modelcontexttool"><code><c- g>ModelContextTool</c-></code></dfn> {
   <c- b>required</c-> <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-DOMString" id="ref-for-idl-DOMString①"><c- b>DOMString</c-></a> <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContextTool" data-dfn-type="dict-member" data-export data-type="DOMString" id="dom-modelcontexttool-name"><code><c- g>name</c-></code></dfn>;
   <c- b>required</c-> <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-DOMString" id="ref-for-idl-DOMString②"><c- b>DOMString</c-></a> <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContextTool" data-dfn-type="dict-member" data-export data-type="DOMString" id="dom-modelcontexttool-description"><code><c- g>description</c-></code></dfn>;
   <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-object" id="ref-for-idl-object"><c- b>object</c-></a> <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContextTool" data-dfn-type="dict-member" data-export data-type="object" id="dom-modelcontexttool-inputschema"><code><c- g>inputSchema</c-></code></dfn>;
-  <c- b>required</c-> <a data-link-type="idl-name" href="#callbackdef-toolexecutecallback" id="ref-for-callbackdef-toolexecutecallback"><c- n>ToolExecuteCallback</c-></a> <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContextTool" data-dfn-type="dict-member" data-export data-type="ToolExecuteCallback" id="dom-modelcontexttool-execute"><code><c- g>execute</c-></code></dfn>;
+  <c- b>required</c-> <a data-link-type="idl-name" href="#callbackdef-toolexecutecallback" id="ref-for-callbackdef-toolexecutecallback①"><c- n>ToolExecuteCallback</c-></a> <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContextTool" data-dfn-type="dict-member" data-export data-type="ToolExecuteCallback" id="dom-modelcontexttool-execute"><code><c- g>execute</c-></code></dfn>;
   <a data-link-type="idl-name" href="#dictdef-toolannotations" id="ref-for-dictdef-toolannotations"><c- n>ToolAnnotations</c-></a> <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContextTool" data-dfn-type="dict-member" data-export data-type="ToolAnnotations" id="dom-modelcontexttool-annotations"><code><c- g>annotations</c-></code></dfn>;
 };
 
@@ -952,39 +1095,39 @@ The <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContext" data-dfn-type=
 <c- b>callback</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="callback" data-export id="callbackdef-toolexecutecallback"><code><c- g>ToolExecuteCallback</c-></code></dfn> = <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-promise" id="ref-for-idl-promise"><c- b>Promise</c-></a>&lt;<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-any" id="ref-for-idl-any"><c- b>any</c-></a>> (<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-object" id="ref-for-idl-object①"><c- b>object</c-></a> <dfn class="dfn-paneled idl-code" data-dfn-for="ToolExecuteCallback" data-dfn-type="argument" data-export id="dom-toolexecutecallback-input"><code><c- g>input</c-></code></dfn>, <a data-link-type="idl-name" href="#modelcontextclient" id="ref-for-modelcontextclient"><c- n>ModelContextClient</c-></a> <dfn class="dfn-paneled idl-code" data-dfn-for="ToolExecuteCallback" data-dfn-type="argument" data-export id="dom-toolexecutecallback-client"><code><c- g>client</c-></code></dfn>);
 </pre>
    <dl class="domintro">
-    <dt><code><var>tool</var>["<code class="idl"><a data-link-type="idl" href="#dom-modelcontexttool-name" id="ref-for-dom-modelcontexttool-name">name</a></code>"]</code>
+    <dt><code><var>tool</var>["<code class="idl"><a data-link-type="idl" href="#dom-modelcontexttool-name" id="ref-for-dom-modelcontexttool-name①">name</a></code>"]</code>
     <dd>
      <p>A unique identifier for the tool. This is used by <a data-link-type="dfn" href="#agent" id="ref-for-agent④">agents</a> to reference the tool when making tool calls.
   </p>
-    <dt><code><var>tool</var>["<code class="idl"><a data-link-type="idl" href="#dom-modelcontexttool-description" id="ref-for-dom-modelcontexttool-description">description</a></code>"]</code>
+    <dt><code><var>tool</var>["<code class="idl"><a data-link-type="idl" href="#dom-modelcontexttool-description" id="ref-for-dom-modelcontexttool-description②">description</a></code>"]</code>
     <dd>
      <p>A natural language description of the tool’s functionality. This helps <a data-link-type="dfn" href="#agent" id="ref-for-agent⑤">agents</a> understand when and how to use the tool.
   </p>
-    <dt><code><var>tool</var>["<code class="idl"><a data-link-type="idl" href="#dom-modelcontexttool-inputschema" id="ref-for-dom-modelcontexttool-inputschema①">inputSchema</a></code>"]</code>
+    <dt><code><var>tool</var>["<code class="idl"><a data-link-type="idl" href="#dom-modelcontexttool-inputschema" id="ref-for-dom-modelcontexttool-inputschema④">inputSchema</a></code>"]</code>
     <dd>
      <p>A JSON Schema <a data-link-type="biblio" href="#biblio-json-schema" title="JSON Schema: A Media Type for Describing JSON Documents">[JSON-SCHEMA]</a> object describing the expected input parameters for the tool.
   </p>
-    <dt><code><var>tool</var>["<code class="idl"><a data-link-type="idl" href="#dom-modelcontexttool-execute" id="ref-for-dom-modelcontexttool-execute">execute</a></code>"]</code>
+    <dt><code><var>tool</var>["<code class="idl"><a data-link-type="idl" href="#dom-modelcontexttool-execute" id="ref-for-dom-modelcontexttool-execute①">execute</a></code>"]</code>
     <dd>
      <p>A callback function that is invoked when an <a data-link-type="dfn" href="#agent" id="ref-for-agent⑥">agent</a> calls the tool. The function receives the input parameters and a <code class="idl"><a data-link-type="idl" href="#modelcontextclient" id="ref-for-modelcontextclient①">ModelContextClient</a></code> object.
 
     </p>
      <p>The function can be asynchronous and return a promise, in which case the <a data-link-type="dfn" href="#agent" id="ref-for-agent⑦">agent</a> will receive the result once the promise is resolved.
   </p>
-    <dt><code><var>tool</var>["<code class="idl"><a data-link-type="idl" href="#dom-modelcontexttool-annotations" id="ref-for-dom-modelcontexttool-annotations">annotations</a></code>"]</code>
+    <dt><code><var>tool</var>["<code class="idl"><a data-link-type="idl" href="#dom-modelcontexttool-annotations" id="ref-for-dom-modelcontexttool-annotations①">annotations</a></code>"]</code>
     <dd>
      <p>Optional annotations providing additional metadata about the tool’s behavior.
   </p>
    </dl>
    <p>The <code class="idl"><a data-link-type="idl" href="#dictdef-toolannotations" id="ref-for-dictdef-toolannotations①">ToolAnnotations</a></code> dictionary provides optional metadata about a tool:</p>
    <dl class="domintro">
-    <dt><code><var>annotations</var>["<code class="idl"><a data-link-type="idl" href="#dom-toolannotations-readonlyhint" id="ref-for-dom-toolannotations-readonlyhint">readOnlyHint</a></code>"]</code>
+    <dt><code><var>annotations</var>["<code class="idl"><a data-link-type="idl" href="#dom-toolannotations-readonlyhint" id="ref-for-dom-toolannotations-readonlyhint①">readOnlyHint</a></code>"]</code>
     <dd>
      <p>If true, indicates that the tool does not modify any state and only reads data. This hint can help <a data-link-type="dfn" href="#agent" id="ref-for-agent⑧">agents</a> make decisions about when it is safe to call the tool.
   </p>
    </dl>
-   <h4 class="heading settled" data-level="5.2.3" id="model-context-client"><span class="secno">5.2.3. </span><span class="content">ModelContextClient Interface</span><a class="self-link" href="#model-context-client"></a></h4>
-   <p>The <code class="idl"><a data-link-type="idl" href="#modelcontextclient" id="ref-for-modelcontextclient②">ModelContextClient</a></code> interface represents an <a data-link-type="dfn" href="#agent" id="ref-for-agent⑨">agent</a> executing a tool provided by the site through the <code class="idl"><a data-link-type="idl" href="#modelcontext" id="ref-for-modelcontext④">ModelContext</a></code> API.</p>
+   <h4 class="heading settled" data-level="4.2.3" id="model-context-client"><span class="secno">4.2.3. </span><span class="content">ModelContextClient Interface</span><a class="self-link" href="#model-context-client"></a></h4>
+   <p>The <code class="idl"><a data-link-type="idl" href="#modelcontextclient" id="ref-for-modelcontextclient②">ModelContextClient</a></code> interface represents an <a data-link-type="dfn" href="#agent" id="ref-for-agent⑨">agent</a> executing a tool provided by the site through the <code class="idl"><a data-link-type="idl" href="#modelcontext" id="ref-for-modelcontext⑥">ModelContext</a></code> API.</p>
 <pre class="def highlight idl">[<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Exposed" id="ref-for-Exposed①"><c- g>Exposed</c-></a>=<c- n>Window</c->, <a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#SecureContext" id="ref-for-SecureContext②"><c- g>SecureContext</c-></a>]
 <c- b>interface</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="modelcontextclient"><code><c- g>ModelContextClient</c-></code></dfn> {
   <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-promise" id="ref-for-idl-promise①"><c- b>Promise</c-></a>&lt;<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-any" id="ref-for-idl-any①"><c- b>any</c-></a>> <a class="idl-code" data-link-type="method" href="#dom-modelcontextclient-requestuserinteraction" id="ref-for-dom-modelcontextclient-requestuserinteraction"><c- g>requestUserInteraction</c-></a>(<a data-link-type="idl-name" href="#callbackdef-userinteractioncallback" id="ref-for-callbackdef-userinteractioncallback"><c- n>UserInteractionCallback</c-></a> <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContextClient/requestUserInteraction(callback)" data-dfn-type="argument" data-export id="dom-modelcontextclient-requestuserinteraction-callback-callback"><code><c- g>callback</c-></code></dfn>);
@@ -1011,7 +1154,23 @@ The <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContextClient" data-dfn
       <p>TODO: fill this out.</p>
     </ol>
    </div>
-   <h2 class="heading settled" data-level="6" id="acknowledgements"><span class="secno">6. </span><span class="content">Acknowledgements</span><a class="self-link" href="#acknowledgements"></a></h2>
+   <h3 class="heading settled" data-level="4.3" id="declarative-api"><span class="secno">4.3. </span><span class="content">Declarative WebMCP</span><a class="self-link" href="#declarative-api"></a></h3>
+   <p>This section is entirely a TODO. For now, refer to the <a href="https://github.com/webmachinelearning/webmcp/pull/76">explainer draft</a>.</p>
+   <div class="algorithm" data-algorithm="synthesize a declarative JSON Schema object algorithm">
+    
+The <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="synthesize-a-declarative-json-schema-object-algorithm">synthesize a declarative JSON Schema object algorithm</dfn>, given a <code><a data-link-type="element" href="https://html.spec.whatwg.org/multipage/forms.html#the-form-element" id="ref-for-the-form-element①">form</a></code> element
+<var>form</var>, runs the following steps. They return a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-map" id="ref-for-ordered-map①">map</a> representing a JSON Schema object.
+<a data-link-type="biblio" href="#biblio-json-schema" title="JSON Schema: A Media Type for Describing JSON Documents">[JSON-SCHEMA]</a>
+
+
+    <ol>
+     <li data-md>
+      <p>TODO: Derive a conformant JSON Schema object from <var>form</var> and its <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/forms.html#form-associated-element" id="ref-for-form-associated-element①">form-associated elements</a>.</p>
+    </ol>
+   </div>
+   <h2 class="heading settled" data-level="5" id="security-privacy"><span class="secno">5. </span><span class="content">Security and privacy considerations</span><a class="self-link" href="#security-privacy"></a></h2>
+   <h2 class="heading settled" data-level="6" id="accessibility"><span class="secno">6. </span><span class="content">Accessibility considerations</span><a class="self-link" href="#accessibility"></a></h2>
+   <h2 class="heading settled" data-level="7" id="acknowledgements"><span class="secno">7. </span><span class="content">Acknowledgements</span><a class="self-link" href="#acknowledgements"></a></h2>
    <p>Thanks to
 Brandon Walderman,
 Leo Lee,
@@ -1030,33 +1189,51 @@ for the initial explainer, proposals and discussions that established the founda
   <ul class="index">
    <li><a href="#agent">agent</a><span>, in § 2</span>
    <li><a href="#ai-platform">AI platform</a><span>, in § 2</span>
-   <li><a href="#dom-modelcontexttool-annotations">annotations</a><span>, in § 5.2.2</span>
+   <li><a href="#dom-modelcontexttool-annotations">annotations</a><span>, in § 4.2.2</span>
    <li><a href="#browsers-agent">browser’s agent</a><span>, in § 2</span>
-   <li><a href="#dom-modelcontext-clearcontext">clearContext()</a><span>, in § 5.2</span>
-   <li><a href="#dom-modelcontexttool-description">description</a><span>, in § 5.2.2</span>
-   <li><a href="#dom-modelcontexttool-execute">execute</a><span>, in § 5.2.2</span>
-   <li><a href="#dom-modelcontexttool-inputschema">inputSchema</a><span>, in § 5.2.2</span>
-   <li><a href="#modelcontext">ModelContext</a><span>, in § 5.2</span>
+   <li><a href="#dom-modelcontext-clearcontext">clearContext()</a><span>, in § 4.2</span>
+   <li>
+    description
+    <ul>
+     <li><a href="#tool-definition-description">dfn for tool definition</a><span>, in § 3</span>
+     <li><a href="#dom-modelcontexttool-description">dict-member for ModelContextTool</a><span>, in § 4.2.2</span>
+    </ul>
+   <li><a href="#dom-modelcontexttool-execute">execute</a><span>, in § 4.2.2</span>
+   <li><a href="#tool-definition-execute-steps">execute steps</a><span>, in § 3</span>
+   <li><a href="#tool-definition-input-schema">input schema</a><span>, in § 3</span>
+   <li><a href="#dom-modelcontexttool-inputschema">inputSchema</a><span>, in § 4.2.2</span>
+   <li><a href="#modelcontext-internal-context">internal context</a><span>, in § 4.2</span>
+   <li><a href="#model-context">model context</a><span>, in § 3</span>
+   <li><a href="#modelcontext">ModelContext</a><span>, in § 4.2</span>
    <li>
     modelContext
     <ul>
-     <li><a href="#dom-navigator-modelcontext">attribute for Navigator</a><span>, in § 5.1</span>
-     <li><a href="#navigator-modelcontext">dfn for Navigator</a><span>, in § 5.1</span>
+     <li><a href="#dom-navigator-modelcontext">attribute for Navigator</a><span>, in § 4.1</span>
+     <li><a href="#navigator-modelcontext">dfn for Navigator</a><span>, in § 4.1</span>
     </ul>
-   <li><a href="#modelcontextclient">ModelContextClient</a><span>, in § 5.2.3</span>
-   <li><a href="#dictdef-modelcontextoptions">ModelContextOptions</a><span>, in § 5.2.1</span>
-   <li><a href="#dictdef-modelcontexttool">ModelContextTool</a><span>, in § 5.2.2</span>
-   <li><a href="#dom-modelcontexttool-name">name</a><span>, in § 5.2.2</span>
-   <li><a href="#dom-modelcontext-providecontext">provideContext()</a><span>, in § 5.2</span>
-   <li><a href="#dom-modelcontext-providecontext">provideContext(options)</a><span>, in § 5.2</span>
-   <li><a href="#dom-toolannotations-readonlyhint">readOnlyHint</a><span>, in § 5.2.2</span>
-   <li><a href="#dom-modelcontext-registertool">registerTool(tool)</a><span>, in § 5.2</span>
-   <li><a href="#dom-modelcontextclient-requestuserinteraction">requestUserInteraction(callback)</a><span>, in § 5.2.3</span>
-   <li><a href="#dictdef-toolannotations">ToolAnnotations</a><span>, in § 5.2.2</span>
-   <li><a href="#callbackdef-toolexecutecallback">ToolExecuteCallback</a><span>, in § 5.2.2</span>
-   <li><a href="#dom-modelcontextoptions-tools">tools</a><span>, in § 5.2.1</span>
-   <li><a href="#dom-modelcontext-unregistertool">unregisterTool(name)</a><span>, in § 5.2</span>
-   <li><a href="#callbackdef-userinteractioncallback">UserInteractionCallback</a><span>, in § 5.2.3</span>
+   <li><a href="#modelcontextclient">ModelContextClient</a><span>, in § 4.2.3</span>
+   <li><a href="#dictdef-modelcontextoptions">ModelContextOptions</a><span>, in § 4.2.1</span>
+   <li><a href="#dictdef-modelcontexttool">ModelContextTool</a><span>, in § 4.2.2</span>
+   <li>
+    name
+    <ul>
+     <li><a href="#tool-definition-name">dfn for tool definition</a><span>, in § 3</span>
+     <li><a href="#dom-modelcontexttool-name">dict-member for ModelContextTool</a><span>, in § 4.2.2</span>
+    </ul>
+   <li><a href="#dom-modelcontext-providecontext">provideContext()</a><span>, in § 4.2</span>
+   <li><a href="#dom-modelcontext-providecontext">provideContext(options)</a><span>, in § 4.2</span>
+   <li><a href="#tool-definition-read-only-hint">read-only hint</a><span>, in § 3</span>
+   <li><a href="#dom-toolannotations-readonlyhint">readOnlyHint</a><span>, in § 4.2.2</span>
+   <li><a href="#dom-modelcontext-registertool">registerTool(tool)</a><span>, in § 4.2</span>
+   <li><a href="#dom-modelcontextclient-requestuserinteraction">requestUserInteraction(callback)</a><span>, in § 4.2.3</span>
+   <li><a href="#synthesize-a-declarative-json-schema-object-algorithm">synthesize a declarative JSON Schema object algorithm</a><span>, in § 4.3</span>
+   <li><a href="#dictdef-toolannotations">ToolAnnotations</a><span>, in § 4.2.2</span>
+   <li><a href="#tool-definition">tool definition</a><span>, in § 3</span>
+   <li><a href="#callbackdef-toolexecutecallback">ToolExecuteCallback</a><span>, in § 4.2.2</span>
+   <li><a href="#model-context-tool-map">tool map</a><span>, in § 3</span>
+   <li><a href="#dom-modelcontextoptions-tools">tools</a><span>, in § 4.2.1</span>
+   <li><a href="#dom-modelcontext-unregistertool">unregisterTool(name)</a><span>, in § 4.2</span>
+   <li><a href="#callbackdef-userinteractioncallback">UserInteractionCallback</a><span>, in § 4.2.3</span>
   </ul>
   <h3 class="heading no-num no-ref settled" id="index-defined-elsewhere"><span class="content">Terms defined by reference</span><a class="self-link" href="#index-defined-elsewhere"></a></h3>
   <ul class="index">
@@ -1064,6 +1241,23 @@ for the initial explainer, proposals and discussions that established the founda
     <a data-link-type="biblio">[HTML]</a> defines the following terms:
     <ul>
      <li><span class="dfn-paneled" id="be0c27b2">Navigator</span>
+     <li><span class="dfn-paneled" id="946a9318">form</span>
+     <li><span class="dfn-paneled" id="48d5b598">form-associated elements</span>
+    </ul>
+   <li>
+    <a data-link-type="biblio">[INFRA]</a> defines the following terms:
+    <ul>
+     <li><span class="dfn-paneled" id="36858240">boolean</span>
+     <li><span class="dfn-paneled" id="1243a891">exist</span>
+     <li><span class="dfn-paneled" id="c88f3887">item</span>
+     <li><span class="dfn-paneled" id="d14a6f26">key</span>
+     <li><span class="dfn-paneled" id="31db57e6">keys</span>
+     <li><span class="dfn-paneled" id="3fca5a9e">map</span>
+     <li><span class="dfn-paneled" id="7d4424b2">remove</span>
+     <li><span class="dfn-paneled" id="3685aee5">serialize a JavaScript value to a JSON string</span>
+     <li><span class="dfn-paneled" id="0698d556">string</span>
+     <li><span class="dfn-paneled" id="984221ca">struct</span>
+     <li><span class="dfn-paneled" id="12d6b9a8">values</span>
     </ul>
    <li>
     <a data-link-type="biblio">[WAI-ARIA-1.2]</a> defines the following terms:
@@ -1073,16 +1267,20 @@ for the initial explainer, proposals and discussions that established the founda
    <li>
     <a data-link-type="biblio">[WEBIDL]</a> defines the following terms:
     <ul>
+     <li><span class="dfn-paneled" id="dca2de17">DOMException</span>
      <li><span class="dfn-paneled" id="8855a9aa">DOMString</span>
      <li><span class="dfn-paneled" id="889e932f">Exposed</span>
+     <li><span class="dfn-paneled" id="797018a7">InvalidStateError</span>
      <li><span class="dfn-paneled" id="bdbd19d1">Promise</span>
      <li><span class="dfn-paneled" id="a5c91173">SameObject</span>
      <li><span class="dfn-paneled" id="b75bb3bd">SecureContext</span>
+     <li><span class="dfn-paneled" id="82ca3efc">TypeError</span>
      <li><span class="dfn-paneled" id="6c6b1005">any</span>
      <li><span class="dfn-paneled" id="5372cca8">boolean</span>
      <li><span class="dfn-paneled" id="efd1ec5d">object</span>
      <li><span class="dfn-paneled" id="9cce47fd">sequence</span>
      <li><span class="dfn-paneled" id="4013a022">this</span>
+     <li><span class="dfn-paneled" id="b4cfa5ce">throw</span>
      <li><span class="dfn-paneled" id="5f90bbfb">undefined</span>
     </ul>
   </ul>
@@ -1091,6 +1289,8 @@ for the initial explainer, proposals and discussions that established the founda
   <dl>
    <dt id="biblio-html">[HTML]
    <dd>Anne van Kesteren; et al. <a href="https://html.spec.whatwg.org/multipage/"><cite>HTML Standard</cite></a>. Living Standard. URL: <a href="https://html.spec.whatwg.org/multipage/">https://html.spec.whatwg.org/multipage/</a>
+   <dt id="biblio-infra">[INFRA]
+   <dd>Anne van Kesteren; Domenic Denicola. <a href="https://infra.spec.whatwg.org/"><cite>Infra Standard</cite></a>. Living Standard. URL: <a href="https://infra.spec.whatwg.org/">https://infra.spec.whatwg.org/</a>
    <dt id="biblio-json-schema">[JSON-SCHEMA]
    <dd><a href="https://json-schema.org/draft/2020-12/json-schema-core.html"><cite>JSON Schema: A Media Type for Describing JSON Documents</cite></a>. URL: <a href="https://json-schema.org/draft/2020-12/json-schema-core.html">https://json-schema.org/draft/2020-12/json-schema-core.html</a>
    <dt id="biblio-mcp">[MCP]
@@ -1339,49 +1539,76 @@ function parseHTML(markup) {
 "use strict";
 {
 let dfnPanelData = {
-"4013a022": {"dfnID":"4013a022","dfnText":"this","external":true,"refSections":[{"refs":[{"id":"ref-for-this"}],"title":"5.1. Extensions to the Navigator Interface"}],"url":"https://webidl.spec.whatwg.org/#this"},
-"5372cca8": {"dfnID":"5372cca8","dfnText":"boolean","external":true,"refSections":[{"refs":[{"id":"ref-for-idl-boolean"}],"title":"5.2.2. ModelContextTool Dictionary"}],"url":"https://webidl.spec.whatwg.org/#idl-boolean"},
-"5f90bbfb": {"dfnID":"5f90bbfb","dfnText":"undefined","external":true,"refSections":[{"refs":[{"id":"ref-for-idl-undefined"},{"id":"ref-for-idl-undefined\u2460"},{"id":"ref-for-idl-undefined\u2461"},{"id":"ref-for-idl-undefined\u2462"}],"title":"5.2. ModelContext Interface"}],"url":"https://webidl.spec.whatwg.org/#idl-undefined"},
-"6c6b1005": {"dfnID":"6c6b1005","dfnText":"any","external":true,"refSections":[{"refs":[{"id":"ref-for-idl-any"}],"title":"5.2.2. ModelContextTool Dictionary"},{"refs":[{"id":"ref-for-idl-any\u2460"},{"id":"ref-for-idl-any\u2461"}],"title":"5.2.3. ModelContextClient Interface"}],"url":"https://webidl.spec.whatwg.org/#idl-any"},
-"8855a9aa": {"dfnID":"8855a9aa","dfnText":"DOMString","external":true,"refSections":[{"refs":[{"id":"ref-for-idl-DOMString"}],"title":"5.2. ModelContext Interface"},{"refs":[{"id":"ref-for-idl-DOMString\u2460"},{"id":"ref-for-idl-DOMString\u2461"}],"title":"5.2.2. ModelContextTool Dictionary"}],"url":"https://webidl.spec.whatwg.org/#idl-DOMString"},
-"889e932f": {"dfnID":"889e932f","dfnText":"Exposed","external":true,"refSections":[{"refs":[{"id":"ref-for-Exposed"}],"title":"5.2. ModelContext Interface"},{"refs":[{"id":"ref-for-Exposed\u2460"}],"title":"5.2.3. ModelContextClient Interface"}],"url":"https://webidl.spec.whatwg.org/#Exposed"},
-"9cce47fd": {"dfnID":"9cce47fd","dfnText":"sequence","external":true,"refSections":[{"refs":[{"id":"ref-for-idl-sequence"}],"title":"5.2.1. ModelContextOptions Dictionary"}],"url":"https://webidl.spec.whatwg.org/#idl-sequence"},
-"a5c91173": {"dfnID":"a5c91173","dfnText":"SameObject","external":true,"refSections":[{"refs":[{"id":"ref-for-SameObject"}],"title":"5.1. Extensions to the Navigator Interface"}],"url":"https://webidl.spec.whatwg.org/#SameObject"},
-"agent": {"dfnID":"agent","dfnText":"agent","external":false,"refSections":[{"refs":[{"id":"ref-for-agent"}],"title":"1. Introduction"},{"refs":[{"id":"ref-for-agent\u2460"}],"title":"2. Terminology"},{"refs":[{"id":"ref-for-agent\u2461"}],"title":"5.2. ModelContext Interface"},{"refs":[{"id":"ref-for-agent\u2462"},{"id":"ref-for-agent\u2463"},{"id":"ref-for-agent\u2464"},{"id":"ref-for-agent\u2465"},{"id":"ref-for-agent\u2466"},{"id":"ref-for-agent\u2467"}],"title":"5.2.2. ModelContextTool Dictionary"},{"refs":[{"id":"ref-for-agent\u2468"}],"title":"5.2.3. ModelContextClient Interface"}],"url":"#agent"},
+"0698d556": {"dfnID":"0698d556","dfnText":"string","external":true,"refSections":[{"refs":[{"id":"ref-for-string"},{"id":"ref-for-string\u2460"},{"id":"ref-for-string\u2461"},{"id":"ref-for-string\u2462"}],"title":"3. Supporting concepts"}],"url":"https://infra.spec.whatwg.org/#string"},
+"1243a891": {"dfnID":"1243a891","dfnText":"exist","external":true,"refSections":[{"refs":[{"id":"ref-for-map-exists"},{"id":"ref-for-map-exists\u2460"},{"id":"ref-for-map-exists\u2461"},{"id":"ref-for-map-exists\u2462"},{"id":"ref-for-map-exists\u2463"}],"title":"4.2. ModelContext Interface"}],"url":"https://infra.spec.whatwg.org/#map-exists"},
+"12d6b9a8": {"dfnID":"12d6b9a8","dfnText":"values","external":true,"refSections":[{"refs":[{"id":"ref-for-map-getting-the-values"}],"title":"3. Supporting concepts"}],"url":"https://infra.spec.whatwg.org/#map-getting-the-values"},
+"31db57e6": {"dfnID":"31db57e6","dfnText":"keys","external":true,"refSections":[{"refs":[{"id":"ref-for-map-getting-the-keys"}],"title":"3. Supporting concepts"}],"url":"https://infra.spec.whatwg.org/#map-getting-the-keys"},
+"36858240": {"dfnID":"36858240","dfnText":"boolean","external":true,"refSections":[{"refs":[{"id":"ref-for-boolean"}],"title":"3. Supporting concepts"}],"url":"https://infra.spec.whatwg.org/#boolean"},
+"3685aee5": {"dfnID":"3685aee5","dfnText":"serialize a JavaScript value to a JSON string","external":true,"refSections":[{"refs":[{"id":"ref-for-serialize-a-javascript-value-to-a-json-string"}],"title":"4.2. ModelContext Interface"}],"url":"https://infra.spec.whatwg.org/#serialize-a-javascript-value-to-a-json-string"},
+"3fca5a9e": {"dfnID":"3fca5a9e","dfnText":"map","external":true,"refSections":[{"refs":[{"id":"ref-for-ordered-map"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-ordered-map\u2460"}],"title":"4.3. Declarative WebMCP"}],"url":"https://infra.spec.whatwg.org/#ordered-map"},
+"4013a022": {"dfnID":"4013a022","dfnText":"this","external":true,"refSections":[{"refs":[{"id":"ref-for-this"}],"title":"4.1. Extensions to the Navigator Interface"},{"refs":[{"id":"ref-for-this\u2460"},{"id":"ref-for-this\u2461"},{"id":"ref-for-this\u2462"}],"title":"4.2. ModelContext Interface"}],"url":"https://webidl.spec.whatwg.org/#this"},
+"48d5b598": {"dfnID":"48d5b598","dfnText":"form-associated elements","external":true,"refSections":[{"refs":[{"id":"ref-for-form-associated-element"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-form-associated-element\u2460"}],"title":"4.3. Declarative WebMCP"}],"url":"https://html.spec.whatwg.org/multipage/forms.html#form-associated-element"},
+"5372cca8": {"dfnID":"5372cca8","dfnText":"boolean","external":true,"refSections":[{"refs":[{"id":"ref-for-idl-boolean"}],"title":"4.2.2. ModelContextTool Dictionary"}],"url":"https://webidl.spec.whatwg.org/#idl-boolean"},
+"5f90bbfb": {"dfnID":"5f90bbfb","dfnText":"undefined","external":true,"refSections":[{"refs":[{"id":"ref-for-idl-undefined"},{"id":"ref-for-idl-undefined\u2460"},{"id":"ref-for-idl-undefined\u2461"},{"id":"ref-for-idl-undefined\u2462"}],"title":"4.2. ModelContext Interface"}],"url":"https://webidl.spec.whatwg.org/#idl-undefined"},
+"6c6b1005": {"dfnID":"6c6b1005","dfnText":"any","external":true,"refSections":[{"refs":[{"id":"ref-for-idl-any"}],"title":"4.2.2. ModelContextTool Dictionary"},{"refs":[{"id":"ref-for-idl-any\u2460"},{"id":"ref-for-idl-any\u2461"}],"title":"4.2.3. ModelContextClient Interface"}],"url":"https://webidl.spec.whatwg.org/#idl-any"},
+"797018a7": {"dfnID":"797018a7","dfnText":"InvalidStateError","external":true,"refSections":[{"refs":[{"id":"ref-for-invalidstateerror"},{"id":"ref-for-invalidstateerror\u2460"},{"id":"ref-for-invalidstateerror\u2461"}],"title":"4.2. ModelContext Interface"}],"url":"https://webidl.spec.whatwg.org/#invalidstateerror"},
+"7d4424b2": {"dfnID":"7d4424b2","dfnText":"remove","external":true,"refSections":[{"refs":[{"id":"ref-for-map-remove"}],"title":"4.2. ModelContext Interface"}],"url":"https://infra.spec.whatwg.org/#map-remove"},
+"82ca3efc": {"dfnID":"82ca3efc","dfnText":"TypeError","external":true,"refSections":[{"refs":[{"id":"ref-for-exceptiondef-typeerror"},{"id":"ref-for-exceptiondef-typeerror\u2460"}],"title":"4.2. ModelContext Interface"}],"url":"https://webidl.spec.whatwg.org/#exceptiondef-typeerror"},
+"8855a9aa": {"dfnID":"8855a9aa","dfnText":"DOMString","external":true,"refSections":[{"refs":[{"id":"ref-for-idl-DOMString"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-idl-DOMString\u2460"},{"id":"ref-for-idl-DOMString\u2461"}],"title":"4.2.2. ModelContextTool Dictionary"}],"url":"https://webidl.spec.whatwg.org/#idl-DOMString"},
+"889e932f": {"dfnID":"889e932f","dfnText":"Exposed","external":true,"refSections":[{"refs":[{"id":"ref-for-Exposed"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-Exposed\u2460"}],"title":"4.2.3. ModelContextClient Interface"}],"url":"https://webidl.spec.whatwg.org/#Exposed"},
+"946a9318": {"dfnID":"946a9318","dfnText":"form","external":true,"refSections":[{"refs":[{"id":"ref-for-the-form-element"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-the-form-element\u2460"}],"title":"4.3. Declarative WebMCP"}],"url":"https://html.spec.whatwg.org/multipage/forms.html#the-form-element"},
+"984221ca": {"dfnID":"984221ca","dfnText":"struct","external":true,"refSections":[{"refs":[{"id":"ref-for-struct"},{"id":"ref-for-struct\u2460"},{"id":"ref-for-struct\u2461"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-struct\u2462"}],"title":"4.2. ModelContext Interface"}],"url":"https://infra.spec.whatwg.org/#struct"},
+"9cce47fd": {"dfnID":"9cce47fd","dfnText":"sequence","external":true,"refSections":[{"refs":[{"id":"ref-for-idl-sequence"}],"title":"4.2.1. ModelContextOptions Dictionary"}],"url":"https://webidl.spec.whatwg.org/#idl-sequence"},
+"a5c91173": {"dfnID":"a5c91173","dfnText":"SameObject","external":true,"refSections":[{"refs":[{"id":"ref-for-SameObject"}],"title":"4.1. Extensions to the Navigator Interface"}],"url":"https://webidl.spec.whatwg.org/#SameObject"},
+"agent": {"dfnID":"agent","dfnText":"agent","external":false,"refSections":[{"refs":[{"id":"ref-for-agent"}],"title":"1. Introduction"},{"refs":[{"id":"ref-for-agent\u2460"}],"title":"2. Terminology"},{"refs":[{"id":"ref-for-agent\u2461"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-agent\u2462"},{"id":"ref-for-agent\u2463"},{"id":"ref-for-agent\u2464"},{"id":"ref-for-agent\u2465"},{"id":"ref-for-agent\u2466"},{"id":"ref-for-agent\u2467"}],"title":"4.2.2. ModelContextTool Dictionary"},{"refs":[{"id":"ref-for-agent\u2468"}],"title":"4.2.3. ModelContextClient Interface"}],"url":"#agent"},
 "ai-platform": {"dfnID":"ai-platform","dfnText":"AI platform","external":false,"refSections":[{"refs":[{"id":"ref-for-ai-platform"}],"title":"2. Terminology"}],"url":"#ai-platform"},
-"b75bb3bd": {"dfnID":"b75bb3bd","dfnText":"SecureContext","external":true,"refSections":[{"refs":[{"id":"ref-for-SecureContext"}],"title":"5.1. Extensions to the Navigator Interface"},{"refs":[{"id":"ref-for-SecureContext\u2460"}],"title":"5.2. ModelContext Interface"},{"refs":[{"id":"ref-for-SecureContext\u2461"}],"title":"5.2.3. ModelContextClient Interface"}],"url":"https://webidl.spec.whatwg.org/#SecureContext"},
-"bdbd19d1": {"dfnID":"bdbd19d1","dfnText":"Promise","external":true,"refSections":[{"refs":[{"id":"ref-for-idl-promise"}],"title":"5.2.2. ModelContextTool Dictionary"},{"refs":[{"id":"ref-for-idl-promise\u2460"},{"id":"ref-for-idl-promise\u2461"}],"title":"5.2.3. ModelContextClient Interface"}],"url":"https://webidl.spec.whatwg.org/#idl-promise"},
-"be0c27b2": {"dfnID":"be0c27b2","dfnText":"Navigator","external":true,"refSections":[{"refs":[{"id":"ref-for-navigator"},{"id":"ref-for-navigator\u2460"},{"id":"ref-for-navigator\u2461"},{"id":"ref-for-navigator\u2462"},{"id":"ref-for-navigator\u2463"}],"title":"5.1. Extensions to the Navigator Interface"}],"url":"https://html.spec.whatwg.org/multipage/system-state.html#navigator"},
+"b4cfa5ce": {"dfnID":"b4cfa5ce","dfnText":"throw","external":true,"refSections":[{"refs":[{"id":"ref-for-dfn-throw"},{"id":"ref-for-dfn-throw\u2460"},{"id":"ref-for-dfn-throw\u2461"}],"title":"4.2. ModelContext Interface"}],"url":"https://webidl.spec.whatwg.org/#dfn-throw"},
+"b75bb3bd": {"dfnID":"b75bb3bd","dfnText":"SecureContext","external":true,"refSections":[{"refs":[{"id":"ref-for-SecureContext"}],"title":"4.1. Extensions to the Navigator Interface"},{"refs":[{"id":"ref-for-SecureContext\u2460"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-SecureContext\u2461"}],"title":"4.2.3. ModelContextClient Interface"}],"url":"https://webidl.spec.whatwg.org/#SecureContext"},
+"bdbd19d1": {"dfnID":"bdbd19d1","dfnText":"Promise","external":true,"refSections":[{"refs":[{"id":"ref-for-idl-promise"}],"title":"4.2.2. ModelContextTool Dictionary"},{"refs":[{"id":"ref-for-idl-promise\u2460"},{"id":"ref-for-idl-promise\u2461"}],"title":"4.2.3. ModelContextClient Interface"}],"url":"https://webidl.spec.whatwg.org/#idl-promise"},
+"be0c27b2": {"dfnID":"be0c27b2","dfnText":"Navigator","external":true,"refSections":[{"refs":[{"id":"ref-for-navigator"},{"id":"ref-for-navigator\u2460"},{"id":"ref-for-navigator\u2461"},{"id":"ref-for-navigator\u2462"},{"id":"ref-for-navigator\u2463"}],"title":"4.1. Extensions to the Navigator Interface"}],"url":"https://html.spec.whatwg.org/multipage/system-state.html#navigator"},
 "browsers-agent": {"dfnID":"browsers-agent","dfnText":"browser\u2019s agent","external":false,"refSections":[{"refs":[{"id":"ref-for-browsers-agent"}],"title":"1. Introduction"}],"url":"#browsers-agent"},
-"callbackdef-toolexecutecallback": {"dfnID":"callbackdef-toolexecutecallback","dfnText":"ToolExecuteCallback","external":false,"refSections":[{"refs":[{"id":"ref-for-callbackdef-toolexecutecallback"}],"title":"5.2.2. ModelContextTool Dictionary"}],"url":"#callbackdef-toolexecutecallback"},
-"callbackdef-userinteractioncallback": {"dfnID":"callbackdef-userinteractioncallback","dfnText":"UserInteractionCallback","external":false,"refSections":[{"refs":[{"id":"ref-for-callbackdef-userinteractioncallback"}],"title":"5.2.3. ModelContextClient Interface"}],"url":"#callbackdef-userinteractioncallback"},
+"c88f3887": {"dfnID":"c88f3887","dfnText":"item","external":true,"refSections":[{"refs":[{"id":"ref-for-struct-item"},{"id":"ref-for-struct-item\u2460"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-struct-item\u2461"}],"title":"4.2. ModelContext Interface"}],"url":"https://infra.spec.whatwg.org/#struct-item"},
+"callbackdef-toolexecutecallback": {"dfnID":"callbackdef-toolexecutecallback","dfnText":"ToolExecuteCallback","external":false,"refSections":[{"refs":[{"id":"ref-for-callbackdef-toolexecutecallback"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-callbackdef-toolexecutecallback\u2460"}],"title":"4.2.2. ModelContextTool Dictionary"}],"url":"#callbackdef-toolexecutecallback"},
+"callbackdef-userinteractioncallback": {"dfnID":"callbackdef-userinteractioncallback","dfnText":"UserInteractionCallback","external":false,"refSections":[{"refs":[{"id":"ref-for-callbackdef-userinteractioncallback"}],"title":"4.2.3. ModelContextClient Interface"}],"url":"#callbackdef-userinteractioncallback"},
+"d14a6f26": {"dfnID":"d14a6f26","dfnText":"key","external":true,"refSections":[{"refs":[{"id":"ref-for-map-key"}],"title":"3. Supporting concepts"}],"url":"https://infra.spec.whatwg.org/#map-key"},
 "d196f41d": {"dfnID":"d196f41d","dfnText":"Assistive Technologies","external":true,"refSections":[{"refs":[{"id":"ref-for-assistive-technology"}],"title":"1. Introduction"}],"url":"https://w3c.github.io/aria/#assistive-technology"},
-"dictdef-modelcontextoptions": {"dfnID":"dictdef-modelcontextoptions","dfnText":"ModelContextOptions","external":false,"refSections":[{"refs":[{"id":"ref-for-dictdef-modelcontextoptions"}],"title":"5.2. ModelContext Interface"}],"url":"#dictdef-modelcontextoptions"},
-"dictdef-modelcontexttool": {"dfnID":"dictdef-modelcontexttool","dfnText":"ModelContextTool","external":false,"refSections":[{"refs":[{"id":"ref-for-dictdef-modelcontexttool"}],"title":"5.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dictdef-modelcontexttool\u2460"}],"title":"5.2.1. ModelContextOptions Dictionary"},{"refs":[{"id":"ref-for-dictdef-modelcontexttool\u2461"}],"title":"5.2.2. ModelContextTool Dictionary"}],"url":"#dictdef-modelcontexttool"},
-"dictdef-toolannotations": {"dfnID":"dictdef-toolannotations","dfnText":"ToolAnnotations","external":false,"refSections":[{"refs":[{"id":"ref-for-dictdef-toolannotations"},{"id":"ref-for-dictdef-toolannotations\u2460"}],"title":"5.2.2. ModelContextTool Dictionary"}],"url":"#dictdef-toolannotations"},
-"dom-modelcontext-clearcontext": {"dfnID":"dom-modelcontext-clearcontext","dfnText":"clearContext()","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontext-clearcontext"},{"id":"ref-for-dom-modelcontext-clearcontext\u2460"}],"title":"5.2. ModelContext Interface"}],"url":"#dom-modelcontext-clearcontext"},
-"dom-modelcontext-providecontext": {"dfnID":"dom-modelcontext-providecontext","dfnText":"provideContext(options)","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontext-providecontext"},{"id":"ref-for-dom-modelcontext-providecontext\u2460"}],"title":"5.2. ModelContext Interface"}],"url":"#dom-modelcontext-providecontext"},
+"dca2de17": {"dfnID":"dca2de17","dfnText":"DOMException","external":true,"refSections":[{"refs":[{"id":"ref-for-idl-DOMException"},{"id":"ref-for-idl-DOMException\u2460"},{"id":"ref-for-idl-DOMException\u2461"}],"title":"4.2. ModelContext Interface"}],"url":"https://webidl.spec.whatwg.org/#idl-DOMException"},
+"dictdef-modelcontextoptions": {"dfnID":"dictdef-modelcontextoptions","dfnText":"ModelContextOptions","external":false,"refSections":[{"refs":[{"id":"ref-for-dictdef-modelcontextoptions"}],"title":"4.2. ModelContext Interface"}],"url":"#dictdef-modelcontextoptions"},
+"dictdef-modelcontexttool": {"dfnID":"dictdef-modelcontexttool","dfnText":"ModelContextTool","external":false,"refSections":[{"refs":[{"id":"ref-for-dictdef-modelcontexttool"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dictdef-modelcontexttool\u2460"}],"title":"4.2.1. ModelContextOptions Dictionary"},{"refs":[{"id":"ref-for-dictdef-modelcontexttool\u2461"}],"title":"4.2.2. ModelContextTool Dictionary"}],"url":"#dictdef-modelcontexttool"},
+"dictdef-toolannotations": {"dfnID":"dictdef-toolannotations","dfnText":"ToolAnnotations","external":false,"refSections":[{"refs":[{"id":"ref-for-dictdef-toolannotations"},{"id":"ref-for-dictdef-toolannotations\u2460"}],"title":"4.2.2. ModelContextTool Dictionary"}],"url":"#dictdef-toolannotations"},
+"dom-modelcontext-clearcontext": {"dfnID":"dom-modelcontext-clearcontext","dfnText":"clearContext()","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontext-clearcontext"},{"id":"ref-for-dom-modelcontext-clearcontext\u2460"}],"title":"4.2. ModelContext Interface"}],"url":"#dom-modelcontext-clearcontext"},
+"dom-modelcontext-providecontext": {"dfnID":"dom-modelcontext-providecontext","dfnText":"provideContext(options)","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontext-providecontext"},{"id":"ref-for-dom-modelcontext-providecontext\u2460"}],"title":"4.2. ModelContext Interface"}],"url":"#dom-modelcontext-providecontext"},
 "dom-modelcontext-providecontext-options-options": {"dfnID":"dom-modelcontext-providecontext-options-options","dfnText":"options","external":false,"refSections":[],"url":"#dom-modelcontext-providecontext-options-options"},
-"dom-modelcontext-registertool": {"dfnID":"dom-modelcontext-registertool","dfnText":"registerTool(tool)","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontext-registertool"},{"id":"ref-for-dom-modelcontext-registertool\u2460"}],"title":"5.2. ModelContext Interface"}],"url":"#dom-modelcontext-registertool"},
+"dom-modelcontext-registertool": {"dfnID":"dom-modelcontext-registertool","dfnText":"registerTool(tool)","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontext-registertool"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-dom-modelcontext-registertool\u2460"},{"id":"ref-for-dom-modelcontext-registertool\u2461"}],"title":"4.2. ModelContext Interface"}],"url":"#dom-modelcontext-registertool"},
 "dom-modelcontext-registertool-tool-tool": {"dfnID":"dom-modelcontext-registertool-tool-tool","dfnText":"tool","external":false,"refSections":[],"url":"#dom-modelcontext-registertool-tool-tool"},
-"dom-modelcontext-unregistertool": {"dfnID":"dom-modelcontext-unregistertool","dfnText":"unregisterTool(name)","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontext-unregistertool"},{"id":"ref-for-dom-modelcontext-unregistertool\u2460"}],"title":"5.2. ModelContext Interface"}],"url":"#dom-modelcontext-unregistertool"},
+"dom-modelcontext-unregistertool": {"dfnID":"dom-modelcontext-unregistertool","dfnText":"unregisterTool(name)","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontext-unregistertool"},{"id":"ref-for-dom-modelcontext-unregistertool\u2460"}],"title":"4.2. ModelContext Interface"}],"url":"#dom-modelcontext-unregistertool"},
 "dom-modelcontext-unregistertool-name-name": {"dfnID":"dom-modelcontext-unregistertool-name-name","dfnText":"name","external":false,"refSections":[],"url":"#dom-modelcontext-unregistertool-name-name"},
-"dom-modelcontextclient-requestuserinteraction": {"dfnID":"dom-modelcontextclient-requestuserinteraction","dfnText":"requestUserInteraction(callback)","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontextclient-requestuserinteraction"},{"id":"ref-for-dom-modelcontextclient-requestuserinteraction\u2460"}],"title":"5.2.3. ModelContextClient Interface"}],"url":"#dom-modelcontextclient-requestuserinteraction"},
+"dom-modelcontextclient-requestuserinteraction": {"dfnID":"dom-modelcontextclient-requestuserinteraction","dfnText":"requestUserInteraction(callback)","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontextclient-requestuserinteraction"},{"id":"ref-for-dom-modelcontextclient-requestuserinteraction\u2460"}],"title":"4.2.3. ModelContextClient Interface"}],"url":"#dom-modelcontextclient-requestuserinteraction"},
 "dom-modelcontextclient-requestuserinteraction-callback-callback": {"dfnID":"dom-modelcontextclient-requestuserinteraction-callback-callback","dfnText":"callback","external":false,"refSections":[],"url":"#dom-modelcontextclient-requestuserinteraction-callback-callback"},
-"dom-modelcontextoptions-tools": {"dfnID":"dom-modelcontextoptions-tools","dfnText":"tools","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontextoptions-tools"},{"id":"ref-for-dom-modelcontextoptions-tools\u2460"}],"title":"5.2.1. ModelContextOptions Dictionary"}],"url":"#dom-modelcontextoptions-tools"},
-"dom-modelcontexttool-annotations": {"dfnID":"dom-modelcontexttool-annotations","dfnText":"annotations","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontexttool-annotations"}],"title":"5.2.2. ModelContextTool Dictionary"}],"url":"#dom-modelcontexttool-annotations"},
-"dom-modelcontexttool-description": {"dfnID":"dom-modelcontexttool-description","dfnText":"description","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontexttool-description"}],"title":"5.2.2. ModelContextTool Dictionary"}],"url":"#dom-modelcontexttool-description"},
-"dom-modelcontexttool-execute": {"dfnID":"dom-modelcontexttool-execute","dfnText":"execute","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontexttool-execute"}],"title":"5.2.2. ModelContextTool Dictionary"}],"url":"#dom-modelcontexttool-execute"},
-"dom-modelcontexttool-inputschema": {"dfnID":"dom-modelcontexttool-inputschema","dfnText":"inputSchema","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontexttool-inputschema"}],"title":"5.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dom-modelcontexttool-inputschema\u2460"}],"title":"5.2.2. ModelContextTool Dictionary"}],"url":"#dom-modelcontexttool-inputschema"},
-"dom-modelcontexttool-name": {"dfnID":"dom-modelcontexttool-name","dfnText":"name","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontexttool-name"}],"title":"5.2.2. ModelContextTool Dictionary"}],"url":"#dom-modelcontexttool-name"},
-"dom-navigator-modelcontext": {"dfnID":"dom-navigator-modelcontext","dfnText":"modelContext","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-navigator-modelcontext"}],"title":"5.1. Extensions to the Navigator Interface"},{"refs":[{"id":"ref-for-dom-navigator-modelcontext\u2460"},{"id":"ref-for-dom-navigator-modelcontext\u2461"},{"id":"ref-for-dom-navigator-modelcontext\u2462"},{"id":"ref-for-dom-navigator-modelcontext\u2463"}],"title":"5.2. ModelContext Interface"}],"url":"#dom-navigator-modelcontext"},
-"dom-toolannotations-readonlyhint": {"dfnID":"dom-toolannotations-readonlyhint","dfnText":"readOnlyHint","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-toolannotations-readonlyhint"}],"title":"5.2.2. ModelContextTool Dictionary"}],"url":"#dom-toolannotations-readonlyhint"},
+"dom-modelcontextoptions-tools": {"dfnID":"dom-modelcontextoptions-tools","dfnText":"tools","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontextoptions-tools"},{"id":"ref-for-dom-modelcontextoptions-tools\u2460"}],"title":"4.2.1. ModelContextOptions Dictionary"}],"url":"#dom-modelcontextoptions-tools"},
+"dom-modelcontexttool-annotations": {"dfnID":"dom-modelcontexttool-annotations","dfnText":"annotations","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontexttool-annotations"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dom-modelcontexttool-annotations\u2460"}],"title":"4.2.2. ModelContextTool Dictionary"}],"url":"#dom-modelcontexttool-annotations"},
+"dom-modelcontexttool-description": {"dfnID":"dom-modelcontexttool-description","dfnText":"description","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontexttool-description"},{"id":"ref-for-dom-modelcontexttool-description\u2460"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dom-modelcontexttool-description\u2461"}],"title":"4.2.2. ModelContextTool Dictionary"}],"url":"#dom-modelcontexttool-description"},
+"dom-modelcontexttool-execute": {"dfnID":"dom-modelcontexttool-execute","dfnText":"execute","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontexttool-execute"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dom-modelcontexttool-execute\u2460"}],"title":"4.2.2. ModelContextTool Dictionary"}],"url":"#dom-modelcontexttool-execute"},
+"dom-modelcontexttool-inputschema": {"dfnID":"dom-modelcontexttool-inputschema","dfnText":"inputSchema","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontexttool-inputschema"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-dom-modelcontexttool-inputschema\u2460"},{"id":"ref-for-dom-modelcontexttool-inputschema\u2461"},{"id":"ref-for-dom-modelcontexttool-inputschema\u2462"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dom-modelcontexttool-inputschema\u2463"}],"title":"4.2.2. ModelContextTool Dictionary"}],"url":"#dom-modelcontexttool-inputschema"},
+"dom-modelcontexttool-name": {"dfnID":"dom-modelcontexttool-name","dfnText":"name","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontexttool-name"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dom-modelcontexttool-name\u2460"}],"title":"4.2.2. ModelContextTool Dictionary"}],"url":"#dom-modelcontexttool-name"},
+"dom-navigator-modelcontext": {"dfnID":"dom-navigator-modelcontext","dfnText":"modelContext","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-navigator-modelcontext"}],"title":"4.1. Extensions to the Navigator Interface"},{"refs":[{"id":"ref-for-dom-navigator-modelcontext\u2460"},{"id":"ref-for-dom-navigator-modelcontext\u2461"},{"id":"ref-for-dom-navigator-modelcontext\u2462"},{"id":"ref-for-dom-navigator-modelcontext\u2463"}],"title":"4.2. ModelContext Interface"}],"url":"#dom-navigator-modelcontext"},
+"dom-toolannotations-readonlyhint": {"dfnID":"dom-toolannotations-readonlyhint","dfnText":"readOnlyHint","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-toolannotations-readonlyhint"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dom-toolannotations-readonlyhint\u2460"}],"title":"4.2.2. ModelContextTool Dictionary"}],"url":"#dom-toolannotations-readonlyhint"},
 "dom-toolexecutecallback-client": {"dfnID":"dom-toolexecutecallback-client","dfnText":"client","external":false,"refSections":[],"url":"#dom-toolexecutecallback-client"},
 "dom-toolexecutecallback-input": {"dfnID":"dom-toolexecutecallback-input","dfnText":"input","external":false,"refSections":[],"url":"#dom-toolexecutecallback-input"},
-"efd1ec5d": {"dfnID":"efd1ec5d","dfnText":"object","external":true,"refSections":[{"refs":[{"id":"ref-for-idl-object"},{"id":"ref-for-idl-object\u2460"}],"title":"5.2.2. ModelContextTool Dictionary"}],"url":"https://webidl.spec.whatwg.org/#idl-object"},
-"modelcontext": {"dfnID":"modelcontext","dfnText":"ModelContext","external":false,"refSections":[{"refs":[{"id":"ref-for-modelcontext"},{"id":"ref-for-modelcontext\u2460"},{"id":"ref-for-modelcontext\u2461"}],"title":"5.1. Extensions to the Navigator Interface"},{"refs":[{"id":"ref-for-modelcontext\u2462"}],"title":"5.2. ModelContext Interface"},{"refs":[{"id":"ref-for-modelcontext\u2463"}],"title":"5.2.3. ModelContextClient Interface"}],"url":"#modelcontext"},
-"modelcontextclient": {"dfnID":"modelcontextclient","dfnText":"ModelContextClient","external":false,"refSections":[{"refs":[{"id":"ref-for-modelcontextclient"},{"id":"ref-for-modelcontextclient\u2460"}],"title":"5.2.2. ModelContextTool Dictionary"},{"refs":[{"id":"ref-for-modelcontextclient\u2461"}],"title":"5.2.3. ModelContextClient Interface"}],"url":"#modelcontextclient"},
-"navigator-modelcontext": {"dfnID":"navigator-modelcontext","dfnText":"modelContext","external":false,"refSections":[{"refs":[{"id":"ref-for-navigator-modelcontext"}],"title":"5.1. Extensions to the Navigator Interface"}],"url":"#navigator-modelcontext"},
+"efd1ec5d": {"dfnID":"efd1ec5d","dfnText":"object","external":true,"refSections":[{"refs":[{"id":"ref-for-idl-object"},{"id":"ref-for-idl-object\u2460"}],"title":"4.2.2. ModelContextTool Dictionary"}],"url":"https://webidl.spec.whatwg.org/#idl-object"},
+"model-context": {"dfnID":"model-context","dfnText":"model context","external":false,"refSections":[{"refs":[{"id":"ref-for-model-context"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-model-context\u2460"}],"title":"4.2. ModelContext Interface"}],"url":"#model-context"},
+"model-context-tool-map": {"dfnID":"model-context-tool-map","dfnText":"tool map","external":false,"refSections":[{"refs":[{"id":"ref-for-model-context-tool-map"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-model-context-tool-map\u2460"},{"id":"ref-for-model-context-tool-map\u2461"}],"title":"4.2. ModelContext Interface"}],"url":"#model-context-tool-map"},
+"modelcontext": {"dfnID":"modelcontext","dfnText":"ModelContext","external":false,"refSections":[{"refs":[{"id":"ref-for-modelcontext"},{"id":"ref-for-modelcontext\u2460"},{"id":"ref-for-modelcontext\u2461"}],"title":"4.1. Extensions to the Navigator Interface"},{"refs":[{"id":"ref-for-modelcontext\u2462"},{"id":"ref-for-modelcontext\u2463"},{"id":"ref-for-modelcontext\u2464"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-modelcontext\u2465"}],"title":"4.2.3. ModelContextClient Interface"}],"url":"#modelcontext"},
+"modelcontext-internal-context": {"dfnID":"modelcontext-internal-context","dfnText":"internal context","external":false,"refSections":[{"refs":[{"id":"ref-for-modelcontext-internal-context"},{"id":"ref-for-modelcontext-internal-context\u2460"},{"id":"ref-for-modelcontext-internal-context\u2461"}],"title":"4.2. ModelContext Interface"}],"url":"#modelcontext-internal-context"},
+"modelcontextclient": {"dfnID":"modelcontextclient","dfnText":"ModelContextClient","external":false,"refSections":[{"refs":[{"id":"ref-for-modelcontextclient"},{"id":"ref-for-modelcontextclient\u2460"}],"title":"4.2.2. ModelContextTool Dictionary"},{"refs":[{"id":"ref-for-modelcontextclient\u2461"}],"title":"4.2.3. ModelContextClient Interface"}],"url":"#modelcontextclient"},
+"navigator-modelcontext": {"dfnID":"navigator-modelcontext","dfnText":"modelContext","external":false,"refSections":[{"refs":[{"id":"ref-for-navigator-modelcontext"}],"title":"4.1. Extensions to the Navigator Interface"}],"url":"#navigator-modelcontext"},
+"synthesize-a-declarative-json-schema-object-algorithm": {"dfnID":"synthesize-a-declarative-json-schema-object-algorithm","dfnText":"synthesize a declarative JSON Schema object algorithm","external":false,"refSections":[{"refs":[{"id":"ref-for-synthesize-a-declarative-json-schema-object-algorithm"}],"title":"3. Supporting concepts"}],"url":"#synthesize-a-declarative-json-schema-object-algorithm"},
+"tool-definition": {"dfnID":"tool-definition","dfnText":"tool definition","external":false,"refSections":[{"refs":[{"id":"ref-for-tool-definition"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-tool-definition\u2460"}],"title":"4.2. ModelContext Interface"}],"url":"#tool-definition"},
+"tool-definition-description": {"dfnID":"tool-definition-description","dfnText":"description","external":false,"refSections":[{"refs":[{"id":"ref-for-tool-definition-description"}],"title":"4.2. ModelContext Interface"}],"url":"#tool-definition-description"},
+"tool-definition-execute-steps": {"dfnID":"tool-definition-execute-steps","dfnText":"execute steps","external":false,"refSections":[{"refs":[{"id":"ref-for-tool-definition-execute-steps"}],"title":"4.2. ModelContext Interface"}],"url":"#tool-definition-execute-steps"},
+"tool-definition-input-schema": {"dfnID":"tool-definition-input-schema","dfnText":"input schema","external":false,"refSections":[{"refs":[{"id":"ref-for-tool-definition-input-schema"}],"title":"4.2. ModelContext Interface"}],"url":"#tool-definition-input-schema"},
+"tool-definition-name": {"dfnID":"tool-definition-name","dfnText":"name","external":false,"refSections":[{"refs":[{"id":"ref-for-tool-definition-name"}],"title":"4.2. ModelContext Interface"}],"url":"#tool-definition-name"},
+"tool-definition-read-only-hint": {"dfnID":"tool-definition-read-only-hint","dfnText":"read-only hint","external":false,"refSections":[{"refs":[{"id":"ref-for-tool-definition-read-only-hint"}],"title":"4.2. ModelContext Interface"}],"url":"#tool-definition-read-only-hint"},
 };
 
 document.addEventListener("DOMContentLoaded", ()=>{
@@ -1791,14 +2018,40 @@ let refsData = {
 "#dom-modelcontexttool-name": {"displayText":"name","export":true,"for_":["ModelContextTool"],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"name","type":"dict-member","url":"#dom-modelcontexttool-name"},
 "#dom-navigator-modelcontext": {"displayText":"modelContext","export":true,"for_":["Navigator"],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"modelContext","type":"attribute","url":"#dom-navigator-modelcontext"},
 "#dom-toolannotations-readonlyhint": {"displayText":"readOnlyHint","export":true,"for_":["ToolAnnotations"],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"readOnlyHint","type":"dict-member","url":"#dom-toolannotations-readonlyhint"},
+"#model-context": {"displayText":"model context","export":true,"for_":[],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"model context","type":"dfn","url":"#model-context"},
+"#model-context-tool-map": {"displayText":"tool map","export":true,"for_":["model context"],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"tool map","type":"dfn","url":"#model-context-tool-map"},
 "#modelcontext": {"displayText":"ModelContext","export":true,"for_":[],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"ModelContext","type":"interface","url":"#modelcontext"},
+"#modelcontext-internal-context": {"displayText":"internal context","export":true,"for_":["ModelContext"],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"internal context","type":"dfn","url":"#modelcontext-internal-context"},
 "#modelcontextclient": {"displayText":"ModelContextClient","export":true,"for_":[],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"ModelContextClient","type":"interface","url":"#modelcontextclient"},
 "#navigator-modelcontext": {"displayText":"modelcontext","export":true,"for_":["Navigator"],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"modelcontext","type":"dfn","url":"#navigator-modelcontext"},
+"#synthesize-a-declarative-json-schema-object-algorithm": {"displayText":"synthesize a declarative json schema object algorithm","export":true,"for_":[],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"synthesize a declarative json schema object algorithm","type":"dfn","url":"#synthesize-a-declarative-json-schema-object-algorithm"},
+"#tool-definition": {"displayText":"tool definition","export":true,"for_":[],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"tool definition","type":"dfn","url":"#tool-definition"},
+"#tool-definition-description": {"displayText":"description","export":true,"for_":["tool definition"],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"description","type":"dfn","url":"#tool-definition-description"},
+"#tool-definition-execute-steps": {"displayText":"execute steps","export":true,"for_":["tool definition"],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"execute steps","type":"dfn","url":"#tool-definition-execute-steps"},
+"#tool-definition-input-schema": {"displayText":"input schema","export":true,"for_":["tool definition"],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"input schema","type":"dfn","url":"#tool-definition-input-schema"},
+"#tool-definition-name": {"displayText":"name","export":true,"for_":["tool definition"],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"name","type":"dfn","url":"#tool-definition-name"},
+"#tool-definition-read-only-hint": {"displayText":"read-only hint","export":true,"for_":["tool definition"],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"read-only hint","type":"dfn","url":"#tool-definition-read-only-hint"},
+"https://html.spec.whatwg.org/multipage/forms.html#form-associated-element": {"displayText":"form-associated elements","export":false,"for_":[],"level":"1","normative":true,"shortname":"html","spec":"html","status":"current","text":"form-associated elements","type":"dfn","url":"https://html.spec.whatwg.org/multipage/forms.html#form-associated-element"},
+"https://html.spec.whatwg.org/multipage/forms.html#the-form-element": {"displayText":"form","export":true,"for_":[],"level":"1","normative":true,"shortname":"html","spec":"html","status":"current","text":"form","type":"element","url":"https://html.spec.whatwg.org/multipage/forms.html#the-form-element"},
 "https://html.spec.whatwg.org/multipage/system-state.html#navigator": {"displayText":"Navigator","export":true,"for_":[],"level":"1","normative":true,"shortname":"html","spec":"html","status":"current","text":"Navigator","type":"interface","url":"https://html.spec.whatwg.org/multipage/system-state.html#navigator"},
+"https://infra.spec.whatwg.org/#boolean": {"displayText":"boolean","export":true,"for_":[],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"boolean","type":"dfn","url":"https://infra.spec.whatwg.org/#boolean"},
+"https://infra.spec.whatwg.org/#map-exists": {"displayText":"exist","export":true,"for_":["map"],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"exist","type":"dfn","url":"https://infra.spec.whatwg.org/#map-exists"},
+"https://infra.spec.whatwg.org/#map-getting-the-keys": {"displayText":"keys","export":true,"for_":["map"],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"keys","type":"dfn","url":"https://infra.spec.whatwg.org/#map-getting-the-keys"},
+"https://infra.spec.whatwg.org/#map-getting-the-values": {"displayText":"values","export":true,"for_":["map"],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"values","type":"dfn","url":"https://infra.spec.whatwg.org/#map-getting-the-values"},
+"https://infra.spec.whatwg.org/#map-key": {"displayText":"key","export":true,"for_":["map"],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"key","type":"dfn","url":"https://infra.spec.whatwg.org/#map-key"},
+"https://infra.spec.whatwg.org/#map-remove": {"displayText":"remove","export":true,"for_":["map"],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"remove","type":"dfn","url":"https://infra.spec.whatwg.org/#map-remove"},
+"https://infra.spec.whatwg.org/#ordered-map": {"displayText":"map","export":true,"for_":[],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"map","type":"dfn","url":"https://infra.spec.whatwg.org/#ordered-map"},
+"https://infra.spec.whatwg.org/#serialize-a-javascript-value-to-a-json-string": {"displayText":"serialize a JavaScript value to a JSON string","export":true,"for_":[],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"serialize a javascript value to a json string","type":"dfn","url":"https://infra.spec.whatwg.org/#serialize-a-javascript-value-to-a-json-string"},
+"https://infra.spec.whatwg.org/#string": {"displayText":"string","export":true,"for_":[],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"string","type":"dfn","url":"https://infra.spec.whatwg.org/#string"},
+"https://infra.spec.whatwg.org/#struct": {"displayText":"struct","export":true,"for_":[],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"struct","type":"dfn","url":"https://infra.spec.whatwg.org/#struct"},
+"https://infra.spec.whatwg.org/#struct-item": {"displayText":"item","export":true,"for_":["struct","tuple"],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"item","type":"dfn","url":"https://infra.spec.whatwg.org/#struct-item"},
 "https://w3c.github.io/aria/#assistive-technology": {"displayText":"Assistive Technologies","export":true,"for_":[],"level":"1","normative":false,"shortname":"wai-aria","spec":"wai-aria-1.2","status":"current","text":"assistive technologies","type":"dfn","url":"https://w3c.github.io/aria/#assistive-technology"},
 "https://webidl.spec.whatwg.org/#Exposed": {"displayText":"Exposed","export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"Exposed","type":"extended-attribute","url":"https://webidl.spec.whatwg.org/#Exposed"},
 "https://webidl.spec.whatwg.org/#SameObject": {"displayText":"SameObject","export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"SameObject","type":"extended-attribute","url":"https://webidl.spec.whatwg.org/#SameObject"},
 "https://webidl.spec.whatwg.org/#SecureContext": {"displayText":"SecureContext","export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"SecureContext","type":"extended-attribute","url":"https://webidl.spec.whatwg.org/#SecureContext"},
+"https://webidl.spec.whatwg.org/#dfn-throw": {"displayText":"throw","export":true,"for_":["exception"],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"throw","type":"dfn","url":"https://webidl.spec.whatwg.org/#dfn-throw"},
+"https://webidl.spec.whatwg.org/#exceptiondef-typeerror": {"displayText":"TypeError","export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"TypeError","type":"exception","url":"https://webidl.spec.whatwg.org/#exceptiondef-typeerror"},
+"https://webidl.spec.whatwg.org/#idl-DOMException": {"displayText":"DOMException","export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"DOMException","type":"interface","url":"https://webidl.spec.whatwg.org/#idl-DOMException"},
 "https://webidl.spec.whatwg.org/#idl-DOMString": {"displayText":"DOMString","export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"DOMString","type":"interface","url":"https://webidl.spec.whatwg.org/#idl-DOMString"},
 "https://webidl.spec.whatwg.org/#idl-any": {"displayText":"any","export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"any","type":"interface","url":"https://webidl.spec.whatwg.org/#idl-any"},
 "https://webidl.spec.whatwg.org/#idl-boolean": {"displayText":"boolean","export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"boolean","type":"interface","url":"https://webidl.spec.whatwg.org/#idl-boolean"},
@@ -1806,6 +2059,7 @@ let refsData = {
 "https://webidl.spec.whatwg.org/#idl-promise": {"displayText":"Promise","export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"Promise","type":"interface","url":"https://webidl.spec.whatwg.org/#idl-promise"},
 "https://webidl.spec.whatwg.org/#idl-sequence": {"displayText":"sequence","export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"sequence","type":"dfn","url":"https://webidl.spec.whatwg.org/#idl-sequence"},
 "https://webidl.spec.whatwg.org/#idl-undefined": {"displayText":"undefined","export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"undefined","type":"interface","url":"https://webidl.spec.whatwg.org/#idl-undefined"},
+"https://webidl.spec.whatwg.org/#invalidstateerror": {"displayText":"InvalidStateError","export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"InvalidStateError","type":"exception","url":"https://webidl.spec.whatwg.org/#invalidstateerror"},
 "https://webidl.spec.whatwg.org/#this": {"displayText":"this","export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"this","type":"dfn","url":"https://webidl.spec.whatwg.org/#this"},
 };
 
@@ -2008,5 +2262,92 @@ window.addEventListener("resize", () => {
     // Hide any open ref hint.
     hideAllRefHints();
 });
+}
+</script>
+<script>/* Boilerplate: script-var-click-highlighting */
+"use strict";
+{
+/*
+Color-choosing design:
+
+* Colors are ordered by goodness.
+* On clicking a var, give it the earliest color
+    with the lowest usage in the algorithm.
+* On re-clicking, re-use the var's most recent color
+    if that's not currently being used elsewhere.
+*/
+
+const COLOR_COUNT = 7;
+
+document.addEventListener("click", e=>{
+    if(e.target.nodeName == "VAR") {
+        highlightSameAlgoVars(e.target);
+    }
+});
+
+function highlightSameAlgoVars(v) {
+    // Find the algorithm container.
+    let algoContainer = findAlgoContainer(v);
+
+    // Not highlighting document-global vars,
+    // too likely to be unrelated.
+    if(algoContainer == null) return;
+
+    const varName = nameFromVar(v);
+    if(!v.hasAttribute("data-var-color")) {
+        const newColor = chooseHighlightColor(algoContainer, v);
+        for(const el of algoContainer.querySelectorAll("var")) {
+            if(nameFromVar(el) == varName) {
+                el.setAttribute("data-var-color", newColor);
+                el.setAttribute("data-var-last-color", newColor);
+            }
+        }
+    } else {
+        for(const el of algoContainer.querySelectorAll("var")) {
+            if(nameFromVar(el) == varName) {
+                el.removeAttribute("data-var-color");
+            }
+        }
+    }
+}
+function findAlgoContainer(el) {
+    while(el != document.body) {
+        if(el.hasAttribute("data-algorithm")) return el;
+        el = el.parentNode;
+    }
+    return null;
+}
+function nameFromVar(el) {
+    return el.textContent.replace(/(\s|\xa0)+/g, " ").trim();
+}
+function colorCountsFromContainer(container) {
+    const namesFromColor = Array.from({length:COLOR_COUNT}, x=>new Set());
+    for(let v of container.querySelectorAll("var[data-var-color]")) {
+        let color = +v.getAttribute("data-var-color");
+        namesFromColor[color].add(nameFromVar(v));
+    }
+
+    return namesFromColor.map(x=>x.size);
+}
+function leastUsedColor(colors) {
+    // Find the earliest color with the lowest count.
+    let minCount = Infinity;
+    let minColor = null;
+    for(var i = 0; i < colors.length; i++) {
+        if(colors[i] < minCount) {
+            minColor = i;
+            minCount = colors[i];
+        }
+    }
+    return minColor;
+}
+function chooseHighlightColor(container, v) {
+    const colorCounts = colorCountsFromContainer(container);
+    if(v.hasAttribute("data-var-last-color")) {
+        let color = +v.getAttribute("data-var-last-color");
+        if(colorCounts[color] == 0) return color;
+    }
+    return leastUsedColor(colorCounts);
+}
 }
 </script>
