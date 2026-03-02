@@ -52,7 +52,8 @@ Die On: warning
 
 .XXX {
   color: #D50606;
-  background: white;
+  /* The value #111 is what WHATWG uses in dark mode: `--xxx-bg: #111;`. */
+  background: light-dark(white, #111);
   border: solid #D50606;
 }
 
@@ -79,6 +80,11 @@ p + dl.props { margin-top: -0.5em; }
 }
 </style>
 
+<pre class="link-defaults">
+spec:html; type:dfn;
+  text:form-associated element
+</pre>
+
 <h2 id="intro">Introduction</h2>
 
 WebMCP API is a new JavaScript interface that allows web developers to expose their web application functionality as “tools” - JavaScript functions with natural language descriptions and structured schemas that can be invoked by [=agents=], [=browser's agents=], and [=assistive technologies=]. Web pages that use WebMCP can be thought of as Model Context Protocol [[!MCP]] servers that implement tools in client-side script instead of on the backend. WebMCP enables collaborative workflows where users and agents work together within the same web interface, leveraging existing application logic while maintaining shared context and user control.
@@ -95,14 +101,49 @@ A <dfn>browser’s agent</dfn> is an [=agent=] provided by or through the browse
 
 An <dfn>AI platform</dfn> is a provider of agentic assistants such as OpenAI’s ChatGPT, Anthropic’s Claude, or Google’s Gemini.
 
-<h2 id="security-privacy">Security and privacy considerations</h2>
+<h2 id="supporting-concepts">Supporting concepts</h2>
 
-<!--
-TODO: Reuse as applicable
-https://github.com/webmachinelearning/webmcp/blob/main/docs/security-privacy-considerations.md
--->
+A <dfn>model context</dfn> is a [=struct=] with the following [=struct/items=]:
 
-<h2 id="accessibility">Accessibility considerations</h2>
+<dl dfn-for="model context">
+  : <dfn>tool map</dfn>
+  :: a [=map=] whose [=map/keys=] are [=strings=] and whose [=map/values=] are [=tool definition=]
+     [=structs=].
+</dl>
+
+A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]:
+
+<dl dfn-for="tool definition">
+  : <dfn>name</dfn>
+  :: a [=string=] uniquely identifying a tool registered within a [=model context=]'s [=model
+     context/tool map=]; it is the same as the [=map/key=] identifying this object.
+
+  : <dfn>description</dfn>
+  :: a [=string=].
+
+  : <dfn>input schema</dfn>
+  :: a [=string=].
+
+     Note: For tools registered by the imperative form of this API (i.e.,
+     {{ModelContext/registerTool()}}), this is the stringified representation of
+     {{ModelContextTool/inputSchema}}. For tools registered
+     [declaratively](https://github.com/webmachinelearning/webmcp/pull/76), this will be a
+     stringified JSON Schema object created by the
+     [=synthesize a declarative JSON Schema object algorithm=].
+     [[!JSON-SCHEMA]]
+
+  : <dfn>execute steps</dfn>
+  :: a set of steps to invoke the tool.
+
+     Note: For tools registered imperatively, these steps will simply invoke the supplied
+     {{ToolExecuteCallback}} callback. For tools registered
+     [declaratively](https://github.com/webmachinelearning/webmcp/pull/76), this will be a set of
+     "internal" steps that have not been defined yet, that describe how to fill out a <{form}> and
+     its [=form-associated elements=].
+
+  : <dfn>read-only hint</dfn>
+  :: a [=boolean=], initially false.
+</dl>
 
 <h2 id="api">API</h2>
 
@@ -143,6 +184,10 @@ interface ModelContext {
 };
 </xmp>
 
+Each {{ModelContext}} object has an associated <dfn for=ModelContext>internal context</dfn>, which
+is a [=model context=] [=struct=] created alongside the {{ModelContext}}.
+
+
 <dl class="domintro">
   <dt><code><var ignore>navigator</var>.{{Navigator/modelContext}}.{{ModelContext/provideContext(options)}}</code></dt>
   <dd>
@@ -181,16 +226,76 @@ The <dfn method for=ModelContext>clearContext()</dfn> method steps are:
 
 
 <div algorithm>
-The <dfn method for=ModelContext>registerTool(<var ignore>tool</var>)</dfn> method steps are:
+The <dfn method for=ModelContext>registerTool(<var>tool</var>)</dfn> method steps are:
 
-1. TODO: fill this out.
+1. Let |tool map| be [=this=]'s [=ModelContext/internal context=]'s [=model context/tool map=].
+
+1. Let |tool name| be |tool|'s {{ModelContextTool/name}}.
+
+1. If |tool map|[|tool name|] [=map/exists=], then [=exception/throw=] an {{InvalidStateError}}
+   {{DOMException}}.
+
+1. If either |tool name| or {{ModelContextTool/description}} is the empty string, then
+   [=exception/throw=] an {{InvalidStateError}} {{DOMException}}.
+
+1. Let |stringified input schema| be the empty string.
+
+1. If |tool|'s {{ModelContextTool/inputSchema}} [=map/exists=], then set |stringified input schema|
+   to the result of [=serializing a JavaScript value to a JSON string=], given |tool|'s
+   {{ModelContextTool/inputSchema}}.
+
+   <div class="note">
+     <p>The serialization algorithm above throws exceptions in the following cases:</p>
+
+     <ol>
+       <li><p><i>Throws a new {{TypeError}}</i> when the backing "<code>JSON.stringify()</code>"
+       yields undefined, e.g.,
+       "<code>inputSchema: { toJSON() {return HTMLDivElement;}}</code>", or
+       "<code>innputSchema: { toJSON() {return undefined;}}</code>".</p></li>
+
+       <li><p><i>Re-throws exceptions</i> thrown by "<code>JSON.stringify()</code>", e.g., when
+       "<code>inputSchema</code>" is an object with a circular reference, etc.</p></li>
+     </ol>
+
+     <p class="XXX">Currently, the only implementation of this spec (Chromium) does not throw
+     exceptions in the first case above. And for the second case, Chromium throws new {{TypeError}}
+     exceptions, as opposed to <em>re-throwing</em> the original exception. We <span
+     class=allow-2119>should</span> reconcile this difference.</p>
+   </div>
+
+1. Let |read-only hint| be true if |tool|'s {{ModelContextTool/annotations}} [=map/exists=], and if
+   its {{ToolAnnotations/readOnlyHint}} [=map/exists=] and is true. Otherwise, let it be false.
+
+1. Let |tool definition| be a new [=tool definition=], with the following [=struct/items=]:
+
+   : [=tool definition/name=]
+   :: |tool name|
+
+   : [=tool definition/description=]
+   :: |tool|'s {{ModelContextTool/description}}
+
+   : [=tool definition/input schema=]
+   :: |stringified input schema|
+
+   : [=tool definition/execute steps=]
+   :: steps that invoke |tool|'s {{ModelContextTool/execute}}
+
+   : [=tool definition/read-only hint=]
+   :: |read-only hint|
+
+1. Set [=this=]'s [=ModelContext/internal context=][|tool name|] to |tool definition|.
 
 </div>
 
 <div algorithm>
-The <dfn method for=ModelContext>unregisterTool(<var ignore>name</var>)</dfn> method steps are:
+The <dfn method for=ModelContext>unregisterTool(<var>name</var>)</dfn> method steps are:
 
-1. TODO: fill this out.
+1. Let |tool map| be [=this=]'s [=ModelContext/internal context=]'s [=model context/tool map=].
+
+1. If |tool map|[|name|] does not [=map/exist=], then [=exception/throw=] an {{InvalidStateError}}
+   {{DOMException}}.
+
+1. [=map/Remove=] |tool map|[|name|].
 
 </div>
 
@@ -296,6 +401,19 @@ The <dfn method for=ModelContextClient>requestUserInteraction(<var ignore>callba
 
 </div>
 
+<h3 id="declarative-api">Declarative WebMCP</h3>
+
+This section is entirely a TODO. For now, refer to the [explainer draft](https://github.com/webmachinelearning/webmcp/pull/76).
+
+<div algorithm>
+The <dfn>synthesize a declarative JSON Schema object algorithm</dfn>, given a <{form}> element
+|form|, runs the following steps. They return a [=map=] representing a JSON Schema object.
+[[!JSON-SCHEMA]]
+
+1. TODO: Derive a conformant JSON Schema object from |form| and its [=form-associated elements=].
+
+</div>
+
 <pre class="biblio">
 {
   "mcp": {
@@ -310,6 +428,16 @@ The <dfn method for=ModelContextClient>requestUserInteraction(<var ignore>callba
   }
 }
 </pre>
+
+<h2 id="security-privacy">Security and privacy considerations</h2>
+
+<!--
+TODO: Reuse as applicable
+https://github.com/webmachinelearning/webmcp/blob/main/docs/security-privacy-considerations.md
+-->
+
+<h2 id="accessibility">Accessibility considerations</h2>
+
 
 <h2 id="acknowledgements">Acknowledgements</h2>
 
