@@ -107,13 +107,13 @@ A <dfn>model context</dfn> is a [=struct=] with the following [=struct/items=]:
 
 <dl dfn-for="model context">
   : <dfn>tool map</dfn>
-  :: a [=map=] whose [=map/keys=] are [=strings=] and whose [=map/values=] are [=tool data=]
+  :: a [=map=] whose [=map/keys=] are [=strings=] and whose [=map/values=] are [=tool definition=]
      [=structs=].
 </dl>
 
-A <dfn>tool data</dfn> is a [=struct=] with the following [=struct/items=]:
+A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]:
 
-<dl dfn-for="tool data">
+<dl dfn-for="tool definition">
   : <dfn>name</dfn>
   :: a [=string=] uniquely identifying a tool registered within a [=model context=]'s [=model
      context/tool map=]; it is the same as the [=map/key=] identifying this object.
@@ -266,24 +266,24 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>)</dfn> method step
 1. Let |read-only hint| be true if |tool|'s {{ModelContextTool/annotations}} [=map/exists=], and if
    its {{ToolAnnotations/readOnlyHint}} [=map/exists=] and is true. Otherwise, let it be false.
 
-1. Let |tool data| be a new [=tool data=], with the following [=struct/items=]:
+1. Let |tool definition| be a new [=tool definition=], with the following [=struct/items=]:
 
-   : [=tool data/name=]
+   : [=tool definition/name=]
    :: |tool name|
 
-   : [=tool data/description=]
+   : [=tool definition/description=]
    :: |tool|'s {{ModelContextTool/description}}
 
-   : [=tool data/input schema=]
+   : [=tool definition/input schema=]
    :: |stringified input schema|
 
-   : [=tool data/execute steps=]
+   : [=tool definition/execute steps=]
    :: steps that invoke |tool|'s {{ModelContextTool/execute}}
 
-   : [=tool data/read-only hint=]
+   : [=tool definition/read-only hint=]
    :: |read-only hint|
 
-1. Set [=this=]'s [=ModelContext/internal context=][|tool name|] to |tool data|.
+1. Set [=this=]'s [=ModelContext/internal context=][|tool name|] to |tool definition|.
 
 </div>
 
