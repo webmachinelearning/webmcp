@@ -115,7 +115,15 @@ we've come up with should be supported by the community as a general approach.
 
 ### Getting the form response to the agent
 
-TODO: Mention application/json-ld responses, and so on.
+When a form element performs a navigation, the first `<script type=application/ld+json>` tag on the
+target page is used as the cross-document tool's "response" that gets sent to the model.
+
+When no such a tag is present, probably we'll decide that the page's entire contents is sent to the
+model as the response, since that's an accurate semantic representation of the result of the tool.
+However, this is technically TBD at the moment.
+
+When the form element does *NOT* perform a navigation, JavaScript can hand-craft the response to the
+agent via the `SubmitEvent#respondWith()` method described below.
 
 ### Events
 
@@ -159,4 +167,4 @@ must resolve to an object conforming to such schema.
 It is TBD how *declarative* WebMCP tools will be exposed to any interface that exposes a site's
 tools to JavaScript. See https://github.com/webmachinelearning/webmcp/issues/51 for context. Should
 a declarative WebMCP tool be able to be invoked from such an interface, should it exist in the
-future?
+future? Almost certainly, yes. But details are TBD.
