@@ -8,7 +8,7 @@
   <meta content="Bikeshed version 3c53a5b02, updated Thu Nov 27 17:03:30 2025 +0000" name="generator">
   <link href="https://webmachinelearning.github.io/webmcp" rel="canonical">
   <link href="https://www.w3.org/2008/site/images/favicon.ico" rel="icon">
-  <meta content="643b92c3e5fb5be34621ae4fa2d32f874071e697" name="revision">
+  <meta content="c6c24d40eb370b5a7f90c26f454c7cfa9b8acf68" name="revision">
   <meta content="dark light" name="color-scheme">
   <link href="https://www.w3.org/StyleSheets/TR/2021/dark.css" media="(prefers-color-scheme: dark)" rel="stylesheet" type="text/css">
 <style>
@@ -803,7 +803,7 @@ var[data-var-color="6"] { --var-vg: #FFBCF2; }
 </p>
    <h1 class="no-ref p-name" id="title">WebMCP</h1>
    <p id="w3c-state"><a href="https://www.w3.org/standards/types/#CG-DRAFT">Draft Community Group Report</a>,
-    <time class="dt-updated" datetime="2026-03-02">2 March 2026</time></p>
+    <time class="dt-updated" datetime="2026-03-03">3 March 2026</time></p>
    <details open>
     <summary>More details about this document</summary>
     <div data-fill-with="spec-metadata">
@@ -1017,14 +1017,11 @@ The <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContext" data-dfn-type=
          <p><i>Throws a new <code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#exceptiondef-typeerror" id="ref-for-exceptiondef-typeerror">TypeError</a></code></i> when the backing "<code>JSON.stringify()</code>"
      yields undefined, e.g.,
      "<code>inputSchema: { toJSON() {return HTMLDivElement;}}</code>", or
-     "<code>innputSchema: { toJSON() {return undefined;}}</code>".</p>
+     "<code>inputSchema: { toJSON() {return undefined;}}</code>".</p>
         <li>
          <p><i>Re-throws exceptions</i> thrown by "<code>JSON.stringify()</code>", e.g., when
      "<code>inputSchema</code>" is an object with a circular reference, etc.</p>
        </ol>
-       <p class="XXX">Currently, the only implementation of this spec (Chromium) does not throw
-   exceptions in the first case above. And for the second case, Chromium throws new <code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#exceptiondef-typeerror" id="ref-for-exceptiondef-typeerror①">TypeError</a></code>
-   exceptions, as opposed to <em>re-throwing</em> the original exception. We <span class="allow-2119">should</span> reconcile this difference.</p>
       </div>
      <li data-md>
       <p>Let <var>read-only hint</var> be true if <var>tool</var>’s <code class="idl"><a data-link-type="idl" href="#dom-modelcontexttool-annotations" id="ref-for-dom-modelcontexttool-annotations">annotations</a></code> <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists②">exists</a>, and if
@@ -1553,7 +1550,7 @@ let dfnPanelData = {
 "6c6b1005": {"dfnID":"6c6b1005","dfnText":"any","external":true,"refSections":[{"refs":[{"id":"ref-for-idl-any"}],"title":"4.2.2. ModelContextTool Dictionary"},{"refs":[{"id":"ref-for-idl-any\u2460"},{"id":"ref-for-idl-any\u2461"}],"title":"4.2.3. ModelContextClient Interface"}],"url":"https://webidl.spec.whatwg.org/#idl-any"},
 "797018a7": {"dfnID":"797018a7","dfnText":"InvalidStateError","external":true,"refSections":[{"refs":[{"id":"ref-for-invalidstateerror"},{"id":"ref-for-invalidstateerror\u2460"},{"id":"ref-for-invalidstateerror\u2461"}],"title":"4.2. ModelContext Interface"}],"url":"https://webidl.spec.whatwg.org/#invalidstateerror"},
 "7d4424b2": {"dfnID":"7d4424b2","dfnText":"remove","external":true,"refSections":[{"refs":[{"id":"ref-for-map-remove"}],"title":"4.2. ModelContext Interface"}],"url":"https://infra.spec.whatwg.org/#map-remove"},
-"82ca3efc": {"dfnID":"82ca3efc","dfnText":"TypeError","external":true,"refSections":[{"refs":[{"id":"ref-for-exceptiondef-typeerror"},{"id":"ref-for-exceptiondef-typeerror\u2460"}],"title":"4.2. ModelContext Interface"}],"url":"https://webidl.spec.whatwg.org/#exceptiondef-typeerror"},
+"82ca3efc": {"dfnID":"82ca3efc","dfnText":"TypeError","external":true,"refSections":[{"refs":[{"id":"ref-for-exceptiondef-typeerror"}],"title":"4.2. ModelContext Interface"}],"url":"https://webidl.spec.whatwg.org/#exceptiondef-typeerror"},
 "8855a9aa": {"dfnID":"8855a9aa","dfnText":"DOMString","external":true,"refSections":[{"refs":[{"id":"ref-for-idl-DOMString"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-idl-DOMString\u2460"},{"id":"ref-for-idl-DOMString\u2461"}],"title":"4.2.2. ModelContextTool Dictionary"}],"url":"https://webidl.spec.whatwg.org/#idl-DOMString"},
 "889e932f": {"dfnID":"889e932f","dfnText":"Exposed","external":true,"refSections":[{"refs":[{"id":"ref-for-Exposed"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-Exposed\u2460"}],"title":"4.2.3. ModelContextClient Interface"}],"url":"https://webidl.spec.whatwg.org/#Exposed"},
 "946a9318": {"dfnID":"946a9318","dfnText":"form","external":true,"refSections":[{"refs":[{"id":"ref-for-the-form-element"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-the-form-element\u2460"}],"title":"4.3. Declarative WebMCP"}],"url":"https://html.spec.whatwg.org/multipage/forms.html#the-form-element"},
