@@ -251,16 +251,11 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>)</dfn> method step
        <li><p><i>Throws a new {{TypeError}}</i> when the backing "<code>JSON.stringify()</code>"
        yields undefined, e.g.,
        "<code>inputSchema: { toJSON() {return HTMLDivElement;}}</code>", or
-       "<code>innputSchema: { toJSON() {return undefined;}}</code>".</p></li>
+       "<code>inputSchema: { toJSON() {return undefined;}}</code>".</p></li>
 
        <li><p><i>Re-throws exceptions</i> thrown by "<code>JSON.stringify()</code>", e.g., when
        "<code>inputSchema</code>" is an object with a circular reference, etc.</p></li>
      </ol>
-
-     <p class="XXX">Currently, the only implementation of this spec (Chromium) does not throw
-     exceptions in the first case above. And for the second case, Chromium throws new {{TypeError}}
-     exceptions, as opposed to <em>re-throwing</em> the original exception. We <span
-     class=allow-2119>should</span> reconcile this difference.</p>
    </div>
 
 1. Let |read-only hint| be true if |tool|'s {{ModelContextTool/annotations}} [=map/exists=], and if
