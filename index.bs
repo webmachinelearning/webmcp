@@ -328,7 +328,7 @@ dictionary ModelContextTool {
 };
 
 dictionary ToolAnnotations {
-  boolean readOnlyHint;
+  boolean readOnlyHint = false;
 };
 
 callback ToolExecuteCallback = Promise<any> (object input, ModelContextClient client);
@@ -365,11 +365,9 @@ callback ToolExecuteCallback = Promise<any> (object input, ModelContextClient cl
 
 The {{ToolAnnotations}} dictionary provides optional metadata about a tool:
 
-<dl class="domintro">
-  <dt><code><var ignore>annotations</var>["{{ToolAnnotations/readOnlyHint}}"]</code></dt>
-  <dd>
-    <p>If true, indicates that the tool does not modify any state and only reads data. This hint can help [=agents=] make decisions about when it is safe to call the tool.
-  </dd>
+<dl class="domintro" dfn-type=dict-member dfn-for=ToolAnnotations>
+  : <dfn>readOnlyHint</dfn>
+  :: If true, indicates that the tool does not modify any state and only reads data. This hint can help [=agents=] make decisions about when it is safe to call the tool.
 </dl>
 
 <h4 id="model-context-client">ModelContextClient Interface</h4>
