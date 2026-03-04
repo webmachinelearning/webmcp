@@ -18,7 +18,7 @@ reads.
 However, not all site functionality is exposed via JavaScript functions, and features that *are*
 take some effort to rewrite with an agent invoker in mind. Much of a site's functionality is
 provided via semantic HTML elements like `<form>`, and its various inputs. To **make it easier** for
-developers to expose this kind of site functionality while still using thte semantic web, we
+developers to expose this kind of site functionality while still using the semantic web, we
 propose:
 
 1. New attributes that augment `<form>`s and [form-associated
@@ -49,17 +49,17 @@ while `tooldescription` is analogous to
 The `toolautosubmit` [boolean attribute](https://html.spec.whatwg.org/C#boolean-attribute), lets the
 agent submit the form on the user's behalf after filling it out, without requiring the user to check
 it manually before submitting. If this attribute is missing when the agent finishes filling out the
-form, the browser brings the submit attribute into focus, and the agent should then tell the user to
+form, the browser brings the submit button into focus, and the agent should then tell the user to
 check the form contents, and submit it manually.
 
 When forms with these attributes are inserted, removed, or these attributes are updated, the form
 creates a new declarative WebMCP tool whose input schema is generated according to
 [Input schema synthesis](#input-schema-synthesis).
 
-We also introduce the new `toolparamname` and `toolparamdescription` attributes, which apply to form
-control elements. They contribute to a declarative form tool's input schema, by specifying the name
-and description of individual parameters inside that schema. In this sense, the following imperative
-structure:
+We also introduce the new `toolparamdescription` attribute, which applies to form control elements.
+It contributes the [description](https://json-schema.org/draft/2020-12/json-schema-validation#name-title-and-description)
+of an individual parameter, named using the standard HTML [name](https://html.spec.whatwg.org/C#naming-form-controls:-the-name-attribute) attribute.
+In this sense, the following imperative structure:
 
 ```js
 window.navigator.modelContext.provideContext({
@@ -87,8 +87,8 @@ window.navigator.modelContext.provideContext({
 
 ```html
 <form toolname="search-cars" tooldescription="Perform a car make/model search" [...]>
- <input type=text toolparamname="make" toolparamdescription="The vehicle's make (i.e., BMW, Ford)" required>
- <input type=text toolparamname="model" toolparamdescription="The vehicle's model (i.e., 330i, F-150)" required>
+ <input type=text name="make" toolparamdescription="The vehicle's make (i.e., BMW, Ford)" required>
+ <input type=text name="model" toolparamdescription="The vehicle's model (i.e., 330i, F-150)" required>
  <button type=submit>Search</button>
 </form>
 ```
@@ -137,7 +137,7 @@ interface SubmitEvent : Event {
 };
 ```
 
-**`toolactivated` and `toolcanceled` events
+**`toolactivated` and `toolcanceled` events**
 
 We introduce these new events that get fired against he `Window` object when a WebMCP tool is run,
 and when its invocation is canceled. Some open questions:
