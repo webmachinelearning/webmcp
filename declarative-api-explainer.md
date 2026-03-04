@@ -62,8 +62,9 @@ The [`name`](https://html.spec.whatwg.org/C#attr-fe-name) attribute on form cont
 supplies the name of each "property" in the input schema generated for a declarative tool.
 
 Since there's no pre-existing description attribute we can use, we introduce the
-`toolparamdescription` attribute for form control elements and, which contributes the description of
-each "property" in the input schema generated for a declarative tool.
+`toolparamdescription` attribute for form control elements, which contributes the
+[description](https://json-schema.org/draft/2020-12/json-schema-validation#name-title-and-description)
+of each "property" in the input schema generated for a declarative tool.
 
 With this, the following imperative structure:
 
