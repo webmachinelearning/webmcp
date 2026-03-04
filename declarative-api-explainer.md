@@ -126,6 +126,26 @@ However, this is technically TBD at the moment.
 When the form element does *NOT* perform a navigation, JavaScript can hand-craft the response to the
 agent via the `SubmitEvent#respondWith()` method described below.
 
+### Pseudo-classes
+
+Authors might want a way to bring to the user's attention or otherwise highlight a declarative
+WebMCP form that was filled out by the agent, and is waiting for the user to check the form and
+submit it. (This is essentially only relevant for forms without the `toolautosubmit` attribute). To
+support this, we introduce the CSS pseudo-classes `:tool-form-active` and `:tool-submit-active`.
+
+The `:tool-form-active` pseudo-class matches `<form>` elements whose declarative tool is "running".
+The exact definition of this will be clarified in the specification, but in short, a declarative
+tool is considered "running" starting when the form is being filled out with agent output, until one
+of the following:
+
+ - The form is [reset](https://html.spec.whatwg.org/C#concept-form-reset) or removed from the DOM
+ - The Promise returned from `SubmitEvent#respondWith()` resolves with a tool output
+ - The form's `toolname` or `tooldescription` attributes are modified, added, or removed
+ - The form is automatically submitted with the agent output, due to the `toolautosubmit` attribute
+
+The `:tool-submit-active` pseudo-class matches the submit button of a `:tool-form-active` form
+element.
+
 ### Events
 
 **Additions to `SubmitEvent`**
@@ -148,15 +168,26 @@ interface SubmitEvent : Event {
 
 **`toolactivated` and `toolcanceled` events
 
-We introduce these new events that get fired against the `Window` object when a WebMCP tool is run,
-and when its invocation is canceled. Some open questions:
+We introduce these events that get fired at the `Window` object when a WebMCP tool is run, and when
+its invocation is canceled.
+
+The `toolactivated` event gives the developer a hook to perform any actions, such as bringing the
+form to the user's attention, once a declarative tool is filled out but before it is submitted.
+(This presumes the absence of the `toolautosubmit` attribute). This event can be seen as the
+JavaScript equivalent of the [`:tool-form-active` pseudo-class](#pseudo-classes).
+
+
+Some open questions:
 
 > [!WARNING]
-> Should these events fire for imperative tool call invocations as well?
+> Should these events fire for imperative tool call invocations as well? Chromium
+> [seems to do
+> that](https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/core/script_tools/model_context.cc;l=265-274;drc=2af6413cf36d701fdaffb09188f2ab2a5be37f4f).
 
 > [!WARNING]
 > For declarative, should they be fired at `Window` or at the `<form>` that registered the tool in
-> the first place, and bubble up to the document that way?
+> the first place, and bubble up to the document that way? See
+> https://github.com/webmachinelearning/webmcp/issues/126.
 
 ## Integration with other imperative API bits
 
