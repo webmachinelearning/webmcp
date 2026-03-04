@@ -263,8 +263,8 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>)</dfn> method step
      class=allow-2119>should</span> reconcile this difference.</p>
    </div>
 
-1. Let |read-only hint| be true if |tool|'s {{ModelContextTool/annotations}} [=map/exists=], and if
-   its {{ToolAnnotations/readOnlyHint}} [=map/exists=] and is true. Otherwise, let it be false.
+1. Let |read-only hint| be true if |tool|'s {{ModelContextTool/annotations}} [=map/exists=] and
+   its {{ToolAnnotations/readOnlyHint}} is true. Otherwise, let it be false.
 
 1. Let |tool definition| be a new [=tool definition=], with the following [=struct/items=]:
 
