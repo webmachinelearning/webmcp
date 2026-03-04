@@ -49,7 +49,7 @@ while `tooldescription` is analogous to
 The `toolautosubmit` [boolean attribute](https://html.spec.whatwg.org/C#boolean-attribute), lets the
 agent submit the form on the user's behalf after filling it out, without requiring the user to check
 it manually before submitting. If this attribute is missing when the agent finishes filling out the
-form, the browser brings the submit attribute into focus, and the agent should then tell the user to
+form, the browser brings the submit button into focus, and the agent should then tell the user to
 check the form contents, and submit it manually.
 
 When forms with these attributes are inserted, removed, or these attributes are updated, the form
