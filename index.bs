@@ -258,8 +258,8 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>)</dfn> method step
      </ol>
    </div>
 
-1. Let |read-only hint| be true if |tool|'s {{ModelContextTool/annotations}} [=map/exists=], and if
-   its {{ToolAnnotations/readOnlyHint}} [=map/exists=] and is true. Otherwise, let it be false.
+1. Let |read-only hint| be true if |tool|'s {{ModelContextTool/annotations}} [=map/exists=] and
+   its {{ToolAnnotations/readOnlyHint}} is true. Otherwise, let it be false.
 
 1. Let |tool definition| be a new [=tool definition=], with the following [=struct/items=]:
 
@@ -323,7 +323,7 @@ dictionary ModelContextTool {
 };
 
 dictionary ToolAnnotations {
-  boolean readOnlyHint;
+  boolean readOnlyHint = false;
 };
 
 callback ToolExecuteCallback = Promise<any> (object input, ModelContextClient client);
@@ -360,11 +360,9 @@ callback ToolExecuteCallback = Promise<any> (object input, ModelContextClient cl
 
 The {{ToolAnnotations}} dictionary provides optional metadata about a tool:
 
-<dl class="domintro">
-  <dt><code><var ignore>annotations</var>["{{ToolAnnotations/readOnlyHint}}"]</code></dt>
-  <dd>
-    <p>If true, indicates that the tool does not modify any state and only reads data. This hint can help [=agents=] make decisions about when it is safe to call the tool.
-  </dd>
+<dl class="domintro" dfn-type=dict-member dfn-for=ToolAnnotations>
+  : <dfn>readOnlyHint</dfn>
+  :: If true, indicates that the tool does not modify any state and only reads data. This hint can help [=agents=] make decisions about when it is safe to call the tool.
 </dl>
 
 <h4 id="model-context-client">ModelContextClient Interface</h4>
