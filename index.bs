@@ -136,24 +136,12 @@ The {{ModelContext}} interface provides methods for web applications to register
 <xmp class="idl">
 [Exposed=Window, SecureContext]
 interface ModelContext {
-  undefined provideContext(optional ModelContextOptions options = {});
-  undefined clearContext();
   undefined registerTool(ModelContextTool tool);
   undefined unregisterTool(DOMString name);
 };
 </xmp>
 
 <dl class="domintro">
-  <dt><code><var ignore>navigator</var>.{{Navigator/modelContext}}.{{ModelContext/provideContext(options)}}</code></dt>
-  <dd>
-    <p>Registers the provided context (tools) with the browser. This method clears any pre-existing tools and other context before registering the new ones.
-  </dd>
-
-  <dt><code><var ignore>navigator</var>.{{Navigator/modelContext}}.{{ModelContext/clearContext()}}</code></dt>
-  <dd>
-    <p>Unregisters all context (tools) with the browser.
-  </dd>
-
   <dt><code><var ignore>navigator</var>.{{Navigator/modelContext}}.{{ModelContext/registerTool(tool)}}</code></dt>
   <dd>
     <p>Registers a single tool without clearing the existing set of tools. The method throws an error, if a tool with the same name already exists, or if the {{ModelContextTool/inputSchema}} is invalid.
@@ -164,20 +152,6 @@ interface ModelContext {
     <p>Removes the tool with the specified name from the registered set.
   </dd>
 </dl>
-
-<div algorithm>
-The <dfn method for=ModelContext>provideContext(<var ignore>options</var>)</dfn> method steps are:
-
-1. TODO: fill this out.
-
-</div>
-
-<div algorithm>
-The <dfn method for=ModelContext>clearContext()</dfn> method steps are:
-
-1. TODO: fill this out.
-
-</div>
 
 
 <div algorithm>
