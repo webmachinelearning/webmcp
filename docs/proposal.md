@@ -52,34 +52,9 @@ Handling tool calls in the main thread with the option of delegating to workers 
 ## API
 
 ### modelContext
-The `window.navigator.modelContext` interface is introduced for the site to declare functionality that can be used by an AI Agent. Access to these tools is arbitrated by the browser. The `modelContext` object has a `provideContext` method that's used to update the context (currently just tools) available to these agents. The method takes an object with a `tools` property which is a list of tool descriptors. The tool descriptors look as shown in this example below, which aligns with the Prompt API's [tool use](https://github.com/webmachinelearning/prompt-api#tool-use) specification, and other libraries like the MCP SDK:
+The `window.navigator.modelContext` interface is introduced for the site to declare functionality that can be used by an AI Agent. Access to these tools is arbitrated by the browser.
 
-```js
-// Declare tool schema and implementation functions.
-window.navigator.modelContext.provideContext({
-    tools: [
-        {
-            name: "add-todo",
-            description: "Add a new todo item to the list",
-            inputSchema: {
-                type: "object",
-                properties: {
-                    text: { type: "string", description: "The text of the todo item" }
-                },
-                required: ["text"]
-            },
-            execute: ({ text }, agent) => {
-                // Add todo item and update UI.
-                return /* structured content response */
-            }
-        }
-    ]
-});
-```
-
-The `provideContext` method can be called multiple times. Subsequent calls clear any pre-existing tools and other context before registering the new ones. This is useful for single-page web apps that frequently change UI state and could benefit from presenting different tools depending on which state the UI is currently in. For a list of tools passed to `provideContext`, each tool name in the list is expected to be unique.
-
-Alternatively, the `registerTool`/`unregisterTool` APIs can be used to add/remove tools from the registered set without resetting the state entirely.
+The `modelContext`'s `registerTool()` and `unregisterTool()` methods are used to add and remove tools from the agent's context.
 
 ```js
 window.navigator.modelContext.registerTool({
@@ -101,6 +76,7 @@ window.navigator.modelContext.registerTool({
 
 window.navigator.modelContext.unregisterTool("add-todo");
 ```
+
 ### agent
 The `agent` interface is introduced to represent an AI Agent using the functionality declared by the site through the `modelContext`. The lifetime of this interface is scoped to the execution of a tool. It is passed as a parameter when executing a tool's function. This interface provides the dependencies required by the site from the Agent.
 
@@ -246,30 +222,28 @@ function addStamp(stampName, stampDescription, stampYear, stampImageUrl) {
 }
 ```
 
-To let AI agents use this functionality, the author defines the available tools. The `agent` property on the `Window` is checked to ensure the browser supports WebMCP. If supported, the `provideContext()` method is called, passing in an array of tools with a single item, a definition for the new "Add Stamp" tool. The tool accepts as parameters the same set of fields that are present in the HTML form, since this tool and the form should be functionally equivalent.
+To let AI agents use this functionality, the author defines the available tools. The `modelContext` property on the `Window` is checked to ensure the browser supports WebMCP. If supported, the `registerTool()` method is called with an object describing the new "Add Stamp" tool. The tool accepts as parameters the same set of fields that are present in the HTML form, since this tool and the form should be functionally equivalent.
 
 ```js
 if ("modelContext" in window.navigator) {
-    window.navigator.modelContext.provideContext({
-        tools: [
-            {
-                name: "add-stamp",
-                description: "Add a new stamp to the collection",
-                inputSchema: {
-                    type: "object",
-                    properties: {
-                        name: { type: "string", description: "The name of the stamp" },
-                        description: { type: "string", description: "A brief description of the stamp" },
-                        year: { type: "number", description: "The year the stamp was issued" },
-                        imageUrl: { type: "string", description: "An optional image URL for the stamp" }
-                    },
-                    required: ["name", "description", "year"]
+    window.navigator.modelContext.registerTool({
+        {
+            name: "add-stamp",
+            description: "Add a new stamp to the collection",
+            inputSchema: {
+                type: "object",
+                properties: {
+                    name: { type: "string", description: "The name of the stamp" },
+                    description: { type: "string", description: "A brief description of the stamp" },
+                    year: { type: "number", description: "The year the stamp was issued" },
+                    imageUrl: { type: "string", description: "An optional image URL for the stamp" }
                 },
-                execute({ name, description, year, imageUrl }, agent) {
-                    // TODO
-                }
+                required: ["name", "description", "year"]
+            },
+            execute({ name, description, year, imageUrl }, agent) {
+                // TODO
             }
-        ]
+        }
     });
 }
 ```

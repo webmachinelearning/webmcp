@@ -168,21 +168,6 @@ The <dfn method for=ModelContext>unregisterTool(<var ignore>name</var>)</dfn> me
 
 </div>
 
-<h4 id="model-context-options">ModelContextOptions Dictionary</h4>
-
-<xmp class="idl">
-dictionary ModelContextOptions {
-  sequence<ModelContextTool> tools = [];
-};
-</xmp>
-
-<dl class="domintro">
-  <dt><code><var ignore>options</var>["{{ModelContextOptions/tools}}"]</code></dt>
-  <dd>
-    <p>A list of {{ModelContextOptions/tools}} to register with the browser. Each tool name in the list is expected to be unique.
-  </dd>
-</dl>
-
 <h4 id="model-context-tool">ModelContextTool Dictionary</h4>
 
 The {{ModelContextTool}} dictionary describes a tool that can be invoked by [=agents=].
