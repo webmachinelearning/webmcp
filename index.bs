@@ -177,8 +177,6 @@ The {{ModelContext}} interface provides methods for web applications to register
 <xmp class="idl">
 [Exposed=Window, SecureContext]
 interface ModelContext {
-  undefined provideContext(optional ModelContextOptions options = {});
-  undefined clearContext();
   undefined registerTool(ModelContextTool tool);
   undefined unregisterTool(DOMString name);
 };
@@ -189,16 +187,6 @@ is a [=model context=] [=struct=] created alongside the {{ModelContext}}.
 
 
 <dl class="domintro">
-  <dt><code><var ignore>navigator</var>.{{Navigator/modelContext}}.{{ModelContext/provideContext(options)}}</code></dt>
-  <dd>
-    <p>Registers the provided context (tools) with the browser. This method clears any pre-existing tools and other context before registering the new ones.
-  </dd>
-
-  <dt><code><var ignore>navigator</var>.{{Navigator/modelContext}}.{{ModelContext/clearContext()}}</code></dt>
-  <dd>
-    <p>Unregisters all context (tools) with the browser.
-  </dd>
-
   <dt><code><var ignore>navigator</var>.{{Navigator/modelContext}}.{{ModelContext/registerTool(tool)}}</code></dt>
   <dd>
     <p>Registers a single tool without clearing the existing set of tools. The method throws an error, if a tool with the same name already exists, or if the {{ModelContextTool/inputSchema}} is invalid.
@@ -209,20 +197,6 @@ is a [=model context=] [=struct=] created alongside the {{ModelContext}}.
     <p>Removes the tool with the specified name from the registered set.
   </dd>
 </dl>
-
-<div algorithm>
-The <dfn method for=ModelContext>provideContext(<var ignore>options</var>)</dfn> method steps are:
-
-1. TODO: fill this out.
-
-</div>
-
-<div algorithm>
-The <dfn method for=ModelContext>clearContext()</dfn> method steps are:
-
-1. TODO: fill this out.
-
-</div>
 
 
 <div algorithm>
@@ -293,21 +267,6 @@ The <dfn method for=ModelContext>unregisterTool(<var>name</var>)</dfn> method st
 1. [=map/Remove=] |tool map|[|name|].
 
 </div>
-
-<h4 id="model-context-options">ModelContextOptions Dictionary</h4>
-
-<xmp class="idl">
-dictionary ModelContextOptions {
-  sequence<ModelContextTool> tools = [];
-};
-</xmp>
-
-<dl class="domintro">
-  <dt><code><var ignore>options</var>["{{ModelContextOptions/tools}}"]</code></dt>
-  <dd>
-    <p>A list of {{ModelContextOptions/tools}} to register with the browser. Each tool name in the list is expected to be unique.
-  </dd>
-</dl>
 
 <h4 id="model-context-tool">ModelContextTool Dictionary</h4>
 
