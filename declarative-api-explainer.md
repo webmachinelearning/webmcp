@@ -116,6 +116,11 @@ we've come up with should be supported by the community as a general approach.
 
 ### Getting the form response to the agent
 
+This topic is currently under debate; see https://github.com/webmachinelearning/webmcp/issues/135.
+
+<details>
+<summary>Click to read the `application/ld+json` proposal before the above issue was filed</summary>
+
 When a form element performs a navigation, the first `<script type=application/ld+json>` tag on the
 target page is used as the cross-document tool's "response" that gets sent to the model.
 
@@ -125,6 +130,7 @@ However, this is technically TBD at the moment.
 
 When the form element does *NOT* perform a navigation, JavaScript can hand-craft the response to the
 agent via the `SubmitEvent#respondWith()` method described below.
+</details>
 
 ### Pseudo-classes
 
@@ -168,7 +174,7 @@ interface SubmitEvent : Event {
 
 **`toolactivated` and `toolcanceled` events
 
-We introduce these events that get fired at the `Window` object when a WebMCP tool is run, and when
+We introduce these events that get fired at the `ModelContext` object when a WebMCP tool is run, and when
 its invocation is canceled.
 
 The `toolactivated` event gives the developer a hook to perform any actions, such as bringing the
@@ -176,6 +182,10 @@ form to the user's attention, once a declarative tool is filled out but before i
 (This presumes the absence of the `toolautosubmit` attribute). This event can be seen as the
 JavaScript equivalent of the [`:tool-form-active` pseudo-class](#pseudo-classes).
 
+When the agent cancels a tool call (perhaps because a user has instigated another turn of the
+conversation, obviating the need for the pending tool), the `toolcanceled` event is fired. Note that
+this event does not fire when the site itself cancels the tool, due to removing the form element or
+changing its name or description.
 
 Some open questions:
 
