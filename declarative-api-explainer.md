@@ -18,7 +18,7 @@ reads.
 However, not all site functionality is exposed via JavaScript functions, and features that *are*
 take some effort to rewrite with an agent invoker in mind. Much of a site's functionality is
 provided via semantic HTML elements like `<form>`, and its various inputs. To **make it easier** for
-developers to expose this kind of site functionality while still using thte semantic web, we
+developers to expose this kind of site functionality while still using the semantic web, we
 propose:
 
 1. New attributes that augment `<form>`s and [form-associated
