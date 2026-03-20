@@ -126,7 +126,7 @@ A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]
 
      Note: This is only populated for tools registered by the imperative form of this API (i.e.,
      {{ModelContext/registerTool()}}. In that case, it holds the raw
-     {{ModelContextTool/inputSchema}} object, and is used during in
+     {{ModelContextTool/inputSchema}} object, and is used in
      {{ModelContext/unregisterTool()}} to find the right tool to unregister.
 
   : <dfn>input schema</dfn>
