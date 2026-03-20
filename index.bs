@@ -121,6 +121,14 @@ A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]
   : <dfn>description</dfn>
   :: a [=string=].
 
+  : <dfn>imperative input schema object</dfn>
+  :: an {{object}}-or-null, initially null.
+
+     Note: This is only populated for tools registered by the imperative form of this API (i.e.,
+     {{ModelContext/registerTool()}}. In that case, it holds the raw
+     {{ModelContextTool/inputSchema}} object, and is used in
+     {{ModelContext/unregisterTool()}} to find the right tool to unregister.
+
   : <dfn>input schema</dfn>
   :: a [=string=].
 
@@ -178,7 +186,7 @@ The {{ModelContext}} interface provides methods for web applications to register
 [Exposed=Window, SecureContext]
 interface ModelContext {
   undefined registerTool(ModelContextTool tool);
-  undefined unregisterTool(DOMString name);
+  undefined unregisterTool(ModelContextTool tool);
 };
 </xmp>
 
@@ -189,12 +197,15 @@ is a [=model context=] [=struct=] created alongside the {{ModelContext}}.
 <dl class="domintro">
   <dt><code><var ignore>navigator</var>.{{Navigator/modelContext}}.{{ModelContext/registerTool(tool)}}</code></dt>
   <dd>
-    <p>Registers a single tool without clearing the existing set of tools. The method throws an error, if a tool with the same name already exists, or if the {{ModelContextTool/inputSchema}} is invalid.
+    <p>Registers a single tool without clearing the existing set of tools. This method throws an
+    exception if a tool with the same name already exists, or if the
+    {{ModelContextTool/inputSchema}} is invalid.</p>
   </dd>
 
-  <dt><code><var ignore>navigator</var>.{{Navigator/modelContext}}.{{ModelContext/unregisterTool(name)}}</code></dt>
+  <dt><code><var ignore>navigator</var>.{{Navigator/modelContext}}.{{ModelContext/unregisterTool(tool)}}</code></dt>
   <dd>
-    <p>Removes the tool with the specified name from the registered set.
+    <p>Removes the tool from the registered set of tools. This method throws an exception if no
+    matching tool has been registered.</p>
   </dd>
 </dl>
 
@@ -257,12 +268,44 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>)</dfn> method step
 </div>
 
 <div algorithm>
-The <dfn method for=ModelContext>unregisterTool(<var>name</var>)</dfn> method steps are:
+The <dfn method for=ModelContext>unregisterTool(<var>tool</var>)</dfn> method steps are:
 
 1. Let |tool map| be [=this=]'s [=ModelContext/internal context=]'s [=model context/tool map=].
 
-1. If |tool map|[|name|] does not [=map/exist=], then [=exception/throw=] an {{InvalidStateError}}
+1. Let |name| be |tool|'s {{ModelContextTool/name}}.
+
+1. If |tool map|[|name|] does not [=map/exist=], then [=exception/throw=] an {{NotFoundError}}
    {{DOMException}}.
+
+1. Let |registered tool| be |tool map|[|name|].
+
+1. Let |matches| be true.
+
+1. [=Assert=]: |name| equals |registered tool|'s [=tool definition/name=].
+
+1. If |tool|'s {{ModelContextTool/description}} does not equal |registered tool|'s [=tool
+   definition/description=], then set |matches| to false.
+
+1. Else if |tool|'s {{ModelContextTool/inputSchema}} [=map/exists=] and |registered tool|'s [=tool
+   definition/imperative input schema object=] is null, or if |tool|'s
+   {{ModelContextTool/inputSchema}} does not [=map/exist=] but |registered tool|'s [=tool
+   definition/imperative input schema object=] is not null, then set |matches| to false.
+
+1. Else if |tool|'s {{ModelContextTool/inputSchema}} [=map/exists=] and is not the same object as
+   |registered tool|'s [=tool definition/imperative input schema object=], then set |matches| to
+   false.
+
+1. Else if |tool|'s {{ModelContextTool/execute}} is not the same [=callback function=] that
+   |registered tool|'s [=tool definition/execute steps=] is prepared to run, then set |matches| to
+   false.
+
+1. Let |tool read-only hint| be true if |tool|'s {{ModelContextTool/annotations}} [=map/exists=] and
+   its {{ToolAnnotations/readOnlyHint}} is true; false otherwise.
+
+1. If |tool read-only hint| does not equal |registered tool|'s [=tool definition/read-only hint=],
+   then set |matches| to false.
+
+1. If |matches| is false, then [=exception/throw=] an {{NotFoundError}} {{DOMException}} and return.
 
 1. [=map/Remove=] |tool map|[|name|].
 
