@@ -124,7 +124,8 @@ A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]
      * Only consist of uppercase and lowercase ASCII letters (A-Z, a-z), digits (0-9), underscore (_), hyphen (-), and dot (.).
 
   : <dfn>title</dfn>
-  :: A [=string=] representing a human-readable title of the tool to be used in the user interface to represent the tool.
+  :: A [=string=] representing a human-readable title of the tool to be used in the user interface
+  to represent the tool.
 
   : <dfn>description</dfn>
   :: a [=string=].
