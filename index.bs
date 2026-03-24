@@ -121,14 +121,6 @@ A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]
   : <dfn>description</dfn>
   :: a [=string=].
 
-  : <dfn>imperative input schema object</dfn>
-  :: an {{object}}-or-null, initially null.
-
-     Note: This is only populated for tools registered by the imperative form of this API (i.e.,
-     {{ModelContext/registerTool()}}. In that case, it holds the raw
-     {{ModelContextTool/inputSchema}} object, and is used in
-     {{ModelContext/unregisterTool()}} to find the right tool to unregister.
-
   : <dfn>input schema</dfn>
   :: a [=string=].
 
@@ -152,6 +144,19 @@ A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]
   : <dfn>read-only hint</dfn>
   :: a [=boolean=], initially false.
 </dl>
+
+<div algorithm>
+To <dfn for="model context">unregister a tool</dfn> for a [=model context=] given a [=string=]
+|tool name|, run these steps:
+
+1. Let |tool map| be the associated [=model context=]'s [=model context/tool map=].
+
+1. [=Assert=] |tool map|[|tool name|] [=map/exists=].
+
+1. [=map/Remove=] |tool map|[|tool name|].
+
+</div>
+
 
 <h2 id="api">API</h2>
 
@@ -185,8 +190,7 @@ The {{ModelContext}} interface provides methods for web applications to register
 <xmp class="idl">
 [Exposed=Window, SecureContext]
 interface ModelContext {
-  undefined registerTool(ModelContextTool tool);
-  undefined unregisterTool(ModelContextTool tool);
+  undefined registerTool(ModelContextTool tool, optional ModelContextRegisterToolOptions options = {});
 };
 </xmp>
 
@@ -195,23 +199,17 @@ is a [=model context=] [=struct=] created alongside the {{ModelContext}}.
 
 
 <dl class="domintro">
-  <dt><code><var ignore>navigator</var>.{{Navigator/modelContext}}.{{ModelContext/registerTool(tool)}}</code></dt>
+  <dt><code><var ignore>navigator</var>.{{Navigator/modelContext}}.{{ModelContext/registerTool(tool, options)}}</code></dt>
   <dd>
     <p>Registers a single tool without clearing the existing set of tools. This method throws an
     exception if a tool with the same name already exists, or if the
     {{ModelContextTool/inputSchema}} is invalid.</p>
   </dd>
-
-  <dt><code><var ignore>navigator</var>.{{Navigator/modelContext}}.{{ModelContext/unregisterTool(tool)}}</code></dt>
-  <dd>
-    <p>Removes the tool from the registered set of tools. This method throws an exception if no
-    matching tool has been registered.</p>
-  </dd>
 </dl>
 
 
 <div algorithm>
-The <dfn method for=ModelContext>registerTool(<var>tool</var>)</dfn> method steps are:
+The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var>)</dfn> method steps are:
 
 1. Let |tool map| be [=this=]'s [=ModelContext/internal context=]'s [=model context/tool map=].
 
@@ -246,6 +244,17 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>)</dfn> method step
 1. Let |read-only hint| be true if |tool|'s {{ModelContextTool/annotations}} [=map/exists=] and
    its {{ToolAnnotations/readOnlyHint}} is true. Otherwise, let it be false.
 
+1. Let |signal| be |options|'s {{ModelContextRegisterToolOptions/signal}}.
+
+1. If |signal| [=map/exists=], then:
+
+   1. If |signal| is [=AbortSignal/aborted=], then optionally [=report a warning to the console=]
+      indicating that the tool will not be registered because the {{AbortSignal}} is already
+      [=AbortSignal/aborted=], and return.
+
+   1. [=AbortSignal/add|Add an abort algorithm=] to |signal| that [=model context/unregisters a
+      tool=] from [=this=] [=ModelContext/internal context=] given |tool name|.
+
 1. Let |tool definition| be a new [=tool definition=], with the following [=struct/items=]:
 
    : [=tool definition/name=]
@@ -264,50 +273,6 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>)</dfn> method step
    :: |read-only hint|
 
 1. Set [=this=]'s [=ModelContext/internal context=][|tool name|] to |tool definition|.
-
-</div>
-
-<div algorithm>
-The <dfn method for=ModelContext>unregisterTool(<var>tool</var>)</dfn> method steps are:
-
-1. Let |tool map| be [=this=]'s [=ModelContext/internal context=]'s [=model context/tool map=].
-
-1. Let |name| be |tool|'s {{ModelContextTool/name}}.
-
-1. If |tool map|[|name|] does not [=map/exist=], then [=exception/throw=] an {{NotFoundError}}
-   {{DOMException}}.
-
-1. Let |registered tool| be |tool map|[|name|].
-
-1. Let |matches| be true.
-
-1. [=Assert=]: |name| equals |registered tool|'s [=tool definition/name=].
-
-1. If |tool|'s {{ModelContextTool/description}} does not equal |registered tool|'s [=tool
-   definition/description=], then set |matches| to false.
-
-1. Else if |tool|'s {{ModelContextTool/inputSchema}} [=map/exists=] and |registered tool|'s [=tool
-   definition/imperative input schema object=] is null, or if |tool|'s
-   {{ModelContextTool/inputSchema}} does not [=map/exist=] but |registered tool|'s [=tool
-   definition/imperative input schema object=] is not null, then set |matches| to false.
-
-1. Else if |tool|'s {{ModelContextTool/inputSchema}} [=map/exists=] and is not the same object as
-   |registered tool|'s [=tool definition/imperative input schema object=], then set |matches| to
-   false.
-
-1. Else if |tool|'s {{ModelContextTool/execute}} is not the same [=callback function=] that
-   |registered tool|'s [=tool definition/execute steps=] is prepared to run, then set |matches| to
-   false.
-
-1. Let |tool read-only hint| be true if |tool|'s {{ModelContextTool/annotations}} [=map/exists=] and
-   its {{ToolAnnotations/readOnlyHint}} is true; false otherwise.
-
-1. If |tool read-only hint| does not equal |registered tool|'s [=tool definition/read-only hint=],
-   then set |matches| to false.
-
-1. If |matches| is false, then [=exception/throw=] an {{NotFoundError}} {{DOMException}} and return.
-
-1. [=map/Remove=] |tool map|[|name|].
 
 </div>
 
@@ -366,6 +331,26 @@ The {{ToolAnnotations}} dictionary provides optional metadata about a tool:
   : <dfn>readOnlyHint</dfn>
   :: If true, indicates that the tool does not modify any state and only reads data. This hint can help [=agents=] make decisions about when it is safe to call the tool.
 </dl>
+
+<h4 id="model-context-register-tool-options">ModelContextRegisterToolOptions Dictionary</h4>
+
+The {{ModelContextRegisterToolOptions}} dictionary carries information pertaining to a tool's
+registration, in contrast with the {{ModelContextTool}} dictionary which carries the tool
+definition itself.
+
+<xmp class="idl">
+dictionary ModelContextRegisterToolOptions {
+  AbortSignal signal;
+};
+</xmp>
+
+<dl class="domintro">
+  <dt><code><var ignore>tool</var>["{{ModelContextTool/name}}"]</code></dt>
+  <dd>
+    <p>An {{AbortSignal}} that unregisters the tool when aborted.
+  </dd>
+</dl>
+
 
 <h4 id="model-context-client">ModelContextClient Interface</h4>
 
