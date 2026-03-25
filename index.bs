@@ -176,9 +176,12 @@ The {{ModelContext}} interface provides methods for web applications to register
 
 <xmp class="idl">
 [Exposed=Window, SecureContext]
-interface ModelContext {
+interface ModelContext : EventTarget {
   undefined registerTool(ModelContextTool tool);
   undefined unregisterTool(DOMString name);
+
+  attribute EventHandler ontoolactivated;
+  attribute EventHandler ontoolcancel;
 };
 </xmp>
 
@@ -196,6 +199,13 @@ is a [=model context=] [=struct=] created alongside the {{ModelContext}}.
   <dd>
     <p>Removes the tool with the specified name from the registered set.
   </dd>
+</dl>
+
+<dl dfn-type=attribute dfn-for=ModelContext>
+    : <dfn>ontoolactivated</dfn>
+    :: An [=event handler IDL attribute=] for the {{ModelContext/toolactivated}} event type.
+    : <dfn>ontoolcancel</dfn>
+    :: An [=event handler IDL attribute=] for the {{ModelContext/toolcancel}} event type.
 </dl>
 
 
@@ -352,6 +362,56 @@ The <dfn method for=ModelContextClient>requestUserInteraction(<var ignore>callba
 1. TODO: fill this out.
 
 </div>
+
+<h4 id="tool-activated-event">ToolActivatedEvent Interface</h4>
+
+The {{ToolActivatedEvent}} interface represents a <dfn event for=ModelContext>toolactivated</dfn> event that is dispatched at {{Navigator/modelContext}} when a tool is invoked by an [=agent=].
+
+<xmp class="idl">
+[Exposed=Window, SecureContext]
+interface ToolActivatedEvent : Event {
+  constructor(DOMString type, optional ToolActivatedEventInit eventInitDict = {});
+  readonly attribute DOMString toolName;
+  readonly attribute Element? element;
+};
+
+dictionary ToolActivatedEventInit : EventInit {
+  DOMString toolName = "";
+  Element? element = null;
+};
+</xmp>
+
+<dl class="domintro" dfn-type=attribute dfn-for=ToolActivatedEvent>
+  : <dfn>toolName</dfn>
+  :: Returns the name of the tool that was activated.
+  : <dfn>element</dfn>
+  :: Returns the form element associated with the tool, if any.
+</dl>
+
+<h4 id="tool-cancel-event">ToolCancelEvent Interface</h4>
+
+The {{ToolCancelEvent}} interface represents a <dfn event for=ModelContext>toolcancel</dfn> event that is dispatched at {{Navigator/modelContext}} when a tool's invocation is canceled by an [=agent=].
+
+<xmp class="idl">
+[Exposed=Window, SecureContext]
+interface ToolCancelEvent : Event {
+  constructor(DOMString type, optional ToolCancelEventInit eventInitDict = {});
+  readonly attribute DOMString toolName;
+  readonly attribute Element? element;
+};
+
+dictionary ToolCancelEventInit : EventInit {
+  DOMString toolName = "";
+  Element? element = null;
+};
+</xmp>
+
+<dl class="domintro" dfn-type=attribute dfn-for=ToolCancelEvent>
+  : <dfn>toolName</dfn>
+  :: Returns the name of the tool that was canceled.
+  : <dfn>element</dfn>
+  :: Returns the form element associated with the tool, if any.
+</dl>
 
 <h3 id="declarative-api">Declarative WebMCP</h3>
 
