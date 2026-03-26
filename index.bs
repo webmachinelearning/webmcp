@@ -201,9 +201,10 @@ is a [=model context=] [=struct=] created alongside the {{ModelContext}}.
 <dl class="domintro">
   <dt><code><var ignore>navigator</var>.{{Navigator/modelContext}}.{{ModelContext/registerTool(tool, options)}}</code></dt>
   <dd>
-    <p>Registers a single tool without clearing the existing set of tools. This method throws an
-    exception if a tool with the same name already exists, or if the
-    {{ModelContextTool/inputSchema}} is invalid.</p>
+    <p>Registers a tool that [=agents=] can invoke. Throws an exception if a tool with the same name
+    is already registered, if the given {{ModelContextTool/name}} or
+    {{ModelContextTool/description}} are empty strings, or if the {{ModelContextTool/inputSchema}}
+    is invalid.</p>
   </dd>
 </dl>
 
@@ -249,7 +250,7 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
 1. If |signal| [=map/exists=], then:
 
    1. If |signal| is [=AbortSignal/aborted=], then optionally [=report a warning to the console=]
-      indicating that the tool will not be registered because the {{AbortSignal}} is already
+      indicating that the tool was not registered because the {{AbortSignal}} was already
       [=AbortSignal/aborted=], and return.
 
    1. [=AbortSignal/add|Add an abort algorithm=] to |signal| that [=model context/unregisters a
@@ -345,7 +346,7 @@ dictionary ModelContextRegisterToolOptions {
 </xmp>
 
 <dl class="domintro">
-  <dt><code><var ignore>tool</var>["{{ModelContextTool/name}}"]</code></dt>
+  <dt><code><var ignore>tool</var>["{{ModelContextRegisterToolOptions/signal}}"]</code></dt>
   <dd>
     <p>An {{AbortSignal}} that unregisters the tool when aborted.
   </dd>
