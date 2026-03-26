@@ -125,7 +125,7 @@ A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]
 
   : <dfn>title</dfn>
   :: A [=string=] representing a human-readable title of the tool to be used in the user interface
-     to represent the tool.
+     to represent the tool. If not provided, the [=tool definition/name=] is used as the default display value.
 
   : <dfn>description</dfn>
   :: a [=string=].
@@ -220,7 +220,7 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>)</dfn> method step
 1. If |tool map|[|tool name|] [=map/exists=], then [=exception/throw=] an {{InvalidStateError}}
    {{DOMException}}.
 
-1. If |tool name|, |tool title| or {{ModelContextTool/description}} is an empty string, then
+1. If |tool name| or {{ModelContextTool/description}} is an empty string, then
    [=exception/throw=] an {{InvalidStateError}} {{DOMException}}.
 
 1. If |tool name|'s [=string/length=] is greater than 128, or if |tool name| contains a 
@@ -293,7 +293,7 @@ The {{ModelContextTool}} dictionary describes a tool that can be invoked by [=ag
 <xmp class="idl">
 dictionary ModelContextTool {
   required DOMString name;
-  required DOMString title;
+  DOMString title;
   required DOMString description;
   object inputSchema;
   required ToolExecuteCallback execute;
