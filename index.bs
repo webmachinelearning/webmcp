@@ -316,6 +316,8 @@ callback ToolExecuteCallback = Promise<any> (object input, ModelContextClient cl
   <dt><code><var ignore>tool</var>["{{ModelContextTool/title}}"]</code></dt>
   <dd>
     <p>A label for the tool. This is used by the user agent to reference the tool in the user interface.
+    <p>It is recommended that this string be localized to the user's
+{{NavigatorLanguage/language}}.
   </dd>
 
   <dt><code><var ignore>tool</var>["{{ModelContextTool/description}}"]</code></dt>
