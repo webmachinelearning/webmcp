@@ -54,27 +54,30 @@ Handling tool calls in the main thread with the option of delegating to workers 
 ### modelContext
 The `window.navigator.modelContext` interface is introduced for the site to declare functionality that can be used by an AI Agent. Access to these tools is arbitrated by the browser.
 
-The `modelContext`'s `registerTool()` and `unregisterTool()` methods are used to add and remove tools from the agent's context.
+The `modelContext`'s `registerTool()` method is used to add and remove tools from the agent's context.
 
 ```js
-window.navigator.modelContext.registerTool({
-      execute:
-        ({ text }, agent) => {
-          // Add todo item and update UI.
-          return /* structured content response */
-        },
-      name: "add-todo",
-      description: "Add a new todo item to the list",
-      inputSchema: {
-        type: "object",
-        properties: {
-          text: { type: "string", description: "The text of the todo item" }
-        },
-          required: ["text"]
-        },
-    });
+const addTodoTool = {
+  execute: ({ text }, agent) => {
+    // Add todo item and update UI.
+    return /* structured content response */
+  },
+  name: "add-todo",
+  description: "Add a new todo item to the list",
+  inputSchema: {
+    type: "object",
+    properties: {
+      text: { type: "string", description: "The text of the todo item" }
+    },
+    required: ["text"]
+  },
+};
+const controller = new AbortController();
 
-window.navigator.modelContext.unregisterTool("add-todo");
+window.navigator.modelContext.registerTool(addTodoTool, { signal: controller.signal });
+
+// Unregister tool later...
+controller.abort();
 ```
 
 ### agent
