@@ -123,7 +123,7 @@ A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]
      U+002D HYPHEN-MINUS (-), and U+002E FULL STOP (.).
 
   : <dfn>title</dfn>
-  :: A [=string=]-or-null representing a human-readable title of the tool for us in user interfaces.
+  :: A [=string=]-or-null representing a human-readable title of the tool for use in user interfaces.
 
      Note: If {{ModelContextTool/title}} is not provided, the user agent is free to use a different
      value for display.
