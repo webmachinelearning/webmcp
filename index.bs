@@ -118,7 +118,7 @@ A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]
   :: a [=string=] uniquely identifying a tool registered within a [=model context=]'s [=model
      context/tool map=]; it is the same as the [=map/key=] identifying this object.
 
-     The [=tool definition/name=] SHOULD:
+     The [=tool definition/name=] should:
      * Have a [=string/length=] between 1 and 128, inclusive.
      * Be considered case-sensitive.
      * Only consist of [=ASCII alphanumeric=] [=code points=], U+005F LOW LINE (_), U+002D HYPHEN-MINUS (-), and U+002E FULL STOP (.).
