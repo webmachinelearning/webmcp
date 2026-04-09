@@ -118,6 +118,16 @@ A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]
   :: a [=string=] uniquely identifying a tool registered within a [=model context=]'s [=model
      context/tool map=]; it is the same as the [=map/key=] identifying this object.
 
+     The [=tool definition/name=]'s [=string/length=] must be between 1 and 128, inclusive, and only
+     consist of [=ASCII alphanumeric=] [=code points=], U+005F LOW LINE (_),
+     U+002D HYPHEN-MINUS (-), and U+002E FULL STOP (.).
+
+  : <dfn>title</dfn>
+  :: A [=string=]-or-null representing a human-readable title of the tool for use in user interfaces.
+
+     Note: If {{ModelContextTool/title}} is not provided, the user agent is free to use a different
+     value for display.
+
   : <dfn>description</dfn>
   :: a [=string=].
 
@@ -216,11 +226,17 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
 
 1. Let |tool name| be |tool|'s {{ModelContextTool/name}}.
 
+1. Let |tool title| be |tool|'s {{ModelContextTool/title}}.
+
 1. If |tool map|[|tool name|] [=map/exists=], then [=exception/throw=] an {{InvalidStateError}}
    {{DOMException}}.
 
-1. If either |tool name| or {{ModelContextTool/description}} is the empty string, then
+1. If |tool name| or {{ModelContextTool/description}} is an empty string, then
    [=exception/throw=] an {{InvalidStateError}} {{DOMException}}.
+
+1. If either |tool name| is the empty string, or its [=string/length=] is greater than 128, or if
+   |tool name| contains a [=code point=] that is not an [=ASCII alphanumeric=], U+005F (_),
+   U+002D (-), or U+002E (.), then [=exception/throw=] an {{InvalidStateError}}.
 
 1. Let |stringified input schema| be the empty string.
 
@@ -261,6 +277,9 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
    : [=tool definition/name=]
    :: |tool name|
 
+   : [=tool definition/title=]
+   :: |tool title|
+
    : [=tool definition/description=]
    :: |tool|'s {{ModelContextTool/description}}
 
@@ -284,6 +303,9 @@ The {{ModelContextTool}} dictionary describes a tool that can be invoked by [=ag
 <xmp class="idl">
 dictionary ModelContextTool {
   required DOMString name;
+  // Because `title` is for display in possibly native UIs, this must be a `USVString`.
+  // See https://w3ctag.github.io/design-principles/#idl-string-types.
+  USVString title;
   required DOMString description;
   object inputSchema;
   required ToolExecuteCallback execute;
@@ -301,6 +323,13 @@ callback ToolExecuteCallback = Promise<any> (object input, ModelContextClient cl
   <dt><code><var ignore>tool</var>["{{ModelContextTool/name}}"]</code></dt>
   <dd>
     <p>A unique identifier for the tool. This is used by [=agents=] to reference the tool when making tool calls.
+  </dd>
+
+  <dt><code><var ignore>tool</var>["{{ModelContextTool/title}}"]</code></dt>
+  <dd>
+    <p>A label for the tool. This is used by the user agent to reference the tool in the user interface.
+    <p>It is recommended that this string be localized to the user's
+{{NavigatorLanguage/language}}.
   </dd>
 
   <dt><code><var ignore>tool</var>["{{ModelContextTool/description}}"]</code></dt>
