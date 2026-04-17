@@ -447,8 +447,8 @@ The <dfn>synthesize a declarative JSON Schema object algorithm</dfn>, given a <{
 
 A web site's functionality, as registered with the APIs in this specification, is exposed.
 
-The [=user agent=]'s [=browser's agent=] runs [=in parallel=] to any [=event loops=] associated
-with a {{ModelContext}} [=relevant global object=]. Steps running on the [=browser's agent=] get
+The [=user agent=]'s [=browser agent=] runs [=in parallel=] to any [=event loops=] associated
+with a {{ModelContext}} [=relevant global object=]. Steps running on the [=browser agent=] get
 queued on its <dfn>AI agent queue</dfn>, which is the result of [=starting a new parallel queue=].
 
 Conversely, steps queued *from* the [=browser agent=] onto the [=event loop=] of a given
