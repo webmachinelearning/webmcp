@@ -468,10 +468,10 @@ for=observation>tool map</dfn>, which is a [=map=] whose [=map/keys=] are [=Docu
 and whose [=map/values=] are [=tool definitions=].
 
 Note: An [=observation=] is usually a "snapshot" distillation of a page being presented to the user,
-along with any other state the [=user agent=] believes is relevant for the [=browser agent=]. See
-[Annotated Page Content
+along with any other state the [=user agent=] believes is relevant for the [=browser agent=]; this
+often includes screenshots of the page, not just a DOM serialization. See [Annotated Page Content
 (APC)](https://chromium.googlesource.com/chromium/src.git/+/main/third_party/blink/renderer/modules/content_extraction/readme.md)
-in the Chromium project.
+in the Chromium project for an example of what might contribute to an observation.
 
 <hr>
 
