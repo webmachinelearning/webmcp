@@ -366,7 +366,7 @@ To advance the security and privacy posture of WebMCP, we need community input o
 
 **Threats addressed:**  Prompt Injection Attacks (Output Injection Attacks)
 
-**How:** A boolean `contains_untrusted_content: true` annotation that acts as a signal to the client that the payload requires heightened security handling, allowing the client to sanitize the payload, use indicators such as spotlighting to highlight untrustworthy content to the model, or hide that part of the response entirely.
+**How:** A boolean `ToolAnnotations.untrustedContentHint = true` annotation that acts as a signal to the client that the payload requires heightened security handling, allowing the client to sanitize the payload, use indicators such as spotlighting to highlight untrustworthy content to the model, or hide that part of the response entirely.
 
 ... add more issues here
 
