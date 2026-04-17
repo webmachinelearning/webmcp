@@ -445,7 +445,8 @@ The <dfn>synthesize a declarative JSON Schema object algorithm</dfn>, given a <{
 
 <h3 id="event-loop">Event loop integration</h3>
 
-A web site's functionality, as registered with the APIs in this specification, is exposed.
+A web site's functionality is exposed to [=agents=] as tools that live in a [=Document=]'s [=event
+loop=], that get registered with the APIs in this specification.
 
 The [=user agent=]'s [=browser agent=] runs [=in parallel=] to any [=event loops=] associated
 with a {{ModelContext}} [=relevant global object=]. Steps running on the [=browser agent=] get
