@@ -498,6 +498,10 @@ steps:
         object=]'s {{Navigator}}'s [=Navigator/modelContext=]'s [=ModelContext/internal context=]'s
         [=model context/tool map=]'s [=map/values=], which are [=tool definitions=].
 
+1. Perform any [=implementation-defined=] steps to add anything to |observation| that the [=user
+   agent=] might deem useful or necessary, besides just populating the [=observation/tool map=].
+   This might include annotated screenshots of the page, parts of the accessibility tree, etc.
+
 1. Perform any [=implementation-defined=] steps with |observation| and the [=browser agent=], to
    expose the |observation|'s [=observation/tool map=] to the [=browser agent=] in whatever way it
    accepts.
