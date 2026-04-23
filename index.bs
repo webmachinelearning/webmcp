@@ -466,7 +466,7 @@ The [=browser agent=], on the other hand, does not run JavaScript on the page. I
 view of the page's tools and any other relevant context by getting an [=observation=]. An
 <dfn>observation</dfn> is an [=implementation-defined=] data structure containing at least a <dfn
 for=observation>tool map</dfn>, which is a [=map=] whose [=map/keys=] are [=Document/unique ID=]s,
-and whose [=map/values=] are [=tool definitions=].
+and whose [=map/values=] are [=lists=] of [=tool definition=] [=structs=].
 
 Note: An [=observation=] is usually a "snapshot" distillation of a page being presented to the user,
 along with any other state the [=user agent=] believes is relevant for the [=browser agent=]; this
