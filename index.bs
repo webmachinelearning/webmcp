@@ -454,7 +454,7 @@ queued on its <dfn>AI agent queue</dfn>, which is the result of [=starting a new
 
 Conversely, steps queued *from* the [=browser agent=] onto the [=event loop=] of a given
 {{ModelContext}} object (i.e., the "main thread" where JavaScript runs) are queued on its [=relevant
-global object=]'s [=AI task source=].
+global object=]'s <dfn noexport>tool calling task source</dfn>.
 
 <h3 id="observations">Page observations</h3>
 
