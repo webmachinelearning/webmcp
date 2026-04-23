@@ -460,7 +460,7 @@ global object=]'s <dfn noexport>tool calling task source</dfn>.
 
 <em>This section is non-normative. It contains an example of infrastructure that a [=user agent=] might
 employ to expose a tab's tools to a [=browser agent=], and illustrates how that infrastructure
-interacts with the web platform.</em>
+interacts with the web platform, for the purposes of implementer guidance.</em>
 
 <hr>
 
