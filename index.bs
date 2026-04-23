@@ -458,6 +458,12 @@ global object=]'s <dfn noexport>tool calling task source</dfn>.
 
 <h3 id="observations">Page observations</h3>
 
+<em>This section is non-normative. It contains an example of infrastructure that a [=user agent=] might
+employ to expose a tab's tools to a [=browser agent=], and illustrates how that infrastructure
+interacts with the web platform.</em>
+
+<hr>
+
 In-page [=agents=] implemented in JavaScript can "observe" the tools that a page offers by using the
 {{ModelContext}} APIs directly, and any other platform APIs to obtain necessary context about the
 page in order to actuate it appropriately.
