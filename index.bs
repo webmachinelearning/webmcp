@@ -155,6 +155,9 @@ A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]
 
   : <dfn>read-only hint</dfn>
   :: a [=boolean=], initially false.
+
+  : <dfn>untrusted content hint</dfn>
+  :: a [=boolean=], initially false.
 </dl>
 
 <div algorithm>
@@ -263,6 +266,9 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
 1. Let |read-only hint| be true if |tool|'s {{ModelContextTool/annotations}} [=map/exists=] and
    its {{ToolAnnotations/readOnlyHint}} is true. Otherwise, let it be false.
 
+1. Let |untrusted content hint| be true if |tool|'s {{ModelContextTool/annotations}} [=map/exists=] and
+   its {{ToolAnnotations/untrustedContentHint}} is true. Otherwise, let it be false.
+
 1. Let |signal| be |options|'s {{ModelContextRegisterToolOptions/signal}}.
 
 1. If |signal| [=map/exists=], then:
@@ -294,6 +300,9 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
    : [=tool definition/read-only hint=]
    :: |read-only hint|
 
+   : [=tool definition/untrusted content hint=]
+   :: |untrusted content hint|
+
 1. Set [=this=]'s [=ModelContext/internal context=][|tool name|] to |tool definition|.
 
 </div>
@@ -316,6 +325,7 @@ dictionary ModelContextTool {
 
 dictionary ToolAnnotations {
   boolean readOnlyHint = false;
+  boolean untrustedContentHint = false;
 };
 
 callback ToolExecuteCallback = Promise<any> (object input, ModelContextClient client);
@@ -362,6 +372,10 @@ The {{ToolAnnotations}} dictionary provides optional metadata about a tool:
 <dl class="domintro" dfn-type=dict-member dfn-for=ToolAnnotations>
   : <dfn>readOnlyHint</dfn>
   :: If true, indicates that the tool does not modify any state and only reads data. This hint can help [=agents=] make decisions about when it is safe to call the tool.
+
+  : <dfn>untrustedContentHint</dfn>
+  :: If true, indicates that the tool's output contains data that is untrusted, from the perspective
+     of the author registering the tool.
 </dl>
 
 <h4 id="model-context-register-tool-options">ModelContextRegisterToolOptions Dictionary</h4>
