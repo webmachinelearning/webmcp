@@ -83,6 +83,8 @@ p + dl.props { margin-top: -0.5em; }
 <pre class="link-defaults">
 spec:html; type:dfn;
   text:form-associated element
+  text:browsing context group set
+  text:unique internal value
 </pre>
 
 <h2 id="intro">Introduction</h2>
@@ -438,6 +440,100 @@ The <dfn>synthesize a declarative JSON Schema object algorithm</dfn>, given a <{
   }
 }
 </pre>
+
+<h2 id="interaction-with-agents">Interaction with agents</h2>
+
+<h3 id="event-loop">Event loop integration</h3>
+
+A web site's functionality is exposed to [=agents=] as tools that live in a [=Document=]'s [=event
+loop=], that get registered with the APIs in this specification.
+
+The [=user agent=]'s [=browser agent=] runs [=in parallel=] to any [=event loops=] associated
+with a {{ModelContext}} [=relevant global object=]. Steps running on the [=browser agent=] get
+queued on its <dfn>AI agent queue</dfn>, which is the result of [=starting a new parallel queue=].
+
+Conversely, steps queued *from* the [=browser agent=] onto the [=event loop=] of a given
+{{ModelContext}} object (i.e., the "main thread" where JavaScript runs) are queued on its [=relevant
+global object=]'s <dfn noexport>tool calling task source</dfn>.
+
+<h3 id="observations">Page observations</h3>
+
+<em>This section is non-normative. It contains an example of infrastructure that a [=user agent=] might
+employ to expose a tab's tools to a [=browser agent=], and illustrates how that infrastructure
+interacts with the web platform, for the purposes of implementer guidance.</em>
+
+<hr>
+
+In-page [=agents=] implemented in JavaScript can "observe" the tools that a page offers by using the
+{{ModelContext}} APIs directly, and any other platform APIs to obtain necessary context about the
+page in order to actuate it appropriately.
+
+The [=browser agent=], on the other hand, does not run JavaScript on the page. Instead, it obtains a
+view of the page's tools and any other relevant context by getting an [=observation=]. An
+<dfn>observation</dfn> is an [=implementation-defined=] data structure containing at least a <dfn
+for=observation>tool map</dfn>, which is a [=map=] whose [=map/keys=] are [=Document/unique ID=]s,
+and whose [=map/values=] are [=lists=] of [=tool definition=] [=structs=].
+
+Note: An [=observation=] is usually a "snapshot" distillation of a page being presented to the user,
+along with any other state the [=user agent=] believes is relevant for the [=browser agent=]; this
+often includes screenshots of the page, not just a DOM serialization. See [Annotated Page Content
+(APC)](https://chromium.googlesource.com/chromium/src.git/+/main/third_party/blink/renderer/modules/content_extraction/readme.md)
+in the Chromium project for an example of what might contribute to an observation.
+
+<hr>
+
+<div algorithm>
+To <dfn>perform an observation</dfn> given a [=top-level traversable=] |traversable|, run these
+steps:
+
+1. [=Assert=]: This algorithm is running in the [=browser agent=]'s [=AI agent queue=].
+
+1. [=Assert=]: |traversable|'s [=navigable/active document=] is not [=Document/fully active=].
+
+1. Let |observation| be a new [=observation=].
+
+1. Let |flat descendants| be the [=Document/inclusive descendant navigables=] of |traversable|'s
+   [=navigable/active document=].
+
+1. [=list/For each=] [=navigable=] |descendant| of |flat descendants|:
+
+     1. Let |document| be |descendant|'s [=navigable/active document=]'s.
+
+     1. Let |id| be |document|'s [=Document/unique ID=].
+
+     1. Set |observation|'s [=observation/tool map=][|id|] = |document|'s [=relevant global
+        object=]'s {{Navigator}}'s [=Navigator/modelContext=]'s [=ModelContext/internal context=]'s
+        [=model context/tool map=]'s [=map/values=], which are [=tool definitions=].
+
+1. Perform any [=implementation-defined=] steps to add anything to |observation| that the [=user
+   agent=] might deem useful or necessary, besides just populating the [=observation/tool map=].
+   This might include annotated screenshots of the page, parts of the accessibility tree, etc.
+
+1. Perform any [=implementation-defined=] steps with |observation| and the [=browser agent=], to
+   expose the |observation|'s [=observation/tool map=] to the [=browser agent=] in whatever way it
+   accepts.
+
+     Note: Despite the name of this API (i., Web*MCP*), this specification does not prescribe the
+     format in which tools are exposed to the [=browser agent=]. Browsers are free to distill and
+     expose tools via Model Context Protocol, other proprietary "function calling" methods, or any
+     other way it deems appropriate.
+
+     Advisement: Implementations are expected to convey to the [=browser agent=] any relevant
+     security information associated with [=tool definitions=], such as the originating [=origin=],
+     among other things, so that the backing model has an idea of the different parties at play, and
+     can most safely carry out the end user's intent.
+
+</div>
+
+Each {{Document}} object has a <dfn for=Document>unique ID</dfn>, which is a [=unique internal
+value=].
+
+The times at which a [=browser agent=] [=performs an observation=] are [=implementation-defined=].
+A [=browser agent=] may [=parallel queue/enqueue steps=] to the [=AI agent queue=] to [=perform an
+observation=] given any [=top-level browsing context=] in the [=user agent=] [=browsing context
+group set=], at any time, although implementations typically reserve this operation for when the
+user is interacting with a [=browser agent=] while web content is in view.
+
 
 <h2 id="security-privacy">Security and privacy considerations</h2>
 
