@@ -86,6 +86,14 @@ spec:html; type:dfn;
   text:browsing context group set
   text:unique internal value
 </pre>
+<pre class="anchors">
+spec: html; type: dfn; urlPrefix: https://html.spec.whatwg.org/C
+  text: create and initialize a Document object; url: initialise-the-document-object
+  # Because `text` and `url` are the same (modulo slashes), we should be able to
+  # exclude `url`. But the colon breaks the URL in `text`, forcing us to include
+  # `url`.
+  text:is initial about:blank; url: is-initial-about:blank
+</pre>
 
 <h2 id="intro">Introduction</h2>
 
@@ -112,6 +120,7 @@ A <dfn>model context</dfn> is a [=struct=] with the following [=struct/items=]:
   :: a [=map=] whose [=map/keys=] are [=strings=] and whose [=map/values=] are [=tool definition=]
      [=structs=].
 </dl>
+
 
 A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]:
 
@@ -183,19 +192,40 @@ https://dlaliberte.github.io/bikeshed-intro/#a-strategy-for-incremental-developm
 
 <h3 id="navigator-extension">Extensions to the {{Navigator}} Interface</h3>
 
-The {{Navigator}} interface is extended to provide access to the {{ModelContext}}.
+Each {{Document}} object has an <dfn for=Document>associated {{ModelContext}}</dfn>, which is a
+{{ModelContext}} object.
+
+Upon creation of the {{Document}} object, its [=Document/associated ModelContext|associated
+<code>ModelContext</code>=] must be set to a [=new=] {{ModelContext}} object created in the
+{{Document}}'s [=relevant realm=].
+
+The {{Navigator}} interface provides access to a {{Document}}'s [=Document/associated
+ModelContext|associated <code>ModelContext</code>=] through its {{Navigator/modelContext}}
+attribute.
+
+Note: The reason {{ModelContext}} is owned by {{Document}} instead of {{Navigator}} is to ensure
+that tools registered within an [=is initial about:blank|initial <code>about:blank</code>=]
+{{Document}} are not available to the subsequent [=same origin=] {{Document}} that results from
+navigating away from the initial {{Document}}. This is crucial, since these two {{Document}}s share
+the same {{Window}} and {{Navigator}} objects. See step 6.1 in [=create and initialize a Document
+object|create and initialize a <code>Document</code> object=].
+
+<hr>
 
 <xmp class="idl">
 partial interface Navigator {
-  [SecureContext, SameObject] readonly attribute ModelContext modelContext;
+  [SecureContext] readonly attribute ModelContext? modelContext;
 };
 </xmp>
 
-Each {{Navigator}} object has an associated <dfn for=Navigator>modelContext</dfn>, which is a
-{{ModelContext}} instance created alongside the {{Navigator}}.
-
 <div algorithm>
-The <dfn attribute for=Navigator>modelContext</dfn> getter steps are to return [=this=]'s [=Navigator/modelContext=].
+The <dfn attribute for=Navigator>modelContext</dfn> getter steps are:
+
+1. If [=this=]'s [=relevant global object=]'s [=Window/browsing context=] is null, then return null.
+
+1. Return [=this=]'s [=relevant global object=]'s [=associated Document=]'s [=Document/associated
+   ModelContext|associated <code>ModelContext</code>=] object.
+
 </div>
 
 <h3 id="model-context-container">ModelContext Interface</h3>
@@ -515,8 +545,8 @@ steps:
 
      1. Let |id| be |document|'s [=Document/unique ID=].
 
-     1. Set |observation|'s [=observation/tool map=][|id|] = |document|'s [=relevant global
-        object=]'s {{Navigator}}'s [=Navigator/modelContext=]'s [=ModelContext/internal context=]'s
+     1. Set |observation|'s [=observation/tool map=][|id|] = |document|'s [=Document/associated
+        ModelContext|associated <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s
         [=model context/tool map=]'s [=map/values=], which are [=tool definitions=].
 
 1. Perform any [=implementation-defined=] steps to add anything to |observation| that the [=user
