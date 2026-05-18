@@ -93,6 +93,7 @@ spec: html; type: dfn; urlPrefix: https://html.spec.whatwg.org/C
   # exclude `url`. But the colon breaks the URL in `text`, forcing us to include
   # `url`.
   text:is initial about:blank; url: is-initial-about:blank
+  text: associated Navigator
 </pre>
 
 <h2 id="intro">Introduction</h2>
@@ -192,39 +193,46 @@ https://dlaliberte.github.io/bikeshed-intro/#a-strategy-for-incremental-developm
 
 <h3 id="navigator-extension">Extensions to the {{Navigator}} Interface</h3>
 
-Each {{Document}} object has an <dfn for=Document>associated {{ModelContext}}</dfn>, which is a
+Each {{Navigator}} object has an <dfn for=Navigator>associated {{ModelContext}}</dfn>, which is a
 {{ModelContext}} object.
 
-Upon creation of the {{Document}} object, its [=Document/associated ModelContext|associated
+Upon creation of the {{Navigator}} object, its [=Navigator/associated ModelContext|associated
 <code>ModelContext</code>=] must be set to a [=new=] {{ModelContext}} object created in the
-{{Document}}'s [=relevant realm=].
+{{Navigator}}'s [=relevant realm=]. It only ever changes from one `{{ModelContext}}` instance to
+another the first time the {{Navigator/modelContext}} getter is accessed after a navigation away
+from the [=is initial about:blank|initial <code>about:blank</code>=],
 
-The {{Navigator}} interface provides access to a {{Document}}'s [=Document/associated
-ModelContext|associated <code>ModelContext</code>=] through its {{Navigator/modelContext}}
-attribute.
-
-Note: The reason {{ModelContext}} is owned by {{Document}} instead of {{Navigator}} is to ensure
-that tools registered within an [=is initial about:blank|initial <code>about:blank</code>=]
-{{Document}} are not available to the subsequent [=same origin=] {{Document}} that results from
-navigating away from the initial {{Document}}. This is crucial, since these two {{Document}}s share
-the same {{Window}} and {{Navigator}} objects. See step 6.1 in [=create and initialize a Document
+Note: The reason a {{Navigator}}'s [=Navigator/associated ModelContext|associated
+<code>ModelContext</code>=] changes is as follows: {{ModelContext}} is a {{Document}}-scoped
+registry of tools, but because it is accessed from an object that is shared between two {{Document}}
+objects, it gets updated when the {{Navigator}}'s [=relevant global object=]'s
+[=associated Document|associated <code>Document</code>=] gets updated, to ensure that tools registered within the [=is
+initial about:blank|initial <code>about:blank</code>=] {{Document}} do not mix with tools in the
+subsequent [=same origin=] {{Document}} See step 6.1 in [=create and initialize a Document
 object|create and initialize a <code>Document</code> object=].
+
+Each {{ModelContext}} object has a <dfn for=ModelContext>creation {{Document}}</dfn>, which is its
+[=relevant global object=]s [=associated Document|associated <code>Document</code>=] at the time of creation.
 
 <hr>
 
 <xmp class="idl">
 partial interface Navigator {
-  [SecureContext] readonly attribute ModelContext? modelContext;
+  [SecureContext] readonly attribute ModelContext modelContext;
 };
 </xmp>
 
 <div algorithm>
 The <dfn attribute for=Navigator>modelContext</dfn> getter steps are:
 
-1. If [=this=]'s [=relevant global object=]'s [=Window/browsing context=] is null, then return null.
+1. If [=this=]'s [=Navigator/associated ModelContext|associated <code>ModelContext</code>=]'s
+   [=ModelContext/creation Document| creation <code>Document</code>=] does not equal [=this=]'s
+   [=relevant global object=]'s [=associated Document|associated <code>Document</code>=], then set
+   [=this=]'s [=Navigator/associated ModelContext|associated <code>ModelContext</code>=] to a
+   [=new=] {{ModelContext}} object.
 
-1. Return [=this=]'s [=relevant global object=]'s [=associated Document=]'s [=Document/associated
-   ModelContext|associated <code>ModelContext</code>=] object.
+1. Return [=this=]'s [=Navigator/associated ModelContext|associated <code>ModelContext</code>=]
+   object.
 
 </div>
 
@@ -545,9 +553,11 @@ steps:
 
      1. Let |id| be |document|'s [=Document/unique ID=].
 
-     1. Set |observation|'s [=observation/tool map=][|id|] = |document|'s [=Document/associated
-        ModelContext|associated <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s
-        [=model context/tool map=]'s [=map/values=], which are [=tool definitions=].
+     1. Set |observation|'s [=observation/tool map=][|id|] = |document|'s [=relevant global
+        object=]'s [=associated Navigator|associated <code>Navigator</code>=]'s
+        [=Navigator/associated ModelContext|associated <code>ModelContext</code>=]'s
+        [=ModelContext/internal context=]'s [=model context/tool map=]'s [=map/values=], which are
+        [=tool definitions=].
 
 1. Perform any [=implementation-defined=] steps to add anything to |observation| that the [=user
    agent=] might deem useful or necessary, besides just populating the [=observation/tool map=].
