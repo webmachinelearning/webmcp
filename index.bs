@@ -78,6 +78,13 @@ p + dl.props { margin-top: -0.5em; }
 [data-algorithm] [data-algorithm] {
   margin: 1em 0;
 }
+
+/* Table styling definitions from https://resources.whatwg.org/standard.css */
+table { border-collapse: collapse; border-style: hidden hidden none hidden; margin: 1.25em 0; }
+table thead, table tbody { border-bottom: solid; }
+table tbody th { text-align: left; }
+table tbody th:first-child { border-left: solid; }
+table td, table th { border-left: solid; border-right: solid; border-bottom: solid thin; vertical-align: top; padding: 0.2em; }
 </style>
 
 <pre class="link-defaults">
@@ -93,7 +100,7 @@ spec: html; type: dfn; urlPrefix: https://html.spec.whatwg.org/C
   # exclude `url`. But the colon breaks the URL in `text`, forcing us to include
   # `url`.
   text:is initial about:blank; url: is-initial-about:blank
-  text: associated Navigator
+  text:associated Navigator
 </pre>
 
 <h2 id="intro">Introduction</h2>
@@ -171,6 +178,69 @@ A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]
 </dl>
 
 <div algorithm>
+To <dfn>notify documents of a tool change</dfn> given a {{Document}} |toolOwner| and a [=list=] of
+[=origins=] |exposedOrigins|, run these steps:
+
+1. [=Assert=]: these steps are running on |toolOwner|'s [=relevant agent=]'s [=agent/event loop=].
+
+1. Let |navigablesToNotify| be |toolOwner|'s [=node navigable=]'s [=navigable/traversable
+   navigable=]'s [=Document/descendant navigables=].
+
+1. [=list/For each=] |navigable| of |navigablesToNotify|:
+
+     1. Let |targetDocument| be |navigable|'s [=navigable/active document=].
+
+     1. If |targetDocument| is not [=allowed to use=] the "{{tools}}" feature, then
+        [=iteration/continue=].
+
+     1. If [=tool is visible to an origin=] given |exposedOrigins| and |targetDocument|'s
+        [=Document/origin=], then [=queue a global task=] on the [=webmcp task source=] given
+        |targetDocument|'s [=relevant global object=] to [=fire an event=] named
+        {{ModelContext/toolchange}} at |targetDocument|'s [=relevant global object=]'s [=associated
+        Navigator|associated <code>Navigator</code>=]'s [=Navigator/associated
+        ModelContext|associated <code>ModelContext</code>=].
+
+<div class=example id=notify-task-ordering>
+  <p>This algorithm's use of the [=webmcp task source=] means that the timing between firing the
+  {{ModelContext/toolchange}} event, and other tasks queued after this algorithm, cannot be relied
+  upon. For example:</p>
+
+  <xmp class=language-js>
+  navigator.modelContext.ontoolchange = e => console.log('Parent toolchange');
+  iframe.contentWindow.navigator.modelContext.ontoolchange = e => console.log('Child toolchange');
+
+  // Queues a task to fire `toolchange`, on the `webmcp task source`.
+  navigator.modelContext.registerTool({
+    name: "tool_name",
+    description: "tool_desc",
+    execute: async () => {}
+  });
+
+  // Queues a task on the `timer task source`.
+  setTimeout(() => console.log('Post-register task'));
+
+  // `Parent toolchange` will always log before `Child toolchange`.
+  // But `Post-register task` can log before, in between, or after both.
+  </xmp>
+</div>
+
+</div>
+
+<div algorithm>
+To determine if a <dfn>tool is visible to an origin</dfn> given a [=list=] of
+[=origins=] |exposedOrigins| and an [=origin=] |targetOrigin|, run these steps:
+
+1. [=list/For each=] |origin| of |exposedOrigins|:
+
+     1. If |targetOrigin| is [=same origin=] with |origin|, then return true.
+
+1. Return false.
+
+</div>
+
+<hr>
+
+<div algorithm>
 To <dfn for="model context">unregister a tool</dfn> for a [=model context=] given a [=string=]
 |tool name|, run these steps:
 
@@ -244,6 +314,8 @@ The {{ModelContext}} interface provides methods for web applications to register
 [Exposed=Window, SecureContext]
 interface ModelContext {
   undefined registerTool(ModelContextTool tool, optional ModelContextRegisterToolOptions options = {});
+
+  attribute EventHandler ontoolchange;
 };
 </xmp>
 
@@ -264,6 +336,15 @@ is a [=model context=] [=struct=] created alongside the {{ModelContext}}.
 
 <div algorithm>
 The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var>)</dfn> method steps are:
+
+1. Let |toolOwner| be [=this=]'s [=relevant global object=]'s [=associated Document|associated
+   <code>Document</code>=].
+
+1. If |toolOwner| is not [=Document/fully active=], then [=exception/throw=] an
+   "{{InvalidStateError}}" {{DOMException}}.
+
+1. If |toolOwner| is not [=allowed to use=] the "{{tools}}" feature, then [=exception/throw=] a
+   "{{NotAllowedError}}" {{DOMException}}.
 
 1. Let |tool map| be [=this=]'s [=ModelContext/internal context=]'s [=model context/tool map=].
 
@@ -342,6 +423,8 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
    :: |untrusted content hint|
 
 1. Set [=this=]'s [=ModelContext/internal context=][|tool name|] to |tool definition|.
+
+1. Run the [=notify documents of a tool change=] given |toolOwner| and an empty [=list=].
 
 </div>
 
@@ -493,6 +576,30 @@ The <dfn>synthesize a declarative JSON Schema object algorithm</dfn>, given a <{
 }
 </pre>
 
+<h3 id="events">Events</h3>
+
+The following are the [=event handlers=] (and their corresponding [=event handler event types=])
+that must be supported, as [=event handler IDL attributes=], by all {{ModelContext}} objects:
+
+<table>
+  <thead>
+    <tr>
+      <th>[=Event handler=]
+      <th>[=Event handler event type=]
+  <tbody>
+    <tr>
+      <td><dfn attribute for="ModelContext">ontoolchange</dfn>
+      <td><dfn event for="ModelContext">toolchange</dfn>
+</table>
+
+<h3 id="permissions-policy">Permissions policy integration</h3>
+
+Access to the APIs in this specification is gated behind the [=policy-controlled feature=] "<dfn
+permission>tools</dfn>", which has a [=policy-controlled feature/default allowlist=] of
+<code>[=default allowlist/'self'=]</code>.
+
+This.
+
 <h2 id="interaction-with-agents">Interaction with agents</h2>
 
 <h3 id="event-loop">Event loop integration</h3>
@@ -502,11 +609,12 @@ loop=], that get registered with the APIs in this specification.
 
 The [=user agent=]'s [=browser agent=] runs [=in parallel=] to any [=event loops=] associated
 with a {{ModelContext}} [=relevant global object=]. Steps running on the [=browser agent=] get
-queued on its <dfn>AI agent queue</dfn>, which is the result of [=starting a new parallel queue=].
+queued on its <dfn>webmcp parallel queue</dfn>, which is the result of [=starting a new parallel
+queue=].
 
 Conversely, steps queued *from* the [=browser agent=] onto the [=event loop=] of a given
 {{ModelContext}} object (i.e., the "main thread" where JavaScript runs) are queued on its [=relevant
-global object=]'s <dfn noexport>tool calling task source</dfn>.
+global object=]'s <dfn noexport>webmcp task source</dfn>.
 
 <h3 id="observations">Page observations</h3>
 
@@ -538,7 +646,7 @@ in the Chromium project for an example of what might contribute to an observatio
 To <dfn>perform an observation</dfn> given a [=top-level traversable=] |traversable|, run these
 steps:
 
-1. [=Assert=]: This algorithm is running in the [=browser agent=]'s [=AI agent queue=].
+1. [=Assert=]: This algorithm is running in the [=browser agent=]'s [=webmcp parallel queue=].
 
 1. [=Assert=]: |traversable|'s [=navigable/active document=] is not [=Document/fully active=].
 
@@ -583,10 +691,10 @@ Each {{Document}} object has a <dfn for=Document>unique ID</dfn>, which is a [=u
 value=].
 
 The times at which a [=browser agent=] [=performs an observation=] are [=implementation-defined=].
-A [=browser agent=] may [=parallel queue/enqueue steps=] to the [=AI agent queue=] to [=perform an
-observation=] given any [=top-level browsing context=] in the [=user agent=] [=browsing context
-group set=], at any time, although implementations typically reserve this operation for when the
-user is interacting with a [=browser agent=] while web content is in view.
+A [=browser agent=] may [=parallel queue/enqueue steps=] to the [=webmcp parallel queue=] to
+[=perform an observation=] given any [=top-level browsing context=] in the [=user agent=] [=browsing
+context group set=], at any time, although implementations typically reserve this operation for when
+the user is interacting with a [=browser agent=] while web content is in view.
 
 
 <h2 id="security-privacy">Security and privacy considerations</h2>
