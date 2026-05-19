@@ -186,12 +186,12 @@ A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]
 <hr>
 
 <div algorithm>
-To <dfn>notify documents of a tool change</dfn> given a {{Document}} |toolOwner| and a [=list=] of
+To <dfn>notify documents of a tool change</dfn> given a {{Document}} |tool owner| and a [=list=] of
 [=origins=] |exposed origins|, run these steps:
 
-1. [=Assert=]: these steps are running on |toolOwner|'s [=relevant agent=]'s [=agent/event loop=].
+1. [=Assert=]: these steps are running on |tool owner|'s [=relevant agent=]'s [=agent/event loop=].
 
-1. Let |navigablesToNotify| be |toolOwner|'s [=node navigable=]'s [=navigable/traversable
+1. Let |navigablesToNotify| be |tool owner|'s [=node navigable=]'s [=navigable/traversable
    navigable=]'s [=Document/descendant navigables=].
 
 1. [=list/For each=] |navigable| of |navigablesToNotify|:
@@ -201,11 +201,11 @@ To <dfn>notify documents of a tool change</dfn> given a {{Document}} |toolOwner|
      1. If |targetDocument| is not [=allowed to use=] the "{{tools}}" feature, then
         [=iteration/continue=].
 
-     1. If [=tool is visible to an origin=] given |exposed origins| and |targetDocument|'s
-        [=Document/origin=], then [=queue a global task=] on the [=webmcp task source=] given
-        |targetDocument|'s [=relevant global object=] to [=fire an event=] named
-        {{ModelContext/toolchange}} at |targetDocument|'s [=relevant global object=]'s [=associated
-        Navigator|associated <code>Navigator</code>=]'s [=Navigator/associated
+     1. If [=tool is visible to an origin=] given |tool owner|'s [=Document/origin=], |exposed
+        origins|, and |targetDocument|'s [=Document/origin=], then [=queue a global task=] on the
+        [=webmcp task source=] given |targetDocument|'s [=relevant global object=] to [=fire an
+        event=] named {{ModelContext/toolchange}} at |targetDocument|'s [=relevant global object=]'s
+        [=associated Navigator|associated <code>Navigator</code>=]'s [=Navigator/associated
         ModelContext|associated <code>ModelContext</code>=].
 
 <div class=example id=notify-task-ordering>
@@ -235,12 +235,14 @@ To <dfn>notify documents of a tool change</dfn> given a {{Document}} |toolOwner|
 </div>
 
 <div algorithm>
-To determine if a <dfn>tool is visible to an origin</dfn> given a [=list=] of
-[=origins=] |exposed origins| and an [=origin=] |targetOrigin|, run these steps:
+To determine if a <dfn>tool is visible to an origin</dfn> given an [=origin=] |tool owner origin|,
+a [=list=] of [=origins=] |exposed origins|, and an [=origin=] |target origin|, run these steps:
+
+1. If |tool owner origin| is [=same origin=] with |target origin|, then return true.
 
 1. [=list/For each=] |origin| of |exposed origins|:
 
-     1. If |targetOrigin| is [=same origin=] with |origin|, then return true.
+     1. If |target origin| is [=same origin=] with |origin|, then return true.
 
 1. Return false.
 
@@ -352,13 +354,13 @@ is a [=model context=] [=struct=] created alongside the {{ModelContext}}.
 <div algorithm>
 The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var>)</dfn> method steps are:
 
-1. Let |toolOwner| be [=this=]'s [=relevant global object=]'s [=associated Document|associated
+1. Let |tool owner| be [=this=]'s [=relevant global object=]'s [=associated Document|associated
    <code>Document</code>=].
 
-1. If |toolOwner| is not [=Document/fully active=], then [=exception/throw=] an
+1. If |tool owner| is not [=Document/fully active=], then [=exception/throw=] an
    "{{InvalidStateError}}" {{DOMException}}.
 
-1. If |toolOwner| is not [=allowed to use=] the "{{tools}}" feature, then [=exception/throw=] a
+1. If |tool owner| is not [=allowed to use=] the "{{tools}}" feature, then [=exception/throw=] a
    "{{NotAllowedError}}" {{DOMException}}.
 
 1. Let |tool map| be [=this=]'s [=ModelContext/internal context=]'s [=model context/tool map=].
@@ -456,7 +458,7 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
 
 1. Set [=this=]'s [=ModelContext/internal context=][|tool name|] to |tool definition|.
 
-1. Run [=notify documents of a tool change=] given |toolOwner| and |exposed origins|.
+1. Run [=notify documents of a tool change=] given |tool owner| and |exposed origins|.
 
 </div>
 
