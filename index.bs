@@ -180,6 +180,8 @@ A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]
   :: a [=list=] or [=origins=], initially [=list/empty=].
 </dl>
 
+<hr>
+
 <div algorithm>
 To <dfn>notify documents of a tool change</dfn> given a {{Document}} |toolOwner| and a [=list=] of
 [=origins=] |exposed origins|, run these steps:
@@ -241,17 +243,24 @@ To determine if a <dfn>tool is visible to an origin</dfn> given a [=list=] of
 
 </div>
 
-<hr>
-
 <div algorithm>
-To <dfn for="model context">unregister a tool</dfn> for a [=model context=] given a [=string=]
-|tool name|, run these steps:
+To <dfn for="model context">unregister a tool</dfn> given a {{ModelContext}} |modelContext| and a
+[=string=] |tool name|, run these steps:
 
-1. Let |tool map| be the associated [=model context=]'s [=model context/tool map=].
+1. [=Assert=]: these steps are running on |modelContext|'s [=relevant agent=]'s [=agent/event
+   loop=].
+
+1. Let |tool map| be |modelContext|'s [=ModelContext/internal context=]'s [=model context/tool
+   map=].
 
 1. [=Assert=] |tool map|[|tool name|] [=map/exists=].
 
+1. Let |exposed origins| be |tool map|[|tool name|]'s [=tool definition/exposed origins=].
+
 1. [=map/Remove=] |tool map|[|tool name|].
+
+1. Run [=notify documents of a tool change=] given |modelContext|'s [=relevant global object=]'s
+   [=associated Document|associated <code>Document</code>=] and |exposed origins|.
 
 </div>
 
@@ -413,7 +422,7 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
       [=AbortSignal/aborted=], and return.
 
    1. [=AbortSignal/add|Add an abort algorithm=] to |signal| that [=model context/unregisters a
-      tool=] from [=this=] [=ModelContext/internal context=] given |tool name|.
+      tool=] from [=this=] given |tool name|.
 
 1. Let |tool definition| be a new [=tool definition=], with the following [=struct/items=]:
 
@@ -443,7 +452,7 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
 
 1. Set [=this=]'s [=ModelContext/internal context=][|tool name|] to |tool definition|.
 
-1. Run the [=notify documents of a tool change=] given |toolOwner| and an empty [=list=].
+1. Run [=notify documents of a tool change=] given |toolOwner| and |exposed origins|.
 
 </div>
 
