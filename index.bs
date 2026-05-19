@@ -101,6 +101,9 @@ spec: html; type: dfn; urlPrefix: https://html.spec.whatwg.org/C
   # `url`.
   text:is initial about:blank; url: is-initial-about:blank
   text: associated Navigator
+spec: SECURE-CONTEXTS; urlPrefix: https://w3c.github.io/webappsec-secure-contexts/
+  type: abstract-op
+    text: is origin potentially trustworthy?; url: is-origin-trustworthy
 </pre>
 
 <h2 id="intro">Introduction</h2>
@@ -402,8 +405,9 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
 
           1. Let |parsedURL| be the result of running the [=URL parser=] on |origin|.
 
-          1. If |parsedURL| is failure or its [=url/scheme=] is not "<code>https</code>", then
-             [=exception/throw=] an "{{SecurityError}}" {{DOMException}}.
+          1. If |parsedURL| is failure or its [=url/origin=] is not [$is origin potentially
+             trustworthy?|potentially trustworthy$], then [=exception/throw=] an "{{SecurityError}}"
+             {{DOMException}}.
 
           1. [=list/Append=] |parsedURL|'s [=url/origin=] to |exposed origins|.
 
