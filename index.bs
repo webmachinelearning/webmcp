@@ -422,7 +422,7 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
       [=AbortSignal/aborted=], and return.
 
    1. [=AbortSignal/add|Add an abort algorithm=] to |signal| that [=model context/unregisters a
-      tool=] from [=this=] given |tool name|.
+      tool=] given [=this=] and |tool name|.
 
 1. Let |tool definition| be a new [=tool definition=], with the following [=struct/items=]:
 
