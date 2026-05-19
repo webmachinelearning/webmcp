@@ -633,8 +633,6 @@ Access to the APIs in this specification is gated behind the [=policy-controlled
 permission>tools</dfn>", which has a [=policy-controlled feature/default allowlist=] of
 <code>[=default allowlist/'self'=]</code>.
 
-This.
-
 <h2 id="interaction-with-agents">Interaction with agents</h2>
 
 <h3 id="event-loop">Event loop integration</h3>
