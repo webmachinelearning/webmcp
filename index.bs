@@ -100,7 +100,7 @@ spec: html; type: dfn; urlPrefix: https://html.spec.whatwg.org/C
   # exclude `url`. But the colon breaks the URL in `text`, forcing us to include
   # `url`.
   text:is initial about:blank; url: is-initial-about:blank
-  text:associated Navigator
+  text: associated Navigator
 </pre>
 
 <h2 id="intro">Introduction</h2>
