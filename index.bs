@@ -609,8 +609,7 @@ loop=], that get registered with the APIs in this specification.
 
 The [=user agent=]'s [=browser agent=] runs [=in parallel=] to any [=event loops=] associated
 with a {{ModelContext}} [=relevant global object=]. Steps running on the [=browser agent=] get
-queued on its <dfn>webmcp parallel queue</dfn>, which is the result of [=starting a new parallel
-queue=].
+queued on its <dfn>AI agent queue</dfn>, which is the result of [=starting a new parallel queue=].
 
 Conversely, steps queued *from* the [=browser agent=] onto the [=event loop=] of a given
 {{ModelContext}} object (i.e., the "main thread" where JavaScript runs) are queued on its [=relevant
@@ -646,7 +645,7 @@ in the Chromium project for an example of what might contribute to an observatio
 To <dfn>perform an observation</dfn> given a [=top-level traversable=] |traversable|, run these
 steps:
 
-1. [=Assert=]: This algorithm is running in the [=browser agent=]'s [=webmcp parallel queue=].
+1. [=Assert=]: This algorithm is running in the [=browser agent=]'s [=AI agent queue=].
 
 1. [=Assert=]: |traversable|'s [=navigable/active document=] is not [=Document/fully active=].
 
@@ -691,10 +690,10 @@ Each {{Document}} object has a <dfn for=Document>unique ID</dfn>, which is a [=u
 value=].
 
 The times at which a [=browser agent=] [=performs an observation=] are [=implementation-defined=].
-A [=browser agent=] may [=parallel queue/enqueue steps=] to the [=webmcp parallel queue=] to
-[=perform an observation=] given any [=top-level browsing context=] in the [=user agent=] [=browsing
-context group set=], at any time, although implementations typically reserve this operation for when
-the user is interacting with a [=browser agent=] while web content is in view.
+A [=browser agent=] may [=parallel queue/enqueue steps=] to the [=AI agent queue=] to [=perform an
+observation=] given any [=top-level browsing context=] in the [=user agent=] [=browsing context
+group set=], at any time, although implementations typically reserve this operation for when the
+user is interacting with a [=browser agent=] while web content is in view.
 
 
 <h2 id="security-privacy">Security and privacy considerations</h2>
