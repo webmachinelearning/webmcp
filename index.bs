@@ -399,20 +399,6 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
      </ol>
    </div>
 
-1. Let |exposed origins| be an empty [=list=] of [=origins=].
-
-1. If |options|'s {{ModelContextRegisterToolOptions/exposedTo}} [=map/exists=], then:
-
-     1. [=list/For each=] |origin| of |options|'s {{ModelContextRegisterToolOptions/exposedTo}}:
-
-          1. Let |parsedURL| be the result of running the [=URL parser=] on |origin|.
-
-          1. If |parsedURL| is failure or its [=url/origin=] is not [$is origin potentially
-             trustworthy?|potentially trustworthy$], then [=exception/throw=] an "{{SecurityError}}"
-             {{DOMException}}.
-
-          1. [=list/Append=] |parsedURL|'s [=url/origin=] to |exposed origins|.
-
 1. Let |read-only hint| be true if |tool|'s {{ModelContextTool/annotations}} [=map/exists=] and
    its {{ToolAnnotations/readOnlyHint}} is true. Otherwise, let it be false.
 
@@ -429,6 +415,20 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
 
    1. [=AbortSignal/add|Add an abort algorithm=] to |signal| that [=model context/unregisters a
       tool=] given [=this=] and |tool name|.
+
+1. Let |exposed origins| be an empty [=list=] of [=origins=].
+
+1. If |options|'s {{ModelContextRegisterToolOptions/exposedTo}} [=map/exists=], then:
+
+     1. [=list/For each=] |origin| of |options|'s {{ModelContextRegisterToolOptions/exposedTo}}:
+
+          1. Let |parsedURL| be the result of running the [=URL parser=] on |origin|.
+
+          1. If |parsedURL| is failure or its [=url/origin=] is not [$is origin potentially
+             trustworthy?|potentially trustworthy$], then [=exception/throw=] an "{{SecurityError}}"
+             {{DOMException}}.
+
+          1. [=list/Append=] |parsedURL|'s [=url/origin=] to |exposed origins|.
 
 1. Let |tool definition| be a new [=tool definition=], with the following [=struct/items=]:
 
