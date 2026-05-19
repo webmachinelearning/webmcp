@@ -175,11 +175,14 @@ A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]
 
   : <dfn>untrusted content hint</dfn>
   :: a [=boolean=], initially false.
+
+  : <dfn>exposed origins</dfn>
+  :: a [=list=] or [=origins=], initially [=list/empty=].
 </dl>
 
 <div algorithm>
 To <dfn>notify documents of a tool change</dfn> given a {{Document}} |toolOwner| and a [=list=] of
-[=origins=] |exposedOrigins|, run these steps:
+[=origins=] |exposed origins|, run these steps:
 
 1. [=Assert=]: these steps are running on |toolOwner|'s [=relevant agent=]'s [=agent/event loop=].
 
@@ -193,7 +196,7 @@ To <dfn>notify documents of a tool change</dfn> given a {{Document}} |toolOwner|
      1. If |targetDocument| is not [=allowed to use=] the "{{tools}}" feature, then
         [=iteration/continue=].
 
-     1. If [=tool is visible to an origin=] given |exposedOrigins| and |targetDocument|'s
+     1. If [=tool is visible to an origin=] given |exposed origins| and |targetDocument|'s
         [=Document/origin=], then [=queue a global task=] on the [=webmcp task source=] given
         |targetDocument|'s [=relevant global object=] to [=fire an event=] named
         {{ModelContext/toolchange}} at |targetDocument|'s [=relevant global object=]'s [=associated
@@ -228,9 +231,9 @@ To <dfn>notify documents of a tool change</dfn> given a {{Document}} |toolOwner|
 
 <div algorithm>
 To determine if a <dfn>tool is visible to an origin</dfn> given a [=list=] of
-[=origins=] |exposedOrigins| and an [=origin=] |targetOrigin|, run these steps:
+[=origins=] |exposed origins| and an [=origin=] |targetOrigin|, run these steps:
 
-1. [=list/For each=] |origin| of |exposedOrigins|:
+1. [=list/For each=] |origin| of |exposed origins|:
 
      1. If |targetOrigin| is [=same origin=] with |origin|, then return true.
 
@@ -382,6 +385,19 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
      </ol>
    </div>
 
+1. Let |exposed origins| be an empty [=list=] of [=origins=].
+
+1. If |options|'s {{ModelContextRegisterToolOptions/exposedTo}} [=map/exists=], then:
+
+     1. [=list/For each=] |origin| of |options|'s {{ModelContextRegisterToolOptions/exposedTo}}:
+
+          1. Let |parsedURL| be the result of running the [=URL parser=] on |origin|.
+
+          1. If |parsedURL| is failure or its [=url/scheme=] is not "<code>https</code>", then
+             [=exception/throw=] an "{{SecurityError}}" {{DOMException}}.
+
+          1. [=list/Append=] |parsedURL|'s [=url/origin=] to |exposed origins|.
+
 1. Let |read-only hint| be true if |tool|'s {{ModelContextTool/annotations}} [=map/exists=] and
    its {{ToolAnnotations/readOnlyHint}} is true. Otherwise, let it be false.
 
@@ -421,6 +437,9 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
 
    : [=tool definition/untrusted content hint=]
    :: |untrusted content hint|
+
+   : [=tool definition/exposed origins=]
+   :: |exposed origins|
 
 1. Set [=this=]'s [=ModelContext/internal context=][|tool name|] to |tool definition|.
 
@@ -508,6 +527,7 @@ definition itself.
 <xmp class="idl">
 dictionary ModelContextRegisterToolOptions {
   AbortSignal signal;
+  sequence<USVString> exposedTo;
 };
 </xmp>
 
@@ -515,6 +535,12 @@ dictionary ModelContextRegisterToolOptions {
   <dt><code><var ignore>tool</var>["{{ModelContextRegisterToolOptions/signal}}"]</code></dt>
   <dd>
     <p>An {{AbortSignal}} that unregisters the tool when aborted.
+  </dd>
+
+  <dt><code><var ignore>exposedTo</var>["{{ModelContextRegisterToolOptions/exposedTo}}"]</code></dt>
+  <dd>
+    <p>An array of origins that control which documents this tool is exposed to, in the current
+    document's tree.
   </dd>
 </dl>
 
