@@ -78,6 +78,13 @@ p + dl.props { margin-top: -0.5em; }
 [data-algorithm] [data-algorithm] {
   margin: 1em 0;
 }
+
+/* Table styling definitions from https://resources.whatwg.org/standard.css */
+table { border-collapse: collapse; border-style: hidden hidden none hidden; margin: 1.25em 0; }
+table thead, table tbody { border-bottom: solid; }
+table tbody th { text-align: left; }
+table tbody th:first-child { border-left: solid; }
+table td, table th { border-left: solid; border-right: solid; border-bottom: solid thin; vertical-align: top; padding: 0.2em; }
 </style>
 
 <pre class="link-defaults">
@@ -94,6 +101,9 @@ spec: html; type: dfn; urlPrefix: https://html.spec.whatwg.org/C
   # `url`.
   text:is initial about:blank; url: is-initial-about:blank
   text: associated Navigator
+spec: SECURE-CONTEXTS; urlPrefix: https://w3c.github.io/webappsec-secure-contexts/
+  type: abstract-op
+    text: is origin potentially trustworthy?; url: is-origin-trustworthy
 </pre>
 
 <h2 id="intro">Introduction</h2>
@@ -168,17 +178,94 @@ A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]
 
   : <dfn>untrusted content hint</dfn>
   :: a [=boolean=], initially false.
+
+  : <dfn>exposed origins</dfn>
+  :: a [=list=] or [=origins=], initially [=list/empty=].
 </dl>
 
-<div algorithm>
-To <dfn for="model context">unregister a tool</dfn> for a [=model context=] given a [=string=]
-|tool name|, run these steps:
+<hr>
 
-1. Let |tool map| be the associated [=model context=]'s [=model context/tool map=].
+<div algorithm>
+To <dfn>notify documents of a tool change</dfn> given a {{Document}} |tool owner| and a [=list=] of
+[=origins=] |exposed origins|, run these steps:
+
+1. [=Assert=]: these steps are running on |tool owner|'s [=relevant agent=]'s [=agent/event loop=].
+
+1. Let |navigablesToNotify| be |tool owner|'s [=node navigable=]'s [=navigable/traversable
+   navigable=]'s [=Document/descendant navigables=].
+
+1. [=list/For each=] |navigable| of |navigablesToNotify|:
+
+     1. Let |targetDocument| be |navigable|'s [=navigable/active document=].
+
+     1. If |targetDocument| is not [=allowed to use=] the "{{tools}}" feature, then
+        [=iteration/continue=].
+
+     1. If [=tool is visible to an origin=] given |tool owner|'s [=Document/origin=], |exposed
+        origins|, and |targetDocument|'s [=Document/origin=], then [=queue a global task=] on the
+        [=webmcp task source=] given |targetDocument|'s [=relevant global object=] to [=fire an
+        event=] named {{ModelContext/toolchange}} at |targetDocument|'s [=relevant global object=]'s
+        [=associated Navigator|associated <code>Navigator</code>=]'s [=Navigator/associated
+        ModelContext|associated <code>ModelContext</code>=].
+
+<div class=example id=notify-task-ordering>
+  <p>This algorithm's use of the [=webmcp task source=] means that the timing between firing the
+  {{ModelContext/toolchange}} event, and other tasks queued after this algorithm, cannot be relied
+  upon. For example:</p>
+
+  <xmp class=language-js>
+  navigator.modelContext.ontoolchange = e => console.log('Parent toolchange');
+  iframe.contentWindow.navigator.modelContext.ontoolchange = e => console.log('Child toolchange');
+
+  // Queues a task to fire `toolchange`, on the `webmcp task source`.
+  navigator.modelContext.registerTool({
+    name: "tool_name",
+    description: "tool_desc",
+    execute: async () => {}
+  });
+
+  // Queues a task on the `timer task source`.
+  setTimeout(() => console.log('Post-register task'));
+
+  // `Parent toolchange` will always log before `Child toolchange`.
+  // But `Post-register task` can log before, in between, or after both.
+  </xmp>
+</div>
+
+</div>
+
+<div algorithm>
+To determine if a <dfn>tool is visible to an origin</dfn> given an [=origin=] |tool owner origin|,
+a [=list=] of [=origins=] |exposed origins|, and an [=origin=] |target origin|, run these steps:
+
+1. If |tool owner origin| is [=same origin=] with |target origin|, then return true.
+
+1. [=list/For each=] |origin| of |exposed origins|:
+
+     1. If |target origin| is [=same origin=] with |origin|, then return true.
+
+1. Return false.
+
+</div>
+
+<div algorithm>
+To <dfn for="model context">unregister a tool</dfn> given a {{ModelContext}} |modelContext| and a
+[=string=] |tool name|, run these steps:
+
+1. [=Assert=]: these steps are running on |modelContext|'s [=relevant agent=]'s [=agent/event
+   loop=].
+
+1. Let |tool map| be |modelContext|'s [=ModelContext/internal context=]'s [=model context/tool
+   map=].
 
 1. [=Assert=] |tool map|[|tool name|] [=map/exists=].
 
+1. Let |exposed origins| be |tool map|[|tool name|]'s [=tool definition/exposed origins=].
+
 1. [=map/Remove=] |tool map|[|tool name|].
+
+1. Run [=notify documents of a tool change=] given |modelContext|'s [=relevant global object=]'s
+   [=associated Document|associated <code>Document</code>=] and |exposed origins|.
 
 </div>
 
@@ -242,8 +329,10 @@ The {{ModelContext}} interface provides methods for web applications to register
 
 <xmp class="idl">
 [Exposed=Window, SecureContext]
-interface ModelContext {
+interface ModelContext : EventTarget {
   undefined registerTool(ModelContextTool tool, optional ModelContextRegisterToolOptions options = {});
+
+  attribute EventHandler ontoolchange;
 };
 </xmp>
 
@@ -264,6 +353,15 @@ is a [=model context=] [=struct=] created alongside the {{ModelContext}}.
 
 <div algorithm>
 The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var>)</dfn> method steps are:
+
+1. Let |tool owner| be [=this=]'s [=relevant global object=]'s [=associated Document|associated
+   <code>Document</code>=].
+
+1. If |tool owner| is not [=Document/fully active=], then [=exception/throw=] an
+   "{{InvalidStateError}}" {{DOMException}}.
+
+1. If |tool owner| is not [=allowed to use=] the "{{tools}}" feature, then [=exception/throw=] a
+   "{{NotAllowedError}}" {{DOMException}}.
 
 1. Let |tool map| be [=this=]'s [=ModelContext/internal context=]'s [=model context/tool map=].
 
@@ -316,7 +414,21 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
       [=AbortSignal/aborted=], and return.
 
    1. [=AbortSignal/add|Add an abort algorithm=] to |signal| that [=model context/unregisters a
-      tool=] from [=this=] [=ModelContext/internal context=] given |tool name|.
+      tool=] given [=this=] and |tool name|.
+
+1. Let |exposed origins| be an empty [=list=] of [=origins=].
+
+1. If |options|'s {{ModelContextRegisterToolOptions/exposedTo}} [=map/exists=], then:
+
+     1. [=list/For each=] |origin| of |options|'s {{ModelContextRegisterToolOptions/exposedTo}}:
+
+          1. Let |parsedURL| be the result of running the [=URL parser=] on |origin|.
+
+          1. If |parsedURL| is failure or its [=url/origin=] is not [$is origin potentially
+             trustworthy?|potentially trustworthy$], then [=exception/throw=] an "{{SecurityError}}"
+             {{DOMException}}.
+
+          1. [=list/Append=] |parsedURL|'s [=url/origin=] to |exposed origins|.
 
 1. Let |tool definition| be a new [=tool definition=], with the following [=struct/items=]:
 
@@ -341,7 +453,12 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
    : [=tool definition/untrusted content hint=]
    :: |untrusted content hint|
 
+   : [=tool definition/exposed origins=]
+   :: |exposed origins|
+
 1. Set [=this=]'s [=ModelContext/internal context=][|tool name|] to |tool definition|.
+
+1. Run [=notify documents of a tool change=] given |tool owner| and |exposed origins|.
 
 </div>
 
@@ -425,6 +542,7 @@ definition itself.
 <xmp class="idl">
 dictionary ModelContextRegisterToolOptions {
   AbortSignal signal;
+  sequence<USVString> exposedTo;
 };
 </xmp>
 
@@ -432,6 +550,12 @@ dictionary ModelContextRegisterToolOptions {
   <dt><code><var ignore>tool</var>["{{ModelContextRegisterToolOptions/signal}}"]</code></dt>
   <dd>
     <p>An {{AbortSignal}} that unregisters the tool when aborted.
+  </dd>
+
+  <dt><code><var ignore>exposedTo</var>["{{ModelContextRegisterToolOptions/exposedTo}}"]</code></dt>
+  <dd>
+    <p>An array of origins that control which documents this tool is exposed to, in the current
+    document's tree.
   </dd>
 </dl>
 
@@ -493,6 +617,28 @@ The <dfn>synthesize a declarative JSON Schema object algorithm</dfn>, given a <{
 }
 </pre>
 
+<h3 id="events">Events</h3>
+
+The following are the [=event handlers=] (and their corresponding [=event handler event types=])
+that must be supported, as [=event handler IDL attributes=], by all {{ModelContext}} objects:
+
+<table>
+  <thead>
+    <tr>
+      <th>[=Event handler=]
+      <th>[=Event handler event type=]
+  <tbody>
+    <tr>
+      <td><dfn attribute for="ModelContext">ontoolchange</dfn>
+      <td><dfn event for="ModelContext">toolchange</dfn>
+</table>
+
+<h3 id="permissions-policy">Permissions policy integration</h3>
+
+Access to the APIs in this specification is gated behind the [=policy-controlled feature=] "<dfn
+permission>tools</dfn>", which has a [=policy-controlled feature/default allowlist=] of
+<code>[=default allowlist/'self'=]</code>.
+
 <h2 id="interaction-with-agents">Interaction with agents</h2>
 
 <h3 id="event-loop">Event loop integration</h3>
@@ -506,7 +652,7 @@ queued on its <dfn>AI agent queue</dfn>, which is the result of [=starting a new
 
 Conversely, steps queued *from* the [=browser agent=] onto the [=event loop=] of a given
 {{ModelContext}} object (i.e., the "main thread" where JavaScript runs) are queued on its [=relevant
-global object=]'s <dfn noexport>tool calling task source</dfn>.
+global object=]'s <dfn noexport>webmcp task source</dfn>.
 
 <h3 id="observations">Page observations</h3>
 
