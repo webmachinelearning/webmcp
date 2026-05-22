@@ -40,7 +40,7 @@ Web pages that use WebMCP can be thought of as in-page [Model Context Protocol (
 - **Enable human-in-the-loop workflows**: Support cooperative scenarios where users delegate tasks to AI agents while maintaining visibility, history, and control over web pages.
 - **Simplify AI agent integration**: Enable AI agents to be more reliable and helpful by interacting with web sites through well-defined client-side tools instead of through brittle UI actuation (DOM scraping, simulated clicks).
 - **Prevent web content disintermediation**: Prevent disintermediation of web apps by backend integrations by adapting front-ends for use by agents, rather than replacing them.
-- **Minimize developer burden**: Any task that a user can accomplish through a page's UI can be turned into a tool by reusing much of the page's existing client-side code.
+- **Code reuse**: Any task that a user can accomplish through a page's UI can be turned into a tool by reusing much of the page's existing client-side code.
 - **Improve accessibility through agents**: Enable agents to assist users of accessibility technology. WebMCP itself is not designed for ingestion by accessibility technology, nor is it designed to interact directly with a page's accessibility tree; rather, it enables agents to act as highly capable intermediaries (see [Issue #91](https://github.com/webmachinelearning/webmcp/issues/91)).
 
 ### Non-Goals
@@ -57,9 +57,9 @@ WebMCP enables cooperative workflows where the user collaborates with the agent 
 
 ### Creative & Graphic Design
 
-Jen wants to create a yard sale flyer on `http://easely.example`. She wants to filter templates and make visual edits. Instead of navigating menus, she interacts with her browser's agent:
+Jen wants to create a yard sale flyer on `https://easely.example`. She wants to filter templates and make visual edits. Instead of navigating menus, she interacts with her browser's agent:
 - **Jen**: "Show me templates that are spring themed and that prominently feature the date and time. They should be on a white background so I don't have to print in color."
-- The website has registered a tool:
+- The website has already registered the following tools:
   ```js
   navigator.modelContext.registerTool({
     name: "filter-templates",
@@ -77,12 +77,37 @@ Jen wants to create a yard sale flyer on `http://easely.example`. She wants to f
   });
   ```
 - The agent invokes `filter-templates` tool, and the UI instantly updates to show matching layouts.
-- Once Jen selects a template, the agent notices another tool `edit-design(instructions)` has been registered. Jen asks the agent to make adjustments (e.g., enlarging dates, swapping clipart), which the agent coordinates via direct tool calls.
+- Once Jen selects a template, the agent notices another tool that was dynamically registered: `edit-design(instructions)`.
+- **Jen**: "Please fill in the time and place using my home address. The time should be in my e-mail in a message from my husband."
+- **Agent**: "Ok, I've found it—I'll fill in the flyer with: *Aug 5-8, 2025 from 10am-3pm | 123 Queen Street West*. Would you like me to make the date font larger and swap out the clipart for yard-sale illustrations?"
+- **Jen**: "Yes, please. Also, let's use 'Yard Sale Extravaganza!' as the title, and create duplicate pages comparing different calls to action."
+- The agent automates this by executing a sequence of tool calls to `edit-design`. The graphic design page applies these edits as a batch of "uncommitted" changes in the UI, allowing Jen to review or adjust them.
+- **Agent**: "Done! I've created three variations of your design, each with a unique call to action."
+- **Jen is ready to finalize the flyers**. Normally, she would export a PDF and find a local print shop. However, the page has also registered an `order-prints` tool:
+  ```js
+  navigator.modelContext.registerTool({
+    name: "order-prints",
+    description: "Orders the current design for printing and shipping to the user.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        copies: { type: "number", description: "Number of copies between 1 and 1000." },
+        pageSize: { type: "string", enum: ["Letter", "Legal", "A4"], default: "Letter" }
+      },
+      required: ["copies"]
+    },
+    execute({ copies, pageSize }) {
+      initiatePrintCheckout(copies, pageSize);
+    }
+  });
+  ```
+- Spotting this tool, the agent offers to help and surfaces an inline print option. Jen specifies she wants 10 copies, and the agent executes the tool, automatically navigating the browser tab to the secure checkout page where Jen can complete the order with a single click.
 
 ### E-Commerce & Tailored Shopping
+
 Maya is shopping for dresses on `http://wildebloom.example/shop`.
 - **Maya**: "Show me only dresses available in my size, and also show only the ones that would be appropriate for a cocktail-attire wedding."
-- The page registers tools to search and display products:
+- The page has already registered tools to search and display products:
   ```js
   navigator.modelContext.registerTool({
     name: "get-dresses",
@@ -99,24 +124,85 @@ Maya is shopping for dresses on `http://wildebloom.example/shop`.
       return response.json();
     }
   });
+  navigator.modelContext.registerTool({
+    name: "show-dresses",
+    ...
+  });
+  navigator.modelContext.registerTool({
+    name: "filter-products",
+    ...
+  });
   ```
-- The agent calls `get-dresses` and filters the rich results to perfectly match "cocktail-attire wedding" using the returned natural language descriptions. It then calls a registered `show-dresses` tool to update the grid in Maya's active view.
+- The agent calls `get-dresses(6)` (automatically translating Maya's size into EU units from her browser profile context) and receives a JSON array of detailed product listings:
+  ```json
+  {
+    "products": [
+      {
+        "id": 1021,
+        "description": "A short sleeve midi dress in organic cotton with a floral print...",
+        "price": "€180",
+        "image": "img_1021.png"
+      },
+      {
+        "id": 4320,
+        "description": "A straight-cut formal linen gown on plant-based dyes...",
+        "price": "€220",
+        "image": "img_4320.png"
+      },
+      {
+        "id": 684,
+        "description": ...
+      },
+      ...
+    ]
+  }
+  ```
+- The agent processes this list, fetching each image and using the user's criteria to filter the dresses. It then calls the tool `show-dresses([1021, 4320, 684, ...])`. This updates the UI on the page to show only the requested dresses.
+- **Maya** uploads a photo of a favorite summer dress she owns: "Are there any dresses similar to the color and style of the one in this photo?"
+- **Agent**: "I've analyzed your photo's color tone and A-line cut. Let me filter the store grid to show options matching that style."
+- The agent uses its vision capabilities to match the product images against Maya's photo, compiles the list of matching IDs, and runs the tool `filter-products([1021, 684])`, instantly updating the site's UI with relevant dresses.
 
 ### Specialized Developer Workflows
-John is performing a code review in Gerrit. Specialized interfaces can be overwhelming.
+
+John is a software developer performing a code review in [Gerrit](https://www.gerritcodereview.com/). The interface is complex, but the page registers helpful tools to inspect trybot statuses and retrieve logs, perfect for agents that are typically trained on everyday usage, and may otherwise do a poor job actuating such complicated interfaces.
+
 - **John**: "Why are the Mac and Android trybots failing?"
-- The page registers tools to inspect trybot statuses and retrieve logs:
+- The page has already registered the following tools:
   ```js
   navigator.modelContext.registerTool({
     name: "get-trybot-statuses",
     description: "Returns the current status of all trybot runs for the active patch.",
-    inputSchema: { type: "object", properties: {} },
     execute() {
       return activePatch.getStatuses();
     }
   });
+
+  navigator.modelContext.registerTool({
+    name: "get-trybot-failure-snippet",
+    description: "If a bot failed, returns the tail log snippet describing the error.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        botName: { type: "string", description: "The bot name to query." }
+      },
+      required: ["botName"]
+    },
+    execute({ botName }) {
+      return activePatch.getFailureSnippet(botName);
+    }
+  });
   ```
-- The agent calls the tool, spots that the Android bot failed, calls a corresponding `get-failure-snippet` tool, and presents a clean error report directly in the chat context. John then instructs the agent to create a suggested edit to fix the missing build dependency, which the agent submits via a registered `add-suggested-edit` tool.
+- The agent invokes `get-trybot-statuses` and receives a JSON array representing the trybot statuses:
+  ```json
+  [
+    { "botName": "mac-x64-rel", "status": "FAIL" },
+    { "botName": "android-15-rel", "status": "FAIL" }
+  ]
+  ```
+- The agent then automatically calls `get-trybot-failure-snippet` for each failing bot. After ingesting the logs, it reports back:
+  - **Agent**: "The Mac bot is failing with an 'Out of Space' infrastructure error. The Android bot is failing while linking with a missing symbol `gfx::DisplayCompositor`."
+  - **John**: "Ah! BUILD.gn is missing `display_compositor_android.cc`. Please add a suggested edit to the build file adding it to the Android sources."
+- The agent uses a registered `add-suggested-edit(filename, patch)` tool to apply the diff. The Gerrit UI instantly displays the suggested patch as a code-review diff for John to accept, modify, or reject.
 
 
 ## Detailed Design
@@ -169,6 +255,44 @@ navigator.modelContext.registerTool({
 ### Declarative API
 
 For forms and standard HTML inputs, a declarative counterpart to the imperative API allows the browser to automatically synthesize tool definitions from `<form>` elements. This is detailed in the [Declarative API Explainer](./declarative-api-explainer.md). It will be soon folded into this explainer document.
+
+### Permissions policy and iframes
+
+While much of this explainer assumes integration with built-in browser agents, WebMCP also supports **author-provided agents**, such as agents embedded directly on a page or running in an iframe, that can collaborate with parent frames and nested contexts. See:
+ - [Issue #57](https://github.com/webmachinelearning/webmcp/issues/57)
+ - [Issue #117](https://github.com/webmachinelearning/webmcp/issues/117)
+ - [Issue #159](https://github.com/webmachinelearning/webmcp/issues/159)
+ - [Issue #160](https://github.com/webmachinelearning/webmcp/issues/160)
+ - [Issue #178](https://github.com/webmachinelearning/webmcp/issues/178)
+
+By default, WebMCP is enabled in top-level `Window`s and its same-origin iframes, but access can be delegated to cross-origin iframes using the [Permissions Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Permissions_Policy) `allow="tools"`:
+
+  ```html
+  <iframe src="https://chat-bot-provider.example/" allow="tools"></iframe>
+  ```
+
+Calls to `navigator.modelContext.registerTool()` will throw a `NotAllowedError` DOMException when the permission is disabled, whether by the `allow` attribute or the `Permissions-Policy: tools=()` header. Handling of declarative tool registration errors, including when the permisssion is disabled is TBD; see [Issue #182](https://github.com/webmachinelearning/webmcp/issues/182).
+
+#### Cross-origin iframe exposure: `exposedTo`
+
+By default, tools registered by a document are only exposed to itself, same-origin documents in the same tree, and built-in browser agents (see this <a href=#built-in-agent-default-exposure>discussion</a>). To support author-provided agents running in frames, developers can selectively share tools with secure origins of their choice, `exposedTo` option during registration:
+
+```js
+navigator.modelContext.registerTool({
+  name: "share-location",
+  description: "Returns the user's office location.",
+  execute() { return { office: "Building 4" }; }
+}, { exposedTo: ["https://trusted-partner.example"] });
+```
+
+Any document in the tree matching these origins (and allowed to use `tools` permission) will:
+
+- Receive the `toolchange` event on its `navigator.modelContext` when the tool is registered or unregistered.
+- Be able to discover and run the tools
+
+#### Discovering and running tools
+
+TODO: Spec and describe the `modelContext.getTools()` and `modelContext.executeTool()` APIs.
 
 
 ## Alternatives Considered
@@ -223,6 +347,8 @@ As the WebMCP proposal continues to evolve with community and stakeholder feedba
 
 - **Cross-document tool response**: How should WebMCP handle tool responses when a tool (a form submission, for example) causes the page to navigate to another document? See [Issue #135](https://github.com/webmachinelearning/webmcp/issues/135).
 
+- **Built-in agent exposure by default**: <p id=built-in-agent-default-exposure>The [`exposedTo`](https://webmachinelearning.github.io/webmcp/#dom-modelcontextregistertooloptions-exposedto) array only takes origins, but we're considering introducing a new keyword like `native-agent`, letting authors control a tool's exposure to a built-in agent. The running idea is that by default in the top-level document, a missing `exposedTo` array would expose tools to the built-in agent, and in iframes, a missing `exposedTo` array would not expose tools to the built-in agent</p>
+
 - **Transferable/streamable tool inputs and outputs**: AI models inherently support streaming data. WebMCP should consider enabling streaming tool inputs and outputs (such as chunked generation or large data transfers) without blocking on a massive copy. See [Issue #82](https://github.com/webmachinelearning/webmcp/issues/82). See also [MCP discussion](https://github.com/modelcontextprotocol/modelcontextprotocol/discussions/263) and [MCP Apps streaming tool inputs](https://github.com/modelcontextprotocol/ext-apps/blob/main/specification/draft/apps.mdx#notifications-host--view).
 
 - **Input and output schema validation**: Investigating native validation of tool inputs and outputs against declared JSON schemas before invoking the page's JS execution callback, or letting the output reach the model. See [Issue #92](https://github.com/webmachinelearning/webmcp/issues/92).
@@ -231,7 +357,7 @@ As the WebMCP proposal continues to evolve with community and stakeholder feedba
 
 - **Output schema**: Supporting structured `outputSchema` contracts (complementing `inputSchema`) to help LLMs reliably reason about the return values of tools. See [Issue #9](https://github.com/webmachinelearning/webmcp/issues/9).
 
-- **User prompting and elicitation**: Exploring a way for a tool to prompt the user for confirmation when tools require explicit user authorization. This could be done by delegating to the agent and its harness, or by invoking native browser permission dialogue outside of the agent loop. See [Issue #165](https://github.com/webmachinelearning/webmcp/issues/165) and [Issue #50](https://github.com/webmachinelearning/webmcp/issues/50).
+- **User prompting and elicitation**: Exploring a way for a tool to prompt the user for confirmation when tools require explicit user authorization. This could be done by delegating to the agent and its harness, or by invoking native browser permission dialogue outside of the agent loop. See [Issue #165](https://github.com/webmachinelearning/webmcp/issues/165) and [Issue #50](https://github.com/webmachinelearning/webmcp/issues/50) for discussion about the [`ModelContextClient`](https://webmachinelearning.github.io/webmcp/#modelcontextclient) interface.
 
 - **Tool progress reporting**: For long-running tasks (e.g., batch processing or generating content), the agent may want a way to track a tool's progress. We are exploring how this intersects with the established [MCP Progress](https://modelcontextprotocol.io/specification/2025-11-25/basic/utilities/progress) specification.
 
@@ -239,10 +365,6 @@ As the WebMCP proposal continues to evolve with community and stakeholder feedba
 
 
 ## Acknowledgments
-
-Many thanks to [Alex Nahas](https://github.com/MiguelsPizza) and [Jason McGhee](https://github.com/jasonjmcghee/) for sharing their valuable [implementation](https://github.com/MiguelsPizza/WebMCP) [experience](https://github.com/jasonjmcghee/WebMCP).
-
----
 
 > First published August 13, 2025
 >
@@ -252,3 +374,7 @@ Many thanks to [Alex Nahas](https://github.com/MiguelsPizza) and [Jason McGhee](
 > David Bokan <code>&lt;bokan@google.com&gt;</code><br>
 > Khushal Sagar <code>&lt;khushalsagar@google.com&gt;</code><br>
 > Hannah Van Opstal <code>&lt;hvanopstal@google.com&gt;</code>
+
+Since then, the specification draft has evolved significantly, primarily driven by [Dominic Farolino](https://github.com/domfarolino).
+
+Many thanks to [Alex Nahas](https://github.com/MiguelsPizza) and [Jason McGhee](https://github.com/jasonjmcghee/) for sharing their valuable [implementation](https://github.com/MiguelsPizza/WebMCP) [experience](https://github.com/jasonjmcghee/WebMCP).
