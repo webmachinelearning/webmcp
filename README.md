@@ -94,8 +94,9 @@ Maya is shopping for dresses on `http://wildebloom.example/shop`.
         color: { type: "string", description: "Optional color to filter by." }
       }
     },
-    execute({ size, color }) {
-      return fetchDresses(size, color);
+    async execute({ size, color }) {
+      const response = await fetchDresses(size, color);
+      return response.json();
     }
   });
   ```
@@ -117,11 +118,10 @@ John is performing a code review in Gerrit. Specialized interfaces can be overwh
   ```
 - The agent calls the tool, spots that the Android bot failed, calls a corresponding `get-failure-snippet` tool, and presents a clean error report directly in the chat context. John then instructs the agent to create a suggested edit to fix the missing build dependency, which the agent submits via a registered `add-suggested-edit` tool.
 
----
 
 ## Detailed Design
 
-WebMCP introduces a straightforward imperative API on the web platform under `navigator.modelContext`. This interface allows pages to expose client-side actions that agents can discover and invoke in a secure, browser-mediated environment.
+WebMCP introduces an imperative API on the web platform under `navigator.modelContext`. This interface allows pages to expose client-side actions that agents can discover and invoke in a secure, browser-mediated environment.
 
 ### Imperative Tool Registration: `navigator.modelContext`
 
@@ -213,6 +213,29 @@ navigator.agent.addEventListener('toolcall', async (e) => {
 Interacting with AI agents crosses traditional trust boundaries. Security, privacy, permissions policy, and origin isolation are crucial aspects of this proposal. 
 
 For detailed discussions, see [Security & Privacy Considerations](./docs/security-privacy-considerations.md) and the active community updates in [PR #181](https://github.com/webmachinelearning/webmcp/pull/181).
+
+
+## Open Questions
+
+As the WebMCP proposal continues to evolve with community and stakeholder feedback, we are tracking several active design discussions and technical challenges:
+
+- **Multimodal input/output**: AI agents are increasingly multimodal, and we should consider how tools can consume binary media as inputs and how to return them as outputs (e.g., audio, streams, media blobs, etc.). See [Issue #41](https://github.com/webmachinelearning/webmcp/issues/41), [Issue #86](https://github.com/webmachinelearning/webmcp/issues/86), and [Issue #81](https://github.com/webmachinelearning/webmcp/issues/81), and [Prompt API: Multimodal inputs](https://github.com/webmachinelearning/prompt-api#multimodal-inputs).
+
+- **Cross-document tool response**: How should WebMCP handle tool responses when a tool (a form submission, for example) causes the page to navigate to another document? See [Issue #135](https://github.com/webmachinelearning/webmcp/issues/135).
+
+- **Transferable/streamable tool inputs and outputs**: AI models inherently support streaming data. WebMCP should consider enabling streaming tool inputs and outputs (such as chunked generation or large data transfers) without blocking on a massive copy. See [Issue #82](https://github.com/webmachinelearning/webmcp/issues/82). See also [MCP discussion](https://github.com/modelcontextprotocol/modelcontextprotocol/discussions/263) and [MCP Apps streaming tool inputs](https://github.com/modelcontextprotocol/ext-apps/blob/main/specification/draft/apps.mdx#notifications-host--view).
+
+- **Input and output schema validation**: Investigating native validation of tool inputs and outputs against declared JSON schemas before invoking the page's JS execution callback, or letting the output reach the model. See [Issue #92](https://github.com/webmachinelearning/webmcp/issues/92).
+
+- **Skills Integration**: Determining if the author should expose a higher-level "skill" to help the agent coordinate multiple related tools to fulfill a user journey. See [Issue #161](https://github.com/webmachinelearning/webmcp/issues/161).
+
+- **Output schema**: Supporting structured `outputSchema` contracts (complementing `inputSchema`) to help LLMs reliably reason about the return values of tools. See [Issue #9](https://github.com/webmachinelearning/webmcp/issues/9).
+
+- **User prompting and elicitation**: Exploring a way for a tool to prompt the user for confirmation when tools require explicit user authorization. This could be done by delegating to the agent and its harness, or by invoking native browser permission dialogue outside of the agent loop. See [Issue #165](https://github.com/webmachinelearning/webmcp/issues/165) and [Issue #50](https://github.com/webmachinelearning/webmcp/issues/50).
+
+- **Tool progress reporting**: For long-running tasks (e.g., batch processing or generating content), the agent may want a way to track a tool's progress. We are exploring how this intersects with the established [MCP Progress](https://modelcontextprotocol.io/specification/2025-11-25/basic/utilities/progress) specification.
+
+- **Service workers integration**: Extending WebMCP to background Service Workers to allow agents to discover and invoke tools on sites the user doesn't currently have open. This is detailed in the supplementary [Service Workers Explainer](./docs/service-workers.md), which proposes background discovery mechanisms, session identification, and JIT worker installation.
 
 
 ## Acknowledgments
