@@ -67,7 +67,7 @@ Jen wants to create a yard sale flyer on `https://easely.example`. She wants to 
 - **Jen**: "Show me templates that are spring themed and that prominently feature the date and time. They should be on a white background so I don't have to print in color."
 - The website has already registered the following tools:
   ```js
-  navigator.modelContext.registerTool({
+  document.modelContext.registerTool({
     name: "filter-templates",
     description: "Filters the list of templates based on a natural language visual description.",
     inputSchema: {
@@ -91,7 +91,7 @@ Jen wants to create a yard sale flyer on `https://easely.example`. She wants to 
 - **Agent**: "Done! I've created three variations of your design, each with a unique call to action."
 - **Jen is ready to finalize the flyers**. Normally, she would export a PDF and find a local print shop. However, the page has also registered an `order-prints` tool:
   ```js
-  navigator.modelContext.registerTool({
+  document.modelContext.registerTool({
     name: "order-prints",
     description: "Orders the current design for printing and shipping to the user.",
     inputSchema: {
@@ -115,7 +115,7 @@ Maya is shopping for dresses on `http://wildebloom.example/shop`.
 - **Maya**: "Show me only dresses available in my size, and also show only the ones that would be appropriate for a cocktail-attire wedding."
 - The page has already registered tools to search and display products:
   ```js
-  navigator.modelContext.registerTool({
+  document.modelContext.registerTool({
     name: "get-dresses",
     description: "Returns an array of product listings containing id, description, price, and photo.",
     inputSchema: {
@@ -130,11 +130,11 @@ Maya is shopping for dresses on `http://wildebloom.example/shop`.
       return response.json();
     }
   });
-  navigator.modelContext.registerTool({
+  document.modelContext.registerTool({
     name: "show-dresses",
     ...
   });
-  navigator.modelContext.registerTool({
+  document.modelContext.registerTool({
     name: "filter-products",
     ...
   });
@@ -175,7 +175,7 @@ John is a software developer performing a code review in [Gerrit](https://www.ge
 - **John**: "Why are the Mac and Android trybots failing?"
 - The page has already registered the following tools:
   ```js
-  navigator.modelContext.registerTool({
+  document.modelContext.registerTool({
     name: "get-trybot-statuses",
     description: "Returns the current status of all trybot runs for the active patch.",
     execute() {
@@ -183,7 +183,7 @@ John is a software developer performing a code review in [Gerrit](https://www.ge
     }
   });
 
-  navigator.modelContext.registerTool({
+  document.modelContext.registerTool({
     name: "get-trybot-failure-snippet",
     description: "If a bot failed, returns the tail log snippet describing the error.",
     inputSchema: {
@@ -213,16 +213,16 @@ John is a software developer performing a code review in [Gerrit](https://www.ge
 
 ## Detailed Design
 
-WebMCP introduces an imperative API on the web platform under `navigator.modelContext`. This interface allows pages to expose client-side actions that agents can discover and invoke in a secure, browser-mediated environment.
+WebMCP introduces an imperative API on the web platform under `document.modelContext`. This interface allows pages to expose client-side actions that agents can discover and invoke in a secure, browser-mediated environment.
 
-### Imperative Tool Registration: `navigator.modelContext`
+### Imperative Tool Registration: `document.modelContext`
 
-A Model Context Provider registers tools by calling the `navigator.modelContext.registerTool()` method. 
+A Model Context Provider registers tools by calling the `document.modelContext.registerTool()` method. 
 
 ```js
 const controller = new AbortController();
 
-navigator.modelContext.registerTool({
+document.modelContext.registerTool({
   name: "add-todo",
   description: "Add a new item to the user's active todo list",
   inputSchema: {
@@ -252,7 +252,7 @@ navigator.modelContext.registerTool({
 ```
 
 ### Lifecycle of a Tool Call
-1. **Registration**: The web page registers one or more tools using `navigator.modelContext.registerTool()`.
+1. **Registration**: The web page registers one or more tools using `document.modelContext.registerTool()`.
 2. **Discovery**: An agent connected to the page queries the browser to discover the active list of tools and their schemas.
 3. **Invocation**: The agent requests a tool call, sending structured arguments matching the tool's `inputSchema`.
 4. **Execution**: The browser mediates the call, invokes the tool's `execute` callback with the provided arguments, and executes client-side logic on the page.
@@ -277,14 +277,14 @@ By default, WebMCP is enabled in top-level `Window`s and its same-origin iframes
   <iframe src="https://chat-bot-provider.example/" allow="tools"></iframe>
   ```
 
-Calls to `navigator.modelContext.registerTool()` will throw a `NotAllowedError` DOMException when the permission is disabled, whether by the `allow` attribute or the `Permissions-Policy: tools=()` header. Handling of declarative tool registration errors, including when the permisssion is disabled is TBD; see [Issue #182](https://github.com/webmachinelearning/webmcp/issues/182).
+Calls to `document.modelContext.registerTool()` will throw a `NotAllowedError` DOMException when the permission is disabled, whether by the `allow` attribute or the `Permissions-Policy: tools=()` header. Handling of declarative tool registration errors, including when the permisssion is disabled is TBD; see [Issue #182](https://github.com/webmachinelearning/webmcp/issues/182).
 
 #### Cross-origin iframe exposure: `exposedTo`
 
 By default, tools registered by a document are only exposed to itself, same-origin documents in the same tree, and built-in browser agents (see this <a href=#built-in-agent-default-exposure>discussion</a>). To support author-provided agents running in frames, developers can selectively share tools with secure origins of their choice, `exposedTo` option during registration:
 
 ```js
-navigator.modelContext.registerTool({
+document.modelContext.registerTool({
   name: "share-location",
   description: "Returns the user's office location.",
   execute() { return { office: "Building 4" }; }
@@ -293,7 +293,7 @@ navigator.modelContext.registerTool({
 
 Any document in the tree matching these origins (and allowed to use `tools` permission) will:
 
-- Receive the `toolchange` event on its `navigator.modelContext` when the tool is registered or unregistered.
+- Receive the `toolchange` event on its `document.modelContext` when the tool is registered or unregistered.
 - Be able to discover and run the tools
 
 #### Discovering and running tools
@@ -304,6 +304,7 @@ TODO: Spec and describe the `modelContext.getTools()` and `modelContext.executeT
 ## Alternatives Considered
 
 ### 1. Direct Adoption of the Backend MCP Specification
+
 We considered directly adopting the full Model Context Protocol (MCP) spec in the browser without creating a web-native API. However:
 - MCP was built primarily for server-to-client and stdio/SSE process communication. It lacks native web concepts like origins, standard browser permissions, DOM integration, and tab-level lifecycle management.
 - Coupling a web API directly to an actively evolving backend protocol would hinder backward compatibility and platform stability.
@@ -311,6 +312,7 @@ We considered directly adopting the full Model Context Protocol (MCP) spec in th
 Instead, WebMCP derives direct inspiration and shares a **common vocabulary** with MCP (e.g., tools, schemas, parameters), but provides a form-fitting, client-safe solution designed natively for the web platform.
 
 ### 2. Static Declarative Manifests
+
 We considered declaring tools solely inside static manifest files (like the Web App Manifest). While useful for offline or background discovery:
 - Static manifests prevent web developers from dynamically adding, updating, or removing tools based on the active page state or user authentication status.
 - Manifests cannot contain executable code, meaning developers would still need an imperative way to register execution handlers.
@@ -318,9 +320,11 @@ We considered declaring tools solely inside static manifest files (like the Web 
 Our current approach allows imperative script-based registration, with the potential for static declarations to be layered on in the future.
 
 ### 3. Event-Based Tool Execution (`'toolcall'`)
+
 Another alternative was to handle tool execution exclusively via window-level events:
+
 ```js
-navigator.agent.addEventListener('toolcall', async (e) => {
+document.agent.addEventListener('toolcall', async (e) => {
   if (e.name === 'add-todo') {
     e.respondWith(handleAddTodo(e.arguments));
   }
