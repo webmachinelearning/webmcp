@@ -100,7 +100,6 @@ spec: html; type: dfn; urlPrefix: https://html.spec.whatwg.org/C
   # exclude `url`. But the colon breaks the URL in `text`, forcing us to include
   # `url`.
   text:is initial about:blank; url: is-initial-about:blank
-  text: associated Navigator
 spec: SECURE-CONTEXTS; urlPrefix: https://w3c.github.io/webappsec-secure-contexts/
   type: abstract-op
     text: is origin potentially trustworthy?; url: is-origin-trustworthy
@@ -204,8 +203,7 @@ To <dfn>notify documents of a tool change</dfn> given a {{Document}} |tool owner
      1. If [=tool is visible to an origin=] given |tool owner|'s [=Document/origin=], |exposed
         origins|, and |targetDocument|'s [=Document/origin=], then [=queue a global task=] on the
         [=webmcp task source=] given |targetDocument|'s [=relevant global object=] to [=fire an
-        event=] named {{ModelContext/toolchange}} at |targetDocument|'s [=relevant global object=]'s
-        [=associated Navigator|associated <code>Navigator</code>=]'s [=Navigator/associated
+        event=] named {{ModelContext/toolchange}} at |targetDocument|'s [=Document/associated
         ModelContext|associated <code>ModelContext</code>=].
 
 <div class=example id=notify-task-ordering>
@@ -214,11 +212,11 @@ To <dfn>notify documents of a tool change</dfn> given a {{Document}} |tool owner
   upon. For example:</p>
 
   <xmp class=language-js>
-  navigator.modelContext.ontoolchange = e => console.log('Parent toolchange');
-  iframe.contentWindow.navigator.modelContext.ontoolchange = e => console.log('Child toolchange');
+  document.modelContext.ontoolchange = e => console.log('Parent toolchange');
+  iframe.contentDocument.modelContext.ontoolchange = e => console.log('Child toolchange');
 
   // Queues a task to fire `toolchange`, on the `webmcp task source`.
-  navigator.modelContext.registerTool({
+  document.modelContext.registerTool({
     name: "tool_name",
     description: "tool_desc",
     execute: async () => {}
@@ -278,47 +276,27 @@ https://github.com/webmachinelearning/webmcp/blob/main/docs/proposal.md#api
 https://dlaliberte.github.io/bikeshed-intro/#a-strategy-for-incremental-development
 -->
 
-<h3 id="navigator-extension">Extensions to the {{Navigator}} Interface</h3>
+<h3 id="document-extension">Extensions to {{Document}}</h3>
 
-Each {{Navigator}} object has an <dfn for=Navigator>associated {{ModelContext}}</dfn>, which is a
+Each {{Document}} object has an <dfn for=Document>associated {{ModelContext}}</dfn>, which is a
 {{ModelContext}} object.
 
-Upon creation of the {{Navigator}} object, its [=Navigator/associated ModelContext|associated
+Upon creation of the {{Document}} object, its [=Document/associated ModelContext|associated
 <code>ModelContext</code>=] must be set to a [=new=] {{ModelContext}} object created in the
-{{Navigator}}'s [=relevant realm=]. It only ever changes from one `{{ModelContext}}` instance to
-another the first time the {{Navigator/modelContext}} getter is accessed after a navigation away
-from the [=is initial about:blank|initial <code>about:blank</code>=],
-
-Note: The reason a {{Navigator}}'s [=Navigator/associated ModelContext|associated
-<code>ModelContext</code>=] changes is as follows: {{ModelContext}} is a {{Document}}-scoped
-registry of tools, but because it is accessed from an object that is shared between two {{Document}}
-objects, it gets updated when the {{Navigator}}'s [=relevant global object=]'s
-[=associated Document|associated <code>Document</code>=] gets updated, to ensure that tools registered within the [=is
-initial about:blank|initial <code>about:blank</code>=] {{Document}} do not mix with tools in the
-subsequent [=same origin=] {{Document}} See step 6.1 in [=create and initialize a Document
-object|create and initialize a <code>Document</code> object=].
-
-Each {{ModelContext}} object has a <dfn for=ModelContext>creation {{Document}}</dfn>, which is its
-[=relevant global object=]s [=associated Document|associated <code>Document</code>=] at the time of creation.
+{{Document}}'s [=relevant realm=].
 
 <hr>
 
 <xmp class="idl">
-partial interface Navigator {
-  [SecureContext] readonly attribute ModelContext modelContext;
+partial interface Document {
+  [SecureContext, SameObject] readonly attribute ModelContext modelContext;
 };
 </xmp>
 
 <div algorithm>
-The <dfn attribute for=Navigator>modelContext</dfn> getter steps are:
+The <dfn attribute for=Document>modelContext</dfn> getter steps are:
 
-1. If [=this=]'s [=Navigator/associated ModelContext|associated <code>ModelContext</code>=]'s
-   [=ModelContext/creation Document| creation <code>Document</code>=] does not equal [=this=]'s
-   [=relevant global object=]'s [=associated Document|associated <code>Document</code>=], then set
-   [=this=]'s [=Navigator/associated ModelContext|associated <code>ModelContext</code>=] to a
-   [=new=] {{ModelContext}} object.
-
-1. Return [=this=]'s [=Navigator/associated ModelContext|associated <code>ModelContext</code>=]
+1. Return [=this=]'s [=Document/associated ModelContext|associated <code>ModelContext</code>=]
    object.
 
 </div>
@@ -341,7 +319,7 @@ is a [=model context=] [=struct=] created alongside the {{ModelContext}}.
 
 
 <dl class="domintro">
-  <dt><code><var ignore>navigator</var>.{{Navigator/modelContext}}.{{ModelContext/registerTool(tool, options)}}</code></dt>
+  <dt><code><var ignore>document</var>.{{Document/modelContext}}.{{ModelContext/registerTool(tool, options)}}</code></dt>
   <dd>
     <p>Registers a tool that [=agents=] can invoke. Throws an exception if a tool with the same name
     is already registered, if the given {{ModelContextTool/name}} or
@@ -699,11 +677,9 @@ steps:
 
      1. Let |id| be |document|'s [=Document/unique ID=].
 
-     1. Set |observation|'s [=observation/tool map=][|id|] = |document|'s [=relevant global
-        object=]'s [=associated Navigator|associated <code>Navigator</code>=]'s
-        [=Navigator/associated ModelContext|associated <code>ModelContext</code>=]'s
-        [=ModelContext/internal context=]'s [=model context/tool map=]'s [=map/values=], which are
-        [=tool definitions=].
+     1. Set |observation|'s [=observation/tool map=][|id|] = |document|'s [=Document/associated
+        ModelContext|associated <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s
+        [=model context/tool map=]'s [=map/values=], which are [=tool definitions=].
 
 1. Perform any [=implementation-defined=] steps to add anything to |observation| that the [=user
    agent=] might deem useful or necessary, besides just populating the [=observation/tool map=].
