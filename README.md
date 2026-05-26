@@ -23,10 +23,50 @@ Backend integrations work well for server-side actions, but they pose significan
 **WebMCP** introduces a client-side alternative. It allows web developers to define tools directly in the browser page's script. This enables visually rich, cooperative interplay between a user, a web page, and an agent with shared context. Page UI and content remain available to the agent for actuation, but the agent can use WebMCP tools to achieve the user's goals more directly, reliably, and quickly, as the tools are in a format more suited to the agent.
 
 #### WebMCP In-browser tool flow
-![A diagram showing an agent communicating with a third-party service via WebMCP running in a live web page](./content/explainer_webmcp.png)
+
+```mermaid
+graph TD
+    AI["<b><i>AI Platform</i></b>"]
+
+    subgraph WB["<b><i>Web Browser</i></b>"]
+        BIA["Browser-integrated agent"]
+        subgraph RP["Running Page &lt;index.html&gt;"]
+            WMCP["WebMCP JS"]
+        end
+    end
+
+    TP["<b><i>Third-party service<br>(example.com)</i></b>"]
+
+    TP -->|"1. Browser loads web page as usual"| RP
+    AI <-->|"2. LLM in the cloud communicates with a browser-backed agent to observe and act on the web page in the browser"| BIA
+    BIA <-->|"3. Browser agent uses tools defined by WebMCP API to directly execute JavaScript functions in the context of the running page"| WMCP
+    RP <-->|HTTP| TP
+    
+    WMCP -->|"4. WebMCP functions can update UI and make calls to HTTP APIs in the service"| TP
+```
 
 #### Direct backend MCP flow
-![A diagram showing an agent communicating with a third-party service directly via MCP](./content/explainer_mcp.png)
+
+```mermaid
+graph TD
+    AI["<b><i>AI Platform</i></b>"]
+    AF["Agent Frontends (web site, app, etc)"]
+
+    subgraph WB["<b><i>Web Browser</i></b>"]
+        BIA["Browser-integrated agent"]
+        RP["Running Page &lt;index.html&gt;"]
+    end
+
+    subgraph TP["<b><i>Third-party service<br>(example.com)</i></b>"]
+        MCP[("MCP Server")]
+    end
+
+    AI <--> AF
+    AI <--> BIA
+    AI <-->|"Agents interact with the service directly using MCP. UI support would be provided either by the agent or manually by the service"| MCP
+    AF <--> BIA
+    RP <-->|HTTP| TP
+```
 
 Many challenges faced by assistive technology also apply to AI agents that struggle to navigate existing human-first interfaces when agent-first "tools" are not available. Even when agents succeed, simple operations often require multiple steps and can be slow or unreliable.
 
