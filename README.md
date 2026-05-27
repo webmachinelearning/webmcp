@@ -23,9 +23,28 @@ Backend integrations work well for server-side actions, but they pose significan
 **WebMCP** introduces a client-side alternative. It allows web developers to define tools directly in the browser page's script. This enables visually rich, cooperative interplay between a user, a web page, and an agent with shared context. Page UI and content remain available to the agent for actuation, but the agent can use WebMCP tools to achieve the user's goals more directly, reliably, and quickly, as the tools are in a format more suited to the agent.
 
 #### WebMCP In-browser tool flow
-![A diagram showing an agent communicating with a third-party service via WebMCP running in a live web page](./content/explainer_webmcp.png)
+
+```mermaid
+graph TD
+    subgraph WB["<b><i>Web browser</i></b>"]
+        BA["Browser AI agent"]
+        subgraph RP["Running Page 'index.html'"]
+            WMCP["WebMCP tools"]
+        end
+    end
+
+    AI["<b><i>AI platform</i></b>"]
+    TP["<b><i>Third-party service<br>(example.com)</i></b>"]
+
+    %% Connections
+    TP -->|"1. Browser loads page over HTTPs"| RP
+    AI <-->|"2. LLM in the cloud communicates with a browser AI agent to act on web content"| BA
+    BA <-->|"3. Browser agent uses WebMCP tools to actuate the current page"| WMCP
+    WMCP -->|"4. WebMCP tools update UI and make API calls"| TP
+```
 
 #### Direct backend MCP flow
+
 ![A diagram showing an agent communicating with a third-party service directly via MCP](./content/explainer_mcp.png)
 
 Many challenges faced by assistive technology also apply to AI agents that struggle to navigate existing human-first interfaces when agent-first "tools" are not available. Even when agents succeed, simple operations often require multiple steps and can be slow or unreliable.
