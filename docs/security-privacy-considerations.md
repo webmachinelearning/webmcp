@@ -360,6 +360,14 @@ To advance the security and privacy posture of WebMCP, we need community input o
 
 **How:** Ensuring an interoperable basis for prompt injection defense, by requiring any implementer to protect against at least the attacks in that dataset
 
+#### [Untrusted Annotation for Tool Responses](https://github.com/webmachinelearning/webmcp/issues/136)
+
+**What:** Giving agents information about trust boundaries such as highlighting untrustworthy content to the model using an untrusted annotation.
+
+**Threats addressed:**  Prompt Injection Attacks (Output Injection Attacks)
+
+**How:** A boolean `ToolAnnotations.untrustedContentHint = true` annotation that acts as a signal to the client that the payload requires heightened security handling, allowing the client to sanitize the payload, use indicators such as spotlighting to highlight untrustworthy content to the model, or hide that part of the response entirely.
+
 ... add more issues here
 
 ## Next Steps

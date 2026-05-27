@@ -40,7 +40,7 @@ Handling tool calls in the main thread with the option of delegating to workers 
 - **Fine-grained permissions**: Tool calls are mediated through the browser, so the user has the opportunity to review the requesting client apps and provide consent.
 - **Developer involvement**: Encourages developer involvement in the agentic web, required for a thriving web. Reduces the need for solutions like UI automation where the developer is not involved, improving privacy, reducing site expenses, and a better customer experience.
 - **Seamless integration**: Since tool calls are handled locally on a real browser, the agent can interleave these calls with human input when necessary (e.g. for consent, auth flows, dialogs, etc.).
-- **Accessibility**: Bringing tools to webpages via may help users with accessibility needs by allowing them to complete the same job-to-be-done via agentic or conversational interfaces instead of relying on the accessibility tree, which many websites have not implemented.
+- **Accessibility**: Bringing tools to webpages via WebMCP may help users with accessibility needs by allowing them to complete the same job-to-be-done via agentic or conversational interfaces instead of relying on the accessibility tree, which many websites have not implemented.
 
 ## Limitations of this design
 
@@ -54,27 +54,30 @@ Handling tool calls in the main thread with the option of delegating to workers 
 ### modelContext
 The `window.navigator.modelContext` interface is introduced for the site to declare functionality that can be used by an AI Agent. Access to these tools is arbitrated by the browser.
 
-The `modelContext`'s `registerTool()` and `unregisterTool()` methods are used to add and remove tools from the agent's context.
+The `modelContext`'s `registerTool()` method is used to add and remove tools from the agent's context.
 
 ```js
-window.navigator.modelContext.registerTool({
-      execute:
-        ({ text }, agent) => {
-          // Add todo item and update UI.
-          return /* structured content response */
-        },
-      name: "add-todo",
-      description: "Add a new todo item to the list",
-      inputSchema: {
-        type: "object",
-        properties: {
-          text: { type: "string", description: "The text of the todo item" }
-        },
-          required: ["text"]
-        },
-    });
+const addTodoTool = {
+  execute: ({ text }, agent) => {
+    // Add todo item and update UI.
+    return /* structured content response */
+  },
+  name: "add-todo",
+  description: "Add a new todo item to the list",
+  inputSchema: {
+    type: "object",
+    properties: {
+      text: { type: "string", description: "The text of the todo item" }
+    },
+    required: ["text"]
+  },
+};
+const controller = new AbortController();
 
-window.navigator.modelContext.unregisterTool("add-todo");
+window.navigator.modelContext.registerTool(addTodoTool, { signal: controller.signal });
+
+// Unregister tool later...
+controller.abort();
 ```
 
 ### agent

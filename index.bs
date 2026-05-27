@@ -78,11 +78,32 @@ p + dl.props { margin-top: -0.5em; }
 [data-algorithm] [data-algorithm] {
   margin: 1em 0;
 }
+
+/* Table styling definitions from https://resources.whatwg.org/standard.css */
+table { border-collapse: collapse; border-style: hidden hidden none hidden; margin: 1.25em 0; }
+table thead, table tbody { border-bottom: solid; }
+table tbody th { text-align: left; }
+table tbody th:first-child { border-left: solid; }
+table td, table th { border-left: solid; border-right: solid; border-bottom: solid thin; vertical-align: top; padding: 0.2em; }
 </style>
 
 <pre class="link-defaults">
 spec:html; type:dfn;
   text:form-associated element
+  text:browsing context group set
+  text:unique internal value
+</pre>
+<pre class="anchors">
+spec: html; type: dfn; urlPrefix: https://html.spec.whatwg.org/C
+  text: create and initialize a Document object; url: initialise-the-document-object
+  # Because `text` and `url` are the same (modulo slashes), we should be able to
+  # exclude `url`. But the colon breaks the URL in `text`, forcing us to include
+  # `url`.
+  text:is initial about:blank; url: is-initial-about:blank
+  text: associated Navigator
+spec: SECURE-CONTEXTS; urlPrefix: https://w3c.github.io/webappsec-secure-contexts/
+  type: abstract-op
+    text: is origin potentially trustworthy?; url: is-origin-trustworthy
 </pre>
 
 <h2 id="intro">Introduction</h2>
@@ -111,12 +132,23 @@ A <dfn>model context</dfn> is a [=struct=] with the following [=struct/items=]:
      [=structs=].
 </dl>
 
+
 A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]:
 
 <dl dfn-for="tool definition">
   : <dfn>name</dfn>
   :: a [=string=] uniquely identifying a tool registered within a [=model context=]'s [=model
      context/tool map=]; it is the same as the [=map/key=] identifying this object.
+
+     The [=tool definition/name=]'s [=string/length=] must be between 1 and 128, inclusive, and only
+     consist of [=ASCII alphanumeric=] [=code points=], U+005F LOW LINE (_),
+     U+002D HYPHEN-MINUS (-), and U+002E FULL STOP (.).
+
+  : <dfn>title</dfn>
+  :: A [=string=]-or-null representing a human-readable title of the tool for use in user interfaces.
+
+     Note: If {{ModelContextTool/title}} is not provided, the user agent is free to use a different
+     value for display.
 
   : <dfn>description</dfn>
   :: a [=string=].
@@ -143,7 +175,100 @@ A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]
 
   : <dfn>read-only hint</dfn>
   :: a [=boolean=], initially false.
+
+  : <dfn>untrusted content hint</dfn>
+  :: a [=boolean=], initially false.
+
+  : <dfn>exposed origins</dfn>
+  :: a [=list=] or [=origins=], initially [=list/empty=].
 </dl>
+
+<hr>
+
+<div algorithm>
+To <dfn>notify documents of a tool change</dfn> given a {{Document}} |tool owner| and a [=list=] of
+[=origins=] |exposed origins|, run these steps:
+
+1. [=Assert=]: these steps are running on |tool owner|'s [=relevant agent=]'s [=agent/event loop=].
+
+1. Let |navigablesToNotify| be |tool owner|'s [=node navigable=]'s [=navigable/traversable
+   navigable=]'s [=Document/descendant navigables=].
+
+1. [=list/For each=] |navigable| of |navigablesToNotify|:
+
+     1. Let |targetDocument| be |navigable|'s [=navigable/active document=].
+
+     1. If |targetDocument| is not [=allowed to use=] the "{{tools}}" feature, then
+        [=iteration/continue=].
+
+     1. If [=tool is visible to an origin=] given |tool owner|'s [=Document/origin=], |exposed
+        origins|, and |targetDocument|'s [=Document/origin=], then [=queue a global task=] on the
+        [=webmcp task source=] given |targetDocument|'s [=relevant global object=] to [=fire an
+        event=] named {{ModelContext/toolchange}} at |targetDocument|'s [=relevant global object=]'s
+        [=associated Navigator|associated <code>Navigator</code>=]'s [=Navigator/associated
+        ModelContext|associated <code>ModelContext</code>=].
+
+<div class=example id=notify-task-ordering>
+  <p>This algorithm's use of the [=webmcp task source=] means that the timing between firing the
+  {{ModelContext/toolchange}} event, and other tasks queued after this algorithm, cannot be relied
+  upon. For example:</p>
+
+  <xmp class=language-js>
+  navigator.modelContext.ontoolchange = e => console.log('Parent toolchange');
+  iframe.contentWindow.navigator.modelContext.ontoolchange = e => console.log('Child toolchange');
+
+  // Queues a task to fire `toolchange`, on the `webmcp task source`.
+  navigator.modelContext.registerTool({
+    name: "tool_name",
+    description: "tool_desc",
+    execute: async () => {}
+  });
+
+  // Queues a task on the `timer task source`.
+  setTimeout(() => console.log('Post-register task'));
+
+  // `Parent toolchange` will always log before `Child toolchange`.
+  // But `Post-register task` can log before, in between, or after both.
+  </xmp>
+</div>
+
+</div>
+
+<div algorithm>
+To determine if a <dfn>tool is visible to an origin</dfn> given an [=origin=] |tool owner origin|,
+a [=list=] of [=origins=] |exposed origins|, and an [=origin=] |target origin|, run these steps:
+
+1. If |tool owner origin| is [=same origin=] with |target origin|, then return true.
+
+1. [=list/For each=] |origin| of |exposed origins|:
+
+     1. If |target origin| is [=same origin=] with |origin|, then return true.
+
+1. Return false.
+
+</div>
+
+<div algorithm>
+To <dfn for="model context">unregister a tool</dfn> given a {{ModelContext}} |modelContext| and a
+[=string=] |tool name|, run these steps:
+
+1. [=Assert=]: these steps are running on |modelContext|'s [=relevant agent=]'s [=agent/event
+   loop=].
+
+1. Let |tool map| be |modelContext|'s [=ModelContext/internal context=]'s [=model context/tool
+   map=].
+
+1. [=Assert=] |tool map|[|tool name|] [=map/exists=].
+
+1. Let |exposed origins| be |tool map|[|tool name|]'s [=tool definition/exposed origins=].
+
+1. [=map/Remove=] |tool map|[|tool name|].
+
+1. Run [=notify documents of a tool change=] given |modelContext|'s [=relevant global object=]'s
+   [=associated Document|associated <code>Document</code>=] and |exposed origins|.
+
+</div>
+
 
 <h2 id="api">API</h2>
 
@@ -155,19 +280,47 @@ https://dlaliberte.github.io/bikeshed-intro/#a-strategy-for-incremental-developm
 
 <h3 id="navigator-extension">Extensions to the {{Navigator}} Interface</h3>
 
-The {{Navigator}} interface is extended to provide access to the {{ModelContext}}.
+Each {{Navigator}} object has an <dfn for=Navigator>associated {{ModelContext}}</dfn>, which is a
+{{ModelContext}} object.
+
+Upon creation of the {{Navigator}} object, its [=Navigator/associated ModelContext|associated
+<code>ModelContext</code>=] must be set to a [=new=] {{ModelContext}} object created in the
+{{Navigator}}'s [=relevant realm=]. It only ever changes from one `{{ModelContext}}` instance to
+another the first time the {{Navigator/modelContext}} getter is accessed after a navigation away
+from the [=is initial about:blank|initial <code>about:blank</code>=],
+
+Note: The reason a {{Navigator}}'s [=Navigator/associated ModelContext|associated
+<code>ModelContext</code>=] changes is as follows: {{ModelContext}} is a {{Document}}-scoped
+registry of tools, but because it is accessed from an object that is shared between two {{Document}}
+objects, it gets updated when the {{Navigator}}'s [=relevant global object=]'s
+[=associated Document|associated <code>Document</code>=] gets updated, to ensure that tools registered within the [=is
+initial about:blank|initial <code>about:blank</code>=] {{Document}} do not mix with tools in the
+subsequent [=same origin=] {{Document}} See step 6.1 in [=create and initialize a Document
+object|create and initialize a <code>Document</code> object=].
+
+Each {{ModelContext}} object has a <dfn for=ModelContext>creation {{Document}}</dfn>, which is its
+[=relevant global object=]s [=associated Document|associated <code>Document</code>=] at the time of creation.
+
+<hr>
 
 <xmp class="idl">
 partial interface Navigator {
-  [SecureContext, SameObject] readonly attribute ModelContext modelContext;
+  [SecureContext] readonly attribute ModelContext modelContext;
 };
 </xmp>
 
-Each {{Navigator}} object has an associated <dfn for=Navigator>modelContext</dfn>, which is a
-{{ModelContext}} instance created alongside the {{Navigator}}.
-
 <div algorithm>
-The <dfn attribute for=Navigator>modelContext</dfn> getter steps are to return [=this=]'s [=Navigator/modelContext=].
+The <dfn attribute for=Navigator>modelContext</dfn> getter steps are:
+
+1. If [=this=]'s [=Navigator/associated ModelContext|associated <code>ModelContext</code>=]'s
+   [=ModelContext/creation Document| creation <code>Document</code>=] does not equal [=this=]'s
+   [=relevant global object=]'s [=associated Document|associated <code>Document</code>=], then set
+   [=this=]'s [=Navigator/associated ModelContext|associated <code>ModelContext</code>=] to a
+   [=new=] {{ModelContext}} object.
+
+1. Return [=this=]'s [=Navigator/associated ModelContext|associated <code>ModelContext</code>=]
+   object.
+
 </div>
 
 <h3 id="model-context-container">ModelContext Interface</h3>
@@ -177,9 +330,9 @@ The {{ModelContext}} interface provides methods for web applications to register
 <xmp class="idl">
 [Exposed=Window, SecureContext]
 interface ModelContext : EventTarget {
-  undefined registerTool(ModelContextTool tool);
-  undefined unregisterTool(DOMString name);
+  undefined registerTool(ModelContextTool tool, optional ModelContextRegisterToolOptions options = {});
 
+  attribute EventHandler ontoolchange;
   attribute EventHandler ontoolactivated;
   attribute EventHandler ontoolcancel;
 };
@@ -190,14 +343,12 @@ is a [=model context=] [=struct=] created alongside the {{ModelContext}}.
 
 
 <dl class="domintro">
-  <dt><code><var ignore>navigator</var>.{{Navigator/modelContext}}.{{ModelContext/registerTool(tool)}}</code></dt>
+  <dt><code><var ignore>navigator</var>.{{Navigator/modelContext}}.{{ModelContext/registerTool(tool, options)}}</code></dt>
   <dd>
-    <p>Registers a single tool without clearing the existing set of tools. The method throws an error, if a tool with the same name already exists, or if the {{ModelContextTool/inputSchema}} is invalid.
-  </dd>
-
-  <dt><code><var ignore>navigator</var>.{{Navigator/modelContext}}.{{ModelContext/unregisterTool(name)}}</code></dt>
-  <dd>
-    <p>Removes the tool with the specified name from the registered set.
+    <p>Registers a tool that [=agents=] can invoke. Throws an exception if a tool with the same name
+    is already registered, if the given {{ModelContextTool/name}} or
+    {{ModelContextTool/description}} are empty strings, or if the {{ModelContextTool/inputSchema}}
+    is invalid.</p>
   </dd>
 </dl>
 
@@ -210,17 +361,32 @@ is a [=model context=] [=struct=] created alongside the {{ModelContext}}.
 
 
 <div algorithm>
-The <dfn method for=ModelContext>registerTool(<var>tool</var>)</dfn> method steps are:
+The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var>)</dfn> method steps are:
+
+1. Let |tool owner| be [=this=]'s [=relevant global object=]'s [=associated Document|associated
+   <code>Document</code>=].
+
+1. If |tool owner| is not [=Document/fully active=], then [=exception/throw=] an
+   "{{InvalidStateError}}" {{DOMException}}.
+
+1. If |tool owner| is not [=allowed to use=] the "{{tools}}" feature, then [=exception/throw=] a
+   "{{NotAllowedError}}" {{DOMException}}.
 
 1. Let |tool map| be [=this=]'s [=ModelContext/internal context=]'s [=model context/tool map=].
 
 1. Let |tool name| be |tool|'s {{ModelContextTool/name}}.
 
+1. Let |tool title| be |tool|'s {{ModelContextTool/title}}.
+
 1. If |tool map|[|tool name|] [=map/exists=], then [=exception/throw=] an {{InvalidStateError}}
    {{DOMException}}.
 
-1. If either |tool name| or {{ModelContextTool/description}} is the empty string, then
+1. If |tool name| or {{ModelContextTool/description}} is an empty string, then
    [=exception/throw=] an {{InvalidStateError}} {{DOMException}}.
+
+1. If either |tool name| is the empty string, or its [=string/length=] is greater than 128, or if
+   |tool name| contains a [=code point=] that is not an [=ASCII alphanumeric=], U+005F (_),
+   U+002D (-), or U+002E (.), then [=exception/throw=] an {{InvalidStateError}}.
 
 1. Let |stringified input schema| be the empty string.
 
@@ -245,10 +411,41 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>)</dfn> method step
 1. Let |read-only hint| be true if |tool|'s {{ModelContextTool/annotations}} [=map/exists=] and
    its {{ToolAnnotations/readOnlyHint}} is true. Otherwise, let it be false.
 
+1. Let |untrusted content hint| be true if |tool|'s {{ModelContextTool/annotations}} [=map/exists=] and
+   its {{ToolAnnotations/untrustedContentHint}} is true. Otherwise, let it be false.
+
+1. Let |signal| be |options|'s {{ModelContextRegisterToolOptions/signal}}.
+
+1. If |signal| [=map/exists=], then:
+
+   1. If |signal| is [=AbortSignal/aborted=], then optionally [=report a warning to the console=]
+      indicating that the tool was not registered because the {{AbortSignal}} was already
+      [=AbortSignal/aborted=], and return.
+
+   1. [=AbortSignal/add|Add an abort algorithm=] to |signal| that [=model context/unregisters a
+      tool=] given [=this=] and |tool name|.
+
+1. Let |exposed origins| be an empty [=list=] of [=origins=].
+
+1. If |options|'s {{ModelContextRegisterToolOptions/exposedTo}} [=map/exists=], then:
+
+     1. [=list/For each=] |origin| of |options|'s {{ModelContextRegisterToolOptions/exposedTo}}:
+
+          1. Let |parsedURL| be the result of running the [=URL parser=] on |origin|.
+
+          1. If |parsedURL| is failure or its [=url/origin=] is not [$is origin potentially
+             trustworthy?|potentially trustworthy$], then [=exception/throw=] an "{{SecurityError}}"
+             {{DOMException}}.
+
+          1. [=list/Append=] |parsedURL|'s [=url/origin=] to |exposed origins|.
+
 1. Let |tool definition| be a new [=tool definition=], with the following [=struct/items=]:
 
    : [=tool definition/name=]
    :: |tool name|
+
+   : [=tool definition/title=]
+   :: |tool title|
 
    : [=tool definition/description=]
    :: |tool|'s {{ModelContextTool/description}}
@@ -262,19 +459,15 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>)</dfn> method step
    : [=tool definition/read-only hint=]
    :: |read-only hint|
 
+   : [=tool definition/untrusted content hint=]
+   :: |untrusted content hint|
+
+   : [=tool definition/exposed origins=]
+   :: |exposed origins|
+
 1. Set [=this=]'s [=ModelContext/internal context=][|tool name|] to |tool definition|.
 
-</div>
-
-<div algorithm>
-The <dfn method for=ModelContext>unregisterTool(<var>name</var>)</dfn> method steps are:
-
-1. Let |tool map| be [=this=]'s [=ModelContext/internal context=]'s [=model context/tool map=].
-
-1. If |tool map|[|name|] does not [=map/exist=], then [=exception/throw=] an {{InvalidStateError}}
-   {{DOMException}}.
-
-1. [=map/Remove=] |tool map|[|name|].
+1. Run [=notify documents of a tool change=] given |tool owner| and |exposed origins|.
 
 </div>
 
@@ -285,6 +478,9 @@ The {{ModelContextTool}} dictionary describes a tool that can be invoked by [=ag
 <xmp class="idl">
 dictionary ModelContextTool {
   required DOMString name;
+  // Because `title` is for display in possibly native UIs, this must be a `USVString`.
+  // See https://w3ctag.github.io/design-principles/#idl-string-types.
+  USVString title;
   required DOMString description;
   object inputSchema;
   required ToolExecuteCallback execute;
@@ -293,6 +489,7 @@ dictionary ModelContextTool {
 
 dictionary ToolAnnotations {
   boolean readOnlyHint = false;
+  boolean untrustedContentHint = false;
 };
 
 callback ToolExecuteCallback = Promise<any> (object input, ModelContextClient client);
@@ -302,6 +499,13 @@ callback ToolExecuteCallback = Promise<any> (object input, ModelContextClient cl
   <dt><code><var ignore>tool</var>["{{ModelContextTool/name}}"]</code></dt>
   <dd>
     <p>A unique identifier for the tool. This is used by [=agents=] to reference the tool when making tool calls.
+  </dd>
+
+  <dt><code><var ignore>tool</var>["{{ModelContextTool/title}}"]</code></dt>
+  <dd>
+    <p>A label for the tool. This is used by the user agent to reference the tool in the user interface.
+    <p>It is recommended that this string be localized to the user's
+{{NavigatorLanguage/language}}.
   </dd>
 
   <dt><code><var ignore>tool</var>["{{ModelContextTool/description}}"]</code></dt>
@@ -332,7 +536,38 @@ The {{ToolAnnotations}} dictionary provides optional metadata about a tool:
 <dl class="domintro" dfn-type=dict-member dfn-for=ToolAnnotations>
   : <dfn>readOnlyHint</dfn>
   :: If true, indicates that the tool does not modify any state and only reads data. This hint can help [=agents=] make decisions about when it is safe to call the tool.
+
+  : <dfn>untrustedContentHint</dfn>
+  :: If true, indicates that the tool's output contains data that is untrusted, from the perspective
+     of the author registering the tool.
 </dl>
+
+<h4 id="model-context-register-tool-options">ModelContextRegisterToolOptions Dictionary</h4>
+
+The {{ModelContextRegisterToolOptions}} dictionary carries information pertaining to a tool's
+registration, in contrast with the {{ModelContextTool}} dictionary which carries the tool
+definition itself.
+
+<xmp class="idl">
+dictionary ModelContextRegisterToolOptions {
+  AbortSignal signal;
+  sequence<USVString> exposedTo;
+};
+</xmp>
+
+<dl class="domintro">
+  <dt><code><var ignore>tool</var>["{{ModelContextRegisterToolOptions/signal}}"]</code></dt>
+  <dd>
+    <p>An {{AbortSignal}} that unregisters the tool when aborted.
+  </dd>
+
+  <dt><code><var ignore>exposedTo</var>["{{ModelContextRegisterToolOptions/exposedTo}}"]</code></dt>
+  <dd>
+    <p>An array of origins that control which documents this tool is exposed to, in the current
+    document's tree.
+  </dd>
+</dl>
+
 
 <h4 id="model-context-client">ModelContextClient Interface</h4>
 
@@ -440,6 +675,124 @@ The <dfn>synthesize a declarative JSON Schema object algorithm</dfn>, given a <{
   }
 }
 </pre>
+
+<h3 id="events">Events</h3>
+
+The following are the [=event handlers=] (and their corresponding [=event handler event types=])
+that must be supported, as [=event handler IDL attributes=], by all {{ModelContext}} objects:
+
+<table>
+  <thead>
+    <tr>
+      <th>[=Event handler=]
+      <th>[=Event handler event type=]
+  <tbody>
+    <tr>
+      <td><dfn attribute for="ModelContext">ontoolchange</dfn>
+      <td><dfn event for="ModelContext">toolchange</dfn>
+</table>
+
+<h3 id="permissions-policy">Permissions policy integration</h3>
+
+Access to the APIs in this specification is gated behind the [=policy-controlled feature=] "<dfn
+permission>tools</dfn>", which has a [=policy-controlled feature/default allowlist=] of
+<code>[=default allowlist/'self'=]</code>.
+
+<h2 id="interaction-with-agents">Interaction with agents</h2>
+
+<h3 id="event-loop">Event loop integration</h3>
+
+A web site's functionality is exposed to [=agents=] as tools that live in a [=Document=]'s [=event
+loop=], that get registered with the APIs in this specification.
+
+The [=user agent=]'s [=browser agent=] runs [=in parallel=] to any [=event loops=] associated
+with a {{ModelContext}} [=relevant global object=]. Steps running on the [=browser agent=] get
+queued on its <dfn>AI agent queue</dfn>, which is the result of [=starting a new parallel queue=].
+
+Conversely, steps queued *from* the [=browser agent=] onto the [=event loop=] of a given
+{{ModelContext}} object (i.e., the "main thread" where JavaScript runs) are queued on its [=relevant
+global object=]'s <dfn noexport>webmcp task source</dfn>.
+
+<h3 id="observations">Page observations</h3>
+
+<em>This section is non-normative. It contains an example of infrastructure that a [=user agent=] might
+employ to expose a tab's tools to a [=browser agent=], and illustrates how that infrastructure
+interacts with the web platform, for the purposes of implementer guidance.</em>
+
+<hr>
+
+In-page [=agents=] implemented in JavaScript can "observe" the tools that a page offers by using the
+{{ModelContext}} APIs directly, and any other platform APIs to obtain necessary context about the
+page in order to actuate it appropriately.
+
+The [=browser agent=], on the other hand, does not run JavaScript on the page. Instead, it obtains a
+view of the page's tools and any other relevant context by getting an [=observation=]. An
+<dfn>observation</dfn> is an [=implementation-defined=] data structure containing at least a <dfn
+for=observation>tool map</dfn>, which is a [=map=] whose [=map/keys=] are [=Document/unique ID=]s,
+and whose [=map/values=] are [=lists=] of [=tool definition=] [=structs=].
+
+Note: An [=observation=] is usually a "snapshot" distillation of a page being presented to the user,
+along with any other state the [=user agent=] believes is relevant for the [=browser agent=]; this
+often includes screenshots of the page, not just a DOM serialization. See [Annotated Page Content
+(APC)](https://chromium.googlesource.com/chromium/src.git/+/main/third_party/blink/renderer/modules/content_extraction/readme.md)
+in the Chromium project for an example of what might contribute to an observation.
+
+<hr>
+
+<div algorithm>
+To <dfn>perform an observation</dfn> given a [=top-level traversable=] |traversable|, run these
+steps:
+
+1. [=Assert=]: This algorithm is running in the [=browser agent=]'s [=AI agent queue=].
+
+1. [=Assert=]: |traversable|'s [=navigable/active document=] is not [=Document/fully active=].
+
+1. Let |observation| be a new [=observation=].
+
+1. Let |flat descendants| be the [=Document/inclusive descendant navigables=] of |traversable|'s
+   [=navigable/active document=].
+
+1. [=list/For each=] [=navigable=] |descendant| of |flat descendants|:
+
+     1. Let |document| be |descendant|'s [=navigable/active document=]'s.
+
+     1. Let |id| be |document|'s [=Document/unique ID=].
+
+     1. Set |observation|'s [=observation/tool map=][|id|] = |document|'s [=relevant global
+        object=]'s [=associated Navigator|associated <code>Navigator</code>=]'s
+        [=Navigator/associated ModelContext|associated <code>ModelContext</code>=]'s
+        [=ModelContext/internal context=]'s [=model context/tool map=]'s [=map/values=], which are
+        [=tool definitions=].
+
+1. Perform any [=implementation-defined=] steps to add anything to |observation| that the [=user
+   agent=] might deem useful or necessary, besides just populating the [=observation/tool map=].
+   This might include annotated screenshots of the page, parts of the accessibility tree, etc.
+
+1. Perform any [=implementation-defined=] steps with |observation| and the [=browser agent=], to
+   expose the |observation|'s [=observation/tool map=] to the [=browser agent=] in whatever way it
+   accepts.
+
+     Note: Despite the name of this API (i., Web*MCP*), this specification does not prescribe the
+     format in which tools are exposed to the [=browser agent=]. Browsers are free to distill and
+     expose tools via Model Context Protocol, other proprietary "function calling" methods, or any
+     other way it deems appropriate.
+
+     Advisement: Implementations are expected to convey to the [=browser agent=] any relevant
+     security information associated with [=tool definitions=], such as the originating [=origin=],
+     among other things, so that the backing model has an idea of the different parties at play, and
+     can most safely carry out the end user's intent.
+
+</div>
+
+Each {{Document}} object has a <dfn for=Document>unique ID</dfn>, which is a [=unique internal
+value=].
+
+The times at which a [=browser agent=] [=performs an observation=] are [=implementation-defined=].
+A [=browser agent=] may [=parallel queue/enqueue steps=] to the [=AI agent queue=] to [=perform an
+observation=] given any [=top-level browsing context=] in the [=user agent=] [=browsing context
+group set=], at any time, although implementations typically reserve this operation for when the
+user is interacting with a [=browser agent=] while web content is in view.
+
 
 <h2 id="security-privacy">Security and privacy considerations</h2>
 
