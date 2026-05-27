@@ -45,7 +45,25 @@ graph TD
 
 #### Direct backend MCP flow
 
-![A diagram showing an agent communicating with a third-party service directly via MCP](./content/explainer_mcp.png)
+```mermaid
+graph TD
+    AI["<b><i>AI Platform</i></b>"]
+    AF["Agent Frontends (web site, app, etc)"]
+
+    subgraph WB["<b><i>Web Browser</i></b>"]
+        BIA["Browser-integrated agent"]
+        RP["Running Page &lt;index.html&gt;"]
+    end
+
+    subgraph TP["<b><i>Third-party service (example.com)</i></b>"]
+        MCP[("MCP Server")]
+    end
+
+    AI <--> AF
+    AI <--> BIA
+    AI <-->|"Agents interact with the service directly using MCP. UI support would be provided either by the agent or manually by the service"| MCP
+    RP <-->|HTTP| TP
+```
 
 Many challenges faced by assistive technology also apply to AI agents that struggle to navigate existing human-first interfaces when agent-first "tools" are not available. Even when agents succeed, simple operations often require multiple steps and can be slow or unreliable.
 
