@@ -26,47 +26,26 @@ Backend integrations work well for server-side actions, but they pose significan
 
 ```mermaid
 graph TD
-    AI["<b><i>AI Platform</i></b>"]
-
-    subgraph WB["<b><i>Web Browser</i></b>"]
-        BIA["Browser-integrated agent"]
-        subgraph RP["Running Page &lt;index.html&gt;"]
-            WMCP["WebMCP JS"]
+    subgraph WB["<b><i>Web browser</i></b>"]
+        BA["Browser AI agent"]
+        subgraph RP["Running Page 'index.html'"]
+            WMCP["WebMCP tools"]
         end
     end
 
+    AI["<b><i>AI platform</i></b>"]
     TP["<b><i>Third-party service<br>(example.com)</i></b>"]
 
-    TP -->|"1. Browser loads web page as usual"| RP
-    AI <-->|"2. LLM in the cloud communicates with a browser-backed agent to observe and act on the web page in the browser"| BIA
-    BIA <-->|"3. Browser agent uses tools defined by WebMCP API to directly execute JavaScript functions in the context of the running page"| WMCP
-    RP <-->|HTTP| TP
-    
-    WMCP -->|"4. WebMCP functions can update UI and make calls to HTTP APIs in the service"| TP
+    %% Connections
+    TP -->|"1. Browser loads page over HTTPs"| RP
+    AI <-->|"2. LLM in the cloud communicates with a browser AI agent to act on web content"| BA
+    BA <-->|"3. Browser agent uses WebMCP tools to actuate the current page"| WMCP
+    WMCP -->|"4. WebMCP tools update UI and make API calls"| TP
 ```
 
 #### Direct backend MCP flow
 
-```mermaid
-graph TD
-    AI["<b><i>AI Platform</i></b>"]
-    AF["Agent Frontends (web site, app, etc)"]
-
-    subgraph WB["<b><i>Web Browser</i></b>"]
-        BIA["Browser-integrated agent"]
-        RP["Running Page &lt;index.html&gt;"]
-    end
-
-    subgraph TP["<b><i>Third-party service<br>(example.com)</i></b>"]
-        MCP[("MCP Server")]
-    end
-
-    AI <--> AF
-    AI <--> BIA
-    AI <-->|"Agents interact with the service directly using MCP. UI support would be provided either by the agent or manually by the service"| MCP
-    AF <--> BIA
-    RP <-->|HTTP| TP
-```
+![A diagram showing an agent communicating with a third-party service directly via MCP](./content/explainer_mcp.png)
 
 Many challenges faced by assistive technology also apply to AI agents that struggle to navigate existing human-first interfaces when agent-first "tools" are not available. Even when agents succeed, simple operations often require multiple steps and can be slow or unreliable.
 
