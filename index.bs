@@ -94,12 +94,6 @@ spec:html; type:dfn;
   text:unique internal value
 </pre>
 <pre class="anchors">
-spec: html; type: dfn; urlPrefix: https://html.spec.whatwg.org/C
-  text: create and initialize a Document object; url: initialise-the-document-object
-  # Because `text` and `url` are the same (modulo slashes), we should be able to
-  # exclude `url`. But the colon breaks the URL in `text`, forcing us to include
-  # `url`.
-  text:is initial about:blank; url: is-initial-about:blank
 spec: SECURE-CONTEXTS; urlPrefix: https://w3c.github.io/webappsec-secure-contexts/
   type: abstract-op
     text: is origin potentially trustworthy?; url: is-origin-trustworthy
