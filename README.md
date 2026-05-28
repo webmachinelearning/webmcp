@@ -363,9 +363,9 @@ document.agent.addEventListener('toolcall', async (e) => {
 
 ## Security and Privacy Considerations
 
-Interacting with AI agents crosses traditional trust boundaries. Security, privacy, permissions policy, and origin isolation are crucial aspects of this proposal. 
+Interacting with AI agents crosses traditional trust boundaries. Security, privacy, permissions policy, and origin isolation are crucial aspects of this proposal.
 
-For detailed discussions, see [Security & Privacy Considerations](./docs/security-privacy-considerations.md) and the active community updates in [PR #181](https://github.com/webmachinelearning/webmcp/pull/181).
+For our current considerations, refer to the [Security and Privacy Considerations](https://webmachinelearning.github.io/webmcp/#security-privacy) section of the specification.
 
 
 ## Open Questions
