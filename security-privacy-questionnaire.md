@@ -1,95 +1,95 @@
 # [Self-Review Questionnaire: Security and Privacy](https://w3c.github.io/security-questionnaire/)
 
-01.  What information does this feature expose, and for what purposes?
+> 01. What information does this feature expose, and for what purposes?
 
 WebMCP exposes author-defined tool metadata and tool return values to the user agent. It does not expose new information about the user or their environment to origins.
 
-Cross-origin iframes may discover these tools only if the tool author explicitly opts in via `exposedTo`. 
+Cross-origin iframes may discover these tools only if the tool author explicitly opts in via `exposedTo`.
 
-02.  Do features in your specification expose the minimum amount of information necessary to implement the intended functionality?
+> 02. Do features in your specification expose the minimum amount of information necessary to implement the intended functionality?
 
-Yes. The API surface exposes only what is necessary for agents to discover and invoke tools. The information that flows through tool parameters and return values is entirely scoped to what the author declares. 
+Yes. The API surface exposes only what is necessary for agents to discover and invoke tools. The information that flows through tool parameters and return values is entirely scoped to what the author declares.
 
-03.  Do the features in your specification expose personal information, personally-identifiable information (PII), or information derived from either?
+> 03. Do the features in your specification expose personal information, personally-identifiable information (PII), or information derived from either?
 
 No, the API itself does not expose PII.
 
-We note a novel challenge for agent implementors: malicious tools can request a non-minimal set of personal data via their input parameters, causing privacy leakage. See [Privacy Leakage through Over-Parameterization](https://w3c.github.io/webmcp/#privacy-leakage-over-parameterization) for details. WebMCP does not increase the attack vector compared to tools in non-WebMCP contexts, but implementors should be aware that this risk exists. 
+We note a novel challenge for agent implementors: malicious tools can request a non-minimal set of personal data via their input parameters, causing privacy leakage. See [Privacy Leakage through Over-Parameterization](https://w3c.github.io/webmcp/#privacy-leakage-over-parameterization) for details. WebMCP does not increase the attack vector compared to tools in non-WebMCP contexts, but implementors should be aware that this risk exists.
 
-04.  How do the features in your specification deal with sensitive information?
+> 04. How do the features in your specification deal with sensitive information?
 
-WebMCP is not a source of sensitive information. Tools may wrap sensitive or high-privilege operations (e.g., purchases, account changes), but that is not WebMCP-specific. We discuss this risk in [Tool Implementation as Attack Targets](https://webmachinelearning.github.io/webmcp/#tool-implementation-targets).
+WebMCP is not a source of sensitive information. Tools may wrap sensitive or high-privilege operations (e.g., purchases, account changes), but that risk is not WebMCP-specific. We discuss this risk in [Tool Implementation as Attack Targets](https://webmachinelearning.github.io/webmcp/#tool-implementation-targets).
 
-05.  Does data exposed by your specification carry related but distinct information that may not be obvious to users?
+> 05. Does data exposed by your specification carry related but distinct information that may not be obvious to users?
 
 No, the API surface itself does not carry related but distinct information.
 
-06.  Do the features in your specification introduce state that persists across browsing sessions?
+> 06. Do the features in your specification introduce state that persists across browsing sessions?
 
 No. Tool registrations are tied to the document's lifetime. There are discussions about persisting tools across navigation, but that is not currently specified.
 
-07.  Do the features in your specification expose information about the underlying platform to origins?
+> 07. Do the features in your specification expose information about the underlying platform to origins?
 
 No.
 
-08.  Does this specification allow an origin to send data to the underlying platform?
+> 08. Does this specification allow an origin to send data to the underlying platform?
 
 Tool inputs and outputs flow between the page and the authorized agent, which may include the user agent's built-in agent. The data is structured (JSON-serializable values conforming to declared schemas).
 
-09.  Do features in this specification enable access to device sensors?
+> 09. Do features in this specification enable access to device sensors?
 
 No.
 
-10.  Do features in this specification enable new script execution/loading mechanisms?
+> 10. Do features in this specification enable new script execution/loading mechanisms?
 
 No. Tool `execute` callbacks are ordinary JavaScript invoked in the registering document's existing realm.
 
-11.  Do features in this specification allow an origin to access other devices?
+> 11. Do features in this specification allow an origin to access other devices?
 
 No.
 
-12.  Do features in this specification allow an origin some measure of control over a user agent's native UI?
+> 12. Do features in this specification allow an origin some measure of control over a user agent's native UI?
 
 No direct control. There is discussion of `requestUserInput` in [Issue #165](https://github.com/webmachinelearning/webmcp/issues/165).
 
-13.  What temporary identifiers do the features in this specification create or expose to the web?
+> 13. What temporary identifiers do the features in this specification create or expose to the web?
 
 None.
 
-14.  How does this specification distinguish between behavior in first-party and third-party contexts?
+> 14. How does this specification distinguish between behavior in first-party and third-party contexts?
 
 The feature is gated by Permissions Policy `"tools"`. It is allowed in top-level documents and same-origin descendants by default; Permissions Policy can be used to allow it in cross-origin iframes and/or to disallow it in same-origin frames.
 
 Additionally, tools can specify `exposedTo` to control which origins (or `native-agents`, name to be bikeshed per [#179](https://github.com/webmachinelearning/webmcp/pull/179)) can discover them.
 
-15.  How do the features in this specification work in the context of a browser's Private Browsing or Incognito mode?
+> 15. How do the features in this specification work in the context of a browser's Private Browsing or Incognito mode?
 
 We do not anticipate any differences.
 
-16.  Does this specification have both "Security Considerations" and "Privacy Considerations" sections?
+> 16. Does this specification have both "Security Considerations" and "Privacy Considerations" sections?
 
 Yes. See [Security and Privacy Considerations](https://webmachinelearning.github.io/webmcp/#security-privacy).
 
-17.  Do features in your specification enable origins to downgrade default security protections?
+> 17. Do features in your specification enable origins to downgrade default security protections?
 
 No.
 
-18.  What happens when a document that uses your feature is kept alive in BFCache (instead of getting destroyed) after navigation, and potentially gets reused on future navigations back to the document?
+> 18. What happens when a document that uses your feature is kept alive in BFCache (instead of getting destroyed) after navigation, and potentially gets reused on future navigations back to the document?
 
 A BFCached document's registered tools remain in memory. While the document is non-fully-active, agents should not invoke its tools or deliver events to it. On restoration, registered tools become available again.
 
-19.  What happens when a document that uses your feature gets disconnected?
+> 19. What happens when a document that uses your feature gets disconnected?
 
 A disconnected document's tools are no longer discoverable or invokable by agents. Pending tool invocations associated with the document are abandoned.
 
-20.  Does your spec define when and how new kinds of errors should be raised?
+> 20. Does your spec define when and how new kinds of errors should be raised?
 
 Yes. `registerTool()` throws `InvalidStateError` for inactive documents, duplicate names, or invalid name/description; `NotAllowedError` when the `"tools"` Permissions Policy is disallowed; `SecurityError` for non-trustworthy `exposedTo` origins; and `TypeError` when `inputSchema` serialization fails. These errors only reflect the page's own state and inputs, so they do not leak new information.
 
-21.  Does your feature allow sites to learn about the user's use of assistive technology?
+> 21. Does your feature allow sites to learn about the user's use of assistive technology?
 
 No.
 
-22.  What should this questionnaire have asked?
+> 22. What should this questionnaire have asked?
 
 None that we can think of.
