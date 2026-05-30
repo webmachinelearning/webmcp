@@ -281,6 +281,12 @@ document.modelContext.registerTool({
 
 For forms and standard HTML inputs, a declarative counterpart to the imperative API allows the browser to automatically synthesize tool definitions from `<form>` elements. This is detailed in the [Declarative API Explainer](./declarative-api-explainer.md). It will be soon folded into this explainer document.
 
+We've gotten the following question a few times:
+
+> why isn't declarative WebMCP sufficient on its own—why must there be an imperative counterpart? 
+
+The reason WebMCP is not limited to only declarative form tools is for the same reason that websites cannot be built exclusively out of declarative forms. Some of the web's functionality is only possible with JavaScript, and for WebMCP to represent the web's full functionality to agents, it must be able to expose that JavaScript functionality through imperative tools, not just declarative ones.
+
 ### Permissions policy and iframes
 
 While much of this explainer assumes integration with built-in browser agents, WebMCP also supports **author-provided agents**, such as agents embedded directly on a page or running in an iframe, that can collaborate with parent frames and nested contexts. See:
