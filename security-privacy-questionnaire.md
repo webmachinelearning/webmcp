@@ -58,7 +58,7 @@ None.
 
 > 14. How does this specification distinguish between behavior in first-party and third-party contexts?
 
-The feature is gated by Permissions Policy `"tools"`. It is allowed in top-level documents and same-origin descendants by default; Permissions Policy can be used to allow it in cross-origin iframes and/or to disallow it in same-origin frames.
+The feature is gated by the [`"tools"`](https://webmachinelearning.github.io/webmcp/#permissiondef-tools) permission policy. It is allowed in top-level documents and same-origin descendants by default; The permission policy can be used to allow it in cross-origin iframes and/or to disallow it in same-origin frames.
 
 Additionally, tools can specify `exposedTo` to control which origins (or `native-agents`, name to be bikeshed per [#179](https://github.com/webmachinelearning/webmcp/pull/179)) can discover them.
 
