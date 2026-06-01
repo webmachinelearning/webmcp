@@ -82,7 +82,12 @@ A BFCached document's registered tools remain in memory but are unavailable whil
 
 > 19. What happens when a document that uses your feature gets disconnected?
 
-A disconnected document's tools are no longer discoverable or invokable by agents. Pending tool invocations associated with the document are abandoned.
+A disconnected document's tools are no longer discoverable or invokable by agents. Pending tool invocations associated with the document are abandoned:
+
+- In-page agents: the caller's Promise will be rejected
+- Built-in agents: the agent will be notified that the tool call failed
+
+Note: this behavior is not yet spec'd but is the intended direction.
 
 > 20. Does your spec define when and how new kinds of errors should be raised?
 
