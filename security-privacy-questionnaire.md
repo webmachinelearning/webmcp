@@ -8,7 +8,7 @@ Cross-origin iframes may discover these tools only if the tool author explicitly
 
 > 02. Do features in your specification expose the minimum amount of information necessary to implement the intended functionality?
 
-Yes. The API surface exposes only what is necessary for agents to discover and invoke tools. The information that flows through tool parameters and return values is entirely scoped to what the author declares.
+Yes. The API surface exposes only what is necessary for agents to discover and invoke tools. The information that flows through tool metadata like parameters and annotations, as well as tool return values, is entirely scoped to what the author declares.
 
 > 03. Do the features in your specification expose personal information, personally-identifiable information (PII), or information derived from either?
 
