@@ -50,7 +50,9 @@ No.
 
 > 12. Do features in this specification allow an origin some measure of control over a user agent's native UI?
 
-No direct control. There is discussion of `requestUserInput` in [Issue #165](https://github.com/webmachinelearning/webmcp/issues/165).
+[Tool annotations](https://webmachinelearning.github.io/webmcp/#dom-modelcontexttoolannotations) can indirectly influence how an agent presents a tool invocation in its UI (e.g., a `readOnlyHint` may cause the agent to skip a confirmation step). 
+
+More directly, there is discussion of `requestUserInput` in [Issue #165](https://github.com/webmachinelearning/webmcp/issues/165).
 
 > 13. What temporary identifiers do the features in this specification create or expose to the web?
 
