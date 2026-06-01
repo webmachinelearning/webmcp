@@ -12,7 +12,7 @@ Yes. The API surface exposes only what is necessary for agents to discover and i
 
 > 03. Do the features in your specification expose personal information, personally-identifiable information (PII), or information derived from either?
 
-No, the API itself does not expose PII.
+No, the API itself does not expose PII, but the tools that authors choose to implement _can_, depending on their nature.
 
 We note a novel challenge for agent implementers: malicious tools can request a non-minimal set of personal data via their input parameters, causing privacy leakage. See [Privacy Leakage through Over-Parameterization](https://w3c.github.io/webmcp/#privacy-leakage-over-parameterization) for details. WebMCP does not increase the attack vector compared to tools in non-WebMCP contexts, but agent implementers should be aware that this risk exists.
 
