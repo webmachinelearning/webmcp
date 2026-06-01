@@ -2,7 +2,7 @@
 
 > 01. What information does this feature expose, and for what purposes?
 
-WebMCP exposes author-defined tool metadata and tool return values to the user agent. It does not expose new information about the user or their environment to origins.
+WebMCP exposes author-defined tool metadata and tool return values to the built-in AI agent. It does not expose new information about the user or their environment to origins.
 
 Cross-origin iframes may discover these tools only if the tool author explicitly opts in via `exposedTo`.
 
