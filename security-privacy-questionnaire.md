@@ -34,7 +34,7 @@ No.
 
 > 08. Does this specification allow an origin to send data to the underlying platform?
 
-Tool inputs and outputs flow between the page and the authorized agent, which may include the user agent's built-in agent. The data is structured (JSON-serializable values conforming to declared schemas).
+Yes, tool inputs and outputs flow between an origin and the platform's built-in agent. The data is structured JSON-serializable values conforming to declared schemas.
 
 > 09. Do features in this specification enable access to device sensors?
 
