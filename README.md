@@ -27,17 +27,17 @@ Backend integrations work well for server-side actions, but they pose significan
 ```mermaid
 graph TD
     subgraph WB["<b><i>Web browser</i></b>"]
-        BA["Browser AI agent"]
+        BA["Browser-integrated AI agent"]
         subgraph RP["Running Page 'index.html'"]
             WMCP["WebMCP tools"]
         end
     end
 
-    AI["<b><i>AI platform</i></b>"]
+    AI["<b><i>AI agent platform</i></b>"]
     TP["<b><i>Third-party service<br>(example.com)</i></b>"]
 
     %% Connections
-    TP -->|"1. Browser loads page over HTTPs"| RP
+    TP -->|"1. Browser loads page over HTTP"| RP
     AI <-->|"2. LLM in the cloud communicates with a browser AI agent to act on web content"| BA
     BA <-->|"3. Browser agent uses WebMCP tools to actuate the current page"| WMCP
     WMCP -->|"4. WebMCP tools update UI and make API calls"| TP
@@ -45,7 +45,26 @@ graph TD
 
 #### Direct backend MCP flow
 
-![A diagram showing an agent communicating with a third-party service directly via MCP](./content/explainer_mcp.png)
+```mermaid
+graph TD
+    AI["<b><i>AI agent platform</i></b>"]
+
+    subgraph WB["<b><i>Web Browser</i></b>"]
+        BIA["Browser-integrated AI agent"]
+        RP["Running Page &lt;index.html&gt;"]
+    end
+
+    subgraph TP["<b><i>Third-party service (example.com)</i></b>"]
+        MCP[("MCP Server")]
+    end
+
+    RP <-->|1. Browser loads page over HTTP| TP
+    BIA -->|2. User prompt sent to agent platform in the cloud.| AI
+    AI -->|"3. Agent platform uses pre-configured MCP server to interact directly with service and fulfill user request."| MCP
+    MCP -->|4a. MCP response routed back to agent platform.| AI
+    AI -->|5. Response rendered to user by browser agent. Web page has no direct visibility or control.| BIA
+    RP <-.->|4b. Service manually pushes updates to page.| TP
+```
 
 Many challenges faced by assistive technology also apply to AI agents that struggle to navigate existing human-first interfaces when agent-first "tools" are not available. Even when agents succeed, simple operations often require multiple steps and can be slow or unreliable.
 
