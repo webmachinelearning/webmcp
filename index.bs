@@ -332,6 +332,9 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
 1. If |tool owner| is not [=Document/fully active=], then [=exception/throw=] an
    "{{InvalidStateError}}" {{DOMException}}.
 
+1. If [=this=]'s [=relevant global object=]'s {{Window/originAgentCluster}} is false, then
+  [=exception/throw=] a "{{SecurityError}}" {{DOMException}}.
+
 1. If |tool owner| is not [=allowed to use=] the "{{tools}}" feature, then [=exception/throw=] a
    "{{NotAllowedError}}" {{DOMException}}.
 
