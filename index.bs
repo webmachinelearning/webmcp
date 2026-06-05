@@ -92,11 +92,16 @@ spec:html; type:dfn;
   text:form-associated element
   text:browsing context group set
   text:unique internal value
+  text:is origin-keyed
 </pre>
 <pre class="anchors">
 spec: SECURE-CONTEXTS; urlPrefix: https://w3c.github.io/webappsec-secure-contexts/
   type: abstract-op
     text: is origin potentially trustworthy?; url: is-origin-trustworthy
+spec: ECMASCRIPT; urlPrefix: https://tc39.es/ecma262/
+  type: dfn
+    text: surrounding agent; url: surrounding-agent
+    text: agent cluster; url: sec-agent-clusters
 </pre>
 
 <h2 id="intro">Introduction</h2>
@@ -331,6 +336,11 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
 
 1. If |tool owner| is not [=Document/fully active=], then [=exception/throw=] an
    "{{InvalidStateError}}" {{DOMException}}.
+
+1. If this's [=surrounding agent=]'s [=agent cluster=]'s [=is origin-keyed=] is false
+   and this's [=relevant settings object=]'s [=environment settings object/origin=]'s
+   [=origin/scheme=] is not <code>"file"</code>, then [=exception/throw=] a "{{SecurityError}}"
+   {{DOMException}}.
 
 1. If |tool owner| is not [=allowed to use=] the "{{tools}}" feature, then [=exception/throw=] a
    "{{NotAllowedError}}" {{DOMException}}.
