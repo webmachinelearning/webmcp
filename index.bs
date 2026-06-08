@@ -1083,6 +1083,13 @@ This creates a personalization-to-fingerprinting pipeline where sites can extrac
   TODO: Document risks and implications of [=agents=] carrying state from one origin to another. Detail how tools executed on one origin may carry state from another origin, potentially leading to data leakage or same-origin policy bypasses if not handled securely by the [=user agent=]. This section should probably talk about the WebMCP permissions policy and other cross-origin opt in mechanisms. 
 </p>
 
+<h4 id="interaction-with-private-browsing">Interaction with Private Browsing Modes</h4>
+
+Many user agents provide ephemeral, short-lived, "Private" or "Incognito" browsing modes that are disconnected from a user's primary profile, in that they do not share the same history or web-accessible storage.
+Users generally expect this boundary between regular and private browsing to be maintained and protected by the user agent. Exposing [=agents=] to private browsing activity (e.g. by giving them access to WebMCP
+tools in private browsing) may inadvertently leak information across this boundary and lead to unauthorized joining or retention of private browsing data. Users agents are responsible for ensuring that their
+respective private browsing modes are safely exposed to [=agents=] and that these agents have the ability to responsibly handle private browsing information.
+
 <h3 id="mitigations">Mitigations</h3>
 
 <h4 id="mitigation-restrict-input-lengths">Restricting maximum input lengths</h4>
