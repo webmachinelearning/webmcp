@@ -335,16 +335,16 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
 
 1. Let |tool owner| be |global|'s [=associated Document|associated <code>Document</code>=].
 
-1. If |tool owner| is not [=Document/fully active=], return [=a promise rejected with=] an
+1. If |tool owner| is not [=Document/fully active=], then return [=a promise rejected with=] an
    "{{InvalidStateError}}" {{DOMException}}.
 
 1. If this's [=surrounding agent=]'s [=agent cluster=]'s [=is origin-keyed=] is false
    and this's [=relevant settings object=]'s [=environment settings object/origin=]'s
-   [=origin/scheme=] is not <code>"file"</code>, return [=a promise rejected with=] a
+   [=origin/scheme=] is not <code>"file"</code>, then return [=a promise rejected with=] a
    "{{SecurityError}}" {{DOMException}}.
 
-1. If |tool owner| is not [=allowed to use=] the "{{tools}}" feature, return
-   [=a promise rejected with=] a "{{NotAllowedError}}" {{DOMException}}.
+1. If |tool owner| is not [=allowed to use=] the "{{tools}}" feature, then return [=a promise
+   rejected with=] a "{{NotAllowedError}}" {{DOMException}}.
 
 1. Let |tool map| be [=this=]'s [=ModelContext/internal context=]'s [=model context/tool map=].
 
@@ -352,23 +352,23 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
 
 1. Let |tool title| be |tool|'s {{ModelContextTool/title}}.
 
-1. If |tool map|[|tool name|] [=map/exists=], return [=a promise rejected with=] an
+1. If |tool map|[|tool name|] [=map/exists=], then return [=a promise rejected with=] an
    {{InvalidStateError}} {{DOMException}}.
 
-1. If |tool name| or {{ModelContextTool/description}} is an empty string, return
-   [=a promise rejected with=] an {{InvalidStateError}} {{DOMException}}.
+1. If |tool name| or {{ModelContextTool/description}} is an empty string, then return [=a promise
+   rejected with=] an {{InvalidStateError}} {{DOMException}}.
 
 1. If either |tool name| is the empty string, or its [=string/length=] is greater than 128, or if
    |tool name| contains a [=code point=] that is not an [=ASCII alphanumeric=], U+005F (_),
-   U+002D (-), or U+002E (.), return [=a promise rejected with=] an {{InvalidStateError}}
+   U+002D (-), or U+002E (.), then return [=a promise rejected with=] an {{InvalidStateError}}
    {{DOMException}}.
 
 1. Let |stringified input schema| be the empty string.
 
 1. If |tool|'s {{ModelContextTool/inputSchema}} [=map/exists=], then set |stringified input schema|
    to the result of [=serializing a JavaScript value to a JSON string=], given |tool|'s
-   {{ModelContextTool/inputSchema}}. If serializing threw an exception, return
-   [=a promise rejected with=] that exception.
+   {{ModelContextTool/inputSchema}}. If this threw an exception, then return [=a promise rejected
+   with=] that exception.
 
    <div class="note">
      <p>The serialization algorithm above throws exceptions in the following cases:</p>
@@ -410,7 +410,7 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
           1. Let |parsedURL| be the result of running the [=URL parser=] on |origin|.
 
           1. If |parsedURL| is failure or its [=url/origin=] is not [$is origin potentially
-             trustworthy?|potentially trustworthy$], return [=a promise rejected with=] a
+             trustworthy?|potentially trustworthy$], then return [=a promise rejected with=] a
              "{{SecurityError}}" {{DOMException}}.
 
           1. [=list/Append=] |parsedURL|'s [=url/origin=] to |exposed origins|.
