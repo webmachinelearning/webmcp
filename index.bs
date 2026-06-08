@@ -264,8 +264,10 @@ To <dfn for="model context">unregister a tool</dfn> given a {{ModelContext}} |mo
 
 1. [=map/Remove=] |tool map|[|tool name|].
 
-1. Run [=notify documents of a tool change=] given |modelContext|'s [=relevant global object=]'s
-   [=associated Document|associated <code>Document</code>=] and |exposed origins|.
+1. Run the following steps [=in parallel=]:
+
+   1. [=Notify documents of a tool change=] given |modelContext|'s [=relevant global object=]'s
+      [=associated Document|associated <code>Document</code>=] and |exposed origins|.
 
 </div>
 
@@ -448,9 +450,9 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
 
 1. Let |promise| be [=a new promise=] created in [=this=]'s [=relevant realm=].
 
-1. Run the following substeps [=in parallel=]:
+1. Run the following steps [=in parallel=]:
 
-  1. Run [=notify documents of a tool change=] given |tool owner| and |exposed origins|.
+  1. [=Notify documents of a tool change=] given |tool owner| and |exposed origins|.
 
   1. [=Queue a global task=] on the [=webmcp task source=] given |global| to
      [=resolve=] |promise| with undefined.
