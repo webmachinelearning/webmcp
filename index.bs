@@ -187,7 +187,7 @@ A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]
 To <dfn>notify documents of a tool change</dfn> given a {{Document}} |tool owner| and a [=list=] of
 [=origins=] |exposed origins|, run these steps:
 
-1. [=Assert=]: these steps are running on |tool owner|'s [=relevant agent=]'s [=agent/event loop=].
+1. [=Assert=]: these steps are running [=in parallel=].
 
 1. Let |navigablesToNotify| be |tool owner|'s [=node navigable=]'s [=navigable/traversable
    navigable=]'s [=Document/descendant navigables=].
@@ -206,26 +206,29 @@ To <dfn>notify documents of a tool change</dfn> given a {{Document}} |tool owner
         ModelContext|associated <code>ModelContext</code>=].
 
 <div class=example id=notify-task-ordering>
-  <p>This algorithm's use of the [=webmcp task source=] means that the timing between firing the
-  {{ModelContext/toolchange}} event, and other tasks queued after this algorithm, cannot be relied
-  upon. For example:</p>
+  <p>This algorithm's use of the [=webmcp task source=], and the fact that it runs [=in parallel=],
+  means that the timing between firing the {{ModelContext/toolchange}} event, and other tasks queued
+  after this algorithm, cannot be relied upon. For example:</p>
 
   <xmp class=language-js>
   document.modelContext.ontoolchange = e => console.log('Parent toolchange');
   iframe.contentDocument.modelContext.ontoolchange = e => console.log('Child toolchange');
 
   // Queues a task to fire `toolchange`, on the `webmcp task source`.
-  await document.modelContext.registerTool({
+  const p = document.modelContext.registerTool({
     name: "tool_name",
     description: "tool_desc",
     execute: async () => {}
   });
 
+  p.then(() => console.log('Register promise resolved'));
+
   // Queues a task on the `timer task source`.
   setTimeout(() => console.log('Post-register task'));
 
-  // `Parent toolchange` will always log before `Child toolchange`.
-  // But `Post-register task` can log before, in between, or after both.
+  // `Parent toolchange` will always log before `Child toolchange`, and
+  // `Register promise resolved` will always log after both.
+  // But `Post-register task` can log before, in between, or after all three.
   </xmp>
 </div>
 
@@ -445,7 +448,7 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
 
 1. Let |promise| be [=a new promise=] created in [=this=]'s [=relevant realm=].
 
-1. Run the following substeps in parallel:
+1. Run the following substeps [=in parallel=]:
 
   1. Run [=notify documents of a tool change=] given |tool owner| and |exposed origins|.
 
