@@ -69,7 +69,7 @@ of each "property" in the input schema generated for a declarative tool.
 With this, the following imperative structure:
 
 ```js
-window.navigator.modelContext.registerTool({
+await document.modelContext.registerTool({
   name: "search-cars",
   description: "Perform a car make/model search",
   inputSchema: {

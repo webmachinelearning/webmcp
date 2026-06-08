@@ -105,7 +105,7 @@ Jen wants to create a yard sale flyer on `https://easely.example`. She wants to 
 - **Jen**: "Show me templates that are spring themed and that prominently feature the date and time. They should be on a white background so I don't have to print in color."
 - The website has already registered the following tools:
   ```js
-  document.modelContext.registerTool({
+  await document.modelContext.registerTool({
     name: "filter-templates",
     description: "Filters the list of templates based on a natural language visual description.",
     inputSchema: {
@@ -129,7 +129,7 @@ Jen wants to create a yard sale flyer on `https://easely.example`. She wants to 
 - **Agent**: "Done! I've created three variations of your design, each with a unique call to action."
 - **Jen is ready to finalize the flyers**. Normally, she would export a PDF and find a local print shop. However, the page has also registered an `order-prints` tool:
   ```js
-  document.modelContext.registerTool({
+  await document.modelContext.registerTool({
     name: "order-prints",
     description: "Orders the current design for printing and shipping to the user.",
     inputSchema: {
@@ -153,7 +153,7 @@ Maya is shopping for dresses on `http://wildebloom.example/shop`.
 - **Maya**: "Show me only dresses available in my size, and also show only the ones that would be appropriate for a cocktail-attire wedding."
 - The page has already registered tools to search and display products:
   ```js
-  document.modelContext.registerTool({
+  await document.modelContext.registerTool({
     name: "get-dresses",
     description: "Returns an array of product listings containing id, description, price, and photo.",
     inputSchema: {
@@ -168,11 +168,11 @@ Maya is shopping for dresses on `http://wildebloom.example/shop`.
       return response.json();
     }
   });
-  document.modelContext.registerTool({
+  await document.modelContext.registerTool({
     name: "show-dresses",
     ...
   });
-  document.modelContext.registerTool({
+  await document.modelContext.registerTool({
     name: "filter-products",
     ...
   });
@@ -213,7 +213,7 @@ John is a software developer performing a code review in [Gerrit](https://www.ge
 - **John**: "Why are the Mac and Android trybots failing?"
 - The page has already registered the following tools:
   ```js
-  document.modelContext.registerTool({
+  await document.modelContext.registerTool({
     name: "get-trybot-statuses",
     description: "Returns the current status of all trybot runs for the active patch.",
     execute() {
@@ -221,7 +221,7 @@ John is a software developer performing a code review in [Gerrit](https://www.ge
     }
   });
 
-  document.modelContext.registerTool({
+  await document.modelContext.registerTool({
     name: "get-trybot-failure-snippet",
     description: "If a bot failed, returns the tail log snippet describing the error.",
     inputSchema: {
@@ -260,7 +260,7 @@ A Model Context Provider registers tools by calling the `document.modelContext.r
 ```js
 const controller = new AbortController();
 
-document.modelContext.registerTool({
+await document.modelContext.registerTool({
   name: "add-todo",
   description: "Add a new item to the user's active todo list",
   inputSchema: {
@@ -321,14 +321,14 @@ By default, WebMCP is enabled in top-level `Window`s and its same-origin iframes
   <iframe src="https://chat-bot-provider.example/" allow="tools"></iframe>
   ```
 
-Calls to `document.modelContext.registerTool()` will throw a `NotAllowedError` DOMException when the permission is disabled, whether by the `allow` attribute or the `Permissions-Policy: tools=()` header. Handling of declarative tool registration errors, including when the permisssion is disabled is TBD; see [Issue #182](https://github.com/webmachinelearning/webmcp/issues/182).
+Calls to `document.modelContext.registerTool()` will return a promise rejected with `NotAllowedError` DOMException when the permission is disabled, whether by the `allow` attribute or the `Permissions-Policy: tools=()` header. Handling of declarative tool registration errors, including when the permisssion is disabled is TBD; see [Issue #182](https://github.com/webmachinelearning/webmcp/issues/182).
 
 #### Cross-origin iframe exposure: `exposedTo`
 
 By default, tools registered by a document are only exposed to itself, same-origin documents in the same tree, and built-in browser agents (see this <a href=#built-in-agent-default-exposure>discussion</a>). To support author-provided agents running in frames, developers can selectively share tools with secure origins of their choice, `exposedTo` option during registration:
 
 ```js
-document.modelContext.registerTool({
+await document.modelContext.registerTool({
   name: "share-location",
   description: "Returns the user's office location.",
   execute() { return { office: "Building 4" }; }
