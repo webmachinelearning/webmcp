@@ -561,28 +561,105 @@ dictionary ModelContextRegisterToolOptions {
 
 <h4 id="model-context-client">ModelContextClient Interface</h4>
 
-The {{ModelContextClient}} interface represents an [=agent=] executing a tool provided by the site through the {{ModelContext}} API.
+The {{ModelContextClient}} interface represents an [=agent=] executing a tool provided by the site
+through the {{ModelContext}} API.
 
 <xmp class="idl">
 [Exposed=Window, SecureContext]
 interface ModelContextClient {
-  Promise<any> requestUserInteraction(UserInteractionCallback callback);
+  Promise<ModelContextUserInputResult> requestUserInput(
+      ModelContextUserInputOptions options,
+      optional ModelContextInteractiveCallback callback);
 };
 
-callback UserInteractionCallback = Promise<any> ();
+callback ModelContextInteractiveCallback = Promise<any> ();
+
+enum ModelContextUserInputMode { "interactive", "form", "url" };
+
+enum ModelContextUserInputAction { "accept", "decline", "cancel" };
+
+dictionary ModelContextUserInputOptions {
+  required ModelContextUserInputMode mode;
+  USVString message;
+  object requestedSchema;
+  USVString url;
+  AbortSignal signal;
+};
+
+dictionary ModelContextUserInputResult {
+  required ModelContextUserInputAction action;
+  object content;
+};
 </xmp>
 
 <dl class="domintro">
-  <dt><code><var ignore>client</var>.{{ModelContextClient/requestUserInteraction(callback)}}</code></dt>
+  <dt><code><var ignore>result</var> = await <var ignore>client</var>.{{ModelContextClient/requestUserInput(options, callback)|requestUserInput}}({ mode: "interactive" }, <var ignore>callback</var>)</code></dt>
   <dd>
-    <p>Asynchronously requests user input during the execution of a tool.
+    <p>Requests user input using an interactive in-page flow. If the [=agent=] currently has
+    exclusive control of the page (e.g. keyboard and mouse input are locked), then it yields control
+    so the user can interact with the page directly. The callback is invoked to perform the
+    interaction, and the promise resolves with the result of the callback wrapped in a
+    {{ModelContextUserInputResult}}.
+  </dd>
 
-    <p>The callback function is invoked to perform the user interaction (e.g., showing a confirmation dialog), and the promise resolves with the result of the callback.
+  <dt><code><var ignore>result</var> = await <var ignore>client</var>.{{ModelContextClient/requestUserInput(options, callback)|requestUserInput}}({ mode: "form", requestedSchema: { ... } })</code></dt>
+  <dd>
+    <p>Requests structured input from the user via a form. The {{ModelContextUserInputOptions/requestedSchema}}
+    describes the data the tool needs as a JSON Schema [[!JSON-SCHEMA]] object. The [=agent=]
+    presents a form to the user through its own user interface, collects the information, and returns it to the tool.
+  </dd>
+
+  <dt><code><var ignore>result</var> = await <var ignore>client</var>.{{ModelContextClient/requestUserInput(options, callback)|requestUserInput}}({ mode: "url", url: "https://example.com/authenticate" })</code></dt>
+  <dd>
+    <p>Requests the user navigate to a URL for an out-of-band interaction. The [=agent=] presents
+    the URL to the user and the promise resolves with a {{ModelContextUserInputResult}} indicating whether the
+    user accepted, declined, or canceled the navigation prompt. This mode is intended for sensitive
+    flows (e.g., authentication, payment) where user-provided data must not flow through the
+    [=agent=]. The tool detects completion and retrieves data through out-of-band means (e.g., a site
+    backend callback).
   </dd>
 </dl>
 
+The {{ModelContextUserInputOptions}} dictionary configures the elicitation request:
+
+<dl class="domintro" dfn-type=dict-member dfn-for=ModelContextUserInputOptions>
+  : <dfn>mode</dfn>
+  :: The elicitation mode. One of "{{ModelContextUserInputMode/interactive}}", "{{ModelContextUserInputMode/form}}", or
+     "{{ModelContextUserInputMode/url}}".
+
+  : <dfn>message</dfn>
+  :: A human-readable message explaining why the interaction is needed. The [=agent=] may surface
+     this to the user, or provide a reasonable default if omitted (e.g., "example.com needs your input").
+
+  : <dfn>requestedSchema</dfn>
+  :: A JSON Schema [[!JSON-SCHEMA]] object describing the structure of the expected response. Only
+     used in "{{ModelContextUserInputMode/form}}" mode. The schema is restricted to flat objects with primitive
+     properties (string, number, integer, boolean, and enum) to simplify form rendering.
+
+  : <dfn>url</dfn>
+  :: The URL the user should navigate to. Required for "{{ModelContextUserInputMode/url}}" mode.
+
+  : <dfn>signal</dfn>
+  :: An {{AbortSignal}} that aborts the pending request when triggered.
+</dl>
+
+The {{ModelContextUserInputResult}} dictionary describes the outcome of a user input request:
+
+<dl class="domintro" dfn-type=dict-member dfn-for=ModelContextUserInputResult>
+  : <dfn>action</dfn>
+  :: The user's response action:
+      - "{{ModelContextUserInputAction/accept}}": The user provided the requested input.
+      - "{{ModelContextUserInputAction/decline}}": The user explicitly declined the request.
+      - "{{ModelContextUserInputAction/cancel}}": The request was dismissed or timed out.
+
+  : <dfn>content</dfn>
+  :: The user-provided data. Present when {{ModelContextUserInputResult/action}} is "{{ModelContextUserInputAction/accept}}"
+     and the mode is "{{ModelContextUserInputMode/interactive}}" or "{{ModelContextUserInputMode/form}}". For
+     "{{ModelContextUserInputMode/url}}" mode, data is exchanged out-of-band and this field is not used.
+</dl>
+
 <div algorithm>
-The <dfn method for=ModelContextClient>requestUserInteraction(<var ignore>callback</var>)</dfn> method steps are:
+The <dfn method for=ModelContextClient>requestUserInput(<var ignore>options</var>, <var ignore>callback</var>)</dfn> method steps are:
 
 1. TODO: fill this out.
 
