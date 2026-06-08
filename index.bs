@@ -331,8 +331,9 @@ is a [=model context=] [=struct=] created alongside the {{ModelContext}}.
 <div algorithm>
 The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var>)</dfn> method steps are:
 
-1. Let |tool owner| be [=this=]'s [=relevant global object=]'s [=associated Document|associated
-   <code>Document</code>=].
+1. Let |global| be [=this=]'s [=relevant global object=].
+
+1. Let |tool owner| be |global|'s [=associated Document|associated <code>Document</code>=].
 
 1. If |tool owner| is not [=Document/fully active=], return [=a promise rejected with=] an
    "{{InvalidStateError}}" {{DOMException}}.
@@ -442,13 +443,14 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
 
 1. Set [=this=]'s [=ModelContext/internal context=][|tool name|] to |tool definition|.
 
-1. Let |promise| be [=a new promise=].
+1. Let |promise| be [=a new promise=] created in [=this=]'s [=relevant realm=].
 
 1. Run the following substeps in parallel:
 
   1. Run [=notify documents of a tool change=] given |tool owner| and |exposed origins|.
 
-  1. [=Resolve=] |promise| with undefined.
+  1. [=Queue a global task=] on the [=webmcp task source=] given |global| to
+     [=resolve=] |promise| with undefined.
 
 1. Return |promise|
 
