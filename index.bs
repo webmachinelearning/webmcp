@@ -315,6 +315,8 @@ interface ModelContext : EventTarget {
   Promise<undefined> registerTool(ModelContextTool tool, optional ModelContextRegisterToolOptions options = {});
 
   attribute EventHandler ontoolchange;
+  attribute EventHandler ontoolactivated;
+  attribute EventHandler ontoolcancel;
 };
 </xmp>
 
@@ -588,6 +590,56 @@ The <dfn method for=ModelContextClient>requestUserInteraction(<var ignore>callba
 
 </div>
 
+<h4 id="tool-activated-event">ToolActivatedEvent Interface</h4>
+
+The {{ToolActivatedEvent}} interface represents a {{ModelContext/toolactivated}} event that is dispatched at {{ModelContext}} when a tool is invoked by an [=agent=].
+
+<xmp class="idl">
+[Exposed=Window, SecureContext]
+interface ToolActivatedEvent : Event {
+  constructor(DOMString type, optional ToolActivatedEventInit eventInitDict = {});
+  readonly attribute DOMString toolName;
+  readonly attribute Element? element;
+};
+
+dictionary ToolActivatedEventInit : EventInit {
+  DOMString toolName = "";
+  Element? element = null;
+};
+</xmp>
+
+<dl class="domintro" dfn-type=attribute dfn-for=ToolActivatedEvent>
+  : <dfn>toolName</dfn>
+  :: Returns the name of the tool that was activated.
+  : <dfn>element</dfn>
+  :: Returns the form element associated with the tool, if any.
+</dl>
+
+<h4 id="tool-cancel-event">ToolCancelEvent Interface</h4>
+
+The {{ToolCancelEvent}} interface represents a {{ModelContext/toolcancel}} event that is dispatched at {{ModelContext}} when a tool's invocation is canceled by an [=agent=].
+
+<xmp class="idl">
+[Exposed=Window, SecureContext]
+interface ToolCancelEvent : Event {
+  constructor(DOMString type, optional ToolCancelEventInit eventInitDict = {});
+  readonly attribute DOMString toolName;
+  readonly attribute Element? element;
+};
+
+dictionary ToolCancelEventInit : EventInit {
+  DOMString toolName = "";
+  Element? element = null;
+};
+</xmp>
+
+<dl class="domintro" dfn-type=attribute dfn-for=ToolCancelEvent>
+  : <dfn>toolName</dfn>
+  :: Returns the name of the tool that was canceled.
+  : <dfn>element</dfn>
+  :: Returns the form element associated with the tool, if any.
+</dl>
+
 <h3 id="declarative-api">Declarative WebMCP</h3>
 
 This section is entirely a TODO. For now, refer to the [explainer draft](https://github.com/webmachinelearning/webmcp/pull/76).
@@ -640,6 +692,12 @@ that must be supported, as [=event handler IDL attributes=], by all {{ModelConte
     <tr>
       <td><dfn attribute for="ModelContext">ontoolchange</dfn>
       <td><dfn event for="ModelContext">toolchange</dfn>
+    <tr>
+      <td><dfn attribute for="ModelContext">ontoolactivated</dfn>
+      <td><dfn event for="ModelContext">toolactivated</dfn>
+    <tr>
+      <td><dfn attribute for="ModelContext">ontoolcancel</dfn>
+      <td><dfn event for="ModelContext">toolcancel</dfn>
 </table>
 
 <h3 id="permissions-policy">Permissions policy integration</h3>
