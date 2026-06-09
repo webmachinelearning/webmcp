@@ -321,7 +321,7 @@ By default, WebMCP is enabled in top-level `Window`s and its same-origin iframes
   <iframe src="https://chat-bot-provider.example/" allow="tools"></iframe>
   ```
 
-Calls to `document.modelContext.registerTool()` will return a promise rejected with `NotAllowedError` DOMException when the permission is disabled, whether by the `allow` attribute or the `Permissions-Policy: tools=()` header. Handling of declarative tool registration errors, including when the permisssion is disabled is TBD; see [Issue #182](https://github.com/webmachinelearning/webmcp/issues/182).
+Calls to `document.modelContext.registerTool()` will return a promise rejected with `NotAllowedError` DOMException when the permission is disabled, whether by the `allow` attribute or the `Permissions-Policy: tools=()` header. Handling of declarative tool registration errors, including when the permission is disabled is TBD; see [Issue #182](https://github.com/webmachinelearning/webmcp/issues/182).
 
 #### Cross-origin iframe exposure: `exposedTo`
 
