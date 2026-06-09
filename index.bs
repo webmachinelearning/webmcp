@@ -399,9 +399,8 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
 
 1. If |signal| [=map/exists=], then:
 
-   1. If |signal| is [=AbortSignal/aborted=], then optionally [=report a warning to the console=]
-      indicating that the tool was not registered because the {{AbortSignal}} was already
-      [=AbortSignal/aborted=], and return.
+   1. If |signal| is [=AbortSignal/aborted=], then return [=a promise rejected with=]
+      |signal|'s [=AbortSignal/abort reason=].
 
    1. [=AbortSignal/add|Add an abort algorithm=] to |signal| that [=model context/unregisters a
       tool=] given [=this=] and |tool name|.
