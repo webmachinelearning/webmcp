@@ -109,7 +109,7 @@ TODO: The exact algorithms reducing a form, its form-associated elements, and *t
 like [`step`](https://html.spec.whatwg.org/C#the-step-attribute) and
 [`min`](https://html.spec.whatwg.org/C#attr-input-min) is TBD. We need to concretely specify how
 various form-associated elements like `<input>` and `<select>` reduce to a JSON Schema that includes
-`anyOf`, `oneOf`, and `maximum`/`mininum` declarations.
+`anyOf`, `oneOf`, and `maximum`/`minimum` declarations.
 
 Chromium is implementing a loose version of this and will conduct testing/trials to see if what
 we've come up with should be supported by the community as a general approach.
