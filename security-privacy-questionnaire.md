@@ -32,7 +32,7 @@ No. Tool registrations are tied to the document's lifetime. There are discussion
 
 > 07. Do the features in your specification expose information about the underlying platform to origins?
 
-No.
+No. While the API introduces a communication channel to agents that could have information about the underlying platform, these agents were already able to provide this information to the site through other channels, e.g. local network endpoints or filling HTML forms.
 
 > 08. Does this specification allow an origin to send data to the underlying platform?
 
@@ -40,7 +40,7 @@ Yes, tool inputs and outputs flow between an origin and the platform's built-in 
 
 > 09. Do features in this specification enable access to device sensors?
 
-No.
+No. While the API introduces a communication channel to agents that could have access to device sensors, these agents were already able to communicate with the site through other channels, e.g. local network endpoints or filling HTML forms.
 
 > 10. Do features in this specification enable new script execution/loading mechanisms?
 
