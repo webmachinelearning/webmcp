@@ -5,10 +5,10 @@
   <title>WebMCP</title>
   <meta content="CG-DRAFT" name="w3c-status">
   <link href="https://www.w3.org/StyleSheets/TR/2021/cg-draft" rel="stylesheet">
-  <meta content="Bikeshed version e74aa0952, updated Fri Jun 5 23:16:28 2026 +0000" name="generator">
+  <meta content="Bikeshed version d113b2e81, updated Tue Jun 9 14:57:55 2026 -0700" name="generator">
   <link href="https://webmachinelearning.github.io/webmcp" rel="canonical">
   <link href="https://www.w3.org/2008/site/images/favicon.ico" rel="icon">
-  <meta content="b8617aa45bd40e8267668fdbddaf19553429e98d" name="revision">
+  <meta content="067a1c90b5364b02742ef6ce40e5cf5a6497b445" name="revision">
   <meta content="dark light" name="color-scheme">
   <link href="https://www.w3.org/StyleSheets/TR/2021/dark.css" media="(prefers-color-scheme: dark)" rel="stylesheet" type="text/css">
 <style>
@@ -841,7 +841,7 @@ var[data-var-color="6"] { --var-vg: #FFBCF2; }
 </p>
    <h1 class="no-ref p-name" id="title">WebMCP</h1>
    <p id="w3c-state"><a href="https://www.w3.org/standards/types/#CG-DRAFT">Draft Community Group Report</a>,
-    <time class="dt-updated" datetime="2026-06-09">9 June 2026</time></p>
+    <time class="dt-updated" datetime="2026-06-11">11 June 2026</time></p>
    <details open>
     <summary>More details about this document</summary>
     <div data-fill-with="spec-metadata">
@@ -898,7 +898,6 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
        <ol class="toc">
         <li><a href="#model-context-tool"><span class="secno">4.2.1</span> <span class="content">ModelContextTool Dictionary</span></a>
         <li><a href="#model-context-register-tool-options"><span class="secno">4.2.2</span> <span class="content">ModelContextRegisterToolOptions Dictionary</span></a>
-        <li><a href="#model-context-client"><span class="secno">4.2.3</span> <span class="content">ModelContextClient Interface</span></a>
        </ol>
       <li><a href="#declarative-api"><span class="secno">4.3</span> <span class="content">Declarative WebMCP</span></a>
       <li><a href="#events"><span class="secno">4.4</span> <span class="content">Events</span></a>
@@ -1320,7 +1319,7 @@ The <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContext" data-dfn-type=
   <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-boolean" id="ref-for-idl-boolean①"><c- b>boolean</c-></a> <a class="idl-code" data-default="false" data-link-type="dict-member" data-type="boolean" href="#dom-toolannotations-untrustedcontenthint" id="ref-for-dom-toolannotations-untrustedcontenthint①"><c- g>untrustedContentHint</c-></a> = <c- b>false</c->;
 };
 
-<c- b>callback</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="callback" data-export id="callbackdef-toolexecutecallback"><code><c- g>ToolExecuteCallback</c-></code></dfn> = <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-promise" id="ref-for-idl-promise①"><c- b>Promise</c-></a>&lt;<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-any" id="ref-for-idl-any"><c- b>any</c-></a>> (<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-object" id="ref-for-idl-object①"><c- b>object</c-></a> <dfn class="dfn-paneled idl-code" data-dfn-for="ToolExecuteCallback" data-dfn-type="argument" data-export id="dom-toolexecutecallback-input"><code><c- g>input</c-></code></dfn>, <a data-link-type="idl-name" href="#modelcontextclient" id="ref-for-modelcontextclient"><c- n>ModelContextClient</c-></a> <dfn class="dfn-paneled idl-code" data-dfn-for="ToolExecuteCallback" data-dfn-type="argument" data-export id="dom-toolexecutecallback-client"><code><c- g>client</c-></code></dfn>);
+<c- b>callback</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="callback" data-export id="callbackdef-toolexecutecallback"><code><c- g>ToolExecuteCallback</c-></code></dfn> = <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-promise" id="ref-for-idl-promise①"><c- b>Promise</c-></a>&lt;<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-any" id="ref-for-idl-any"><c- b>any</c-></a>> (<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-object" id="ref-for-idl-object①"><c- b>object</c-></a> <dfn class="dfn-paneled idl-code" data-dfn-for="ToolExecuteCallback" data-dfn-type="argument" data-export id="dom-toolexecutecallback-input"><code><c- g>input</c-></code></dfn>);
 </pre>
    <dl class="domintro">
     <dt><code><var>tool</var>["<code class="idl"><a data-link-type="idl" href="#dom-modelcontexttool-name" id="ref-for-dom-modelcontexttool-name②">name</a></code>"]</code>
@@ -1344,7 +1343,7 @@ The <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContext" data-dfn-type=
   </p>
     <dt><code><var>tool</var>["<code class="idl"><a data-link-type="idl" href="#dom-modelcontexttool-execute" id="ref-for-dom-modelcontexttool-execute①">execute</a></code>"]</code>
     <dd>
-     <p>A callback function that is invoked when an <a data-link-type="dfn" href="#agent" id="ref-for-agent⑦">agent</a> calls the tool. The function receives the input parameters and a <code class="idl"><a data-link-type="idl" href="#modelcontextclient" id="ref-for-modelcontextclient①">ModelContextClient</a></code> object.
+     <p>A callback function that is invoked when an <a data-link-type="dfn" href="#agent" id="ref-for-agent⑦">agent</a> calls the tool. The function receives the input parameters.
 
     </p>
      <p>The function can be asynchronous and return a promise, in which case the <a data-link-type="dfn" href="#agent" id="ref-for-agent⑧">agent</a> will receive the result once the promise is resolved.
@@ -1384,34 +1383,6 @@ definition itself.</p>
     document’s tree.
   </p>
    </dl>
-   <h4 class="heading settled" data-level="4.2.3" id="model-context-client"><span class="secno">4.2.3. </span><span class="content">ModelContextClient Interface</span><a class="self-link" href="#model-context-client"></a></h4>
-   <p>The <code class="idl"><a data-link-type="idl" href="#modelcontextclient" id="ref-for-modelcontextclient②">ModelContextClient</a></code> interface represents an <a data-link-type="dfn" href="#agent" id="ref-for-agent①⓪">agent</a> executing a tool provided by the site through the <code class="idl"><a data-link-type="idl" href="#modelcontext" id="ref-for-modelcontext⑧">ModelContext</a></code> API.</p>
-<pre class="def highlight idl">[<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Exposed" id="ref-for-Exposed①"><c- g>Exposed</c-></a>=<c- n>Window</c->, <a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#SecureContext" id="ref-for-SecureContext②"><c- g>SecureContext</c-></a>]
-<c- b>interface</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="modelcontextclient"><code><c- g>ModelContextClient</c-></code></dfn> {
-  <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-promise" id="ref-for-idl-promise②"><c- b>Promise</c-></a>&lt;<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-any" id="ref-for-idl-any①"><c- b>any</c-></a>> <a class="idl-code" data-link-type="method" href="#dom-modelcontextclient-requestuserinteraction" id="ref-for-dom-modelcontextclient-requestuserinteraction"><c- g>requestUserInteraction</c-></a>(<a data-link-type="idl-name" href="#callbackdef-userinteractioncallback" id="ref-for-callbackdef-userinteractioncallback"><c- n>UserInteractionCallback</c-></a> <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContextClient/requestUserInteraction(callback)" data-dfn-type="argument" data-export id="dom-modelcontextclient-requestuserinteraction-callback-callback"><code><c- g>callback</c-></code></dfn>);
-};
-
-<c- b>callback</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="callback" data-export id="callbackdef-userinteractioncallback"><code><c- g>UserInteractionCallback</c-></code></dfn> = <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-promise" id="ref-for-idl-promise③"><c- b>Promise</c-></a>&lt;<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-any" id="ref-for-idl-any②"><c- b>any</c-></a>> ();
-</pre>
-   <dl class="domintro">
-    <dt><code><var>client</var>.<code class="idl"><a data-link-type="idl" href="#dom-modelcontextclient-requestuserinteraction" id="ref-for-dom-modelcontextclient-requestuserinteraction①">requestUserInteraction(callback)</a></code></code>
-    <dd>
-     <p>Asynchronously requests user input during the execution of a tool.
-
-    </p>
-     <p>The callback function is invoked to perform the user interaction (e.g., showing a confirmation dialog), and the promise resolves with the result of the callback.
-  </p>
-   </dl>
-   <div class="algorithm" data-algorithm="requestUserInteraction(callback)" data-algorithm-for="ModelContextClient">
-    
-The <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContextClient" data-dfn-type="method" data-export id="dom-modelcontextclient-requestuserinteraction"><code>requestUserInteraction(<var>callback</var>)</code></dfn> method steps are:
-
-
-    <ol>
-     <li data-md>
-      <p>TODO: fill this out.</p>
-    </ol>
-   </div>
    <h3 class="heading settled" data-level="4.3" id="declarative-api"><span class="secno">4.3. </span><span class="content">Declarative WebMCP</span><a class="self-link" href="#declarative-api"></a></h3>
    <p>This section is entirely a TODO. For now, refer to the <a href="https://github.com/webmachinelearning/webmcp/pull/76">explainer draft</a>.</p>
    <div class="algorithm" data-algorithm="synthesize a declarative JSON Schema object algorithm">
@@ -1428,7 +1399,7 @@ The <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="synthesize-a-
    </div>
    <h3 class="heading settled" data-level="4.4" id="events"><span class="secno">4.4. </span><span class="content">Events</span><a class="self-link" href="#events"></a></h3>
    <p>The following are the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handlers" id="ref-for-event-handlers">event handlers</a> (and their corresponding <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-event-type" id="ref-for-event-handler-event-type">event handler event types</a>)
-that must be supported, as <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-idl-attributes" id="ref-for-event-handler-idl-attributes">event handler IDL attributes</a>, by all <code class="idl"><a data-link-type="idl" href="#modelcontext" id="ref-for-modelcontext⑨">ModelContext</a></code> objects:</p>
+that must be supported, as <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-idl-attributes" id="ref-for-event-handler-idl-attributes">event handler IDL attributes</a>, by all <code class="idl"><a data-link-type="idl" href="#modelcontext" id="ref-for-modelcontext⑧">ModelContext</a></code> objects:</p>
    <table>
     <thead>
      <tr>
@@ -1448,19 +1419,19 @@ that must be supported, as <a data-link-type="dfn" href="https://html.spec.whatw
 <code><a data-link-type="dfn" href="https://w3c.github.io/webappsec-permissions-policy/#default-allowlist-self" id="ref-for-default-allowlist-self">'self'</a></code>.</p>
    <h2 class="heading settled" data-level="5" id="interaction-with-agents"><span class="secno">5. </span><span class="content">Interaction with agents</span><a class="self-link" href="#interaction-with-agents"></a></h2>
    <h3 class="heading settled" data-level="5.1" id="event-loop"><span class="secno">5.1. </span><span class="content">Event loop integration</span><a class="self-link" href="#event-loop"></a></h3>
-   <p>A web site’s functionality is exposed to <a data-link-type="dfn" href="#agent" id="ref-for-agent①①">agents</a> as tools that live in a <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document">Document</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop" id="ref-for-event-loop">event loop</a>, that get registered with the APIs in this specification.</p>
+   <p>A web site’s functionality is exposed to <a data-link-type="dfn" href="#agent" id="ref-for-agent①⓪">agents</a> as tools that live in a <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document">Document</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop" id="ref-for-event-loop">event loop</a>, that get registered with the APIs in this specification.</p>
    <p>The <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#user-agent" id="ref-for-user-agent">user agent</a>’s <a data-link-type="dfn" href="#browsers-agent" id="ref-for-browsers-agent①">browser agent</a> runs <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel" id="ref-for-in-parallel④">in parallel</a> to any <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop" id="ref-for-event-loop①">event loops</a> associated
-with a <code class="idl"><a data-link-type="idl" href="#modelcontext" id="ref-for-modelcontext①⓪">ModelContext</a></code> <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global" id="ref-for-concept-relevant-global③">relevant global object</a>. Steps running on the <a data-link-type="dfn" href="#browsers-agent" id="ref-for-browsers-agent②">browser agent</a> get
+with a <code class="idl"><a data-link-type="idl" href="#modelcontext" id="ref-for-modelcontext⑨">ModelContext</a></code> <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global" id="ref-for-concept-relevant-global③">relevant global object</a>. Steps running on the <a data-link-type="dfn" href="#browsers-agent" id="ref-for-browsers-agent②">browser agent</a> get
 queued on its <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="ai-agent-queue">AI agent queue</dfn>, which is the result of <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#starting-a-new-parallel-queue" id="ref-for-starting-a-new-parallel-queue">starting a new parallel queue</a>.</p>
    <p>Conversely, steps queued <em>from</em> the <a data-link-type="dfn" href="#browsers-agent" id="ref-for-browsers-agent③">browser agent</a> onto the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop" id="ref-for-event-loop②">event loop</a> of a given
-<code class="idl"><a data-link-type="idl" href="#modelcontext" id="ref-for-modelcontext①①">ModelContext</a></code> object (i.e., the "main thread" where JavaScript runs) are queued on its <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global" id="ref-for-concept-relevant-global④">relevant global object</a>’s <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="webmcp-task-source">webmcp task source</dfn>.</p>
+<code class="idl"><a data-link-type="idl" href="#modelcontext" id="ref-for-modelcontext①⓪">ModelContext</a></code> object (i.e., the "main thread" where JavaScript runs) are queued on its <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global" id="ref-for-concept-relevant-global④">relevant global object</a>’s <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="webmcp-task-source">webmcp task source</dfn>.</p>
    <h3 class="heading settled" data-level="5.2" id="observations"><span class="secno">5.2. </span><span class="content">Page observations</span><a class="self-link" href="#observations"></a></h3>
    <p><em>This section is non-normative. It contains an example of infrastructure that a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#user-agent" id="ref-for-user-agent①">user agent</a> might
 employ to expose a tab’s tools to a <a data-link-type="dfn" href="#browsers-agent" id="ref-for-browsers-agent④">browser agent</a>, and illustrates how that infrastructure
 interacts with the web platform, for the purposes of implementer guidance.</em></p>
    <hr>
-   <p>In-page <a data-link-type="dfn" href="#agent" id="ref-for-agent①②">agents</a> implemented in JavaScript can "observe" the tools that a page offers by using the
-<code class="idl"><a data-link-type="idl" href="#modelcontext" id="ref-for-modelcontext①②">ModelContext</a></code> APIs directly, and any other platform APIs to obtain necessary context about the
+   <p>In-page <a data-link-type="dfn" href="#agent" id="ref-for-agent①①">agents</a> implemented in JavaScript can "observe" the tools that a page offers by using the
+<code class="idl"><a data-link-type="idl" href="#modelcontext" id="ref-for-modelcontext①①">ModelContext</a></code> APIs directly, and any other platform APIs to obtain necessary context about the
 page in order to actuate it appropriately.</p>
    <p>The <a data-link-type="dfn" href="#browsers-agent" id="ref-for-browsers-agent⑤">browser agent</a>, on the other hand, does not run JavaScript on the page. Instead, it obtains a
 view of the page’s tools and any other relevant context by getting an <a data-link-type="dfn" href="#observation" id="ref-for-observation">observation</a>. An
@@ -1522,7 +1493,7 @@ A <a data-link-type="dfn" href="#browsers-agent" id="ref-for-browsers-agent①�
 user is interacting with a <a data-link-type="dfn" href="#browsers-agent" id="ref-for-browsers-agent①④">browser agent</a> while web content is in view.</p>
    <h2 class="heading settled" data-level="6" id="security-privacy"><span class="secno">6. </span><span class="content">Security and Privacy Considerations</span><a class="self-link" href="#security-privacy"></a></h2>
    <p><em>This section is non-normative.</em></p>
-   <p>As WebMCP enables <a data-link-type="dfn" href="#agent" id="ref-for-agent①③">agents</a> to interact with web applications through callable JavaScript tools, it introduces new threat vectors and privacy implications that require careful analysis and mitigation strategies.</p>
+   <p>As WebMCP enables <a data-link-type="dfn" href="#agent" id="ref-for-agent①②">agents</a> to interact with web applications through callable JavaScript tools, it introduces new threat vectors and privacy implications that require careful analysis and mitigation strategies.</p>
    <h3 class="heading settled" data-level="6.1" id="approach-to-risk-assessment-and-mitigations"><span class="secno">6.1. </span><span class="content">Approach to Risk Assessment and Mitigations</span><a class="self-link" href="#approach-to-risk-assessment-and-mitigations"></a></h3>
    <p>This section evaluates risks and mitigations with the following considerations:</p>
    <ol>
@@ -1532,17 +1503,17 @@ user is interacting with a <a data-link-type="dfn" href="#browsers-agent" id="re
     
      <ul>
       <li>Site authors
-      <li><a data-link-type="dfn" href="#agent" id="ref-for-agent①④">Agent</a> providers
+      <li><a data-link-type="dfn" href="#agent" id="ref-for-agent①③">Agent</a> providers
       <li><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#user-agent" id="ref-for-user-agent⑤">User agents</a>
       <li>End-users
      </ul>
     <li>
      
-    Limitations and responsibilities: This document cannot define precise mitigation strategies that <a data-link-type="dfn" href="#agent" id="ref-for-agent①⑤">agents</a> or <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#user-agent" id="ref-for-user-agent⑥">user agents</a> must provide. Instead, we will:
+    Limitations and responsibilities: This document cannot define precise mitigation strategies that <a data-link-type="dfn" href="#agent" id="ref-for-agent①④">agents</a> or <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#user-agent" id="ref-for-user-agent⑥">user agents</a> must provide. Instead, we will:
     
      <ul>
       <li>Clearly define the responsibilities for each system
-      <li>Document common mitigations as recommendations for <a data-link-type="dfn" href="#agent" id="ref-for-agent①⑥">agents</a> and <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#user-agent" id="ref-for-user-agent⑦">user agents</a>
+      <li>Document common mitigations as recommendations for <a data-link-type="dfn" href="#agent" id="ref-for-agent①⑤">agents</a> and <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#user-agent" id="ref-for-user-agent⑦">user agents</a>
       <li>Explore these mitigations to inform additions to the WebMCP API
      </ul>
     <li>
@@ -1550,11 +1521,11 @@ user is interacting with a <a data-link-type="dfn" href="#browsers-agent" id="re
   
    </ol>
    <h3 class="heading settled" data-level="6.2" id="agent-baseline-capabilities"><span class="secno">6.2. </span><span class="content">Agent Baseline Capabilities</span><a class="self-link" href="#agent-baseline-capabilities"></a></h3>
-   <p>This section assumes <a data-link-type="dfn" href="#agent" id="ref-for-agent①⑦">agents</a> operate with certain baseline capabilities that significantly impact the security and privacy landscape:</p>
+   <p>This section assumes <a data-link-type="dfn" href="#agent" id="ref-for-agent①⑥">agents</a> operate with certain baseline capabilities that significantly impact the security and privacy landscape:</p>
    <ul>
-    <li><strong>Identity inheritance</strong>: <a data-link-type="dfn" href="#agent" id="ref-for-agent①⑧">Agents</a> are able to inherit user identity and authentication context from the browser. When an <a data-link-type="dfn" href="#agent" id="ref-for-agent①⑨">agent</a> visits a website, it carries the user’s logged-in credentials and session state.
-    <li><strong>Extended user context</strong>: <a data-link-type="dfn" href="#agent" id="ref-for-agent②⓪">Agents</a> are able to access personalization data, browsing history, payment information, and other sensitive user data to improve task completion.
-    <li><strong>Cross-site context</strong>: <a data-link-type="dfn" href="#agent" id="ref-for-agent②①">Agents</a> are able to access and correlate information across multiple websites to fulfill user requests.
+    <li><strong>Identity inheritance</strong>: <a data-link-type="dfn" href="#agent" id="ref-for-agent①⑦">Agents</a> are able to inherit user identity and authentication context from the browser. When an <a data-link-type="dfn" href="#agent" id="ref-for-agent①⑧">agent</a> visits a website, it carries the user’s logged-in credentials and session state.
+    <li><strong>Extended user context</strong>: <a data-link-type="dfn" href="#agent" id="ref-for-agent①⑨">Agents</a> are able to access personalization data, browsing history, payment information, and other sensitive user data to improve task completion.
+    <li><strong>Cross-site context</strong>: <a data-link-type="dfn" href="#agent" id="ref-for-agent②⓪">Agents</a> are able to access and correlate information across multiple websites to fulfill user requests.
    </ul>
    <p>These capabilities enable powerful user experiences but also create new risks that must be addressed through a combination of protocol design, agent implementation, and user controls.</p>
    <h3 class="heading settled" data-level="6.3" id="key-risks"><span class="secno">6.3. </span><span class="content">Key Security and Privacy Risks</span><a class="self-link" href="#key-risks"></a></h3>
@@ -1563,7 +1534,7 @@ user is interacting with a <a data-link-type="dfn" href="#browsers-agent" id="re
    <p><strong>Key Risk Factors</strong>:</p>
    <ul>
     <li>Agent decision-making relies on natural language interpretation
-    <li>Tool descriptions and return values could be treated as trusted context by <a data-link-type="dfn" href="#agent" id="ref-for-agent②②">agents</a>
+    <li>Tool descriptions and return values could be treated as trusted context by <a data-link-type="dfn" href="#agent" id="ref-for-agent②①">agents</a>
     <li>Natural language is inherently ambiguous and difficult to sanitize
    </ul>
    <p>Prompt injection attacks in WebMCP can be categorized by three distinct attack vectors, each with different threat actors, targets, and assets at risk:</p>
@@ -1671,7 +1642,7 @@ user is interacting with a <a data-link-type="dfn" href="#browsers-agent" id="re
    <h5 class="heading settled" data-level="6.3.1.3" id="tool-implementation-targets"><span class="secno">6.3.1.3. </span><span class="content">Tool Implementation as Attack Targets</span><a class="self-link" href="#tool-implementation-targets"></a></h5>
    <p>Websites exposing valuable functionality through WebMCP tools can themselves become targets for attacks.</p>
    <ul>
-    <li><strong>Threat Actor</strong>: Malicious actors who gain control of <a data-link-type="dfn" href="#agent" id="ref-for-agent②③">agents</a> with access to WebMCP tools
+    <li><strong>Threat Actor</strong>: Malicious actors who gain control of <a data-link-type="dfn" href="#agent" id="ref-for-agent②②">agents</a> with access to WebMCP tools
     <li><strong>Target</strong>: Websites implementing valuable or sensitive WebMCP tools
     <li>
      
@@ -1681,8 +1652,8 @@ user is interacting with a <a data-link-type="dfn" href="#browsers-agent" id="re
       <li>High-value actions exposed by the tool (e.g., database access, transactions)
      </ul>
    </ul>
-   <p><strong>How It Works</strong>: Websites have high-value functionality (e.g., password resets, transactions) through their UI. <a data-link-type="dfn" href="#agent" id="ref-for-agent②④">Agents</a> capable of manipulating rendered elements can already interact with this functionality. When websites additionally expose such functionality via WebMCP tools, they create another potential target for malicious <a data-link-type="dfn" href="#agent" id="ref-for-agent②⑤">agents</a>.</p>
-   <p><strong>Note on Attack Surface</strong>: WebMCP does not inherently expand the attack surface as the underlying functionality likely already exists via the website’s UI. However, <a data-link-type="dfn" href="#agent" id="ref-for-agent②⑥">agents</a> interacting with UI elements (clicking buttons, filling forms) exercise a different code path than <a data-link-type="dfn" href="#agent" id="ref-for-agent②⑦">agents</a> calling WebMCP tools directly. These different paths may have different validation logic or security checks, potentially introducing exploitable vulnerabilities.</p>
+   <p><strong>How It Works</strong>: Websites have high-value functionality (e.g., password resets, transactions) through their UI. <a data-link-type="dfn" href="#agent" id="ref-for-agent②③">Agents</a> capable of manipulating rendered elements can already interact with this functionality. When websites additionally expose such functionality via WebMCP tools, they create another potential target for malicious <a data-link-type="dfn" href="#agent" id="ref-for-agent②④">agents</a>.</p>
+   <p><strong>Note on Attack Surface</strong>: WebMCP does not inherently expand the attack surface as the underlying functionality likely already exists via the website’s UI. However, <a data-link-type="dfn" href="#agent" id="ref-for-agent②⑤">agents</a> interacting with UI elements (clicking buttons, filling forms) exercise a different code path than <a data-link-type="dfn" href="#agent" id="ref-for-agent②⑥">agents</a> calling WebMCP tools directly. These different paths may have different validation logic or security checks, potentially introducing exploitable vulnerabilities.</p>
    <p><strong>Example Attack</strong>:</p>
 <pre class="highlight language-js"><c- c1>// Website implements a high-value tool for agents</c->
 <c- k>await</c-> document<c- p>.</c->modelContext<c- p>.</c->registerTool<c- p>({</c->
@@ -1707,9 +1678,9 @@ user is interacting with a <a data-link-type="dfn" href="#browsers-agent" id="re
 </pre>
    <h4 class="heading settled" data-level="6.3.2" id="misrepresentation-of-intent"><span class="secno">6.3.2. </span><span class="content">Misrepresentation of Intent</span><a class="self-link" href="#misrepresentation-of-intent"></a></h4>
    <p><strong>Problem</strong>: There is no guarantee that a WebMCP tool’s declared intent matches its actual behavior.</p>
-   <p>This creates a fundamental trust gap: <a data-link-type="dfn" href="#agent" id="ref-for-agent②⑧">agents</a> rely on natural language descriptions to decide whether to invoke a tool and whether to prompt the user for permission, but cannot verify the tool’s actual effects before execution.</p>
+   <p>This creates a fundamental trust gap: <a data-link-type="dfn" href="#agent" id="ref-for-agent②⑦">agents</a> rely on natural language descriptions to decide whether to invoke a tool and whether to prompt the user for permission, but cannot verify the tool’s actual effects before execution.</p>
    <h5 class="heading settled" data-level="6.3.2.1" id="why-intent-matters"><span class="secno">6.3.2.1. </span><span class="content">Why This Matters</span><a class="self-link" href="#why-intent-matters"></a></h5>
-   <p>Even when an <a data-link-type="dfn" href="#agent" id="ref-for-agent②⑨">agent</a> does not share sensitive user data through tool parameters, having an authenticated state means tools can perform high-privilege actions without additional verification. The user’s existing authentication cookies and session state are automatically available to the page, allowing tools to:</p>
+   <p>Even when an <a data-link-type="dfn" href="#agent" id="ref-for-agent②⑧">agent</a> does not share sensitive user data through tool parameters, having an authenticated state means tools can perform high-privilege actions without additional verification. The user’s existing authentication cookies and session state are automatically available to the page, allowing tools to:</p>
    <ul>
     <li>Make purchases
     <li>Transfer funds
@@ -1724,9 +1695,9 @@ user is interacting with a <a data-link-type="dfn" href="#browsers-agent" id="re
     <strong>Malicious misrepresentation</strong> (fraud):
     
      <ul>
-      <li>Deliberate deception to trick <a data-link-type="dfn" href="#agent" id="ref-for-agent③⓪">agents</a> into performing unauthorized actions.
-      <li>The goal is to create tools that explicitly deflect blame or misattribute actions to <a data-link-type="dfn" href="#agent" id="ref-for-agent③①">agents</a>.
-      <li>This involves making the <a data-link-type="dfn" href="#agent" id="ref-for-agent③②">agents</a> intentionally take a harmful action which can be attributed to the <a data-link-type="dfn" href="#agent" id="ref-for-agent③③">agent</a>.
+      <li>Deliberate deception to trick <a data-link-type="dfn" href="#agent" id="ref-for-agent②⑨">agents</a> into performing unauthorized actions.
+      <li>The goal is to create tools that explicitly deflect blame or misattribute actions to <a data-link-type="dfn" href="#agent" id="ref-for-agent③⓪">agents</a>.
+      <li>This involves making the <a data-link-type="dfn" href="#agent" id="ref-for-agent③①">agents</a> intentionally take a harmful action which can be attributed to the <a data-link-type="dfn" href="#agent" id="ref-for-agent③②">agent</a>.
      </ul>
     <li>
      
@@ -1738,7 +1709,7 @@ user is interacting with a <a data-link-type="dfn" href="#browsers-agent" id="re
      </ul>
    </ol>
    <h5 class="heading settled" data-level="6.3.2.3" id="scenario-ambiguous-finalization"><span class="secno">6.3.2.3. </span><span class="content">Scenario: Ambiguous Finalization (Accidental or Malicious)</span><a class="self-link" href="#scenario-ambiguous-finalization"></a></h5>
-   <p>This scenario illustrates how ambiguous tool semantics can lead to unintended purchases, whether due to sloppy design or deliberate abuse that later shifts blame onto the <a data-link-type="dfn" href="#agent" id="ref-for-agent③④">agent</a>.</p>
+   <p>This scenario illustrates how ambiguous tool semantics can lead to unintended purchases, whether due to sloppy design or deliberate abuse that later shifts blame onto the <a data-link-type="dfn" href="#agent" id="ref-for-agent③③">agent</a>.</p>
 <pre class="highlight language-js"><c- c1>// shoppingsite.com defines a function like finalizeCart</c->
 <c- k>await</c-> document<c- p>.</c->modelContext<c- p>.</c->registerTool<c- p>({</c->
   name<c- o>:</c-> <c- u>"finalizeCart"</c-><c- p>,</c->
@@ -1751,18 +1722,18 @@ user is interacting with a <a data-link-type="dfn" href="#browsers-agent" id="re
 <c- p>});</c->
 </pre>
    <p><strong>Agent reasoning</strong>: "The user wants to view their final cart. This tool seems to finalize the cart state for viewing."</p>
-   <p><strong>Outcome</strong>: The <a data-link-type="dfn" href="#agent" id="ref-for-agent③⑤">agent</a> calls it, and it actually triggers a purchase. The user didn’t intend to buy anything.</p>
+   <p><strong>Outcome</strong>: The <a data-link-type="dfn" href="#agent" id="ref-for-agent③④">agent</a> calls it, and it actually triggers a purchase. The user didn’t intend to buy anything.</p>
    <h5 class="heading settled" data-level="6.3.2.4" id="intent-current-gaps"><span class="secno">6.3.2.4. </span><span class="content">Current Gaps</span><a class="self-link" href="#intent-current-gaps"></a></h5>
    <ul>
     <li><strong>No verification mechanism</strong>: Agent implementors cannot verify that tool implementations match their descriptions
     <li><strong>Semantic ambiguity</strong>: Natural language descriptions are subjective and open to interpretation
     <li><strong>No behavioral contracts</strong>: Unlike typed APIs, tool behaviors cannot be statically analyzed or verified
-    <li><strong>Agent trust assumptions</strong>: <a data-link-type="dfn" href="#agent" id="ref-for-agent③⑥">Agents</a> must assume good faith from site developers
+    <li><strong>Agent trust assumptions</strong>: <a data-link-type="dfn" href="#agent" id="ref-for-agent③⑤">Agents</a> must assume good faith from site developers
    </ul>
    <h4 class="heading settled" data-level="6.3.3" id="privacy-leakage-over-parameterization"><span class="secno">6.3.3. </span><span class="content">Privacy Leakage Through Over-Parameterization</span><a class="self-link" href="#privacy-leakage-over-parameterization"></a></h4>
-   <p><strong>Problem</strong>: Sites can design highly parameterized WebMCP tools to extract sensitive user data that <a data-link-type="dfn" href="#agent" id="ref-for-agent③⑦">agents</a> provide from personalization context.</p>
+   <p><strong>Problem</strong>: Sites can design highly parameterized WebMCP tools to extract sensitive user data that <a data-link-type="dfn" href="#agent" id="ref-for-agent③⑥">agents</a> provide from personalization context.</p>
    <h5 class="heading settled" data-level="6.3.3.1" id="privacy-risk"><span class="secno">6.3.3.1. </span><span class="content">The Privacy Risk</span><a class="self-link" href="#privacy-risk"></a></h5>
-   <p><a data-link-type="dfn" href="#agent" id="ref-for-agent③⑧">Agents</a> are designed to be helpful. When a site requests specific parameters, <a data-link-type="dfn" href="#agent" id="ref-for-agent③⑨">agents</a> will attempt to provide them, potentially using:</p>
+   <p><a data-link-type="dfn" href="#agent" id="ref-for-agent③⑦">Agents</a> are designed to be helpful. When a site requests specific parameters, <a data-link-type="dfn" href="#agent" id="ref-for-agent③⑧">agents</a> will attempt to provide them, potentially using:</p>
    <ul>
     <li>User personalization data
     <li>Browsing history
@@ -1805,26 +1776,26 @@ user is interacting with a <a data-link-type="dfn" href="#browsers-agent" id="re
 </pre>
    <p><strong>What happens</strong>:</p>
    <ol>
-    <li><a data-link-type="dfn" href="#agent" id="ref-for-agent④⓪">Agent</a> sees reasonable-sounding parameter descriptions
-    <li><a data-link-type="dfn" href="#agent" id="ref-for-agent④①">Agent</a> has access to this user information through personalization APIs
-    <li><a data-link-type="dfn" href="#agent" id="ref-for-agent④②">Agent</a> helpfully provides all requested parameters
+    <li><a data-link-type="dfn" href="#agent" id="ref-for-agent③⑨">Agent</a> sees reasonable-sounding parameter descriptions
+    <li><a data-link-type="dfn" href="#agent" id="ref-for-agent④⓪">Agent</a> has access to this user information through personalization APIs
+    <li><a data-link-type="dfn" href="#agent" id="ref-for-agent④①">Agent</a> helpfully provides all requested parameters
     <li>Site is now able to log all parameters to build user profile
    </ol>
    <h5 class="heading settled" data-level="6.3.3.3" id="privacy-implications"><span class="secno">6.3.3.3. </span><span class="content">Implications</span><a class="self-link" href="#privacy-implications"></a></h5>
    <ul>
     <li><strong>Silent profiling</strong>: Sites build detailed user profiles without explicit data sharing consent
-    <li><strong>Cross-site tracking and context leakage</strong>: <a data-link-type="dfn" href="#agent" id="ref-for-agent④③">Agents</a> could have built the above-mentioned personalization context from multiple websites. For example, learning a current location from a weather site and revealing it to another site through tool parameters, enabling cross-site tracking.
+    <li><strong>Cross-site tracking and context leakage</strong>: <a data-link-type="dfn" href="#agent" id="ref-for-agent④②">Agents</a> could have built the above-mentioned personalization context from multiple websites. For example, learning a current location from a weather site and revealing it to another site through tool parameters, enabling cross-site tracking.
     <li><strong>Discrimination risk</strong>: Extracted attributes (age, pregnancy status, location) could be used for price discrimination or biased service
    </ul>
    <h4 class="heading settled" data-level="6.3.4" id="violation-same-origin-boundaries"><span class="secno">6.3.4. </span><span class="content">Violation of Same-Origin Boundaries</span><a class="self-link" href="#violation-same-origin-boundaries"></a></h4>
    <p class="XXX">
-  TODO: Document risks and implications of <a data-link-type="dfn" href="#agent" id="ref-for-agent④④">agents</a> carrying state from one origin to another. Detail how tools executed on one origin may carry state from another origin, potentially leading to data leakage or same-origin policy bypasses if not handled securely by the <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#user-agent" id="ref-for-user-agent⑧">user agent</a>. This section should probably talk about the WebMCP permissions policy and other cross-origin opt in mechanisms. 
+  TODO: Document risks and implications of <a data-link-type="dfn" href="#agent" id="ref-for-agent④③">agents</a> carrying state from one origin to another. Detail how tools executed on one origin may carry state from another origin, potentially leading to data leakage or same-origin policy bypasses if not handled securely by the <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#user-agent" id="ref-for-user-agent⑧">user agent</a>. This section should probably talk about the WebMCP permissions policy and other cross-origin opt in mechanisms. 
 </p>
    <h4 class="heading settled" data-level="6.3.5" id="interaction-with-private-browsing"><span class="secno">6.3.5. </span><span class="content">Interaction with Private Browsing Modes</span><a class="self-link" href="#interaction-with-private-browsing"></a></h4>
    <p>Many user agents provide ephemeral, short-lived, <a href="https://w3ctag.github.io/private-browsing-modes/">private browsing modes</a> that are disconnected from a user’s primary profile, in that they do not share the same history or web-accessible storage.
-Users generally expect this boundary between regular and private browsing to be maintained and protected by the user agent. Exposing <a data-link-type="dfn" href="#agent" id="ref-for-agent④⑤">agents</a> to private browsing activity (e.g., by giving them access to WebMCP
+Users generally expect this boundary between regular and private browsing to be maintained and protected by the user agent. Exposing <a data-link-type="dfn" href="#agent" id="ref-for-agent④④">agents</a> to private browsing activity (e.g., by giving them access to WebMCP
 tools in private browsing) may inadvertently leak information across this boundary and lead to unauthorized joining or retention of private browsing data. Users agents are responsible for ensuring that their
-respective private browsing modes are safely exposed to <a data-link-type="dfn" href="#agent" id="ref-for-agent④⑥">agents</a> and that these agents have the ability to responsibly handle private browsing information.</p>
+respective private browsing modes are safely exposed to <a data-link-type="dfn" href="#agent" id="ref-for-agent④⑤">agents</a> and that these agents have the ability to responsibly handle private browsing information.</p>
    <h3 class="heading settled" data-level="6.4" id="mitigations"><span class="secno">6.4. </span><span class="content">Mitigations</span><a class="self-link" href="#mitigations"></a></h3>
    <h4 class="heading settled" data-level="6.4.1" id="mitigation-restrict-input-lengths"><span class="secno">6.4.1. </span><span class="content">Restricting maximum input lengths</span><a class="self-link" href="#mitigation-restrict-input-lengths"></a></h4>
    <p><strong>What:</strong> Restrict the maximum amount of characters</p>
@@ -1883,7 +1854,6 @@ for the initial explainer, proposals, discussions, and other contributions that 
    <li><a href="#model-context">model context</a><span>, in § 3</span>
    <li><a href="#modelcontext">ModelContext</a><span>, in § 4.2</span>
    <li><a href="#dom-document-modelcontext">modelContext</a><span>, in § 4.1</span>
-   <li><a href="#modelcontextclient">ModelContextClient</a><span>, in § 4.2.3</span>
    <li><a href="#dictdef-modelcontextregistertooloptions">ModelContextRegisterToolOptions</a><span>, in § 4.2.2</span>
    <li><a href="#dictdef-modelcontexttool">ModelContextTool</a><span>, in § 4.2.1</span>
    <li>
@@ -1900,7 +1870,6 @@ for the initial explainer, proposals, discussions, and other contributions that 
    <li><a href="#dom-toolannotations-readonlyhint">readOnlyHint</a><span>, in § 4.2.1</span>
    <li><a href="#dom-modelcontext-registertool">registerTool(tool)</a><span>, in § 4.2</span>
    <li><a href="#dom-modelcontext-registertool">registerTool(tool, options)</a><span>, in § 4.2</span>
-   <li><a href="#dom-modelcontextclient-requestuserinteraction">requestUserInteraction(callback)</a><span>, in § 4.2.3</span>
    <li><a href="#dom-modelcontextregistertooloptions-signal">signal</a><span>, in § 4.2.2</span>
    <li><a href="#synthesize-a-declarative-json-schema-object-algorithm">synthesize a declarative JSON Schema object algorithm</a><span>, in § 4.3</span>
    <li>
@@ -1925,7 +1894,6 @@ for the initial explainer, proposals, discussions, and other contributions that 
    <li><a href="#model-context-unregister-a-tool">unregister a tool</a><span>, in § 3</span>
    <li><a href="#tool-definition-untrusted-content-hint">untrusted content hint</a><span>, in § 3</span>
    <li><a href="#dom-toolannotations-untrustedcontenthint">untrustedContentHint</a><span>, in § 4.2.1</span>
-   <li><a href="#callbackdef-userinteractioncallback">UserInteractionCallback</a><span>, in § 4.2.3</span>
    <li><a href="#webmcp-task-source">webmcp task source</a><span>, in § 5.1</span>
   </ul>
   <h3 class="heading no-num no-ref settled" id="index-defined-elsewhere"><span class="content">Terms defined by reference</span><a class="self-link" href="#index-defined-elsewhere"></a></h3>
@@ -2130,19 +2098,12 @@ for the initial explainer, proposals, discussions, and other contributions that 
   <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-boolean"><c- b>boolean</c-></a> <a class="idl-code" data-default="false" data-link-type="dict-member" data-type="boolean" href="#dom-toolannotations-untrustedcontenthint"><c- g>untrustedContentHint</c-></a> = <c- b>false</c->;
 };
 
-<c- b>callback</c-> <a href="#callbackdef-toolexecutecallback"><code><c- g>ToolExecuteCallback</c-></code></a> = <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-promise"><c- b>Promise</c-></a>&lt;<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-any"><c- b>any</c-></a>> (<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-object"><c- b>object</c-></a> <a href="#dom-toolexecutecallback-input"><code><c- g>input</c-></code></a>, <a data-link-type="idl-name" href="#modelcontextclient"><c- n>ModelContextClient</c-></a> <a href="#dom-toolexecutecallback-client"><code><c- g>client</c-></code></a>);
+<c- b>callback</c-> <a href="#callbackdef-toolexecutecallback"><code><c- g>ToolExecuteCallback</c-></code></a> = <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-promise"><c- b>Promise</c-></a>&lt;<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-any"><c- b>any</c-></a>> (<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-object"><c- b>object</c-></a> <a href="#dom-toolexecutecallback-input"><code><c- g>input</c-></code></a>);
 
 <c- b>dictionary</c-> <a href="#dictdef-modelcontextregistertooloptions"><code><c- g>ModelContextRegisterToolOptions</c-></code></a> {
   <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#abortsignal"><c- n>AbortSignal</c-></a> <a data-type="AbortSignal" href="#dom-modelcontextregistertooloptions-signal"><code><c- g>signal</c-></code></a>;
   <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#idl-sequence"><c- b>sequence</c-></a>&lt;<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-USVString"><c- b>USVString</c-></a>> <a data-type="sequence<USVString>" href="#dom-modelcontextregistertooloptions-exposedto"><code><c- g>exposedTo</c-></code></a>;
 };
-
-[<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Exposed"><c- g>Exposed</c-></a>=<c- n>Window</c->, <a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#SecureContext"><c- g>SecureContext</c-></a>]
-<c- b>interface</c-> <a href="#modelcontextclient"><code><c- g>ModelContextClient</c-></code></a> {
-  <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-promise"><c- b>Promise</c-></a>&lt;<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-any"><c- b>any</c-></a>> <a class="idl-code" data-link-type="method" href="#dom-modelcontextclient-requestuserinteraction"><c- g>requestUserInteraction</c-></a>(<a data-link-type="idl-name" href="#callbackdef-userinteractioncallback"><c- n>UserInteractionCallback</c-></a> <a href="#dom-modelcontextclient-requestuserinteraction-callback-callback"><code><c- g>callback</c-></code></a>);
-};
-
-<c- b>callback</c-> <a href="#callbackdef-userinteractioncallback"><code><c- g>UserInteractionCallback</c-></code></a> = <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-promise"><c- b>Promise</c-></a>&lt;<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-any"><c- b>any</c-></a>> ();
 
 </pre>
 <script>/* Boilerplate: script-dom-helper */
@@ -2383,7 +2344,7 @@ let dfnPanelData = {
 "5fd23811": {"dfnID":"5fd23811","dfnText":"fire an event","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-event-fire"}],"title":"3. Supporting concepts"}],"url":"https://dom.spec.whatwg.org/#concept-event-fire"},
 "649608b9": {"dfnID":"649608b9","dfnText":"list","external":true,"refSections":[{"refs":[{"id":"ref-for-list"},{"id":"ref-for-list\u2460"},{"id":"ref-for-list\u2461"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-list\u2462"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-list\u2463"}],"title":"5.2. Page observations"}],"url":"https://infra.spec.whatwg.org/#list"},
 "6a5a59a0": {"dfnID":"6a5a59a0","dfnText":"event handler","external":true,"refSections":[{"refs":[{"id":"ref-for-event-handlers"},{"id":"ref-for-event-handlers\u2460"}],"title":"4.4. Events"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#event-handlers"},
-"6c6b1005": {"dfnID":"6c6b1005","dfnText":"any","external":true,"refSections":[{"refs":[{"id":"ref-for-idl-any"}],"title":"4.2.1. ModelContextTool Dictionary"},{"refs":[{"id":"ref-for-idl-any\u2460"},{"id":"ref-for-idl-any\u2461"}],"title":"4.2.3. ModelContextClient Interface"}],"url":"https://webidl.spec.whatwg.org/#idl-any"},
+"6c6b1005": {"dfnID":"6c6b1005","dfnText":"any","external":true,"refSections":[{"refs":[{"id":"ref-for-idl-any"}],"title":"4.2.1. ModelContextTool Dictionary"}],"url":"https://webidl.spec.whatwg.org/#idl-any"},
 "6d19ac93": {"dfnID":"6d19ac93","dfnText":"user agent","external":true,"refSections":[{"refs":[{"id":"ref-for-user-agent"}],"title":"5.1. Event loop integration"},{"refs":[{"id":"ref-for-user-agent\u2460"},{"id":"ref-for-user-agent\u2461"},{"id":"ref-for-user-agent\u2462"},{"id":"ref-for-user-agent\u2463"}],"title":"5.2. Page observations"},{"refs":[{"id":"ref-for-user-agent\u2464"},{"id":"ref-for-user-agent\u2465"},{"id":"ref-for-user-agent\u2466"}],"title":"6.1. Approach to Risk Assessment and Mitigations"},{"refs":[{"id":"ref-for-user-agent\u2467"}],"title":"6.3.4. Violation of Same-Origin Boundaries"}],"url":"https://infra.spec.whatwg.org/#user-agent"},
 "7393da89": {"dfnID":"7393da89","dfnText":"same origin","external":true,"refSections":[{"refs":[{"id":"ref-for-same-origin"},{"id":"ref-for-same-origin\u2460"}],"title":"3. Supporting concepts"}],"url":"https://html.spec.whatwg.org/multipage/browsers.html#same-origin"},
 "77b4c09a": {"dfnID":"77b4c09a","dfnText":"assert","external":true,"refSections":[{"refs":[{"id":"ref-for-assert"},{"id":"ref-for-assert\u2460"},{"id":"ref-for-assert\u2461"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-assert\u2462"},{"id":"ref-for-assert\u2463"}],"title":"5.2. Page observations"}],"url":"https://infra.spec.whatwg.org/#assert"},
@@ -2396,7 +2357,7 @@ let dfnPanelData = {
 "860300d4": {"dfnID":"860300d4","dfnText":"implementation-defined","external":true,"refSections":[{"refs":[{"id":"ref-for-implementation-defined"},{"id":"ref-for-implementation-defined\u2460"},{"id":"ref-for-implementation-defined\u2461"},{"id":"ref-for-implementation-defined\u2462"}],"title":"5.2. Page observations"}],"url":"https://infra.spec.whatwg.org/#implementation-defined"},
 "87bc23a5": {"dfnID":"87bc23a5","dfnText":"add","external":true,"refSections":[{"refs":[{"id":"ref-for-abortsignal-add"}],"title":"4.2. ModelContext Interface"}],"url":"https://dom.spec.whatwg.org/#abortsignal-add"},
 "8855a9aa": {"dfnID":"8855a9aa","dfnText":"DOMString","external":true,"refSections":[{"refs":[{"id":"ref-for-idl-DOMString"},{"id":"ref-for-idl-DOMString\u2460"}],"title":"4.2.1. ModelContextTool Dictionary"}],"url":"https://webidl.spec.whatwg.org/#idl-DOMString"},
-"889e932f": {"dfnID":"889e932f","dfnText":"Exposed","external":true,"refSections":[{"refs":[{"id":"ref-for-Exposed"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-Exposed\u2460"}],"title":"4.2.3. ModelContextClient Interface"}],"url":"https://webidl.spec.whatwg.org/#Exposed"},
+"889e932f": {"dfnID":"889e932f","dfnText":"Exposed","external":true,"refSections":[{"refs":[{"id":"ref-for-Exposed"}],"title":"4.2. ModelContext Interface"}],"url":"https://webidl.spec.whatwg.org/#Exposed"},
 "8fd4495f": {"dfnID":"8fd4495f","dfnText":"language","external":true,"refSections":[{"refs":[{"id":"ref-for-dom-navigator-language"}],"title":"4.2.1. ModelContextTool Dictionary"}],"url":"https://html.spec.whatwg.org/multipage/system-state.html#dom-navigator-language"},
 "915aff5e": {"dfnID":"915aff5e","dfnText":"code point","external":true,"refSections":[{"refs":[{"id":"ref-for-code-point"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-code-point\u2460"}],"title":"4.2. ModelContext Interface"}],"url":"https://infra.spec.whatwg.org/#code-point"},
 "93e638db": {"dfnID":"93e638db","dfnText":"agent cluster","external":true,"refSections":[{"refs":[{"id":"ref-for-sec-agent-clusters"}],"title":"4.2. ModelContext Interface"}],"url":"https://tc39.es/ecma262/#sec-agent-clusters"},
@@ -2413,16 +2374,16 @@ let dfnPanelData = {
 "a72449dd": {"dfnID":"a72449dd","dfnText":"in parallel","external":true,"refSections":[{"refs":[{"id":"ref-for-in-parallel"},{"id":"ref-for-in-parallel\u2460"},{"id":"ref-for-in-parallel\u2461"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-in-parallel\u2462"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-in-parallel\u2463"}],"title":"5.1. Event loop integration"}],"url":"https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel"},
 "a973e0fe": {"dfnID":"a973e0fe","dfnText":"document","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-document"}],"title":"5.1. Event loop integration"}],"url":"https://dom.spec.whatwg.org/#concept-document"},
 "ae2a6342": {"dfnID":"ae2a6342","dfnText":"top-level browsing context","external":true,"refSections":[{"refs":[{"id":"ref-for-top-level-browsing-context"}],"title":"5.2. Page observations"}],"url":"https://html.spec.whatwg.org/multipage/document-sequences.html#top-level-browsing-context"},
-"agent": {"dfnID":"agent","dfnText":"agent","external":false,"refSections":[{"refs":[{"id":"ref-for-agent"}],"title":"1. Introduction"},{"refs":[{"id":"ref-for-agent\u2460"}],"title":"2. Terminology"},{"refs":[{"id":"ref-for-agent\u2461"},{"id":"ref-for-agent\u2462"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-agent\u2463"},{"id":"ref-for-agent\u2464"},{"id":"ref-for-agent\u2465"},{"id":"ref-for-agent\u2466"},{"id":"ref-for-agent\u2467"},{"id":"ref-for-agent\u2468"}],"title":"4.2.1. ModelContextTool Dictionary"},{"refs":[{"id":"ref-for-agent\u2460\u24ea"}],"title":"4.2.3. ModelContextClient Interface"},{"refs":[{"id":"ref-for-agent\u2460\u2460"}],"title":"5.1. Event loop integration"},{"refs":[{"id":"ref-for-agent\u2460\u2461"}],"title":"5.2. Page observations"},{"refs":[{"id":"ref-for-agent\u2460\u2462"}],"title":"6. Security and Privacy Considerations"},{"refs":[{"id":"ref-for-agent\u2460\u2463"},{"id":"ref-for-agent\u2460\u2464"},{"id":"ref-for-agent\u2460\u2465"}],"title":"6.1. Approach to Risk Assessment and Mitigations"},{"refs":[{"id":"ref-for-agent\u2460\u2466"},{"id":"ref-for-agent\u2460\u2467"},{"id":"ref-for-agent\u2460\u2468"},{"id":"ref-for-agent\u2461\u24ea"},{"id":"ref-for-agent\u2461\u2460"}],"title":"6.2. Agent Baseline Capabilities"},{"refs":[{"id":"ref-for-agent\u2461\u2461"}],"title":"6.3.1. Prompt Injection Attacks"},{"refs":[{"id":"ref-for-agent\u2461\u2462"},{"id":"ref-for-agent\u2461\u2463"},{"id":"ref-for-agent\u2461\u2464"},{"id":"ref-for-agent\u2461\u2465"},{"id":"ref-for-agent\u2461\u2466"}],"title":"6.3.1.3. Tool Implementation as Attack Targets"},{"refs":[{"id":"ref-for-agent\u2461\u2467"}],"title":"6.3.2. Misrepresentation of Intent"},{"refs":[{"id":"ref-for-agent\u2461\u2468"}],"title":"6.3.2.1. Why This Matters"},{"refs":[{"id":"ref-for-agent\u2462\u24ea"},{"id":"ref-for-agent\u2462\u2460"},{"id":"ref-for-agent\u2462\u2461"},{"id":"ref-for-agent\u2462\u2462"}],"title":"6.3.2.2. Misalignment Types"},{"refs":[{"id":"ref-for-agent\u2462\u2463"},{"id":"ref-for-agent\u2462\u2464"}],"title":"6.3.2.3. Scenario: Ambiguous Finalization (Accidental or Malicious)"},{"refs":[{"id":"ref-for-agent\u2462\u2465"}],"title":"6.3.2.4. Current Gaps"},{"refs":[{"id":"ref-for-agent\u2462\u2466"}],"title":"6.3.3. Privacy Leakage Through Over-Parameterization"},{"refs":[{"id":"ref-for-agent\u2462\u2467"},{"id":"ref-for-agent\u2462\u2468"}],"title":"6.3.3.1. The Privacy Risk"},{"refs":[{"id":"ref-for-agent\u2463\u24ea"},{"id":"ref-for-agent\u2463\u2460"},{"id":"ref-for-agent\u2463\u2461"}],"title":"6.3.3.2. Example Attack"},{"refs":[{"id":"ref-for-agent\u2463\u2462"}],"title":"6.3.3.3. Implications"},{"refs":[{"id":"ref-for-agent\u2463\u2463"}],"title":"6.3.4. Violation of Same-Origin Boundaries"},{"refs":[{"id":"ref-for-agent\u2463\u2464"},{"id":"ref-for-agent\u2463\u2465"}],"title":"6.3.5. Interaction with Private Browsing Modes"}],"url":"#agent"},
+"agent": {"dfnID":"agent","dfnText":"agent","external":false,"refSections":[{"refs":[{"id":"ref-for-agent"}],"title":"1. Introduction"},{"refs":[{"id":"ref-for-agent\u2460"}],"title":"2. Terminology"},{"refs":[{"id":"ref-for-agent\u2461"},{"id":"ref-for-agent\u2462"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-agent\u2463"},{"id":"ref-for-agent\u2464"},{"id":"ref-for-agent\u2465"},{"id":"ref-for-agent\u2466"},{"id":"ref-for-agent\u2467"},{"id":"ref-for-agent\u2468"}],"title":"4.2.1. ModelContextTool Dictionary"},{"refs":[{"id":"ref-for-agent\u2460\u24ea"}],"title":"5.1. Event loop integration"},{"refs":[{"id":"ref-for-agent\u2460\u2460"}],"title":"5.2. Page observations"},{"refs":[{"id":"ref-for-agent\u2460\u2461"}],"title":"6. Security and Privacy Considerations"},{"refs":[{"id":"ref-for-agent\u2460\u2462"},{"id":"ref-for-agent\u2460\u2463"},{"id":"ref-for-agent\u2460\u2464"}],"title":"6.1. Approach to Risk Assessment and Mitigations"},{"refs":[{"id":"ref-for-agent\u2460\u2465"},{"id":"ref-for-agent\u2460\u2466"},{"id":"ref-for-agent\u2460\u2467"},{"id":"ref-for-agent\u2460\u2468"},{"id":"ref-for-agent\u2461\u24ea"}],"title":"6.2. Agent Baseline Capabilities"},{"refs":[{"id":"ref-for-agent\u2461\u2460"}],"title":"6.3.1. Prompt Injection Attacks"},{"refs":[{"id":"ref-for-agent\u2461\u2461"},{"id":"ref-for-agent\u2461\u2462"},{"id":"ref-for-agent\u2461\u2463"},{"id":"ref-for-agent\u2461\u2464"},{"id":"ref-for-agent\u2461\u2465"}],"title":"6.3.1.3. Tool Implementation as Attack Targets"},{"refs":[{"id":"ref-for-agent\u2461\u2466"}],"title":"6.3.2. Misrepresentation of Intent"},{"refs":[{"id":"ref-for-agent\u2461\u2467"}],"title":"6.3.2.1. Why This Matters"},{"refs":[{"id":"ref-for-agent\u2461\u2468"},{"id":"ref-for-agent\u2462\u24ea"},{"id":"ref-for-agent\u2462\u2460"},{"id":"ref-for-agent\u2462\u2461"}],"title":"6.3.2.2. Misalignment Types"},{"refs":[{"id":"ref-for-agent\u2462\u2462"},{"id":"ref-for-agent\u2462\u2463"}],"title":"6.3.2.3. Scenario: Ambiguous Finalization (Accidental or Malicious)"},{"refs":[{"id":"ref-for-agent\u2462\u2464"}],"title":"6.3.2.4. Current Gaps"},{"refs":[{"id":"ref-for-agent\u2462\u2465"}],"title":"6.3.3. Privacy Leakage Through Over-Parameterization"},{"refs":[{"id":"ref-for-agent\u2462\u2466"},{"id":"ref-for-agent\u2462\u2467"}],"title":"6.3.3.1. The Privacy Risk"},{"refs":[{"id":"ref-for-agent\u2462\u2468"},{"id":"ref-for-agent\u2463\u24ea"},{"id":"ref-for-agent\u2463\u2460"}],"title":"6.3.3.2. Example Attack"},{"refs":[{"id":"ref-for-agent\u2463\u2461"}],"title":"6.3.3.3. Implications"},{"refs":[{"id":"ref-for-agent\u2463\u2462"}],"title":"6.3.4. Violation of Same-Origin Boundaries"},{"refs":[{"id":"ref-for-agent\u2463\u2463"},{"id":"ref-for-agent\u2463\u2464"}],"title":"6.3.5. Interaction with Private Browsing Modes"}],"url":"#agent"},
 "ai-agent-queue": {"dfnID":"ai-agent-queue","dfnText":"AI agent queue","external":false,"refSections":[{"refs":[{"id":"ref-for-ai-agent-queue"},{"id":"ref-for-ai-agent-queue\u2460"}],"title":"5.2. Page observations"}],"url":"#ai-agent-queue"},
 "ai-platform": {"dfnID":"ai-platform","dfnText":"AI platform","external":false,"refSections":[{"refs":[{"id":"ref-for-ai-platform"}],"title":"2. Terminology"}],"url":"#ai-platform"},
 "b0d7f3c3": {"dfnID":"b0d7f3c3","dfnText":"USVString","external":true,"refSections":[{"refs":[{"id":"ref-for-idl-USVString"}],"title":"4.2.1. ModelContextTool Dictionary"},{"refs":[{"id":"ref-for-idl-USVString\u2460"}],"title":"4.2.2. ModelContextRegisterToolOptions Dictionary"}],"url":"https://webidl.spec.whatwg.org/#idl-USVString"},
 "b557a925": {"dfnID":"b557a925","dfnText":"surrounding agent","external":true,"refSections":[{"refs":[{"id":"ref-for-surrounding-agent"}],"title":"4.2. ModelContext Interface"}],"url":"https://tc39.es/ecma262/#surrounding-agent"},
-"b75bb3bd": {"dfnID":"b75bb3bd","dfnText":"SecureContext","external":true,"refSections":[{"refs":[{"id":"ref-for-SecureContext"}],"title":"4.1. Extensions to Document"},{"refs":[{"id":"ref-for-SecureContext\u2460"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-SecureContext\u2461"}],"title":"4.2.3. ModelContextClient Interface"}],"url":"https://webidl.spec.whatwg.org/#SecureContext"},
+"b75bb3bd": {"dfnID":"b75bb3bd","dfnText":"SecureContext","external":true,"refSections":[{"refs":[{"id":"ref-for-SecureContext"}],"title":"4.1. Extensions to Document"},{"refs":[{"id":"ref-for-SecureContext\u2460"}],"title":"4.2. ModelContext Interface"}],"url":"https://webidl.spec.whatwg.org/#SecureContext"},
 "b78d6a64": {"dfnID":"b78d6a64","dfnText":"event loop (for agent)","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-agent-event-loop"}],"title":"3. Supporting concepts"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#concept-agent-event-loop"},
 "ba556545": {"dfnID":"ba556545","dfnText":"NotAllowedError","external":true,"refSections":[{"refs":[{"id":"ref-for-notallowederror"}],"title":"4.2. ModelContext Interface"}],"url":"https://webidl.spec.whatwg.org/#notallowederror"},
 "bd736ec6": {"dfnID":"bd736ec6","dfnText":"top-level traversable","external":true,"refSections":[{"refs":[{"id":"ref-for-top-level-traversable"}],"title":"5.2. Page observations"}],"url":"https://html.spec.whatwg.org/multipage/document-sequences.html#top-level-traversable"},
-"bdbd19d1": {"dfnID":"bdbd19d1","dfnText":"Promise","external":true,"refSections":[{"refs":[{"id":"ref-for-idl-promise"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-idl-promise\u2460"}],"title":"4.2.1. ModelContextTool Dictionary"},{"refs":[{"id":"ref-for-idl-promise\u2461"},{"id":"ref-for-idl-promise\u2462"}],"title":"4.2.3. ModelContextClient Interface"}],"url":"https://webidl.spec.whatwg.org/#idl-promise"},
+"bdbd19d1": {"dfnID":"bdbd19d1","dfnText":"Promise","external":true,"refSections":[{"refs":[{"id":"ref-for-idl-promise"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-idl-promise\u2460"}],"title":"4.2.1. ModelContextTool Dictionary"}],"url":"https://webidl.spec.whatwg.org/#idl-promise"},
 "browsers-agent": {"dfnID":"browsers-agent","dfnText":"browser\u2019s agent","external":false,"refSections":[{"refs":[{"id":"ref-for-browsers-agent"}],"title":"1. Introduction"},{"refs":[{"id":"ref-for-browsers-agent\u2460"},{"id":"ref-for-browsers-agent\u2461"},{"id":"ref-for-browsers-agent\u2462"}],"title":"5.1. Event loop integration"},{"refs":[{"id":"ref-for-browsers-agent\u2463"},{"id":"ref-for-browsers-agent\u2464"},{"id":"ref-for-browsers-agent\u2465"},{"id":"ref-for-browsers-agent\u2466"},{"id":"ref-for-browsers-agent\u2467"},{"id":"ref-for-browsers-agent\u2468"},{"id":"ref-for-browsers-agent\u2460\u24ea"},{"id":"ref-for-browsers-agent\u2460\u2460"},{"id":"ref-for-browsers-agent\u2460\u2461"},{"id":"ref-for-browsers-agent\u2460\u2462"},{"id":"ref-for-browsers-agent\u2460\u2463"}],"title":"5.2. Page observations"}],"url":"#browsers-agent"},
 "c3e881ef": {"dfnID":"c3e881ef","dfnText":"SecurityError","external":true,"refSections":[{"refs":[{"id":"ref-for-securityerror"},{"id":"ref-for-securityerror\u2460"}],"title":"4.2. ModelContext Interface"}],"url":"https://webidl.spec.whatwg.org/#securityerror"},
 "c62cd7cf": {"dfnID":"c62cd7cf","dfnText":"origin","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-document-origin"},{"id":"ref-for-concept-document-origin\u2460"}],"title":"3. Supporting concepts"}],"url":"https://dom.spec.whatwg.org/#concept-document-origin"},
@@ -2430,7 +2391,6 @@ let dfnPanelData = {
 "c88f3887": {"dfnID":"c88f3887","dfnText":"item","external":true,"refSections":[{"refs":[{"id":"ref-for-struct-item"},{"id":"ref-for-struct-item\u2460"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-struct-item\u2461"}],"title":"4.2. ModelContext Interface"}],"url":"https://infra.spec.whatwg.org/#struct-item"},
 "ca3ca4ae": {"dfnID":"ca3ca4ae","dfnText":"URL parser","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-url-parser"}],"title":"4.2. ModelContext Interface"}],"url":"https://url.spec.whatwg.org/#concept-url-parser"},
 "callbackdef-toolexecutecallback": {"dfnID":"callbackdef-toolexecutecallback","dfnText":"ToolExecuteCallback","external":false,"refSections":[{"refs":[{"id":"ref-for-callbackdef-toolexecutecallback"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-callbackdef-toolexecutecallback\u2460"}],"title":"4.2.1. ModelContextTool Dictionary"}],"url":"#callbackdef-toolexecutecallback"},
-"callbackdef-userinteractioncallback": {"dfnID":"callbackdef-userinteractioncallback","dfnText":"UserInteractionCallback","external":false,"refSections":[{"refs":[{"id":"ref-for-callbackdef-userinteractioncallback"}],"title":"4.2.3. ModelContextClient Interface"}],"url":"#callbackdef-userinteractioncallback"},
 "cc890cc1": {"dfnID":"cc890cc1","dfnText":"policy-controlled feature","external":true,"refSections":[{"refs":[{"id":"ref-for-policy-controlled-feature"}],"title":"4.5. Permissions policy integration"}],"url":"https://w3c.github.io/webappsec-permissions-policy/#policy-controlled-feature"},
 "cca3cdb2": {"dfnID":"cca3cdb2","dfnText":"AbortSignal","external":true,"refSections":[{"refs":[{"id":"ref-for-abortsignal"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-abortsignal\u2460"},{"id":"ref-for-abortsignal\u2461"}],"title":"4.2.2. ModelContextRegisterToolOptions Dictionary"}],"url":"https://dom.spec.whatwg.org/#abortsignal"},
 "d0b4a948": {"dfnID":"d0b4a948","dfnText":"a promise rejected with","external":true,"refSections":[{"refs":[{"id":"ref-for-a-promise-rejected-with"},{"id":"ref-for-a-promise-rejected-with\u2460"},{"id":"ref-for-a-promise-rejected-with\u2461"},{"id":"ref-for-a-promise-rejected-with\u2462"},{"id":"ref-for-a-promise-rejected-with\u2463"},{"id":"ref-for-a-promise-rejected-with\u2464"},{"id":"ref-for-a-promise-rejected-with\u2465"},{"id":"ref-for-a-promise-rejected-with\u2466"}],"title":"4.2. ModelContext Interface"}],"url":"https://webidl.spec.whatwg.org/#a-promise-rejected-with"},
@@ -2450,8 +2410,6 @@ let dfnPanelData = {
 "dom-modelcontext-registertool": {"dfnID":"dom-modelcontext-registertool","dfnText":"registerTool(tool, options)","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontext-registertool"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-dom-modelcontext-registertool\u2460"},{"id":"ref-for-dom-modelcontext-registertool\u2461"}],"title":"4.2. ModelContext Interface"}],"url":"#dom-modelcontext-registertool"},
 "dom-modelcontext-registertool-tool-options-options": {"dfnID":"dom-modelcontext-registertool-tool-options-options","dfnText":"options","external":false,"refSections":[],"url":"#dom-modelcontext-registertool-tool-options-options"},
 "dom-modelcontext-registertool-tool-options-tool": {"dfnID":"dom-modelcontext-registertool-tool-options-tool","dfnText":"tool","external":false,"refSections":[],"url":"#dom-modelcontext-registertool-tool-options-tool"},
-"dom-modelcontextclient-requestuserinteraction": {"dfnID":"dom-modelcontextclient-requestuserinteraction","dfnText":"requestUserInteraction(callback)","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontextclient-requestuserinteraction"},{"id":"ref-for-dom-modelcontextclient-requestuserinteraction\u2460"}],"title":"4.2.3. ModelContextClient Interface"}],"url":"#dom-modelcontextclient-requestuserinteraction"},
-"dom-modelcontextclient-requestuserinteraction-callback-callback": {"dfnID":"dom-modelcontextclient-requestuserinteraction-callback-callback","dfnText":"callback","external":false,"refSections":[],"url":"#dom-modelcontextclient-requestuserinteraction-callback-callback"},
 "dom-modelcontextregistertooloptions-exposedto": {"dfnID":"dom-modelcontextregistertooloptions-exposedto","dfnText":"exposedTo","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontextregistertooloptions-exposedto"},{"id":"ref-for-dom-modelcontextregistertooloptions-exposedto\u2460"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dom-modelcontextregistertooloptions-exposedto\u2461"}],"title":"4.2.2. ModelContextRegisterToolOptions Dictionary"}],"url":"#dom-modelcontextregistertooloptions-exposedto"},
 "dom-modelcontextregistertooloptions-signal": {"dfnID":"dom-modelcontextregistertooloptions-signal","dfnText":"signal","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontextregistertooloptions-signal"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dom-modelcontextregistertooloptions-signal\u2460"}],"title":"4.2.2. ModelContextRegisterToolOptions Dictionary"}],"url":"#dom-modelcontextregistertooloptions-signal"},
 "dom-modelcontexttool-annotations": {"dfnID":"dom-modelcontexttool-annotations","dfnText":"annotations","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontexttool-annotations"},{"id":"ref-for-dom-modelcontexttool-annotations\u2460"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dom-modelcontexttool-annotations\u2461"}],"title":"4.2.1. ModelContextTool Dictionary"}],"url":"#dom-modelcontexttool-annotations"},
@@ -2462,7 +2420,6 @@ let dfnPanelData = {
 "dom-modelcontexttool-title": {"dfnID":"dom-modelcontexttool-title","dfnText":"title","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontexttool-title"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-dom-modelcontexttool-title\u2460"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dom-modelcontexttool-title\u2461"}],"title":"4.2.1. ModelContextTool Dictionary"}],"url":"#dom-modelcontexttool-title"},
 "dom-toolannotations-readonlyhint": {"dfnID":"dom-toolannotations-readonlyhint","dfnText":"readOnlyHint","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-toolannotations-readonlyhint"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dom-toolannotations-readonlyhint\u2460"}],"title":"4.2.1. ModelContextTool Dictionary"}],"url":"#dom-toolannotations-readonlyhint"},
 "dom-toolannotations-untrustedcontenthint": {"dfnID":"dom-toolannotations-untrustedcontenthint","dfnText":"untrustedContentHint","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-toolannotations-untrustedcontenthint"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dom-toolannotations-untrustedcontenthint\u2460"}],"title":"4.2.1. ModelContextTool Dictionary"},{"refs":[{"id":"ref-for-dom-toolannotations-untrustedcontenthint\u2461"}],"title":"6.4.3. Untrusted Annotation for Tool Responses"}],"url":"#dom-toolannotations-untrustedcontenthint"},
-"dom-toolexecutecallback-client": {"dfnID":"dom-toolexecutecallback-client","dfnText":"client","external":false,"refSections":[],"url":"#dom-toolexecutecallback-client"},
 "dom-toolexecutecallback-input": {"dfnID":"dom-toolexecutecallback-input","dfnText":"input","external":false,"refSections":[],"url":"#dom-toolexecutecallback-input"},
 "e4d92278": {"dfnID":"e4d92278","dfnText":"enqueue steps","external":true,"refSections":[{"refs":[{"id":"ref-for-enqueue-the-following-steps"}],"title":"5.2. Page observations"}],"url":"https://html.spec.whatwg.org/multipage/infrastructure.html#enqueue-the-following-steps"},
 "e744c155": {"dfnID":"e744c155","dfnText":"is origin potentially trustworthy?","external":true,"refSections":[{"refs":[{"id":"ref-for-is-origin-trustworthy"}],"title":"4.2. ModelContext Interface"}],"url":"https://w3c.github.io/webappsec-secure-contexts/#is-origin-trustworthy"},
@@ -2475,9 +2432,8 @@ let dfnPanelData = {
 "model-context": {"dfnID":"model-context","dfnText":"model context","external":false,"refSections":[{"refs":[{"id":"ref-for-model-context"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-model-context\u2460"}],"title":"4.2. ModelContext Interface"}],"url":"#model-context"},
 "model-context-tool-map": {"dfnID":"model-context-tool-map","dfnText":"tool map","external":false,"refSections":[{"refs":[{"id":"ref-for-model-context-tool-map"},{"id":"ref-for-model-context-tool-map\u2460"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-model-context-tool-map\u2461"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-model-context-tool-map\u2462"}],"title":"5.2. Page observations"}],"url":"#model-context-tool-map"},
 "model-context-unregister-a-tool": {"dfnID":"model-context-unregister-a-tool","dfnText":"unregister a tool","external":false,"refSections":[{"refs":[{"id":"ref-for-model-context-unregister-a-tool"}],"title":"4.2. ModelContext Interface"}],"url":"#model-context-unregister-a-tool"},
-"modelcontext": {"dfnID":"modelcontext","dfnText":"ModelContext","external":false,"refSections":[{"refs":[{"id":"ref-for-modelcontext"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-modelcontext\u2460"},{"id":"ref-for-modelcontext\u2461"},{"id":"ref-for-modelcontext\u2462"},{"id":"ref-for-modelcontext\u2463"}],"title":"4.1. Extensions to Document"},{"refs":[{"id":"ref-for-modelcontext\u2464"},{"id":"ref-for-modelcontext\u2465"},{"id":"ref-for-modelcontext\u2466"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-modelcontext\u2467"}],"title":"4.2.3. ModelContextClient Interface"},{"refs":[{"id":"ref-for-modelcontext\u2468"}],"title":"4.4. Events"},{"refs":[{"id":"ref-for-modelcontext\u2460\u24ea"},{"id":"ref-for-modelcontext\u2460\u2460"}],"title":"5.1. Event loop integration"},{"refs":[{"id":"ref-for-modelcontext\u2460\u2461"}],"title":"5.2. Page observations"}],"url":"#modelcontext"},
+"modelcontext": {"dfnID":"modelcontext","dfnText":"ModelContext","external":false,"refSections":[{"refs":[{"id":"ref-for-modelcontext"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-modelcontext\u2460"},{"id":"ref-for-modelcontext\u2461"},{"id":"ref-for-modelcontext\u2462"},{"id":"ref-for-modelcontext\u2463"}],"title":"4.1. Extensions to Document"},{"refs":[{"id":"ref-for-modelcontext\u2464"},{"id":"ref-for-modelcontext\u2465"},{"id":"ref-for-modelcontext\u2466"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-modelcontext\u2467"}],"title":"4.4. Events"},{"refs":[{"id":"ref-for-modelcontext\u2468"},{"id":"ref-for-modelcontext\u2460\u24ea"}],"title":"5.1. Event loop integration"},{"refs":[{"id":"ref-for-modelcontext\u2460\u2460"}],"title":"5.2. Page observations"}],"url":"#modelcontext"},
 "modelcontext-internal-context": {"dfnID":"modelcontext-internal-context","dfnText":"internal context","external":false,"refSections":[{"refs":[{"id":"ref-for-modelcontext-internal-context"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-modelcontext-internal-context\u2460"},{"id":"ref-for-modelcontext-internal-context\u2461"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-modelcontext-internal-context\u2462"}],"title":"5.2. Page observations"}],"url":"#modelcontext-internal-context"},
-"modelcontextclient": {"dfnID":"modelcontextclient","dfnText":"ModelContextClient","external":false,"refSections":[{"refs":[{"id":"ref-for-modelcontextclient"},{"id":"ref-for-modelcontextclient\u2460"}],"title":"4.2.1. ModelContextTool Dictionary"},{"refs":[{"id":"ref-for-modelcontextclient\u2461"}],"title":"4.2.3. ModelContextClient Interface"}],"url":"#modelcontextclient"},
 "notify-documents-of-a-tool-change": {"dfnID":"notify-documents-of-a-tool-change","dfnText":"notify documents of a tool change","external":false,"refSections":[{"refs":[{"id":"ref-for-notify-documents-of-a-tool-change"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-notify-documents-of-a-tool-change\u2460"}],"title":"4.2. ModelContext Interface"}],"url":"#notify-documents-of-a-tool-change"},
 "observation": {"dfnID":"observation","dfnText":"observation","external":false,"refSections":[{"refs":[{"id":"ref-for-observation"},{"id":"ref-for-observation\u2460"},{"id":"ref-for-observation\u2461"}],"title":"5.2. Page observations"}],"url":"#observation"},
 "observation-tool-map": {"dfnID":"observation-tool-map","dfnText":"tool map","external":false,"refSections":[{"refs":[{"id":"ref-for-observation-tool-map"},{"id":"ref-for-observation-tool-map\u2460"},{"id":"ref-for-observation-tool-map\u2461"}],"title":"5.2. Page observations"}],"url":"#observation-tool-map"},
@@ -2888,7 +2844,6 @@ let refsData = {
 "#ai-platform": {"displayText":"ai platform","export":true,"for_":[],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"ai platform","type":"dfn","url":"#ai-platform"},
 "#browsers-agent": {"displayText":"browser's agent","export":true,"for_":[],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"browser's agent","type":"dfn","url":"#browsers-agent"},
 "#callbackdef-toolexecutecallback": {"displayText":"ToolExecuteCallback","export":true,"for_":[],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"ToolExecuteCallback","type":"callback","url":"#callbackdef-toolexecutecallback"},
-"#callbackdef-userinteractioncallback": {"displayText":"UserInteractionCallback","export":true,"for_":[],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"UserInteractionCallback","type":"callback","url":"#callbackdef-userinteractioncallback"},
 "#dictdef-modelcontextregistertooloptions": {"displayText":"ModelContextRegisterToolOptions","export":true,"for_":[],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"ModelContextRegisterToolOptions","type":"dictionary","url":"#dictdef-modelcontextregistertooloptions"},
 "#dictdef-modelcontexttool": {"displayText":"ModelContextTool","export":true,"for_":[],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"ModelContextTool","type":"dictionary","url":"#dictdef-modelcontexttool"},
 "#dictdef-toolannotations": {"displayText":"ToolAnnotations","export":true,"for_":[],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"ToolAnnotations","type":"dictionary","url":"#dictdef-toolannotations"},
@@ -2897,7 +2852,6 @@ let refsData = {
 "#dom-document-modelcontext": {"displayText":"modelContext","export":true,"for_":["Document"],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"modelContext","type":"attribute","url":"#dom-document-modelcontext"},
 "#dom-modelcontext-ontoolchange": {"displayText":"ontoolchange","export":true,"for_":["ModelContext"],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"ontoolchange","type":"attribute","url":"#dom-modelcontext-ontoolchange"},
 "#dom-modelcontext-registertool": {"displayText":"registerTool(tool)","export":true,"for_":["ModelContext"],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"registerTool(tool)","type":"method","url":"#dom-modelcontext-registertool"},
-"#dom-modelcontextclient-requestuserinteraction": {"displayText":"requestUserInteraction(callback)","export":true,"for_":["ModelContextClient"],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"requestUserInteraction(callback)","type":"method","url":"#dom-modelcontextclient-requestuserinteraction"},
 "#dom-modelcontextregistertooloptions-exposedto": {"displayText":"exposedTo","export":true,"for_":["ModelContextRegisterToolOptions"],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"exposedTo","type":"dict-member","url":"#dom-modelcontextregistertooloptions-exposedto"},
 "#dom-modelcontextregistertooloptions-signal": {"displayText":"signal","export":true,"for_":["ModelContextRegisterToolOptions"],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"signal","type":"dict-member","url":"#dom-modelcontextregistertooloptions-signal"},
 "#dom-modelcontexttool-annotations": {"displayText":"annotations","export":true,"for_":["ModelContextTool"],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"annotations","type":"dict-member","url":"#dom-modelcontexttool-annotations"},
@@ -2914,7 +2868,6 @@ let refsData = {
 "#model-context-unregister-a-tool": {"displayText":"unregister a tool","export":true,"for_":["model context"],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"unregister a tool","type":"dfn","url":"#model-context-unregister-a-tool"},
 "#modelcontext": {"displayText":"ModelContext","export":true,"for_":[],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"ModelContext","type":"interface","url":"#modelcontext"},
 "#modelcontext-internal-context": {"displayText":"internal context","export":true,"for_":["ModelContext"],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"internal context","type":"dfn","url":"#modelcontext-internal-context"},
-"#modelcontextclient": {"displayText":"ModelContextClient","export":true,"for_":[],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"ModelContextClient","type":"interface","url":"#modelcontextclient"},
 "#notify-documents-of-a-tool-change": {"displayText":"notify documents of a tool change","export":true,"for_":[],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"notify documents of a tool change","type":"dfn","url":"#notify-documents-of-a-tool-change"},
 "#observation": {"displayText":"observation","export":true,"for_":[],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"observation","type":"dfn","url":"#observation"},
 "#observation-tool-map": {"displayText":"tool map","export":true,"for_":["observation"],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"tool map","type":"dfn","url":"#observation-tool-map"},
