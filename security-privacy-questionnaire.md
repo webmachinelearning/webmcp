@@ -57,7 +57,7 @@ No.
 Yes, origin-supplied tools can influence the user agent's UI in the following ways:
 
 - A tool's [`title`](https://webmachinelearning.github.io/webmcp/#dom-modelcontexttool-title) is displayed by the user agent when referencing the tool in its UI.
-- Tool responses (the return value of [`execute`](https://webmachinelearning.github.io/webmcp/#dom-modelcontexttool-execute)) may be shown in, or influence, the agent's UI.
+- Tool responses (the return value of [`execute`](https://webmachinelearning.github.io/webmcp/#dom-modelcontexttool-execute)) may be shown in, or influence, the user agent's UI.
 - [Tool annotations](https://webmachinelearning.github.io/webmcp/#dom-modelcontexttoolannotations) can indirectly influence how an agent presents a tool invocation (e.g., a `readOnlyHint` may cause the agent to skip a confirmation step).
 
 There is also discussion of `requestUserInput` in [Issue #165](https://github.com/webmachinelearning/webmcp/issues/165).
