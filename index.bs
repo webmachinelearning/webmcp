@@ -482,7 +482,7 @@ dictionary ToolAnnotations {
   boolean untrustedContentHint = false;
 };
 
-callback ToolExecuteCallback = Promise<any> (object input, ModelContextClient client);
+callback ToolExecuteCallback = Promise<any> (object input);
 </xmp>
 
 <dl class="domintro">
@@ -510,7 +510,7 @@ callback ToolExecuteCallback = Promise<any> (object input, ModelContextClient cl
 
   <dt><code><var ignore>tool</var>["{{ModelContextTool/execute}}"]</code></dt>
   <dd>
-    <p>A callback function that is invoked when an [=agent=] calls the tool. The function receives the input parameters and a {{ModelContextClient}} object.
+    <p>A callback function that is invoked when an [=agent=] calls the tool. The function receives the input parameters.
 
     <p>The function can be asynchronous and return a promise, in which case the [=agent=] will receive the result once the promise is resolved.
   </dd>
@@ -558,35 +558,6 @@ dictionary ModelContextRegisterToolOptions {
   </dd>
 </dl>
 
-
-<h4 id="model-context-client">ModelContextClient Interface</h4>
-
-The {{ModelContextClient}} interface represents an [=agent=] executing a tool provided by the site through the {{ModelContext}} API.
-
-<xmp class="idl">
-[Exposed=Window, SecureContext]
-interface ModelContextClient {
-  Promise<any> requestUserInteraction(UserInteractionCallback callback);
-};
-
-callback UserInteractionCallback = Promise<any> ();
-</xmp>
-
-<dl class="domintro">
-  <dt><code><var ignore>client</var>.{{ModelContextClient/requestUserInteraction(callback)}}</code></dt>
-  <dd>
-    <p>Asynchronously requests user input during the execution of a tool.
-
-    <p>The callback function is invoked to perform the user interaction (e.g., showing a confirmation dialog), and the promise resolves with the result of the callback.
-  </dd>
-</dl>
-
-<div algorithm>
-The <dfn method for=ModelContextClient>requestUserInteraction(<var ignore>callback</var>)</dfn> method steps are:
-
-1. TODO: fill this out.
-
-</div>
 
 <h3 id="declarative-api">Declarative WebMCP</h3>
 
