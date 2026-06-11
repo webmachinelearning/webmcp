@@ -44,7 +44,9 @@ No.
 
 > 10. Do features in this specification enable new script execution/loading mechanisms?
 
-No. Tool `execute` callbacks are ordinary JavaScript invoked in the registering document's existing realm.
+Yes, it introduces a new script invocation mechanism. Agents (and, when the author opts in via [`exposedTo`](https://webmachinelearning.github.io/webmcp/#dom-modelcontextregistertooloptions-exposedto), authorized cross-origin documents) can directly invoke a tool's [`execute`](https://webmachinelearning.github.io/webmcp/#dom-modelcontexttool-execute) callback with structured, schema-conforming arguments. 
+
+These callbacks are ordinary JavaScript running in the registering document's existing realm, no new script content can be loaded.
 
 > 11. Do features in this specification allow an origin to access other devices?
 
