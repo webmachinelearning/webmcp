@@ -74,7 +74,7 @@ Additionally, tools can specify [`exposedTo`](https://webmachinelearning.github.
 
 > 15. How do the features in this specification work in the context of a browser's Private Browsing or Incognito mode?
 
-We do not anticipate any differences.
+We do not anticipate any differences, but implementers should be aware of how to safely handle private browsing modes. See [Interaction with Private Browsing Modes](https://webmachinelearning.github.io/webmcp/#interaction-with-private-browsing).
 
 > 16. Does this specification have both "Security Considerations" and "Privacy Considerations" sections?
 
