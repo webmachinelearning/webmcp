@@ -395,16 +395,20 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
 1. Let |untrusted content hint| be true if |tool|'s {{ModelContextTool/annotations}} [=map/exists=] and
    its {{ToolAnnotations/untrustedContentHint}} is true. Otherwise, let it be false.
 
+1. Let |promise| be [=a new promise=] created in [=this=]'s [=relevant realm=].
+
 1. Let |signal| be |options|'s {{ModelContextRegisterToolOptions/signal}}.
 
 1. If |signal| [=map/exists=], then:
 
-   1. If |signal| is [=AbortSignal/aborted=], then optionally [=report a warning to the console=]
-      indicating that the tool was not registered because the {{AbortSignal}} was already
-      [=AbortSignal/aborted=], and return.
+   1. If |signal| is [=AbortSignal/aborted=], then return [=a promise rejected with=]
+      |signal|'s [=AbortSignal/abort reason=].
 
-   1. [=AbortSignal/add|Add an abort algorithm=] to |signal| that [=model context/unregisters a
-      tool=] given [=this=] and |tool name|.
+   1. [=AbortSignal/add|Add the following abort steps=] to |signal|:
+
+        1. [=model context/Unregister a tool=] given [=this=] and |tool name|.
+
+        1. [=Reject=] |promise| with |signal|'s [=AbortSignal/abort reason=].
 
 1. Let |exposed origins| be an empty [=list=] of [=origins=].
 
@@ -447,8 +451,6 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
    :: |exposed origins|
 
 1. Set [=this=]'s [=ModelContext/internal context=][|tool name|] to |tool definition|.
-
-1. Let |promise| be [=a new promise=] created in [=this=]'s [=relevant realm=].
 
 1. Run the following steps [=in parallel=]:
 
