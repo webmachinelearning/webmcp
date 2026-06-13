@@ -107,6 +107,6 @@ No.
 
 > 22. What should this questionnaire have asked?
 
-We would like to surface a risk not directly surfaced by this questionnaire: agents browsing multiple origins may carry state from one origin to another, potentially leading to data leakage or same-origin policy bypasses if not handled securely by the user agent. This risk is inherent to multi-origin agent browsing and exists independently of WebMCP.
+We would like to surface a risk not directly surfaced by this questionnaire: agents browsing multiple origins may carry state from one origin to another if not handled securely by the user agent. This risk is inherent to multi-origin agent browsing and exists independently of WebMCP.
 
 This section is currently marked as TODO in the draft spec, and we intend to update it with our analysis soon. See [Violation of Same-Origin Boundaries](https://webmachinelearning.github.io/webmcp/#violation-same-origin-boundaries).
