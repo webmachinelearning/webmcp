@@ -20,7 +20,9 @@ We note a novel challenge for agent implementers: malicious tools can request a 
 
 WebMCP is not a source of sensitive information. Tools may wrap sensitive or high-privilege operations (e.g., purchases, account changes), but that risk is not WebMCP-specific. We discuss this risk in [Tool Implementation as Attack Targets](https://webmachinelearning.github.io/webmcp/#tool-implementation-targets).
 
-We also intend to add a hint for consequential actions (see [#176](https://github.com/webmachinelearning/webmcp/issues/176)) that authors can use to inform the user agent when an action carries higher risk, allowing it to apply appropriate safeguards. We will continue to add further [Mitigations](https://webmachinelearning.github.io/webmcp/#mitigations) as well.
+As of now, the spec does not include normative guidance against the misuse of tools that expose sensitive or high-privilege operations.
+
+We do see room for the API design to help. For example, we intend to add a hint for consequential actions (see [#176](https://github.com/webmachinelearning/webmcp/issues/176)) so authors can flag higher-risk actions for the user agent to safeguard. We will continue to explore further mitigations, which will be documented at [Mitigations](https://webmachinelearning.github.io/webmcp/#mitigations).
 
 > 05. Does data exposed by your specification carry related but distinct information that may not be obvious to users?
 
