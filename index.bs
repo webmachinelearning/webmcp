@@ -523,14 +523,14 @@ callback ToolExecuteCallback = Promise<any> (object input);
 
 The {{ToolAnnotations}} dictionary provides optional metadata about a tool:
 
-<dl class="domintro" dfn-type=dict-member dfn-for=ToolAnnotations>
-  : <dfn>readOnlyHint</dfn>
+<dl class="domintro">
+  : <code><var ignore>annotations</var>["{{ToolAnnotations/readOnlyHint}}"]</code>
   :: If true, indicates that the tool does not modify any state and only reads data. This hint can help [=agents=] make decisions about when it is safe to call the tool.
 
-  : <dfn>untrustedContentHint</dfn>
-  :: If true, indicates that the tool's output contains data that is untrusted, from the perspective
-     of the author registering the tool.
+  : <code><var ignore>annotations</var>["{{ToolAnnotations/untrustedContentHint}}"]</code>
+  :: If true, indicates that the tool's output contains data that is untrusted, from the perspective of the author registering the tool.
 </dl>
+
 
 <h4 id="model-context-register-tool-options">ModelContextRegisterToolOptions Dictionary</h4>
 
@@ -546,16 +546,11 @@ dictionary ModelContextRegisterToolOptions {
 </xmp>
 
 <dl class="domintro">
-  <dt><code><var ignore>tool</var>["{{ModelContextRegisterToolOptions/signal}}"]</code></dt>
-  <dd>
-    <p>An {{AbortSignal}} that unregisters the tool when aborted.
-  </dd>
+  : <code><var ignore>options</var>["{{ModelContextRegisterToolOptions/signal}}"]</code>
+  :: An {{AbortSignal}} that unregisters the tool when aborted.
 
-  <dt><code><var ignore>exposedTo</var>["{{ModelContextRegisterToolOptions/exposedTo}}"]</code></dt>
-  <dd>
-    <p>An array of origins that control which documents this tool is exposed to, in the current
-    document's tree.
-  </dd>
+  : <code><var ignore>options</var>["{{ModelContextRegisterToolOptions/exposedTo}}"]</code>
+  :: <p>An array of origins that control which documents this tool is exposed to, in the current document's tree.
 </dl>
 
 
