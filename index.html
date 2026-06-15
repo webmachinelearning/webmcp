@@ -8,7 +8,7 @@
   <meta content="Bikeshed version d113b2e81, updated Tue Jun 9 14:57:55 2026 -0700" name="generator">
   <link href="https://webmachinelearning.github.io/webmcp" rel="canonical">
   <link href="https://www.w3.org/2008/site/images/favicon.ico" rel="icon">
-  <meta content="067a1c90b5364b02742ef6ce40e5cf5a6497b445" name="revision">
+  <meta content="eb88672bce6329868e3867a5414273264de2ebeb" name="revision">
   <meta content="dark light" name="color-scheme">
   <link href="https://www.w3.org/StyleSheets/TR/2021/dark.css" media="(prefers-color-scheme: dark)" rel="stylesheet" type="text/css">
 <style>
@@ -841,7 +841,7 @@ var[data-var-color="6"] { --var-vg: #FFBCF2; }
 </p>
    <h1 class="no-ref p-name" id="title">WebMCP</h1>
    <p id="w3c-state"><a href="https://www.w3.org/standards/types/#CG-DRAFT">Draft Community Group Report</a>,
-    <time class="dt-updated" datetime="2026-06-11">11 June 2026</time></p>
+    <time class="dt-updated" datetime="2026-06-15">15 June 2026</time></p>
    <details open>
     <summary>More details about this document</summary>
     <div data-fill-with="spec-metadata">
@@ -1315,8 +1315,8 @@ The <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContext" data-dfn-type=
 };
 
 <c- b>dictionary</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="dictionary" data-export id="dictdef-toolannotations"><code><c- g>ToolAnnotations</c-></code></dfn> {
-  <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-boolean" id="ref-for-idl-boolean"><c- b>boolean</c-></a> <a class="idl-code" data-default="false" data-link-type="dict-member" data-type="boolean" href="#dom-toolannotations-readonlyhint" id="ref-for-dom-toolannotations-readonlyhint①"><c- g>readOnlyHint</c-></a> = <c- b>false</c->;
-  <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-boolean" id="ref-for-idl-boolean①"><c- b>boolean</c-></a> <a class="idl-code" data-default="false" data-link-type="dict-member" data-type="boolean" href="#dom-toolannotations-untrustedcontenthint" id="ref-for-dom-toolannotations-untrustedcontenthint①"><c- g>untrustedContentHint</c-></a> = <c- b>false</c->;
+  <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-boolean" id="ref-for-idl-boolean"><c- b>boolean</c-></a> <dfn class="dfn-paneled idl-code" data-default="false" data-dfn-for="ToolAnnotations" data-dfn-type="dict-member" data-export data-type="boolean" id="dom-toolannotations-readonlyhint"><code><c- g>readOnlyHint</c-></code></dfn> = <c- b>false</c->;
+  <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-boolean" id="ref-for-idl-boolean①"><c- b>boolean</c-></a> <dfn class="dfn-paneled idl-code" data-default="false" data-dfn-for="ToolAnnotations" data-dfn-type="dict-member" data-export data-type="boolean" id="dom-toolannotations-untrustedcontenthint"><code><c- g>untrustedContentHint</c-></code></dfn> = <c- b>false</c->;
 };
 
 <c- b>callback</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="callback" data-export id="callbackdef-toolexecutecallback"><code><c- g>ToolExecuteCallback</c-></code></dfn> = <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-promise" id="ref-for-idl-promise①"><c- b>Promise</c-></a>&lt;<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-any" id="ref-for-idl-any"><c- b>any</c-></a>> (<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-object" id="ref-for-idl-object①"><c- b>object</c-></a> <dfn class="dfn-paneled idl-code" data-dfn-for="ToolExecuteCallback" data-dfn-type="argument" data-export id="dom-toolexecutecallback-input"><code><c- g>input</c-></code></dfn>);
@@ -1355,13 +1355,12 @@ The <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContext" data-dfn-type=
    </dl>
    <p>The <code class="idl"><a data-link-type="idl" href="#dictdef-toolannotations" id="ref-for-dictdef-toolannotations①">ToolAnnotations</a></code> dictionary provides optional metadata about a tool:</p>
    <dl class="domintro">
-    <dt data-md><dfn class="dfn-paneled idl-code" data-dfn-for="ToolAnnotations" data-dfn-type="dict-member" data-export id="dom-toolannotations-readonlyhint"><code>readOnlyHint</code></dfn>, <span> of type <a data-link-type="idl-name" href="https://webidl.spec.whatwg.org/#idl-boolean" id="ref-for-idl-boolean②">boolean</a>, defaulting to <code>false</code></span>
+    <dt data-md><code><var>annotations</var>["<code class="idl"><a data-link-type="idl" href="#dom-toolannotations-readonlyhint" id="ref-for-dom-toolannotations-readonlyhint①">readOnlyHint</a></code>"]</code>
     <dd data-md>
      <p>If true, indicates that the tool does not modify any state and only reads data. This hint can help <a data-link-type="dfn" href="#agent" id="ref-for-agent⑨">agents</a> make decisions about when it is safe to call the tool.</p>
-    <dt data-md><dfn class="dfn-paneled idl-code" data-dfn-for="ToolAnnotations" data-dfn-type="dict-member" data-export id="dom-toolannotations-untrustedcontenthint"><code>untrustedContentHint</code></dfn>, <span> of type <a data-link-type="idl-name" href="https://webidl.spec.whatwg.org/#idl-boolean" id="ref-for-idl-boolean③">boolean</a>, defaulting to <code>false</code></span>
+    <dt data-md><code><var>annotations</var>["<code class="idl"><a data-link-type="idl" href="#dom-toolannotations-untrustedcontenthint" id="ref-for-dom-toolannotations-untrustedcontenthint①">untrustedContentHint</a></code>"]</code>
     <dd data-md>
-     <p>If true, indicates that the tool’s output contains data that is untrusted, from the perspective
- of the author registering the tool.</p>
+     <p>If true, indicates that the tool’s output contains data that is untrusted, from the perspective of the author registering the tool.</p>
    </dl>
    <h4 class="heading settled" data-level="4.2.2" id="model-context-register-tool-options"><span class="secno">4.2.2. </span><span class="content">ModelContextRegisterToolOptions Dictionary</span><a class="self-link" href="#model-context-register-tool-options"></a></h4>
    <p>The <code class="idl"><a data-link-type="idl" href="#dictdef-modelcontextregistertooloptions" id="ref-for-dictdef-modelcontextregistertooloptions①">ModelContextRegisterToolOptions</a></code> dictionary carries information pertaining to a tool’s
@@ -1373,15 +1372,13 @@ definition itself.</p>
 };
 </pre>
    <dl class="domintro">
-    <dt><code><var>tool</var>["<code class="idl"><a data-link-type="idl" href="#dom-modelcontextregistertooloptions-signal" id="ref-for-dom-modelcontextregistertooloptions-signal①">signal</a></code>"]</code>
-    <dd>
-     <p>An <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#abortsignal" id="ref-for-abortsignal②">AbortSignal</a></code> that unregisters the tool when aborted.
-  </p>
-    <dt><code><var>exposedTo</var>["<code class="idl"><a data-link-type="idl" href="#dom-modelcontextregistertooloptions-exposedto" id="ref-for-dom-modelcontextregistertooloptions-exposedto②">exposedTo</a></code>"]</code>
-    <dd>
-     <p>An array of origins that control which documents this tool is exposed to, in the current
-    document’s tree.
-  </p>
+    <dt data-md><code><var>options</var>["<code class="idl"><a data-link-type="idl" href="#dom-modelcontextregistertooloptions-signal" id="ref-for-dom-modelcontextregistertooloptions-signal①">signal</a></code>"]</code>
+    <dd data-md>
+     <p>An <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#abortsignal" id="ref-for-abortsignal②">AbortSignal</a></code> that unregisters the tool when aborted.</p>
+    <dt data-md><code><var>options</var>["<code class="idl"><a data-link-type="idl" href="#dom-modelcontextregistertooloptions-exposedto" id="ref-for-dom-modelcontextregistertooloptions-exposedto②">exposedTo</a></code>"]</code>
+    <dd data-md>
+     <p>An array of origins that control which documents this tool is exposed to, in the current document’s tree.
+</p>
    </dl>
    <h3 class="heading settled" data-level="4.3" id="declarative-api"><span class="secno">4.3. </span><span class="content">Declarative WebMCP</span><a class="self-link" href="#declarative-api"></a></h3>
    <p>This section is entirely a TODO. For now, refer to the <a href="https://github.com/webmachinelearning/webmcp/pull/76">explainer draft</a>.</p>
@@ -2094,8 +2091,8 @@ for the initial explainer, proposals, discussions, and other contributions that 
 };
 
 <c- b>dictionary</c-> <a href="#dictdef-toolannotations"><code><c- g>ToolAnnotations</c-></code></a> {
-  <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-boolean"><c- b>boolean</c-></a> <a class="idl-code" data-default="false" data-link-type="dict-member" data-type="boolean" href="#dom-toolannotations-readonlyhint"><c- g>readOnlyHint</c-></a> = <c- b>false</c->;
-  <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-boolean"><c- b>boolean</c-></a> <a class="idl-code" data-default="false" data-link-type="dict-member" data-type="boolean" href="#dom-toolannotations-untrustedcontenthint"><c- g>untrustedContentHint</c-></a> = <c- b>false</c->;
+  <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-boolean"><c- b>boolean</c-></a> <a data-default="false" data-type="boolean" href="#dom-toolannotations-readonlyhint"><code><c- g>readOnlyHint</c-></code></a> = <c- b>false</c->;
+  <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-boolean"><c- b>boolean</c-></a> <a data-default="false" data-type="boolean" href="#dom-toolannotations-untrustedcontenthint"><code><c- g>untrustedContentHint</c-></code></a> = <c- b>false</c->;
 };
 
 <c- b>callback</c-> <a href="#callbackdef-toolexecutecallback"><code><c- g>ToolExecuteCallback</c-></code></a> = <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-promise"><c- b>Promise</c-></a>&lt;<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-any"><c- b>any</c-></a>> (<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-object"><c- b>object</c-></a> <a href="#dom-toolexecutecallback-input"><code><c- g>input</c-></code></a>);
@@ -2337,7 +2334,7 @@ let dfnPanelData = {
 "48d5b598": {"dfnID":"48d5b598","dfnText":"form-associated elements","external":true,"refSections":[{"refs":[{"id":"ref-for-form-associated-element"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-form-associated-element\u2460"}],"title":"4.3. Declarative WebMCP"}],"url":"https://html.spec.whatwg.org/multipage/forms.html#form-associated-element"},
 "53275e46": {"dfnID":"53275e46","dfnText":"append","external":true,"refSections":[{"refs":[{"id":"ref-for-list-append"}],"title":"4.2. ModelContext Interface"}],"url":"https://infra.spec.whatwg.org/#list-append"},
 "535dd335": {"dfnID":"535dd335","dfnText":"aborted","external":true,"refSections":[{"refs":[{"id":"ref-for-abortsignal-aborted"},{"id":"ref-for-abortsignal-aborted\u2460"}],"title":"4.2. ModelContext Interface"}],"url":"https://dom.spec.whatwg.org/#abortsignal-aborted"},
-"5372cca8": {"dfnID":"5372cca8","dfnText":"boolean","external":true,"refSections":[{"refs":[{"id":"ref-for-idl-boolean"},{"id":"ref-for-idl-boolean\u2460"},{"id":"ref-for-idl-boolean\u2461"},{"id":"ref-for-idl-boolean\u2462"}],"title":"4.2.1. ModelContextTool Dictionary"}],"url":"https://webidl.spec.whatwg.org/#idl-boolean"},
+"5372cca8": {"dfnID":"5372cca8","dfnText":"boolean","external":true,"refSections":[{"refs":[{"id":"ref-for-idl-boolean"},{"id":"ref-for-idl-boolean\u2460"}],"title":"4.2.1. ModelContextTool Dictionary"}],"url":"https://webidl.spec.whatwg.org/#idl-boolean"},
 "56f81a8e": {"dfnID":"56f81a8e","dfnText":"new","external":true,"refSections":[{"refs":[{"id":"ref-for-new"}],"title":"4.1. Extensions to Document"}],"url":"https://webidl.spec.whatwg.org/#new"},
 "5991ccfb": {"dfnID":"5991ccfb","dfnText":"relevant realm","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-relevant-realm"}],"title":"4.1. Extensions to Document"},{"refs":[{"id":"ref-for-concept-relevant-realm\u2460"}],"title":"4.2. ModelContext Interface"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-realm"},
 "5f90bbfb": {"dfnID":"5f90bbfb","dfnText":"undefined","external":true,"refSections":[{"refs":[{"id":"ref-for-idl-undefined"}],"title":"4.2. ModelContext Interface"}],"url":"https://webidl.spec.whatwg.org/#idl-undefined"},
