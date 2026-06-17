@@ -258,7 +258,7 @@ To <dfn for="model context">unregister a tool</dfn> given a {{ModelContext}} |mo
 1. Let |tool map| be |modelContext|'s [=ModelContext/internal context=]'s [=model context/tool
    map=].
 
-1. [=Assert=] |tool map|[|tool name|] [=map/exists=].
+1. If |tool map|[|tool name|] does not [=map/exist=], then return.
 
 1. Let |exposed origins| be |tool map|[|tool name|]'s [=tool definition/exposed origins=].
 
