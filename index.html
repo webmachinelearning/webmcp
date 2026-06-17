@@ -8,7 +8,7 @@
   <meta content="Bikeshed version d113b2e81, updated Tue Jun 9 14:57:55 2026 -0700" name="generator">
   <link href="https://webmachinelearning.github.io/webmcp" rel="canonical">
   <link href="https://www.w3.org/2008/site/images/favicon.ico" rel="icon">
-  <meta content="7addecfd30d6128b2e93ae193b37c9478a3951ee" name="revision">
+  <meta content="bc93f030aa24d14eb24d5cb6dfc373c0b4aae0d8" name="revision">
   <meta content="dark light" name="color-scheme">
   <link href="https://www.w3.org/StyleSheets/TR/2021/dark.css" media="(prefers-color-scheme: dark)" rel="stylesheet" type="text/css">
 <style>
@@ -841,7 +841,7 @@ var[data-var-color="6"] { --var-vg: #FFBCF2; }
 </p>
    <h1 class="no-ref p-name" id="title">WebMCP</h1>
    <p id="w3c-state"><a href="https://www.w3.org/standards/types/#CG-DRAFT">Draft Community Group Report</a>,
-    <time class="dt-updated" datetime="2026-06-16">16 June 2026</time></p>
+    <time class="dt-updated" datetime="2026-06-17">17 June 2026</time></p>
    <details open>
     <summary>More details about this document</summary>
     <div data-fill-with="spec-metadata">
@@ -1110,7 +1110,7 @@ To <dfn class="dfn-paneled" data-dfn-for="model context" data-dfn-type="dfn" dat
      <li data-md>
       <p>Let <var>tool map</var> be <var>modelContext</var>’s <a data-link-type="dfn" href="#modelcontext-internal-context" id="ref-for-modelcontext-internal-context">internal context</a>’s <a data-link-type="dfn" href="#model-context-tool-map" id="ref-for-model-context-tool-map①">tool map</a>.</p>
      <li data-md>
-      <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#assert" id="ref-for-assert②">Assert</a> <var>tool map</var>[<var>tool name</var>] <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists">exists</a>.</p>
+      <p>If <var>tool map</var>[<var>tool name</var>] does not <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists">exist</a>, then return.</p>
      <li data-md>
       <p>Let <var>exposed origins</var> be <var>tool map</var>[<var>tool name</var>]'s <a data-link-type="dfn" href="#tool-definition-exposed-origins" id="ref-for-tool-definition-exposed-origins">exposed origins</a>.</p>
      <li data-md>
@@ -1228,16 +1228,23 @@ The <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContext" data-dfn-type=
       <p>Let <var>untrusted content hint</var> be true if <var>tool</var>’s <code class="idl"><a data-link-type="idl" href="#dom-modelcontexttool-annotations" id="ref-for-dom-modelcontexttool-annotations①">annotations</a></code> <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists④">exists</a> and
  its <code class="idl"><a data-link-type="idl" href="#dom-toolannotations-untrustedcontenthint" id="ref-for-dom-toolannotations-untrustedcontenthint">untrustedContentHint</a></code> is true. Otherwise, let it be false.</p>
      <li data-md>
+      <p>Let <var>promise</var> be <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#a-new-promise" id="ref-for-a-new-promise">a new promise</a> created in <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this③">this</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-realm" id="ref-for-concept-relevant-realm①">relevant realm</a>.</p>
+     <li data-md>
       <p>Let <var>signal</var> be <var>options</var>’s <code class="idl"><a data-link-type="idl" href="#dom-modelcontextregistertooloptions-signal" id="ref-for-dom-modelcontextregistertooloptions-signal">signal</a></code>.</p>
      <li data-md>
       <p>If <var>signal</var> <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists⑤">exists</a>, then:</p>
       <ol>
        <li data-md>
-        <p>If <var>signal</var> is <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#abortsignal-aborted" id="ref-for-abortsignal-aborted">aborted</a>, then optionally <a data-link-type="dfn" href="https://console.spec.whatwg.org/#report-a-warning-to-the-console" id="ref-for-report-a-warning-to-the-console">report a warning to the console</a>
-  indicating that the tool was not registered because the <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#abortsignal" id="ref-for-abortsignal">AbortSignal</a></code> was already
-  <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#abortsignal-aborted" id="ref-for-abortsignal-aborted①">aborted</a>, and return.</p>
+        <p>If <var>signal</var> is <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#abortsignal-aborted" id="ref-for-abortsignal-aborted">aborted</a>, then return <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#a-promise-rejected-with" id="ref-for-a-promise-rejected-with⑦">a promise rejected with</a>
+  <var>signal</var>’s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#abortsignal-abort-reason" id="ref-for-abortsignal-abort-reason">abort reason</a>.</p>
        <li data-md>
-        <p><a data-link-type="dfn" href="https://dom.spec.whatwg.org/#abortsignal-add" id="ref-for-abortsignal-add">Add an abort algorithm</a> to <var>signal</var> that <a data-link-type="dfn" href="#model-context-unregister-a-tool" id="ref-for-model-context-unregister-a-tool">unregisters a tool</a> given <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this③">this</a> and <var>tool name</var>.</p>
+        <p><a data-link-type="dfn" href="https://dom.spec.whatwg.org/#abortsignal-add" id="ref-for-abortsignal-add">Add the following abort steps</a> to <var>signal</var>:</p>
+        <ol>
+         <li data-md>
+          <p><a data-link-type="dfn" href="#model-context-unregister-a-tool" id="ref-for-model-context-unregister-a-tool">Unregister a tool</a> given <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this④">this</a> and <var>tool name</var>.</p>
+         <li data-md>
+          <p><a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#reject" id="ref-for-reject">Reject</a> <var>promise</var> with <var>signal</var>’s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#abortsignal-abort-reason" id="ref-for-abortsignal-abort-reason①">abort reason</a>.</p>
+        </ol>
       </ol>
      <li data-md>
       <p>Let <var>exposed origins</var> be an empty <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list③">list</a> of <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#concept-origin" id="ref-for-concept-origin⑤">origins</a>.</p>
@@ -1250,7 +1257,7 @@ The <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContext" data-dfn-type=
          <li data-md>
           <p>Let <var>parsedURL</var> be the result of running the <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-parser" id="ref-for-concept-url-parser">URL parser</a> on <var>origin</var>.</p>
          <li data-md>
-          <p>If <var>parsedURL</var> is failure or its <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-origin" id="ref-for-concept-url-origin">origin</a> is not <a data-link-type="abstract-op" href="https://w3c.github.io/webappsec-secure-contexts/#is-origin-trustworthy" id="ref-for-is-origin-trustworthy">potentially trustworthy</a>, then return <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#a-promise-rejected-with" id="ref-for-a-promise-rejected-with⑦">a promise rejected with</a> a
+          <p>If <var>parsedURL</var> is failure or its <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-origin" id="ref-for-concept-url-origin">origin</a> is not <a data-link-type="abstract-op" href="https://w3c.github.io/webappsec-secure-contexts/#is-origin-trustworthy" id="ref-for-is-origin-trustworthy">potentially trustworthy</a>, then return <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#a-promise-rejected-with" id="ref-for-a-promise-rejected-with⑧">a promise rejected with</a> a
  "<code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#securityerror" id="ref-for-securityerror①">SecurityError</a></code>" <code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#idl-DOMException" id="ref-for-idl-DOMException⑥">DOMException</a></code>.</p>
          <li data-md>
           <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-append" id="ref-for-list-append">Append</a> <var>parsedURL</var>’s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-origin" id="ref-for-concept-url-origin①">origin</a> to <var>exposed origins</var>.</p>
@@ -1285,9 +1292,7 @@ The <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContext" data-dfn-type=
         <p><var>exposed origins</var></p>
       </dl>
      <li data-md>
-      <p>Set <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this④">this</a>’s <a data-link-type="dfn" href="#modelcontext-internal-context" id="ref-for-modelcontext-internal-context②">internal context</a>[<var>tool name</var>] to <var>tool definition</var>.</p>
-     <li data-md>
-      <p>Let <var>promise</var> be <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#a-new-promise" id="ref-for-a-new-promise">a new promise</a> created in <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this⑤">this</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-realm" id="ref-for-concept-relevant-realm①">relevant realm</a>.</p>
+      <p>Set <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this⑤">this</a>’s <a data-link-type="dfn" href="#modelcontext-internal-context" id="ref-for-modelcontext-internal-context②">internal context</a>[<var>tool name</var>] to <var>tool definition</var>.</p>
      <li data-md>
       <p>Run the following steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel" id="ref-for-in-parallel③">in parallel</a>:</p>
       <ol>
@@ -1367,14 +1372,14 @@ The <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContext" data-dfn-type=
 registration, in contrast with the <code class="idl"><a data-link-type="idl" href="#dictdef-modelcontexttool" id="ref-for-dictdef-modelcontexttool②">ModelContextTool</a></code> dictionary which carries the tool
 definition itself.</p>
 <pre class="def highlight idl"><c- b>dictionary</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="dictionary" data-export id="dictdef-modelcontextregistertooloptions"><code><c- g>ModelContextRegisterToolOptions</c-></code></dfn> {
-  <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#abortsignal" id="ref-for-abortsignal①"><c- n>AbortSignal</c-></a> <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContextRegisterToolOptions" data-dfn-type="dict-member" data-export data-type="AbortSignal" id="dom-modelcontextregistertooloptions-signal"><code><c- g>signal</c-></code></dfn>;
+  <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#abortsignal" id="ref-for-abortsignal"><c- n>AbortSignal</c-></a> <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContextRegisterToolOptions" data-dfn-type="dict-member" data-export data-type="AbortSignal" id="dom-modelcontextregistertooloptions-signal"><code><c- g>signal</c-></code></dfn>;
   <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#idl-sequence" id="ref-for-idl-sequence"><c- b>sequence</c-></a>&lt;<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-USVString" id="ref-for-idl-USVString①"><c- b>USVString</c-></a>> <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContextRegisterToolOptions" data-dfn-type="dict-member" data-export data-type="sequence<USVString>" id="dom-modelcontextregistertooloptions-exposedto"><code><c- g>exposedTo</c-></code></dfn>;
 };
 </pre>
    <dl class="domintro">
     <dt data-md><code><var>options</var>["<code class="idl"><a data-link-type="idl" href="#dom-modelcontextregistertooloptions-signal" id="ref-for-dom-modelcontextregistertooloptions-signal①">signal</a></code>"]</code>
     <dd data-md>
-     <p>An <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#abortsignal" id="ref-for-abortsignal②">AbortSignal</a></code> that unregisters the tool when aborted.</p>
+     <p>An <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#abortsignal" id="ref-for-abortsignal①">AbortSignal</a></code> that unregisters the tool when aborted.</p>
     <dt data-md><code><var>options</var>["<code class="idl"><a data-link-type="idl" href="#dom-modelcontextregistertooloptions-exposedto" id="ref-for-dom-modelcontextregistertooloptions-exposedto②">exposedTo</a></code>"]</code>
     <dd data-md>
      <p>An array of origins that control which documents this tool is exposed to, in the current document’s tree.
@@ -1448,9 +1453,9 @@ steps:
 
     <ol>
      <li data-md>
-      <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#assert" id="ref-for-assert③">Assert</a>: This algorithm is running in the <a data-link-type="dfn" href="#browsers-agent" id="ref-for-browsers-agent⑦">browser agent</a>’s <a data-link-type="dfn" href="#ai-agent-queue" id="ref-for-ai-agent-queue">AI agent queue</a>.</p>
+      <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#assert" id="ref-for-assert②">Assert</a>: This algorithm is running in the <a data-link-type="dfn" href="#browsers-agent" id="ref-for-browsers-agent⑦">browser agent</a>’s <a data-link-type="dfn" href="#ai-agent-queue" id="ref-for-ai-agent-queue">AI agent queue</a>.</p>
      <li data-md>
-      <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#assert" id="ref-for-assert④">Assert</a>: <var>traversable</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/document-sequences.html#nav-document" id="ref-for-nav-document①">active document</a> is not <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/document-sequences.html#fully-active" id="ref-for-fully-active①">fully active</a>.</p>
+      <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#assert" id="ref-for-assert③">Assert</a>: <var>traversable</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/document-sequences.html#nav-document" id="ref-for-nav-document①">active document</a> is not <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/document-sequences.html#fully-active" id="ref-for-fully-active①">fully active</a>.</p>
      <li data-md>
       <p>Let <var>observation</var> be a new <a data-link-type="dfn" href="#observation" id="ref-for-observation②">observation</a>.</p>
      <li data-md>
@@ -1896,16 +1901,12 @@ for the initial explainer, proposals, discussions, and other contributions that 
   <h3 class="heading no-num no-ref settled" id="index-defined-elsewhere"><span class="content">Terms defined by reference</span><a class="self-link" href="#index-defined-elsewhere"></a></h3>
   <ul class="index">
    <li>
-    <a data-link-type="biblio">[CONSOLE]</a> defines the following terms:
-    <ul>
-     <li><span class="dfn-paneled" id="37e32f12">report a warning to the console</span>
-    </ul>
-   <li>
     <a data-link-type="biblio">[DOM]</a> defines the following terms:
     <ul>
      <li><span class="dfn-paneled" id="cca3cdb2">AbortSignal</span>
      <li><span class="dfn-paneled" id="85394472">Document</span>
      <li><span class="dfn-paneled" id="2bc0cdf4">EventTarget</span>
+     <li><span class="dfn-paneled" id="28e64574">abort reason</span>
      <li><span class="dfn-paneled" id="535dd335">aborted</span>
      <li><span class="dfn-paneled" id="87bc23a5">add</span>
      <li><span class="dfn-paneled" id="a973e0fe">document</span>
@@ -2026,6 +2027,7 @@ for the initial explainer, proposals, discussions, and other contributions that 
      <li><span class="dfn-paneled" id="5372cca8">boolean</span>
      <li><span class="dfn-paneled" id="56f81a8e">new</span>
      <li><span class="dfn-paneled" id="efd1ec5d">object</span>
+     <li><span class="dfn-paneled" id="b262501e">reject</span>
      <li><span class="dfn-paneled" id="3b90bdcd">resolve</span>
      <li><span class="dfn-paneled" id="9cce47fd">sequence</span>
      <li><span class="dfn-paneled" id="4013a022">this</span>
@@ -2035,8 +2037,6 @@ for the initial explainer, proposals, discussions, and other contributions that 
   <h2 class="heading no-num no-ref settled" id="references"><span class="content">References</span><a class="self-link" href="#references"></a></h2>
   <h3 class="heading no-num no-ref settled" id="normative"><span class="content">Normative References</span><a class="self-link" href="#normative"></a></h3>
   <dl>
-   <dt id="biblio-console">[CONSOLE]
-   <dd>Dominic Farolino; Robert Kowalski; Terin Stock. <a href="https://console.spec.whatwg.org/"><cite>Console Standard</cite></a>. Living Standard. URL: <a href="https://console.spec.whatwg.org/">https://console.spec.whatwg.org/</a>
    <dt id="biblio-dom">[DOM]
    <dd>Anne van Kesteren. <a href="https://dom.spec.whatwg.org/"><cite>DOM Standard</cite></a>. Living Standard. URL: <a href="https://dom.spec.whatwg.org/">https://dom.spec.whatwg.org/</a>
    <dt id="biblio-ecmascript">[ECMASCRIPT]
@@ -2316,6 +2316,7 @@ let dfnPanelData = {
 "16d07e10": {"dfnID":"16d07e10","dfnText":"for each","external":true,"refSections":[{"refs":[{"id":"ref-for-list-iterate"},{"id":"ref-for-list-iterate\u2460"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-list-iterate\u2461"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-list-iterate\u2462"}],"title":"5.2. Page observations"}],"url":"https://infra.spec.whatwg.org/#list-iterate"},
 "17582406": {"dfnID":"17582406","dfnText":"traversable navigable","external":true,"refSections":[{"refs":[{"id":"ref-for-nav-traversable"}],"title":"3. Supporting concepts"}],"url":"https://html.spec.whatwg.org/multipage/document-sequences.html#nav-traversable"},
 "246a8265": {"dfnID":"246a8265","dfnText":"is origin-keyed","external":true,"refSections":[{"refs":[{"id":"ref-for-is-origin-keyed"}],"title":"4.2. ModelContext Interface"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#is-origin-keyed"},
+"28e64574": {"dfnID":"28e64574","dfnText":"abort reason","external":true,"refSections":[{"refs":[{"id":"ref-for-abortsignal-abort-reason"},{"id":"ref-for-abortsignal-abort-reason\u2460"}],"title":"4.2. ModelContext Interface"}],"url":"https://dom.spec.whatwg.org/#abortsignal-abort-reason"},
 "2bc0cdf4": {"dfnID":"2bc0cdf4","dfnText":"EventTarget","external":true,"refSections":[{"refs":[{"id":"ref-for-eventtarget"}],"title":"4.2. ModelContext Interface"}],"url":"https://dom.spec.whatwg.org/#eventtarget"},
 "31db57e6": {"dfnID":"31db57e6","dfnText":"keys","external":true,"refSections":[{"refs":[{"id":"ref-for-map-getting-the-keys"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-map-getting-the-keys\u2460"}],"title":"5.2. Page observations"}],"url":"https://infra.spec.whatwg.org/#map-getting-the-keys"},
 "333b39ba": {"dfnID":"333b39ba","dfnText":"'self'","external":true,"refSections":[{"refs":[{"id":"ref-for-default-allowlist-self"}],"title":"4.5. Permissions policy integration"}],"url":"https://w3c.github.io/webappsec-permissions-policy/#default-allowlist-self"},
@@ -2324,7 +2325,6 @@ let dfnPanelData = {
 "3610bd67": {"dfnID":"3610bd67","dfnText":"allowed to use","external":true,"refSections":[{"refs":[{"id":"ref-for-allowed-to-use"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-allowed-to-use\u2460"}],"title":"4.2. ModelContext Interface"}],"url":"https://html.spec.whatwg.org/multipage/iframe-embed-object.html#allowed-to-use"},
 "36858240": {"dfnID":"36858240","dfnText":"boolean","external":true,"refSections":[{"refs":[{"id":"ref-for-boolean"},{"id":"ref-for-boolean\u2460"}],"title":"3. Supporting concepts"}],"url":"https://infra.spec.whatwg.org/#boolean"},
 "3685aee5": {"dfnID":"3685aee5","dfnText":"serialize a JavaScript value to a JSON string","external":true,"refSections":[{"refs":[{"id":"ref-for-serialize-a-javascript-value-to-a-json-string"}],"title":"4.2. ModelContext Interface"}],"url":"https://infra.spec.whatwg.org/#serialize-a-javascript-value-to-a-json-string"},
-"37e32f12": {"dfnID":"37e32f12","dfnText":"report a warning to the console","external":true,"refSections":[{"refs":[{"id":"ref-for-report-a-warning-to-the-console"}],"title":"4.2. ModelContext Interface"}],"url":"https://console.spec.whatwg.org/#report-a-warning-to-the-console"},
 "3b90bdcd": {"dfnID":"3b90bdcd","dfnText":"resolve","external":true,"refSections":[{"refs":[{"id":"ref-for-resolve"}],"title":"4.2. ModelContext Interface"}],"url":"https://webidl.spec.whatwg.org/#resolve"},
 "3fca5a9e": {"dfnID":"3fca5a9e","dfnText":"map","external":true,"refSections":[{"refs":[{"id":"ref-for-ordered-map"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-ordered-map\u2460"}],"title":"4.3. Declarative WebMCP"},{"refs":[{"id":"ref-for-ordered-map\u2461"}],"title":"5.2. Page observations"}],"url":"https://infra.spec.whatwg.org/#ordered-map"},
 "4013a022": {"dfnID":"4013a022","dfnText":"this","external":true,"refSections":[{"refs":[{"id":"ref-for-this"}],"title":"4.1. Extensions to Document"},{"refs":[{"id":"ref-for-this\u2460"},{"id":"ref-for-this\u2461"},{"id":"ref-for-this\u2462"},{"id":"ref-for-this\u2463"},{"id":"ref-for-this\u2464"}],"title":"4.2. ModelContext Interface"}],"url":"https://webidl.spec.whatwg.org/#this"},
@@ -2333,7 +2333,7 @@ let dfnPanelData = {
 "48438eb3": {"dfnID":"48438eb3","dfnText":"queue a global task","external":true,"refSections":[{"refs":[{"id":"ref-for-queue-a-global-task"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-queue-a-global-task\u2460"}],"title":"4.2. ModelContext Interface"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-global-task"},
 "48d5b598": {"dfnID":"48d5b598","dfnText":"form-associated elements","external":true,"refSections":[{"refs":[{"id":"ref-for-form-associated-element"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-form-associated-element\u2460"}],"title":"4.3. Declarative WebMCP"}],"url":"https://html.spec.whatwg.org/multipage/forms.html#form-associated-element"},
 "53275e46": {"dfnID":"53275e46","dfnText":"append","external":true,"refSections":[{"refs":[{"id":"ref-for-list-append"}],"title":"4.2. ModelContext Interface"}],"url":"https://infra.spec.whatwg.org/#list-append"},
-"535dd335": {"dfnID":"535dd335","dfnText":"aborted","external":true,"refSections":[{"refs":[{"id":"ref-for-abortsignal-aborted"},{"id":"ref-for-abortsignal-aborted\u2460"}],"title":"4.2. ModelContext Interface"}],"url":"https://dom.spec.whatwg.org/#abortsignal-aborted"},
+"535dd335": {"dfnID":"535dd335","dfnText":"aborted","external":true,"refSections":[{"refs":[{"id":"ref-for-abortsignal-aborted"}],"title":"4.2. ModelContext Interface"}],"url":"https://dom.spec.whatwg.org/#abortsignal-aborted"},
 "5372cca8": {"dfnID":"5372cca8","dfnText":"boolean","external":true,"refSections":[{"refs":[{"id":"ref-for-idl-boolean"},{"id":"ref-for-idl-boolean\u2460"}],"title":"4.2.1. ModelContextTool Dictionary"}],"url":"https://webidl.spec.whatwg.org/#idl-boolean"},
 "56f81a8e": {"dfnID":"56f81a8e","dfnText":"new","external":true,"refSections":[{"refs":[{"id":"ref-for-new"}],"title":"4.1. Extensions to Document"}],"url":"https://webidl.spec.whatwg.org/#new"},
 "5991ccfb": {"dfnID":"5991ccfb","dfnText":"relevant realm","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-relevant-realm"}],"title":"4.1. Extensions to Document"},{"refs":[{"id":"ref-for-concept-relevant-realm\u2460"}],"title":"4.2. ModelContext Interface"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-realm"},
@@ -2344,7 +2344,7 @@ let dfnPanelData = {
 "6c6b1005": {"dfnID":"6c6b1005","dfnText":"any","external":true,"refSections":[{"refs":[{"id":"ref-for-idl-any"}],"title":"4.2.1. ModelContextTool Dictionary"}],"url":"https://webidl.spec.whatwg.org/#idl-any"},
 "6d19ac93": {"dfnID":"6d19ac93","dfnText":"user agent","external":true,"refSections":[{"refs":[{"id":"ref-for-user-agent"}],"title":"5.1. Event loop integration"},{"refs":[{"id":"ref-for-user-agent\u2460"},{"id":"ref-for-user-agent\u2461"},{"id":"ref-for-user-agent\u2462"},{"id":"ref-for-user-agent\u2463"}],"title":"5.2. Page observations"},{"refs":[{"id":"ref-for-user-agent\u2464"},{"id":"ref-for-user-agent\u2465"},{"id":"ref-for-user-agent\u2466"}],"title":"6.1. Approach to Risk Assessment and Mitigations"},{"refs":[{"id":"ref-for-user-agent\u2467"}],"title":"6.3.4. Violation of Same-Origin Boundaries"}],"url":"https://infra.spec.whatwg.org/#user-agent"},
 "7393da89": {"dfnID":"7393da89","dfnText":"same origin","external":true,"refSections":[{"refs":[{"id":"ref-for-same-origin"},{"id":"ref-for-same-origin\u2460"}],"title":"3. Supporting concepts"}],"url":"https://html.spec.whatwg.org/multipage/browsers.html#same-origin"},
-"77b4c09a": {"dfnID":"77b4c09a","dfnText":"assert","external":true,"refSections":[{"refs":[{"id":"ref-for-assert"},{"id":"ref-for-assert\u2460"},{"id":"ref-for-assert\u2461"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-assert\u2462"},{"id":"ref-for-assert\u2463"}],"title":"5.2. Page observations"}],"url":"https://infra.spec.whatwg.org/#assert"},
+"77b4c09a": {"dfnID":"77b4c09a","dfnText":"assert","external":true,"refSections":[{"refs":[{"id":"ref-for-assert"},{"id":"ref-for-assert\u2460"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-assert\u2461"},{"id":"ref-for-assert\u2462"}],"title":"5.2. Page observations"}],"url":"https://infra.spec.whatwg.org/#assert"},
 "797018a7": {"dfnID":"797018a7","dfnText":"InvalidStateError","external":true,"refSections":[{"refs":[{"id":"ref-for-invalidstateerror"},{"id":"ref-for-invalidstateerror\u2460"},{"id":"ref-for-invalidstateerror\u2461"},{"id":"ref-for-invalidstateerror\u2462"}],"title":"4.2. ModelContext Interface"}],"url":"https://webidl.spec.whatwg.org/#invalidstateerror"},
 "7d4424b2": {"dfnID":"7d4424b2","dfnText":"remove","external":true,"refSections":[{"refs":[{"id":"ref-for-map-remove"}],"title":"3. Supporting concepts"}],"url":"https://infra.spec.whatwg.org/#map-remove"},
 "8219d486": {"dfnID":"8219d486","dfnText":"starting a new parallel queue","external":true,"refSections":[{"refs":[{"id":"ref-for-starting-a-new-parallel-queue"}],"title":"5.1. Event loop integration"}],"url":"https://html.spec.whatwg.org/multipage/infrastructure.html#starting-a-new-parallel-queue"},
@@ -2375,6 +2375,7 @@ let dfnPanelData = {
 "ai-agent-queue": {"dfnID":"ai-agent-queue","dfnText":"AI agent queue","external":false,"refSections":[{"refs":[{"id":"ref-for-ai-agent-queue"},{"id":"ref-for-ai-agent-queue\u2460"}],"title":"5.2. Page observations"}],"url":"#ai-agent-queue"},
 "ai-platform": {"dfnID":"ai-platform","dfnText":"AI platform","external":false,"refSections":[{"refs":[{"id":"ref-for-ai-platform"}],"title":"2. Terminology"}],"url":"#ai-platform"},
 "b0d7f3c3": {"dfnID":"b0d7f3c3","dfnText":"USVString","external":true,"refSections":[{"refs":[{"id":"ref-for-idl-USVString"}],"title":"4.2.1. ModelContextTool Dictionary"},{"refs":[{"id":"ref-for-idl-USVString\u2460"}],"title":"4.2.2. ModelContextRegisterToolOptions Dictionary"}],"url":"https://webidl.spec.whatwg.org/#idl-USVString"},
+"b262501e": {"dfnID":"b262501e","dfnText":"reject","external":true,"refSections":[{"refs":[{"id":"ref-for-reject"}],"title":"4.2. ModelContext Interface"}],"url":"https://webidl.spec.whatwg.org/#reject"},
 "b557a925": {"dfnID":"b557a925","dfnText":"surrounding agent","external":true,"refSections":[{"refs":[{"id":"ref-for-surrounding-agent"}],"title":"4.2. ModelContext Interface"}],"url":"https://tc39.es/ecma262/#surrounding-agent"},
 "b75bb3bd": {"dfnID":"b75bb3bd","dfnText":"SecureContext","external":true,"refSections":[{"refs":[{"id":"ref-for-SecureContext"}],"title":"4.1. Extensions to Document"},{"refs":[{"id":"ref-for-SecureContext\u2460"}],"title":"4.2. ModelContext Interface"}],"url":"https://webidl.spec.whatwg.org/#SecureContext"},
 "b78d6a64": {"dfnID":"b78d6a64","dfnText":"event loop (for agent)","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-agent-event-loop"}],"title":"3. Supporting concepts"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#concept-agent-event-loop"},
@@ -2389,8 +2390,8 @@ let dfnPanelData = {
 "ca3ca4ae": {"dfnID":"ca3ca4ae","dfnText":"URL parser","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-url-parser"}],"title":"4.2. ModelContext Interface"}],"url":"https://url.spec.whatwg.org/#concept-url-parser"},
 "callbackdef-toolexecutecallback": {"dfnID":"callbackdef-toolexecutecallback","dfnText":"ToolExecuteCallback","external":false,"refSections":[{"refs":[{"id":"ref-for-callbackdef-toolexecutecallback"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-callbackdef-toolexecutecallback\u2460"}],"title":"4.2.1. ModelContextTool Dictionary"}],"url":"#callbackdef-toolexecutecallback"},
 "cc890cc1": {"dfnID":"cc890cc1","dfnText":"policy-controlled feature","external":true,"refSections":[{"refs":[{"id":"ref-for-policy-controlled-feature"}],"title":"4.5. Permissions policy integration"}],"url":"https://w3c.github.io/webappsec-permissions-policy/#policy-controlled-feature"},
-"cca3cdb2": {"dfnID":"cca3cdb2","dfnText":"AbortSignal","external":true,"refSections":[{"refs":[{"id":"ref-for-abortsignal"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-abortsignal\u2460"},{"id":"ref-for-abortsignal\u2461"}],"title":"4.2.2. ModelContextRegisterToolOptions Dictionary"}],"url":"https://dom.spec.whatwg.org/#abortsignal"},
-"d0b4a948": {"dfnID":"d0b4a948","dfnText":"a promise rejected with","external":true,"refSections":[{"refs":[{"id":"ref-for-a-promise-rejected-with"},{"id":"ref-for-a-promise-rejected-with\u2460"},{"id":"ref-for-a-promise-rejected-with\u2461"},{"id":"ref-for-a-promise-rejected-with\u2462"},{"id":"ref-for-a-promise-rejected-with\u2463"},{"id":"ref-for-a-promise-rejected-with\u2464"},{"id":"ref-for-a-promise-rejected-with\u2465"},{"id":"ref-for-a-promise-rejected-with\u2466"}],"title":"4.2. ModelContext Interface"}],"url":"https://webidl.spec.whatwg.org/#a-promise-rejected-with"},
+"cca3cdb2": {"dfnID":"cca3cdb2","dfnText":"AbortSignal","external":true,"refSections":[{"refs":[{"id":"ref-for-abortsignal"},{"id":"ref-for-abortsignal\u2460"}],"title":"4.2.2. ModelContextRegisterToolOptions Dictionary"}],"url":"https://dom.spec.whatwg.org/#abortsignal"},
+"d0b4a948": {"dfnID":"d0b4a948","dfnText":"a promise rejected with","external":true,"refSections":[{"refs":[{"id":"ref-for-a-promise-rejected-with"},{"id":"ref-for-a-promise-rejected-with\u2460"},{"id":"ref-for-a-promise-rejected-with\u2461"},{"id":"ref-for-a-promise-rejected-with\u2462"},{"id":"ref-for-a-promise-rejected-with\u2463"},{"id":"ref-for-a-promise-rejected-with\u2464"},{"id":"ref-for-a-promise-rejected-with\u2465"},{"id":"ref-for-a-promise-rejected-with\u2466"},{"id":"ref-for-a-promise-rejected-with\u2467"}],"title":"4.2. ModelContext Interface"}],"url":"https://webidl.spec.whatwg.org/#a-promise-rejected-with"},
 "d14a6f26": {"dfnID":"d14a6f26","dfnText":"key","external":true,"refSections":[{"refs":[{"id":"ref-for-map-key"}],"title":"3. Supporting concepts"}],"url":"https://infra.spec.whatwg.org/#map-key"},
 "d196f41d": {"dfnID":"d196f41d","dfnText":"Assistive Technologies","external":true,"refSections":[{"refs":[{"id":"ref-for-assistive-technology"}],"title":"1. Introduction"}],"url":"https://w3c.github.io/aria/#assistive-technology"},
 "d8049b98": {"dfnID":"d8049b98","dfnText":"relevant agent","external":true,"refSections":[{"refs":[{"id":"ref-for-relevant-agent"}],"title":"3. Supporting concepts"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#relevant-agent"},
@@ -2882,8 +2883,8 @@ let refsData = {
 "#tool-definition-untrusted-content-hint": {"displayText":"untrusted content hint","export":true,"for_":["tool definition"],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"untrusted content hint","type":"dfn","url":"#tool-definition-untrusted-content-hint"},
 "#tool-is-visible-to-an-origin": {"displayText":"tool is visible to an origin","export":true,"for_":[],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"tool is visible to an origin","type":"dfn","url":"#tool-is-visible-to-an-origin"},
 "#webmcp-task-source": {"displayText":"webmcp task source","export":true,"for_":[],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"webmcp task source","type":"dfn","url":"#webmcp-task-source"},
-"https://console.spec.whatwg.org/#report-a-warning-to-the-console": {"displayText":"report a warning to the console","export":true,"for_":[],"level":"1","normative":true,"shortname":"console","spec":"console","status":"current","text":"report a warning to the console","type":"dfn","url":"https://console.spec.whatwg.org/#report-a-warning-to-the-console"},
 "https://dom.spec.whatwg.org/#abortsignal": {"displayText":"AbortSignal","export":true,"for_":[],"level":"1","normative":true,"shortname":"dom","spec":"dom","status":"current","text":"AbortSignal","type":"interface","url":"https://dom.spec.whatwg.org/#abortsignal"},
+"https://dom.spec.whatwg.org/#abortsignal-abort-reason": {"displayText":"abort reason","export":true,"for_":["AbortSignal"],"level":"1","normative":true,"shortname":"dom","spec":"dom","status":"current","text":"abort reason","type":"dfn","url":"https://dom.spec.whatwg.org/#abortsignal-abort-reason"},
 "https://dom.spec.whatwg.org/#abortsignal-aborted": {"displayText":"aborted","export":true,"for_":["AbortSignal"],"level":"1","normative":true,"shortname":"dom","spec":"dom","status":"current","text":"aborted","type":"dfn","url":"https://dom.spec.whatwg.org/#abortsignal-aborted"},
 "https://dom.spec.whatwg.org/#abortsignal-add": {"displayText":"add","export":true,"for_":["AbortSignal"],"level":"1","normative":true,"shortname":"dom","spec":"dom","status":"current","text":"add","type":"dfn","url":"https://dom.spec.whatwg.org/#abortsignal-add"},
 "https://dom.spec.whatwg.org/#concept-document": {"displayText":"document","export":true,"for_":[],"level":"1","normative":true,"shortname":"dom","spec":"dom","status":"current","text":"document","type":"dfn","url":"https://dom.spec.whatwg.org/#concept-document"},
@@ -2975,6 +2976,7 @@ let refsData = {
 "https://webidl.spec.whatwg.org/#invalidstateerror": {"displayText":"InvalidStateError","export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"InvalidStateError","type":"exception","url":"https://webidl.spec.whatwg.org/#invalidstateerror"},
 "https://webidl.spec.whatwg.org/#new": {"displayText":"new","export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"new","type":"dfn","url":"https://webidl.spec.whatwg.org/#new"},
 "https://webidl.spec.whatwg.org/#notallowederror": {"displayText":"NotAllowedError","export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"NotAllowedError","type":"exception","url":"https://webidl.spec.whatwg.org/#notallowederror"},
+"https://webidl.spec.whatwg.org/#reject": {"displayText":"reject","export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"reject","type":"dfn","url":"https://webidl.spec.whatwg.org/#reject"},
 "https://webidl.spec.whatwg.org/#resolve": {"displayText":"resolve","export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"resolve","type":"dfn","url":"https://webidl.spec.whatwg.org/#resolve"},
 "https://webidl.spec.whatwg.org/#securityerror": {"displayText":"SecurityError","export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"SecurityError","type":"exception","url":"https://webidl.spec.whatwg.org/#securityerror"},
 "https://webidl.spec.whatwg.org/#this": {"displayText":"this","export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"this","type":"dfn","url":"https://webidl.spec.whatwg.org/#this"},
