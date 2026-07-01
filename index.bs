@@ -177,6 +177,9 @@ A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]
   : <dfn>untrusted content hint</dfn>
   :: a [=boolean=], initially false.
 
+  : <dfn>consequential hint</dfn>
+  :: a [=boolean=], initially false.
+
   : <dfn>exposed origins</dfn>
   :: a [=list=] or [=origins=], initially [=list/empty=].
 </dl>
@@ -395,6 +398,9 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
 1. Let |untrusted content hint| be true if |tool|'s {{ModelContextTool/annotations}} [=map/exists=] and
    its {{ToolAnnotations/untrustedContentHint}} is true. Otherwise, let it be false.
 
+1. Let |consequential hint| be true if |tool|'s {{ModelContextTool/annotations}} [=map/exists=] and
+   its {{ToolAnnotations/consequentialHint}} is true. Otherwise, let it be false.
+
 1. Let |promise| be [=a new promise=] created in [=this=]'s [=relevant realm=].
 
 1. Let |signal| be |options|'s {{ModelContextRegisterToolOptions/signal}}.
@@ -447,6 +453,9 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
    : [=tool definition/untrusted content hint=]
    :: |untrusted content hint|
 
+   : [=tool definition/consequential hint=]
+   :: |consequential hint|
+
    : [=tool definition/exposed origins=]
    :: |exposed origins|
 
@@ -482,6 +491,7 @@ dictionary ModelContextTool {
 dictionary ToolAnnotations {
   boolean readOnlyHint = false;
   boolean untrustedContentHint = false;
+  boolean consequentialHint = false;
 };
 
 callback ToolExecuteCallback = Promise<any> (object input);
@@ -531,6 +541,9 @@ The {{ToolAnnotations}} dictionary provides optional metadata about a tool:
 
   : <code><var ignore>annotations</var>["{{ToolAnnotations/untrustedContentHint}}"]</code>
   :: If true, indicates that the tool's output contains data that is untrusted, from the perspective of the author registering the tool.
+
+  : <code><var ignore>annotations</var>["{{ToolAnnotations/consequentialHint}}"]</code>
+  :: If true, indicates that executing the tool will result in consequential actions, ex: booking a flight, transferring money.
 </dl>
 
 
@@ -1100,6 +1113,14 @@ respective private browsing modes are safely exposed to [=agents=] and that thes
 **Threats addressed:** [[#prompt-injection]] ([[#output-injection-attacks]])
 
 **How:** A boolean {{ToolAnnotations/untrustedContentHint}} annotation that acts as a signal to the client that the payload requires heightened security handling, allowing the client to sanitize the payload, use indicators such as spotlighting [[SPOTLIGHTING]] to highlight untrustworthy content to the model, or hide that part of the response entirely.
+
+<h4 id="mitigation-consequential-annotation">Consequential Annotation for Tool Executions</h4>
+
+**What:** Providing agents with a signal that a tool's execution results in significant, real-world, or non-reversible consequences.
+
+**Threats addressed:** [[#misrepresentation-of-intent]]
+
+**How:** A boolean {{ToolAnnotations/consequentialHint}} annotation acts as a signal to the client or agent that the tool performs a consequential action, such as booking a flight or transferring money. This way they can selectively enforce mandatory user confirmation prompts before executing high-stakes tools, directly mitigating the risk of accidental or malicious misrepresentation of intent.
 
 <h2 id="accessibility">Accessibility considerations</h2>
 
