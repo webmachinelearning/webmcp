@@ -17,6 +17,7 @@ Default Biblio Status: current
 Boilerplate: omit conformance
 Indent: 2
 Die On: warning
+Test Suite: https://wpt.fyi/results/webmcp
 </pre>
 
 <style>
