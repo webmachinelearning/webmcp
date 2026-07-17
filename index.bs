@@ -322,6 +322,7 @@ The {{ModelContext}} interface provides methods for web applications to register
 [Exposed=Window, SecureContext]
 interface ModelContext : EventTarget {
   Promise<undefined> registerTool(ModelContextTool tool, optional ModelContextRegisterToolOptions options = {});
+  Promise<sequence<RegisteredTool>> getTools(optional ModelContextGetToolOptions options = {});
 
   attribute EventHandler ontoolchange;
 };
@@ -338,6 +339,12 @@ is a [=model context=] [=struct=] created alongside the {{ModelContext}}.
     same name is already registered, if the given {{ModelContextTool/name}} or
     {{ModelContextTool/description}} are empty strings, or if the {{ModelContextTool/inputSchema}}
     is invalid.</p>
+  </dd>
+
+  <dt><code><var ignore>document</var>.{{Document/modelContext}}.{{ModelContext/getTools(options)}}</code></dt>
+  <dd>
+    <p>Returns a promise that resolves to a list of registered tools from this document and its
+    descendants that are exposed to this document.</p>
   </dd>
 </dl>
 
@@ -470,6 +477,112 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
 
 </div>
 
+<div algorithm>
+The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps are:
+
+1. Let |global| be [=this=]'s [=relevant global object=].
+
+1. Let |tool owner| be |global|'s [=associated Document|associated <code>Document</code>=].
+
+1. If |tool owner| is not [=Document/fully active=], then return [=a promise rejected with=] an
+   "{{InvalidStateError}}" {{DOMException}}.
+
+1. If this's [=surrounding agent=]'s [=agent cluster=]'s [=is origin-keyed=] is false and this's
+   [=relevant settings object=]'s [=environment settings object/origin=]'s [=origin/scheme=] is not
+   <code>"file"</code>, then return [=a promise rejected with=] a "{{SecurityError}}"
+   {{DOMException}}.
+
+1. If |tool owner| is not [=allowed to use=] the "{{tools}}" feature, then return [=a promise
+   rejected with=] a "{{NotAllowedError}}" {{DOMException}}.
+
+1. Let |from origins| be an empty [=list=] of [=origins=].
+
+1. If |options|'s {{ModelContextGetToolOptions/fromOrigins}} [=map/exists=], then:
+
+   1. [=list/For each=] |origin| of |options|'s {{ModelContextGetToolOptions/fromOrigins}}:
+
+      1. Let |parsedURL| be the result of running the [=URL parser=] on |origin|.
+
+      1. If |parsedURL| is failure or its [=url/origin=] is not [$is origin potentially
+         trustworthy?|potentially trustworthy$], then return [=a promise rejected with=] a
+         "{{SecurityError}}" {{DOMException}}.
+
+      1. [=list/Append=] |parsedURL|'s [=url/origin=] to |from origins|.
+
+1. Let |promise| be [=a new promise=] created in [=this=]'s [=relevant realm=].
+
+1. Run the following steps [=in parallel=]:
+
+   1. Let |tools| be an empty [=list=] of {{RegisteredTool}} dictionaries.
+
+   1. Let |navigables| be |tool owner|'s [=node navigable=]'s [=navigable/traversable navigable=]'s
+      [=Document/inclusive descendant navigables=].
+
+   1. [=list/For each=] |navigable| of |navigables|:
+
+      1. Let |targetDocument| be |navigable|'s [=navigable/active document=].
+
+      1. If |targetDocument| is not [=allowed to use=] the "{{tools}}" feature, then
+         [=iteration/continue=].
+
+      1. Let |targetOrigin| be |targetDocument|'s [=Document/origin=].
+
+      1. Let |callerOrigin| be |tool owner|'s [=Document/origin=].
+
+      1. Let |is visible to caller| be true if |targetOrigin| is [=same origin=] with
+         |callerOrigin|, or if |from origins| [=list/contains=] |targetOrigin|. Otherwise, let it be
+         false.
+
+      1. If |is visible to caller| is false, then [=iteration/continue=].
+
+      1. Let |targetToolMap| be |targetDocument|'s [=Document/associated ModelContext|associated
+         <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/tool
+         map=].
+
+      1. [=map/For each=] <var ignore>tool name</var> → |tool definition| of |targetToolMap|:
+
+         1. If [=tool is visible to an origin=] given |targetOrigin|, |tool definition|'s [=tool
+            definition/exposed origins=], and |callerOrigin| is false, then [=iteration/continue=].
+
+         1. Let |registeredTool| be a new {{RegisteredTool}} dictionary, with the following fields:
+
+            : {{RegisteredTool/name}}
+            :: |tool definition|'s [=tool definition/name=]
+
+            : {{RegisteredTool/title}}
+            :: |tool definition|'s [=tool definition/title=]
+
+            : {{RegisteredTool/description}}
+            :: |tool definition|'s [=tool definition/description=]
+
+            : {{RegisteredTool/inputSchema}}
+            :: |tool definition|'s [=tool definition/input schema=] if it is not the empty string;
+               otherwise undefined.
+
+            : {{RegisteredTool/window}}
+            :: |targetDocument|'s [=relevant global object=]
+
+            : {{RegisteredTool/origin}}
+            :: |targetOrigin|, [=serialization of an origin|serialized=].
+
+            : {{RegisteredTool/annotations}}
+            :: A new {{ToolAnnotations}} dictionary whose {{ToolAnnotations/readOnlyHint}} is |tool
+               definition|'s [=tool definition/read-only hint=] and
+               {{ToolAnnotations/untrustedContentHint}} is |tool definition|'s [=tool
+               definition/untrusted content hint=].
+
+         1. [=list/Append=] |registeredTool| to |tools|.
+
+   1. [=list/Sort in ascending order=] |tools|, with |a| being less than |b| if
+      |a|["{{RegisteredTool/name}}"] is [=code unit less than=] |b|["{{RegisteredTool/name}}"].
+
+   1. [=Queue a global task=] on the [=webmcp task source=] given |global| to [=resolve=] |promise|
+      with |tools|.
+
+1. Return |promise|.
+
+</div>
+
 <h4 id="model-context-tool">ModelContextTool Dictionary</h4>
 
 The {{ModelContextTool}} dictionary describes a tool that can be invoked by [=agents=].
@@ -514,7 +627,8 @@ callback ToolExecuteCallback = Promise<any> (object input);
 
   <dt><code><var ignore>tool</var>["{{ModelContextTool/inputSchema}}"]</code></dt>
   <dd>
-    <p>A JSON Schema [[!JSON-SCHEMA]] object describing the expected input parameters for the tool.
+    <p>A stringified JSON Schema object describing the expected input parameters for the tool
+    [[!JSON-SCHEMA]].
   </dd>
 
   <dt><code><var ignore>tool</var>["{{ModelContextTool/execute}}"]</code></dt>
@@ -560,6 +674,68 @@ dictionary ModelContextRegisterToolOptions {
 
   : <code><var ignore>options</var>["{{ModelContextRegisterToolOptions/exposedTo}}"]</code>
   :: <p>An array of origins that control which documents this tool is exposed to, in the current document's tree.
+</dl>
+
+<h4 id="model-context-get-tool-options">ModelContextGetToolOptions Dictionary</h4>
+
+The {{ModelContextGetToolOptions}} dictionary allows web applications to filter the tools returned
+by {{ModelContext/getTools()}}.
+
+<xmp class="idl">
+dictionary ModelContextGetToolOptions {
+  sequence<USVString> fromOrigins;
+};
+</xmp>
+
+<dl class="domintro">
+  : <code><var ignore>options</var>["{{ModelContextGetToolOptions/fromOrigins}}"]</code>
+  :: An array of origins from which to list tools. When this array is empty or omitted, only tools
+     exposed to documents that are same-origin with the caller of {{ModelContext/getTools()}} are
+     included in the result.
+</dl>
+
+<h4 id="registered-tool">RegisteredTool Dictionary</h4>
+
+The {{RegisteredTool}} dictionary represents a tool that has been registered and is available for
+invocation.
+
+<xmp class="idl">
+dictionary RegisteredTool {
+  required DOMString name;
+  required DOMString description;
+  DOMString inputSchema;
+  // `title` can be exposed as a `DOMString` since it was taken in by a
+  // `USVString`, meaning all unmatched surrogate processing has already been
+  // done, and there's no need to do it again on tool exposure.
+  DOMString title;
+  required Window window;
+  required USVString origin;
+  ToolAnnotations annotations;
+};
+</xmp>
+
+<dl class="domintro">
+  : <code><var ignore>tool</var>["{{RegisteredTool/name}}"]</code>
+  :: A unique identifier for the tool.
+
+  : <code><var ignore>tool</var>["{{RegisteredTool/description}}"]</code>
+  :: A natural language description of the tool's functionality.
+
+  : <code><var ignore>tool</var>["{{RegisteredTool/inputSchema}}"]</code>
+  :: A stringified JSON Schema object describing the expected input parameters for the tool
+     [[!JSON-SCHEMA]].
+
+  : <code><var ignore>tool</var>["{{RegisteredTool/title}}"]</code>
+  :: A human-readable label for the tool.
+
+  : <code><var ignore>tool</var>["{{RegisteredTool/window}}"]</code>
+  :: The {{Window}} of the document that registered the tool.
+
+  : <code><var ignore>tool</var>["{{RegisteredTool/origin}}"]</code>
+  :: The origin of the document that registered the tool.
+
+  : <code><var ignore>tool</var>["{{RegisteredTool/annotations}}"]</code>
+  :: Optional annotations providing metadata about the tool.
 </dl>
 
 
