@@ -482,9 +482,9 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
 
 1. Let |global| be [=this=]'s [=relevant global object=].
 
-1. Let |tool owner| be |global|'s [=associated Document|associated <code>Document</code>=].
+1. Let |toolRequestor| be |global|'s [=associated Document|associated <code>Document</code>=].
 
-1. If |tool owner| is not [=Document/fully active=], then return [=a promise rejected with=] an
+1. If |toolRequestor| is not [=Document/fully active=], then return [=a promise rejected with=] an
    "{{InvalidStateError}}" {{DOMException}}.
 
 1. If this's [=surrounding agent=]'s [=agent cluster=]'s [=is origin-keyed=] is false and this's
@@ -492,7 +492,7 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
    <code>"file"</code>, then return [=a promise rejected with=] a "{{SecurityError}}"
    {{DOMException}}.
 
-1. If |tool owner| is not [=allowed to use=] the "{{tools}}" feature, then return [=a promise
+1. If |toolRequestor| is not [=allowed to use=] the "{{tools}}" feature, then return [=a promise
    rejected with=] a "{{NotAllowedError}}" {{DOMException}}.
 
 1. Let |from origins| be an empty [=list=] of [=origins=].
@@ -515,7 +515,7 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
 
    1. Let |tools| be an empty [=list=] of {{RegisteredTool}} dictionaries.
 
-   1. Let |navigables| be |tool owner|'s [=node navigable=]'s [=navigable/traversable navigable=]'s
+   1. Let |navigables| be |toolRequestor|'s [=node navigable=]'s [=navigable/traversable navigable=]'s
       [=Document/inclusive descendant navigables=].
 
    1. [=list/For each=] |navigable| of |navigables|:
@@ -527,7 +527,7 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
 
       1. Let |targetOrigin| be |targetDocument|'s [=Document/origin=].
 
-      1. Let |callerOrigin| be |tool owner|'s [=Document/origin=].
+      1. Let |callerOrigin| be |toolRequestor|'s [=Document/origin=].
 
       1. Let |is visible to caller| be true if |targetOrigin| is [=same origin=] with
          |callerOrigin|, or if |from origins| [=list/contains=] |targetOrigin|. Otherwise, let it be
