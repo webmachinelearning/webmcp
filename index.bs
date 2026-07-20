@@ -540,7 +540,7 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
 
       1. [=map/For each=] <var ignore>tool name</var> → |tool definition| of |targetToolMap|:
 
-         1. If [=tool is visible to an origin=] given |targetOrigin|, |tool definition|'s [=tool
+         1. If [=tool is exposed to an origin=] given |targetOrigin|, |tool definition|'s [=tool
             definition/exposed origins=], and |callerOrigin| is false, then [=iteration/continue=].
 
          1. Let |registeredTool| be a new {{RegisteredTool}} dictionary, with the following fields:
