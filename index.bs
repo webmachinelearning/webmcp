@@ -515,8 +515,8 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
 
    1. Let |tools| be an empty [=list=] of {{RegisteredTool}} dictionaries.
 
-   1. Let |navigables| be |toolRequestor|'s [=node navigable=]'s [=navigable/traversable navigable=]'s
-      [=Document/inclusive descendant navigables=].
+   1. Let |navigables| be |toolRequestor|'s [=node navigable=]'s [=navigable/traversable
+      navigable=]'s [=Document/inclusive descendant navigables=].
 
    1. [=list/For each=] |navigable| of |navigables|:
 
@@ -529,11 +529,10 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
 
       1. Let |callerOrigin| be |toolRequestor|'s [=Document/origin=].
 
-      1. Let |is visible to caller| be true if |targetOrigin| is [=same origin=] with
-         |callerOrigin|, or if |from origins| [=list/contains=] |targetOrigin|. Otherwise, let it be
-         false.
+      1. If |toolOwnerIsRequested| be true if |targetOrigin| is [=same origin=] with |callerOrigin|,
+         or if |from origins| [=list/contains=] |targetOrigin|. Otherwise, let it be false.
 
-      1. If |is visible to caller| is false, then [=iteration/continue=].
+      1. If |toolOwnerIsRequested| is false, then [=iteration/continue=].
 
       1. Let |targetToolMap| be |targetDocument|'s [=Document/associated ModelContext|associated
          <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/tool
