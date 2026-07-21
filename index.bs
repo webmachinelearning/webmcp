@@ -723,15 +723,15 @@ dictionary RegisteredTool {
   : <code><var ignore>tool</var>["{{RegisteredTool/name}}"]</code>
   :: A unique identifier for the tool. It is the same value provided at tool registration, via {{ModelContextTool/name}}.
 
+  : <code><var ignore>tool</var>["{{RegisteredTool/title}}"]</code>
+  :: A human-readable label for the tool. It is the same value provided at tool registration, via {{ModelContextTool/title}}.
+
   : <code><var ignore>tool</var>["{{RegisteredTool/description}}"]</code>
   :: A natural language description of the tool's functionality. It is the same value provided at tool registration, via {{ModelContextTool/description}}.
 
   : <code><var ignore>tool</var>["{{RegisteredTool/inputSchema}}"]</code>
   :: A stringified JSON Schema object describing the expected input parameters for the tool
      [[!JSON-SCHEMA]].
-
-  : <code><var ignore>tool</var>["{{RegisteredTool/title}}"]</code>
-  :: A human-readable label for the tool. It is the same value provided at tool registration, via {{ModelContextTool/title}}.
 
   : <code><var ignore>tool</var>["{{RegisteredTool/window}}"]</code>
   :: The {{Window}} of the document that registered the tool.
