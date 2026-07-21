@@ -685,9 +685,6 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputArgument
       object=] to [=reject=] |promise| with an "{{UnknownError}}" {{DOMException}}, and abort these
       steps.
 
-      Issue: TODO(domfarolino): File an issue about cross-frame-tree, same-browsing-context-group
-      tool execution.
-
    1. Let |targetOrigin| be |targetDocument|'s [=Document/origin=].
 
    1. Let |callerOrigin| be |invokingDocument|'s [=Document/origin=].
