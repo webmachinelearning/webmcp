@@ -549,7 +549,10 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
             :: |tool definition|'s [=tool definition/name=]
 
             : {{RegisteredTool/title}}
-            :: |tool definition|'s [=tool definition/title=]
+            :: |tool definition|'s [=tool definition/title=] if it is non-null; otherwise the empty string.
+
+               Issue(#224): Consider not defaulting to the empty string, and just excluding this
+               member, which will result in {{undefined}}.
 
             : {{RegisteredTool/description}}
             :: |tool definition|'s [=tool definition/description=]
@@ -706,7 +709,7 @@ dictionary RegisteredTool {
   // `title` can be exposed as a `DOMString` since it was taken in by a
   // `USVString`, meaning all unmatched surrogate processing has already been
   // done, and there's no need to do it again on tool exposure.
-  DOMString title;
+  required DOMString title;
   required Window window;
   required USVString origin;
   ToolAnnotations annotations;
