@@ -445,7 +445,8 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
    :: steps that invoke |tool|'s {{ModelContextTool/execute}}
 
    : [=tool definition/annotations=]
-   :: null if |tool|'s {{ModelContextTool/annotations}} does not [=map/exist=]. Otherwise, an [=annotations=] with the following [=struct/items=]:
+   :: null if |tool|'s {{ModelContextTool/annotations}} does not [=map/exist=]. Otherwise, an
+      [=annotations=] with the following [=struct/items=]:
 
       : [=annotations/read-only hint=]
       :: |tool|'s {{ModelContextTool/annotations}}'s {{ToolAnnotations/readOnlyHint}}
