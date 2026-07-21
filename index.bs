@@ -721,26 +721,35 @@ dictionary RegisteredTool {
 
 <dl class="domintro">
   : <code><var ignore>tool</var>["{{RegisteredTool/name}}"]</code>
-  :: A unique identifier for the tool. It is the same value provided at tool registration, via {{ModelContextTool/name}}.
+  :: A unique identifier for the tool. It is the same value provided at tool registration, via
+     {{ModelContextTool/name}}.
 
   : <code><var ignore>tool</var>["{{RegisteredTool/title}}"]</code>
-  :: A human-readable label for the tool. It is the same value provided at tool registration, via {{ModelContextTool/title}}.
+  :: A human-readable label for the tool. It is the same value provided at tool registration, via
+     {{ModelContextTool/title}}.
 
   : <code><var ignore>tool</var>["{{RegisteredTool/description}}"]</code>
-  :: A natural language description of the tool's functionality. It is the same value provided at tool registration, via {{ModelContextTool/description}}.
+  :: A natural language description of the tool's functionality. It is the same value provided at
+     tool registration, via {{ModelContextTool/description}}.
 
   : <code><var ignore>tool</var>["{{RegisteredTool/inputSchema}}"]</code>
   :: A stringified JSON Schema object describing the expected input parameters for the tool
-     [[!JSON-SCHEMA]]. It is the string derived from {{ModelContextTool/inputSchema}} during registration.
+     [[!JSON-SCHEMA]]. It is the string derived from {{ModelContextTool/inputSchema}} during
+     registration.
 
   : <code><var ignore>tool</var>["{{RegisteredTool/window}}"]</code>
   :: The {{Window}} of the document that registered the tool.
 
   : <code><var ignore>tool</var>["{{RegisteredTool/origin}}"]</code>
-  :: The origin of the document that registered the tool. This member is only meaningful when the tool is cross-origin, and the consumer of a tool cannot otherwise get the tool's origin from its {{RegisteredTool/window}}. For same-origin tools, this is the same as the tool's {{RegisteredTool/window}}'s {{WindowOrWorkerGlobalScope/origin}}, and the caller's own {{Window}}.{{WindowOrWorkerGlobalScope/origin}}.
+  :: The origin of the document that registered the tool. This member is only meaningful when the
+     tool is cross-origin, and the consumer of a tool cannot otherwise get the tool's origin from
+     its {{RegisteredTool/window}}. For same-origin tools, this is the same as the tool's
+     {{RegisteredTool/window}}'s {{WindowOrWorkerGlobalScope/origin}}, and the caller's own
+     {{Window}}.{{WindowOrWorkerGlobalScope/origin}}.
 
   : <code><var ignore>tool</var>["{{RegisteredTool/annotations}}"]</code>
-  :: Optional annotations providing metadata about the tool. It matches {{ModelContextTool/annotations}}.
+  :: Optional annotations providing metadata about the tool. It matches
+     {{ModelContextTool/annotations}}.
 </dl>
 
 
