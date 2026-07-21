@@ -633,8 +633,7 @@ callback ToolExecuteCallback = Promise<any> (object input);
 
   <dt><code><var ignore>tool</var>["{{ModelContextTool/inputSchema}}"]</code></dt>
   <dd>
-    <p>A stringified JSON Schema object describing the expected input parameters for the tool
-    [[!JSON-SCHEMA]].
+    <p>A JSON Schema object describing the expected input parameters for the tool [[!JSON-SCHEMA]].
   </dd>
 
   <dt><code><var ignore>tool</var>["{{ModelContextTool/execute}}"]</code></dt>
@@ -695,25 +694,25 @@ dictionary ModelContextGetToolOptions {
 
 <dl class="domintro">
   : <code><var ignore>options</var>["{{ModelContextGetToolOptions/fromOrigins}}"]</code>
-  :: An array of origins from which to list tools. When this array is empty or omitted, only tools
-     exposed to documents that are same-origin with the caller of {{ModelContext/getTools()}} are
-     included in the result.
+  :: An array of origins from which to query tools. Documents whose origin appears in this list, or
+     are same-origin with the caller, have their tools queried. An empty list only includes
+     same-origin documents.
 </dl>
 
 <h4 id="registered-tool">RegisteredTool Dictionary</h4>
 
 The {{RegisteredTool}} dictionary represents a tool that has been registered and is available for
-invocation.
+execution.
 
 <xmp class="idl">
 dictionary RegisteredTool {
   required DOMString name;
-  required DOMString description;
-  DOMString inputSchema;
   // `title` can be exposed as a `DOMString` since it was taken in by a
   // `USVString`, meaning all unmatched surrogate processing has already been
   // done, and there's no need to do it again on tool exposure.
   required DOMString title;
+  required DOMString description;
+  DOMString inputSchema;
   required Window window;
   required USVString origin;
   ToolAnnotations annotations;
@@ -722,10 +721,10 @@ dictionary RegisteredTool {
 
 <dl class="domintro">
   : <code><var ignore>tool</var>["{{RegisteredTool/name}}"]</code>
-  :: A unique identifier for the tool.
+  :: A unique identifier for the tool. It is the same value provided at tool registration, via {{ModelContextTool/name}}.
 
   : <code><var ignore>tool</var>["{{RegisteredTool/description}}"]</code>
-  :: A natural language description of the tool's functionality.
+  :: A natural language description of the tool's functionality. It is the same value provided at tool registration, via {{ModelContextTool/description}}.
 
   : <code><var ignore>tool</var>["{{RegisteredTool/inputSchema}}"]</code>
   :: A stringified JSON Schema object describing the expected input parameters for the tool
