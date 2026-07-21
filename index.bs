@@ -344,7 +344,9 @@ is a [=model context=] [=struct=] created alongside the {{ModelContext}}.
   <dt><code><var ignore>document</var>.{{Document/modelContext}}.{{ModelContext/getTools(options)}}</code></dt>
   <dd>
     <p>Returns a promise that resolves to a list of registered tools from this document and its
-    descendants that are exposed to this document.</p>
+    descendants that are exposed to this document. This API is designed for so-called "in-page"
+    agents written in JavaScript, and possibly living in <{iframe}>s. The [=user agent=]'s [=browser
+    agent=] uses a different internal mechanism to retrieve the tools exposed to it.</p>
   </dd>
 </dl>
 
@@ -530,7 +532,7 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
       1. Let |callerOrigin| be |toolRequestor|'s [=Document/origin=].
 
       1. If |toolOwnerIsRequested| be true if |targetOrigin| is [=same origin=] with |callerOrigin|,
-         or if |from origins| [=list/contains=] |targetOrigin|. Otherwise, let it be false.
+         or if |from origins| [=list/contains=] |targetOrigin|; otherwise, false.
 
       1. If |toolOwnerIsRequested| is false, then [=iteration/continue=].
 
@@ -541,7 +543,8 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
       1. [=map/For each=] <var ignore>tool name</var> → |tool definition| of |targetToolMap|:
 
          1. If [=tool is exposed to an origin=] given |targetOrigin|, |tool definition|'s [=tool
-            definition/exposed origins=], and |callerOrigin| is false, then [=iteration/continue=].
+            definition/exposed origins=], and |callerOrigin| returns false, then
+            [=iteration/continue=].
 
          1. Let |registeredTool| be a new {{RegisteredTool}} dictionary, with the following fields:
 
@@ -549,7 +552,8 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
             :: |tool definition|'s [=tool definition/name=]
 
             : {{RegisteredTool/title}}
-            :: |tool definition|'s [=tool definition/title=] if it is non-null; otherwise the empty string.
+            :: |tool definition|'s [=tool definition/title=] if it is non-null; otherwise the empty
+               string.
 
                Issue(#224): Consider not defaulting to the empty string, and just excluding this
                member, which will result in {{undefined}}.
