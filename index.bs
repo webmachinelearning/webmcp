@@ -172,15 +172,23 @@ A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]
      "internal" steps that have not been defined yet, that describe how to fill out a <{form}> and
      its [=form-associated elements=].
 
+  : <dfn>annotations</dfn>
+  :: an [=annotations=]-or-null.
+
+  : <dfn>exposed origins</dfn>
+  :: a [=list=] or [=origins=], initially [=list/empty=].
+</dl>
+
+An <dfn>annotations</dfn> is a [=struct=] with the following [=struct/items=]:
+
+<dl dfn-for="annotations">
   : <dfn>read-only hint</dfn>
   :: a [=boolean=], initially false.
 
   : <dfn>untrusted content hint</dfn>
   :: a [=boolean=], initially false.
-
-  : <dfn>exposed origins</dfn>
-  :: a [=list=] or [=origins=], initially [=list/empty=].
 </dl>
+
 
 <hr>
 
@@ -390,12 +398,6 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
      </ol>
    </div>
 
-1. Let |read-only hint| be true if |tool|'s {{ModelContextTool/annotations}} [=map/exists=] and
-   its {{ToolAnnotations/readOnlyHint}} is true. Otherwise, let it be false.
-
-1. Let |untrusted content hint| be true if |tool|'s {{ModelContextTool/annotations}} [=map/exists=] and
-   its {{ToolAnnotations/untrustedContentHint}} is true. Otherwise, let it be false.
-
 1. Let |promise| be [=a new promise=] created in [=this=]'s [=relevant realm=].
 
 1. Let |signal| be |options|'s {{ModelContextRegisterToolOptions/signal}}.
@@ -442,11 +444,14 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
    : [=tool definition/execute steps=]
    :: steps that invoke |tool|'s {{ModelContextTool/execute}}
 
-   : [=tool definition/read-only hint=]
-   :: |read-only hint|
+   : [=tool definition/annotations=]
+   :: null if |tool|'s {{ModelContextTool/annotations}} does not [=map/exist=]. Otherwise, an [=annotations=] with the following [=struct/items=]:
 
-   : [=tool definition/untrusted content hint=]
-   :: |untrusted content hint|
+      : [=annotations/read-only hint=]
+      :: |tool|'s {{ModelContextTool/annotations}}'s {{ToolAnnotations/readOnlyHint}}
+
+      : [=annotations/untrusted content hint=]
+      :: |tool|'s {{ModelContextTool/annotations}}'s {{ToolAnnotations/untrustedContentHint}}
 
    : [=tool definition/exposed origins=]
    :: |exposed origins|
