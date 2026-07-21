@@ -731,7 +731,7 @@ dictionary RegisteredTool {
 
   : <code><var ignore>tool</var>["{{RegisteredTool/inputSchema}}"]</code>
   :: A stringified JSON Schema object describing the expected input parameters for the tool
-     [[!JSON-SCHEMA]].
+     [[!JSON-SCHEMA]]. It is the string derived from {{ModelContextTool/inputSchema}} during registration.
 
   : <code><var ignore>tool</var>["{{RegisteredTool/window}}"]</code>
   :: The {{Window}} of the document that registered the tool.
@@ -740,7 +740,7 @@ dictionary RegisteredTool {
   :: The origin of the document that registered the tool. This member is only meaningful when the tool is cross-origin, and the consumer of a tool cannot otherwise get the tool's origin from its {{RegisteredTool/window}}. For same-origin tools, this is the same as the tool's {{RegisteredTool/window}}'s {{WindowOrWorkerGlobalScope/origin}}, and the caller's own {{Window}}.{{WindowOrWorkerGlobalScope/origin}}.
 
   : <code><var ignore>tool</var>["{{RegisteredTool/annotations}}"]</code>
-  :: Optional annotations providing metadata about the tool.
+  :: Optional annotations providing metadata about the tool. It matches {{ModelContextTool/annotations}}.
 </dl>
 
 
