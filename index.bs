@@ -572,10 +572,11 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
             :: |targetOrigin|, [=serialization of an origin|serialized=].
 
             : {{RegisteredTool/annotations}}
-            :: A new {{ToolAnnotations}} dictionary whose {{ToolAnnotations/readOnlyHint}} is |tool
-               definition|'s [=tool definition/read-only hint=] and
+            :: if |tool definition|'s [=tool definition/annotations=] is not null, a
+               {{ToolAnnotations}} dictionary whose {{ToolAnnotations/readOnlyHint}} is |tool
+               definition|'s [=tool definition/annotations=]'s [=annotations/read-only hint=] and
                {{ToolAnnotations/untrustedContentHint}} is |tool definition|'s [=tool
-               definition/untrusted content hint=].
+               definition/annotations=]'s [=annotations/untrusted content hint=].
 
          1. [=list/Append=] |registeredTool| to |tools|.
 
