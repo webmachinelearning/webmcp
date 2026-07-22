@@ -2,6 +2,8 @@
 
 WebMCP lets developers expose web application functionality—either JavaScript functions or HTML `<form>` elements—as "tools" with natural language descriptions and structured schemas, designed for AI agent ingestion. These tools can be invoked by AI agents, including those built into the browser, hosted in iframes, or running in extensions to actuate web content that was traditionally designed for human interaction.
 
+TypeScript type definitions for WebMCP are available in the [`webmcp-types`](https://www.npmjs.com/package/webmcp-types) npm package.
+
 
 ## Background and Motivation
 
