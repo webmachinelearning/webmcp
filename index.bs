@@ -669,7 +669,7 @@ The {{ToolAnnotations}} dictionary provides optional metadata about a tool:
   :: If true, indicates that the tool's output contains data that is untrusted, from the perspective of the author registering the tool.
 
   : <code><var ignore>annotations</var>["{{ToolAnnotations/consequentialHint}}"]</code>
-  :: If true, indicates that executing the tool will result in consequential actions, ex: booking a flight, transferring money.
+  :: If true, indicates that executing the tool will result in consequential actions that are significant, real-world, or non-reversible, ex: booking a flight, transferring money.
 </dl>
 
 
