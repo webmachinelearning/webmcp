@@ -446,8 +446,7 @@ is a [=model context=] [=struct=] created alongside the {{ModelContext}}.
 
   <dt><code><var ignore>document</var>.{{Document/modelContext}}.{{ModelContext/executeTool(tool, inputArguments, options)}}</code></dt>
   <dd>
-    <p>Executes a tool on the document it was registered on. Returns a promise that resolves to the
-    result of the tool's execution.</p>
+    <p>Executes a tool on the document it was registered on. Returns a promise that resolves to the stringified result of the tool's execution.</p>
   </dd>
 </dl>
 
@@ -712,8 +711,9 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputArgument
 1. Let |expectedTargetOriginURL| be the result of [=URL parser|parsing=] |tool|'s
    {{RegisteredTool/origin}}.
 
-1. If |expectedTargetOriginURL| is failure, then return [=a promise rejected with=] a
-   "{{DataError}}" {{DOMException}}.
+1. If |expectedTargetOriginURL| is failure, or |expectedTargetOriginURL|'s [=url/origin=] is an
+   [=opaque origin=], then return [=a promise rejected with=] a "{{NotSupportedError}}"
+   {{DOMException}}.
 
 1. Let |expectedTargetOrigin| be |expectedTargetOriginURL|'s [=url/origin=].
 
@@ -750,6 +750,8 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputArgument
       Issue(#227): Consider supporting tool execution across top-level documents in the same
       [=browsing context group=].
 
+      Issue: Support more granular errors than "{{UnknownError}}", based on each failure case.
+
    1. Let |targetOrigin| be |targetDocument|'s [=Document/origin=].
 
    1. Let |callerOrigin| be |invokingDocument|'s [=Document/origin=].
@@ -774,9 +776,9 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputArgument
    1. Let |tool definition| be |targetToolMap|[|toolName|].
 
    1. If [=tool is exposed to an origin=] given |targetOrigin|, |tool definition|'s [=tool
-      definition/exposed origins=], and |callerOrigin| is false, then [=queue a global task=] on the
-      [=webmcp task source=] given |invokingDocument|'s [=relevant global object=] to [=reject=]
-      |promise| with an "{{UnknownError}}" {{DOMException}}, and abort these steps.
+      definition/exposed origins=], and |callerOrigin| returns false, then [=queue a global task=]
+      on the [=webmcp task source=] given |invokingDocument|'s [=relevant global object=] to
+      [=reject=] |promise| with an "{{UnknownError}}" {{DOMException}}, and abort these steps.
 
       Issue: Support more granular errors than "{{UnknownError}}", based on each failure case.
 
