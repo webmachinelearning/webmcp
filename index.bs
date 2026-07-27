@@ -421,7 +421,7 @@ The {{ModelContext}} interface provides methods for web applications to register
 interface ModelContext : EventTarget {
   Promise<undefined> registerTool(ModelContextTool tool, optional ModelContextRegisterToolOptions options = {});
   Promise<sequence<RegisteredTool>> getTools(optional ModelContextGetToolOptions options = {});
-  Promise<DOMString?> executeTool(RegisteredTool tool, DOMString inputArguments, optional ModelContextExecuteToolOptions options = {});
+  Promise<DOMString> executeTool(RegisteredTool tool, DOMString inputArguments, optional ModelContextExecuteToolOptions options = {});
 
   attribute EventHandler ontoolchange;
 };
