@@ -417,7 +417,7 @@ The {{ModelContext}} interface provides methods for web applications to register
 interface ModelContext : EventTarget {
   Promise<undefined> registerTool(ModelContextTool tool, optional ModelContextRegisterToolOptions options = {});
   Promise<sequence<RegisteredTool>> getTools(optional ModelContextGetToolOptions options = {});
-  Promise<DOMString?> executeTool(RegisteredTool tool, DOMString inputArguments, optional ExecuteToolOptions options = {});
+  Promise<DOMString?> executeTool(RegisteredTool tool, DOMString inputArguments, optional ModelContextExecuteToolOptions options = {});
 
   attribute EventHandler ontoolchange;
 };
@@ -701,7 +701,7 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputArgument
 1. If |invokingDocument| is not [=Document/fully active=], then return [=a promise rejected with=]
    an "{{InvalidStateError}}" {{DOMException}}.
 
-1. If this's [=surrounding agent=]'s [=agent cluster=]'s [=is origin-keyed=] is false and this's
+1. If [=this=]'s [=surrounding agent=]'s [=agent cluster=]'s [=is origin-keyed=] is false and [=this=]'s
    [=relevant settings object=]'s [=environment settings object/origin=]'s [=origin/scheme=] is not
    "<code>file</code>", then return [=a promise rejected with=] a "{{SecurityError}}"
    {{DOMException}}.
@@ -721,9 +721,9 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputArgument
 
 1. Let |promise| be [=a new promise=] created in [=this=]'s [=relevant realm=].
 
-1. Let |signal| be |options|'s {{ExecuteToolOptions/signal}} if it [=map/exists=]; otherwise null.
+1. If |options|'s {{ModelContextExecuteToolOptions/signal}} [=map/exists=], then:
 
-1. If |signal| is not null, then:
+   1. Let |signal| be |options|'s {{ModelContextExecuteToolOptions/signal}}.
 
    1. If |signal| is [=AbortSignal/aborted=], then return [=a promise rejected with=] |signal|'s
       [=AbortSignal/abort reason=].
@@ -911,19 +911,18 @@ dictionary ModelContextGetToolOptions {
      same-origin documents.
 </dl>
 
-<h4 id="execute-tool-options">ExecuteToolOptions Dictionary</h4>
+<h4 id="model-context-execute-tool-options">ModelContextExecuteToolOptions Dictionary</h4>
 
-The {{ExecuteToolOptions}} dictionary allows web applications to pass options to
-{{ModelContext/executeTool()}}.
+The {{ModelContextExecuteToolOptions}} dictionary allows web applications to pass options to {{ModelContext/executeTool()}}.
 
 <xmp class="idl">
-dictionary ExecuteToolOptions {
+dictionary ModelContextExecuteToolOptions {
   AbortSignal signal;
 };
 </xmp>
 
 <dl class="domintro">
-  : <code><var ignore>options</var>["{{ExecuteToolOptions/signal}}"]</code>
+  : <code><var ignore>options</var>["{{ModelContextExecuteToolOptions/signal}}"]</code>
   :: An {{AbortSignal}} that can be used to cancel the execution of the tool.
 </dl>
 
