@@ -257,15 +257,73 @@ a [=list=] of [=origins=] |exposed origins|, and an [=origin=] |accessing origin
 </div>
 
 <div algorithm>
-The <dfn>imperative execute steps</dfn>, given a {{ModelContextTool}} |tool|, a {{Window}}
-|targetWindow|, a [=string=] |inputArguments|, and an algorithm |completionSteps|, are as follows:
+The <dfn>tool execute steps</dfn>, given a [=string=] |toolName|, a {{Document}} |targetDocument|,
+a [=string=] |inputArguments|, and an algorithm |completionSteps|, are as follows. The
+|completionSteps| algorithm takes a [=string=]-or-null <var ignore>result</var> and a [=boolean=] <var ignore>success</var>.
 
-1. [=Assert=]: these steps are running on |targetWindow|'s [=relevant agent=]'s [=agent/event
+1. [=Assert=]: these steps are running on |targetDocument|'s [=relevant agent=]'s [=agent/event loop=].
+
+1. Let |toolMap| be |targetDocument|'s [=Document/associated ModelContext|associated
+   <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/tool map=].
+
+1. If |toolMap|[|toolName|] does not [=map/exist=], then run |completionSteps| given null and false,
+   and abort these steps.
+
+   Issue: Support the plumbing of more granular errors back to the invoker; this should result in a
+   "{{NotFoundError}}" in the invoking document.
+
+   <div class=note>
+    <p>This protects us against a race between tool unregistration and execution. While tool
+    <em>existence</em> is protected from this race, tool unregistration followed by a quick
+    re-registration of a tool with the same |toolName| but input schema is <em>not</em>
+    protected against.</p>
+
+    <p>This might result in |inputArguments| for an old tool being applied to the
+    [=tool definition/input schema=] of a newer tool, and causing whatever error that might cause,
+    when <a href=https://github.com/webmachinelearning/webmcp/issues/92>issue #92</a> is
+    resolved.</p>
+
+    <div class=example id=unregistration-race>
+     <xmp class=language-js>
+     // -- Tool owner document. --
+     const oldInputSchema = {...};
+     const newInputSchema = {...};
+     const ac = new AbortController();
+     document.modelContext.registerTool({..., inputSchema: oldInputSchema}, {signal: ac.signal});
+
+     // Unregister, and quickly re-register with an updated input schema.
+     ac.abort();
+     document.modelContext.registerTool({..., inputSchema: newInputSchema});
+
+
+     // -- Executing document. --
+     //
+     // This could target either the "old" tool, or the "new" one above,
+     // and the execution might encounter any requisite errors due to the mismatch.
+     const [tool] = await document.modelContext.getTools();
+     document.modelContext.executeTool(tool, "{a: 10}");
+     </xmp>
+    </div>
+   </div>
+
+1. Let |tool| be |toolMap|[|toolName|].
+
+1. Run |tool|'s [=tool definition/execute steps=] given |inputArguments| and |completionSteps|.
+
+   Note: This is the point where we branch into either the [=imperative execute steps=] or the [=declarative execute steps=].
+
+</div>
+
+<div algorithm>
+The <dfn>imperative execute steps</dfn>, given a {{ModelContextTool}} |tool|, a {{Document}} |targetDocument|, a [=string=] |inputArguments|, and an algorithm |completionSteps|, are as follows:
+
+1. [=Assert=]: these steps are running on |targetDocument|'s [=relevant agent=]'s [=agent/event
    loop=].
 
 1. Let |inputObject| be the result of [=parse a JSON string to a JavaScript value=] given
-   |inputArguments| and |targetWindow|'s [=relevant realm=]. If <a spec=webidl lt="an exception was thrown">exception was thrown</a>, then
-   run |completionSteps| given null and false, and abort these steps.
+   |inputArguments| and |targetDocument|'s [=relevant realm=]. If <a spec=webidl lt="an exception
+   was thrown">exception was thrown</a>, then run |completionSteps| given null and false, and abort
+   these steps.
 
    Issue: Support more granular errors; here we should return something that prompts the caller to reject its {{Promise}} with a "{{DataError}}" {{DOMException}}.
 
@@ -489,8 +547,7 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
    :: |stringified input schema|
 
    : [=tool definition/execute steps=]
-   :: An algorithm that take a [=string=] |inputArguments| and an algorithm |completionSteps|. These steps run the [=imperative execute steps=]
-      given |tool|, [=this=]'s [=relevant global object=], |inputArguments|, and |completionSteps|.
+   :: An algorithm that take a [=string=] |inputArguments| and an algorithm |completionSteps| and runs the [=imperative execute steps=] given |tool|, |tool owner|, |inputArguments|, and |completionSteps|.
 
    : [=tool definition/annotations=]
    :: null if |tool|'s {{ModelContextTool/annotations}} does not [=map/exist=]. Otherwise, an
@@ -723,8 +780,7 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputArgument
 
       1. Otherwise, [=queue a global task=] on the [=webmcp task source=] given |invokingDocument|'s [=relevant global object=] to [=reject=] |promise| with an "{{UnknownError}}" {{DOMException}}.
 
-   1. [=Queue a global task=] on the [=webmcp task source=] given |targetWindow| to run |tool
-      definition|'s [=tool definition/execute steps=] given |inputArguments| and |completionSteps|.
+   1. [=Queue a global task=] on the [=webmcp task source=] given |targetWindow| to run the [=tool execute steps=] given |toolName|, |targetDocument|, |inputArguments|, and |completionSteps|.
 
 1. Return |promise|.
 
@@ -949,6 +1005,12 @@ The <dfn>synthesize a declarative JSON Schema object algorithm</dfn>, given a <{
   }
 }
 </pre>
+
+<div algorithm>
+The <dfn>declarative execute steps</dfn> are as follows.
+
+domfarolino
+</div>
 
 <h3 id="events">Events</h3>
 
