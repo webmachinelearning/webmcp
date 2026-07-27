@@ -343,11 +343,15 @@ The <dfn>imperative execute steps</dfn>, given a {{ModelContextTool}} |tool|, a 
 
    - If |toolPromise| was fulfilled with value |v|:
 
-      1. Let |serializedResult| be the result of [=serializing a JavaScript value to a JSON string=] given |v|. If this throws an exception, run |completionSteps| given null and false, and abort these steps.
+       1. Let |serializedResult| be the result of [=serializing a JavaScript value to a JSON string=] given |v|. If this throws an exception, run |completionSteps| given null and false, and abort these steps.
 
-      1. Run |completionSteps| given |serializedResult| and true.
+       1. Run |completionSteps| given |serializedResult| and true.
 
-   - If |toolPromise| was rejected with reason <var ignore>r</var>, then run |completionSteps| given null and false.
+   - If |toolPromise| was rejected with reason |r|, then:
+
+       1. Optionally [=report a warning to the console=] describing |r|.
+
+       1. Run |completionSteps| given null and false.
 
 </div>
 
