@@ -96,6 +96,9 @@ spec:html; type:dfn;
   text:is origin-keyed
 </pre>
 <pre class="anchors">
+spec: html; urlPrefix: https://html.spec.whatwg.org/C
+  type: dfn
+    text: browsing context group
 spec: SECURE-CONTEXTS; urlPrefix: https://w3c.github.io/webappsec-secure-contexts/
   type: abstract-op
     text: is origin potentially trustworthy?; url: is-origin-trustworthy
@@ -742,6 +745,9 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputArgument
       object=] to [=reject=] |promise| with an "{{UnknownError}}" {{DOMException}}, and abort these
       steps.
 
+      Issue(#227): Consider supporting tool execution across top-level documents in the same
+      [=browsing context group=].
+
    1. Let |targetOrigin| be |targetDocument|'s [=Document/origin=].
 
    1. Let |callerOrigin| be |invokingDocument|'s [=Document/origin=].
@@ -781,6 +787,11 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputArgument
       1. Otherwise, [=queue a global task=] on the [=webmcp task source=] given |invokingDocument|'s [=relevant global object=] to [=reject=] |promise| with an "{{UnknownError}}" {{DOMException}}.
 
    1. [=Queue a global task=] on the [=webmcp task source=] given |targetWindow| to run the [=tool execute steps=] given |toolName|, |targetDocument|, |inputArguments|, and |completionSteps|.
+
+      Note: Because documents only process tasks on their event loops when [=Document/fully
+      active=], if |targetDocument| is not [=Document/fully active=], this will simply queue the
+      steps to execute the tool, to run when the document finally becomes active again (i.e., when
+      it leaves the bf-cache).
 
 1. Return |promise|.
 
