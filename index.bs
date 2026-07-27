@@ -94,6 +94,8 @@ spec:html; type:dfn;
   text:browsing context group set
   text:unique internal value
   text:is origin-keyed
+spec: webidl; type: dfn;
+  text: an exception was thrown
 </pre>
 <pre class="anchors">
 spec: html; urlPrefix: https://html.spec.whatwg.org/C
@@ -324,7 +326,7 @@ The <dfn>imperative execute steps</dfn>, given a {{ModelContextTool}} |tool|, a 
    loop=].
 
 1. Let |inputObject| be the result of [=parse a JSON string to a JavaScript value=] given
-   |inputArguments| and |targetDocument|'s [=relevant realm=]. If <a spec=webidl lt="an exception
+   |inputArguments| and |targetDocument|'s [=relevant realm=]. If <a lt="an exception
    was thrown">exception was thrown</a>, then run |completionSteps| given null and false, and abort
    these steps.
 
