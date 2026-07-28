@@ -193,6 +193,76 @@ An <dfn>annotations</dfn> is a [=struct=] with the following [=struct/items=]:
   :: a [=boolean=], initially false.
 </dl>
 
+<h3 id="pending-tool-executions">Pending tool executions</h3>
+
+A <dfn>pending tool execution</dfn> is a [=struct=] with the following [=struct/items=]:
+
+<dl dfn-for="pending tool execution">
+  : <dfn>caller document</dfn>
+  :: a {{Document}}.
+
+  : <dfn>target document</dfn>
+  :: a {{Document}}.
+
+  : <dfn>tool name</dfn>
+  :: a [=string=].
+
+  : <dfn>completion steps</dfn>
+  :: an algorithm that takes a [=string=]-or-null and a [=boolean=].
+</dl>
+
+A [=traversable navigable=] has a <dfn for="traversable navigable">pending tool executions
+map</dfn>, which is a [=map=] whose keys are [=unique internal values=] and whose values are
+[=pending tool execution=] [=structs=]. It is initially empty.
+
+Note: This map is only ever mutated from steps [=in parallel=]. This simulates the single,
+authoritative "browser process" that most modern browsers implement, where execution tracking sits
+outside any individual Document process's event loop, and is accessed asynchronously via some
+inter-process communication mechanism.
+
+<hr>
+
+<div algorithm=unloading-document-cleanup-steps>
+This specification's [=unloading document cleanup steps=], given a {{Document}} |document|, are as
+follows:
+
+1. Let |traversable| be |document|'s [=node navigable=]'s [=navigable/traversable navigable=].
+
+1. Run the following steps [=in parallel=]:
+
+   1. Let |executionsToRemove| be an empty [=list=].
+
+   1. [=map/For each=] |uuid| &rarr; |execution| of |traversable|'s [=traversable navigable/pending
+      tool executions map=]:
+
+      1. If |document| is |execution|'s [=pending tool execution/target document=] or |document| is
+         |execution|'s [=pending tool execution/caller document=], then [=list/append=] |uuid| to
+         |executionsToRemove|.
+
+   1. [=list/For each=] |uuid| of |executionsToRemove|:
+
+      1. Let |execution| be |traversable|'s [=traversable navigable/pending tool executions
+         map=][|uuid|].
+
+      1. <p id=caller-destroyed-cleanup>If |document| is |execution|'s [=pending tool
+         execution/target document=], then run |execution|'s [=pending tool execution/completion
+         steps=] given null and false.</p>
+
+         Note: This removes |execution| from the [=traversable navigable/pending tool executions
+         map=].
+
+      1. If |document| is |execution|'s [=pending tool execution/caller document=], then:
+
+         1. [=map/Remove=] |traversable|'s [=traversable navigable/pending tool executions
+            map=][|uuid|].
+
+         1. Issue(#48): Abort the `AbortSignal` in |execution|'s [=pending tool execution/target
+            document=], so the tool can abort early now that the caller is dead.
+
+      1. [=Assert=]: |traversable|'s [=traversable navigable/pending tool executions map=][|uuid|]
+         does not [=map/exist=].
+
+</div>
 
 <hr>
 
@@ -288,7 +358,7 @@ a [=string=] |inputArguments|, and an algorithm |completionSteps|, are as follow
     when <a href=https://github.com/webmachinelearning/webmcp/issues/92>issue #92</a> is
     resolved.</p>
 
-    <div class=example id=unregistration-race>
+    <div class=example id=unregistration-execution-race>
      <xmp class=language-js>
      // -- Tool owner document. --
      const oldInputSchema = {...};
@@ -371,10 +441,33 @@ To <dfn for="model context">unregister a tool</dfn> given a {{ModelContext}} |mo
 
 1. [=map/Remove=] |tool map|[|tool name|].
 
+1. Let |targetDocument| be |modelContext|'s [=relevant global object=]'s [=associated
+   Document|associated <code>Document</code>=].
+
+1. Let |traversable| be |targetDocument|'s [=node navigable=]'s [=navigable/traversable navigable=].
+
 1. Run the following steps [=in parallel=]:
 
-   1. [=Notify documents of a tool change=] given |modelContext|'s [=relevant global object=]'s
-      [=associated Document|associated <code>Document</code>=] and |exposed origins|.
+   1. Let |canceledExecutions| be an empty [=list=].
+
+   1. [=map/For each=] |uuid| &rarr; |execution| of |traversable|'s [=traversable navigable/pending
+      tool executions map=]:
+
+      1. If |execution|'s [=pending tool execution/target document=] is |targetDocument| and
+         |execution|'s [=pending tool execution/tool name=] is |tool name|, then [=list/append=]
+         |uuid| to |canceledExecutions|.
+
+   1. [=list/For each=] |uuid| of |canceledExecutions|:
+
+      1. Let |execution| be |traversable|'s [=traversable navigable/pending tool executions
+         map=][|uuid|].
+
+      1. Run |execution|'s [=pending tool execution/completion steps=] given null and false.
+
+         Note: This removes |execution| from the [=traversable navigable/pending tool executions
+         map=].
+
+   1. [=Notify documents of a tool change=] given |targetDocument| and |exposed origins|.
 
 </div>
 
@@ -789,13 +882,66 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputArgument
 
       Issue: Support more granular errors than "{{UnknownError}}", based on each failure case.
 
+   1. Let |uuid| be a new [=unique internal value=].
+
    1. Let |completionSteps| be an algorithm that takes a [=string=]-or-null |result| and a [=boolean=] |success|, and runs the following steps:
 
       1. [=Assert=]: these steps are running [=in parallel=].
 
+      1. If |targetDocument|'s [=node navigable=]'s [=navigable/traversable navigable=]'s [=traversable navigable/pending tool executions map=][|uuid|] does not [=map/exist=], then return.
+
+         <div class=note>
+          <p>It is possible that a pending execution identified by |uuid| no longer exists. This can
+          happen due to a race between (a) tool cancellation when the caller document <a
+          href=#caller-destroyed-cleanup>gets destroyed</a>; and (b) tool promise resolution. Both
+          of these race to invoke |completionSteps|, and the first invocation will remove the
+          pending execution by its key |uuid|, this check protects subsequent racing invocations.</p>
+
+          <p>This can also happen due to a limitation with tool unregistration. Consider this
+          example:</p>
+
+          <div class=example id=unregistration-race>
+           <xmp class=language-js>
+            const ac = new AbortController();
+            document.modelContext.registerTool({
+              name: "tool"
+              description: "a racy tool",
+              execute: async () => {
+                return new Promise(resolve => {
+                  resolve("tool result");
+                  ac.abort();
+                });
+              }
+            }, {signal: ac.signal});
+           </xmp>
+
+           <p>In this case, tool unregistration happens after a tool Promise is resolved, but before
+           its fulfillment handler runs. Since both run |completionSteps|, this check protects the
+           second invocation from trying to remove the same pending execution twice.</p>
+          </div>
+         </div>
+
+      1. [=map/Remove=] |targetDocument|'s [=node navigable=]'s [=navigable/traversable navigable=]'s [=traversable navigable/pending tool executions map=][|uuid|].
+
       1. If |success| is true, then [=queue a global task=] on the [=webmcp task source=] given |invokingDocument|'s [=relevant global object=] to [=resolve=] |promise| with |result|.
 
       1. Otherwise, [=queue a global task=] on the [=webmcp task source=] given |invokingDocument|'s [=relevant global object=] to [=reject=] |promise| with an "{{UnknownError}}" {{DOMException}}.
+
+   1. Let |execution| be a new [=pending tool execution=], with the following [=struct/items=]:
+
+      : [=pending tool execution/caller document=]
+      :: |invokingDocument|
+
+      : [=pending tool execution/target document=]
+      :: |targetDocument|
+
+      : [=pending tool execution/tool name=]
+      :: |toolName|
+
+      : [=pending tool execution/completion steps=]
+      :: |completionSteps|
+
+   1. Set |targetDocument|'s [=node navigable=]'s [=navigable/traversable navigable=]'s [=traversable navigable/pending tool executions map=][|uuid|] to |execution|.
 
    1. [=Queue a global task=] on the [=webmcp task source=] given |targetWindow| to run the [=tool execute steps=] given |toolName|, |targetDocument|, |inputArguments|, and |completionSteps|.
 
@@ -1028,9 +1174,10 @@ The <dfn>synthesize a declarative JSON Schema object algorithm</dfn>, given a <{
 </pre>
 
 <div algorithm>
-The <dfn>declarative execute steps</dfn> are as follows.
+The <dfn>declarative execute steps</dfn> are as follows:
 
-domfarolino
+Issue: Spec the declarative execution steps, and their integration with form elements.
+
 </div>
 
 <h3 id="events">Events</h3>
