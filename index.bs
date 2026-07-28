@@ -169,9 +169,11 @@ A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]
      [[!JSON-SCHEMA]]
 
   : <dfn>execute steps</dfn>
-  :: an algorithm that takes both a [=string=] and an algorithm <var ignore>completionSteps</var> that itself takes a [=string=]-or-null and a [=boolean=].
+  :: an algorithm that takes both a [=string=] and an algorithm <var ignore>completionSteps</var>
+     that itself takes a [=string=]-or-null and a [=boolean=].
 
-     Note: For tools registered imperatively, these steps will simply invoke the [=imperative execute steps=]. For tools registered
+     Note: For tools registered imperatively, these steps will simply invoke the [=imperative
+     execute steps=]. For tools registered
      [declaratively](https://github.com/webmachinelearning/webmcp/pull/76), this will be a set of
      "internal" steps that have not been defined yet, that describe how to fill out a <{form}> and
      its [=form-associated elements=].
@@ -332,11 +334,13 @@ a [=list=] of [=origins=] |exposed origins|, and an [=origin=] |accessing origin
 </div>
 
 <div algorithm>
-The <dfn>tool execute steps</dfn>, given a [=string=] |toolName|, a {{Document}} |targetDocument|,
-a [=string=] |inputArguments|, and an algorithm |completionSteps|, are as follows. The
-|completionSteps| algorithm takes a [=string=]-or-null <var ignore>result</var> and a [=boolean=] <var ignore>success</var>.
+The <dfn>tool execute steps</dfn>, given a [=string=] |toolName|, a {{Document}} |targetDocument|, a
+[=string=] |inputArguments|, and an algorithm |completionSteps|, are as follows. The
+|completionSteps| algorithm takes a [=string=]-or-null <var ignore>result</var> and a [=boolean=]
+<var ignore>success</var>.
 
-1. [=Assert=]: these steps are running on |targetDocument|'s [=relevant agent=]'s [=agent/event loop=].
+1. [=Assert=]: these steps are running on |targetDocument|'s [=relevant agent=]'s [=agent/event
+   loop=].
 
 1. Let |toolMap| be |targetDocument|'s [=Document/associated ModelContext|associated
    <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/tool map=].
@@ -350,13 +354,12 @@ a [=string=] |inputArguments|, and an algorithm |completionSteps|, are as follow
    <div class=note>
     <p>This protects us against a race between tool unregistration and execution. While tool
     <em>existence</em> is protected from this race, tool unregistration followed by a quick
-    re-registration of a tool with the same |toolName| but input schema is <em>not</em>
-    protected against.</p>
+    re-registration of a tool with the same |toolName| but input schema is <em>not</em> protected
+    against.</p>
 
-    <p>This might result in |inputArguments| for an old tool being applied to the
-    [=tool definition/input schema=] of a newer tool, and causing whatever error that might cause,
-    when <a href=https://github.com/webmachinelearning/webmcp/issues/92>issue #92</a> is
-    resolved.</p>
+    <p>This might result in |inputArguments| for an old tool being applied to the [=tool
+    definition/input schema=] of a newer tool, and causing whatever error that might cause, when <a
+    href=https://github.com/webmachinelearning/webmcp/issues/92>issue #92</a> is resolved.</p>
 
     <div class=example id=unregistration-execution-race>
      <xmp class=language-js>
@@ -385,24 +388,28 @@ a [=string=] |inputArguments|, and an algorithm |completionSteps|, are as follow
 
 1. Run |tool|'s [=tool definition/execute steps=] given |inputArguments| and |completionSteps|.
 
-   Note: This is the point where we branch into either the [=imperative execute steps=] or the [=declarative execute steps=].
+   Note: This is the point where we branch into either the [=imperative execute steps=] or the
+   [=declarative execute steps=].
 
 </div>
 
 <div algorithm>
-The <dfn>imperative execute steps</dfn>, given a {{ModelContextTool}} |tool|, a {{Document}} |targetDocument|, a [=string=] |inputArguments|, and an algorithm |completionSteps|, are as follows:
+The <dfn>imperative execute steps</dfn>, given a {{ModelContextTool}} |tool|, a {{Document}}
+|targetDocument|, a [=string=] |inputArguments|, and an algorithm |completionSteps|, are as follows:
 
 1. [=Assert=]: these steps are running on |targetDocument|'s [=relevant agent=]'s [=agent/event
    loop=].
 
 1. Let |inputObject| be the result of [=parse a JSON string to a JavaScript value=] given
-   |inputArguments| and |targetDocument|'s [=relevant realm=]. If <a lt="an exception
-   was thrown">exception was thrown</a>, then run |completionSteps| given null and false, and abort
+   |inputArguments| and |targetDocument|'s [=relevant realm=]. If <a lt="an exception was
+   thrown">exception was thrown</a>, then run |completionSteps| given null and false, and abort
    these steps.
 
-   Issue: Support more granular errors; here we should return something that prompts the caller to reject its {{Promise}} with a "{{DataError}}" {{DOMException}}.
+   Issue: Support more granular errors; here we should return something that prompts the caller to
+   reject its {{Promise}} with a "{{DataError}}" {{DOMException}}.
 
-1. If |inputObject| [=Object type|is not an Object=] is false, then run |completionSteps| given null and false, and abort these steps.
+1. If |inputObject| [=Object type|is not an Object=] is false, then run |completionSteps| given null
+   and false, and abort these steps.
 
    Issue(#146): Specify and fire the "<code>toolactivated</code>" event.
 
@@ -413,7 +420,9 @@ The <dfn>imperative execute steps</dfn>, given a {{ModelContextTool}} |tool|, a 
 
    - If |toolPromise| was fulfilled with value |v|:
 
-       1. Let |serializedResult| be the result of [=serializing a JavaScript value to a JSON string=] given |v|. If this throws an exception, run |completionSteps| given null and false, and abort these steps.
+       1. Let |serializedResult| be the result of [=serializing a JavaScript value to a JSON
+          string=] given |v|. If this throws an exception, run |completionSteps| given null and
+          false, and abort these steps.
 
        1. Run |completionSteps| given |serializedResult| and true.
 
@@ -543,7 +552,8 @@ is a [=model context=] [=struct=] created alongside the {{ModelContext}}.
 
   <dt><code><var ignore>document</var>.{{Document/modelContext}}.{{ModelContext/executeTool(tool, inputArguments, options)}}</code></dt>
   <dd>
-    <p>Executes a tool on the document it was registered on. Returns a promise that resolves to the stringified result of the tool's execution.</p>
+    <p>Executes a tool on the document it was registered on. Returns a promise that resolves to the
+    stringified result of the tool's execution.</p>
   </dd>
 </dl>
 
@@ -648,7 +658,9 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
    :: |stringified input schema|
 
    : [=tool definition/execute steps=]
-   :: An algorithm that take a [=string=] |inputArguments| and an algorithm |completionSteps| and runs the [=imperative execute steps=] given |tool|, |tool owner|, |inputArguments|, and |completionSteps|.
+   :: An algorithm that take a [=string=] |inputArguments| and an algorithm |completionSteps| and
+      runs the [=imperative execute steps=] given |tool|, |tool owner|, |inputArguments|, and
+      |completionSteps|.
 
    : [=tool definition/annotations=]
    :: null if |tool|'s {{ModelContextTool/annotations}} does not [=map/exist=]. Otherwise, an
@@ -797,10 +809,10 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputArgument
 1. If |invokingDocument| is not [=Document/fully active=], then return [=a promise rejected with=]
    an "{{InvalidStateError}}" {{DOMException}}.
 
-1. If [=this=]'s [=surrounding agent=]'s [=agent cluster=]'s [=is origin-keyed=] is false and [=this=]'s
-   [=relevant settings object=]'s [=environment settings object/origin=]'s [=origin/scheme=] is not
-   "<code>file</code>", then return [=a promise rejected with=] a "{{SecurityError}}"
-   {{DOMException}}.
+1. If [=this=]'s [=surrounding agent=]'s [=agent cluster=]'s [=is origin-keyed=] is false and
+   [=this=]'s [=relevant settings object=]'s [=environment settings object/origin=]'s
+   [=origin/scheme=] is not "<code>file</code>", then return [=a promise rejected with=] a
+   "{{SecurityError}}" {{DOMException}}.
 
 1. If |invokingDocument| is not [=allowed to use=] the "{{tools}}" feature, then return [=a promise
    rejected with=] a "{{NotAllowedError}}" {{DOMException}}.
@@ -884,18 +896,22 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputArgument
 
    1. Let |uuid| be a new [=unique internal value=].
 
-   1. Let |completionSteps| be an algorithm that takes a [=string=]-or-null |result| and a [=boolean=] |success|, and runs the following steps:
+   1. Let |completionSteps| be an algorithm that takes a [=string=]-or-null |result| and a
+      [=boolean=] |success|, and runs the following steps:
 
       1. [=Assert=]: these steps are running [=in parallel=].
 
-      1. If |targetDocument|'s [=node navigable=]'s [=navigable/traversable navigable=]'s [=traversable navigable/pending tool executions map=][|uuid|] does not [=map/exist=], then return.
+      1. If |targetDocument|'s [=node navigable=]'s [=navigable/traversable navigable=]'s
+         [=traversable navigable/pending tool executions map=][|uuid|] does not [=map/exist=], then
+         return.
 
          <div class=note>
           <p>It is possible that a pending execution identified by |uuid| no longer exists. This can
           happen due to a race between (a) tool cancellation when the caller document <a
           href=#caller-destroyed-cleanup>gets destroyed</a>; and (b) tool promise resolution. Both
           of these race to invoke |completionSteps|, and the first invocation will remove the
-          pending execution by its key |uuid|, this check protects subsequent racing invocations.</p>
+          pending execution by its key |uuid|, this check protects subsequent racing
+          invocations.</p>
 
           <p>This can also happen due to a limitation with tool unregistration. Consider this
           example:</p>
@@ -921,11 +937,15 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputArgument
           </div>
          </div>
 
-      1. [=map/Remove=] |targetDocument|'s [=node navigable=]'s [=navigable/traversable navigable=]'s [=traversable navigable/pending tool executions map=][|uuid|].
+      1. [=map/Remove=] |targetDocument|'s [=node navigable=]'s [=navigable/traversable
+         navigable=]'s [=traversable navigable/pending tool executions map=][|uuid|].
 
-      1. If |success| is true, then [=queue a global task=] on the [=webmcp task source=] given |invokingDocument|'s [=relevant global object=] to [=resolve=] |promise| with |result|.
+      1. If |success| is true, then [=queue a global task=] on the [=webmcp task source=] given
+         |invokingDocument|'s [=relevant global object=] to [=resolve=] |promise| with |result|.
 
-      1. Otherwise, [=queue a global task=] on the [=webmcp task source=] given |invokingDocument|'s [=relevant global object=] to [=reject=] |promise| with an "{{UnknownError}}" {{DOMException}}.
+      1. Otherwise, [=queue a global task=] on the [=webmcp task source=] given |invokingDocument|'s
+         [=relevant global object=] to [=reject=] |promise| with an "{{UnknownError}}"
+         {{DOMException}}.
 
    1. Let |execution| be a new [=pending tool execution=], with the following [=struct/items=]:
 
@@ -941,9 +961,11 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputArgument
       : [=pending tool execution/completion steps=]
       :: |completionSteps|
 
-   1. Set |targetDocument|'s [=node navigable=]'s [=navigable/traversable navigable=]'s [=traversable navigable/pending tool executions map=][|uuid|] to |execution|.
+   1. Set |targetDocument|'s [=node navigable=]'s [=navigable/traversable navigable=]'s
+      [=traversable navigable/pending tool executions map=][|uuid|] to |execution|.
 
-   1. [=Queue a global task=] on the [=webmcp task source=] given |targetWindow| to run the [=tool execute steps=] given |toolName|, |targetDocument|, |inputArguments|, and |completionSteps|.
+   1. [=Queue a global task=] on the [=webmcp task source=] given |targetWindow| to run the [=tool
+      execute steps=] given |toolName|, |targetDocument|, |inputArguments|, and |completionSteps|.
 
       Note: Because documents only process tasks on their event loops when [=Document/fully
       active=], if |targetDocument| is not [=Document/fully active=], this will simply queue the
@@ -1068,7 +1090,8 @@ dictionary ModelContextGetToolOptions {
 
 <h4 id="model-context-execute-tool-options">ModelContextExecuteToolOptions Dictionary</h4>
 
-The {{ModelContextExecuteToolOptions}} dictionary allows web applications to pass options to {{ModelContext/executeTool()}}.
+The {{ModelContextExecuteToolOptions}} dictionary allows web applications to pass options to
+{{ModelContext/executeTool()}}.
 
 <xmp class="idl">
 dictionary ModelContextExecuteToolOptions {
