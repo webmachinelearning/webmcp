@@ -409,9 +409,9 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
 
 1. Let |promise| be [=a new promise=] created in [=this=]'s [=relevant realm=].
 
-1. Let |signal| be |options|'s {{ModelContextRegisterToolOptions/signal}} if it [=map/exists=]; otherwise null.
+1. If |options|'s {{ModelContextRegisterToolOptions/signal}} [=map/exists=], then:
 
-1. If |signal| is not null, then:
+   1. Let |signal| be |options|'s {{ModelContextRegisterToolOptions/signal}}.
 
    1. If |signal| is [=AbortSignal/aborted=], then return [=a promise rejected with=]
       |signal|'s [=AbortSignal/abort reason=].
