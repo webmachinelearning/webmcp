@@ -23,6 +23,7 @@ An [Origin Trial](https://developer.chrome.com/blog/ai-webmcp-origin-trial) is l
 An [Origin Trial](https://developer.microsoft.com/en-us/microsoft-edge/origin-trials/trials/0b76fe60-b266-458e-a285-04e375c0c31a) is live in Edge 150.
 
 Refer to Chrome implementation status for platform support.
+
 # Firefox
 
 * [Mozilla standards-positions](https://github.com/mozilla/standards-positions/issues/1412)
