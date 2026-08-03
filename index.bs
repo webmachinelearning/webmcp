@@ -349,7 +349,7 @@ The <dfn>tool execute steps</dfn>, given a [=string=] |toolName|, a {{Document}}
    and abort these steps.
 
    Issue: Support the plumbing of more granular errors back to the invoker; this should result in a
-   "{{NotFoundError}}" in the invoking document.
+   "{{NotFoundError}}" in the calling document.
 
    <div class=note>
     <p>This protects us against a race between tool unregistration and execution. While tool
@@ -803,10 +803,10 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
 The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputArguments</var>,
 <var>options</var>)</dfn> method steps are:
 
-1. Let |invokingDocument| be [=this=]'s [=relevant global object=]'s [=associated
+1. Let |callerDocument| be [=this=]'s [=relevant global object=]'s [=associated
    Document|associated <code>Document</code>=].
 
-1. If |invokingDocument| is not [=Document/fully active=], then return [=a promise rejected with=]
+1. If |callerDocument| is not [=Document/fully active=], then return [=a promise rejected with=]
    an "{{InvalidStateError}}" {{DOMException}}.
 
 1. If [=this=]'s [=surrounding agent=]'s [=agent cluster=]'s [=is origin-keyed=] is false and
@@ -814,7 +814,7 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputArgument
    [=origin/scheme=] is not "<code>file</code>", then return [=a promise rejected with=] a
    "{{SecurityError}}" {{DOMException}}.
 
-1. If |invokingDocument| is not [=allowed to use=] the "{{tools}}" feature, then return [=a promise
+1. If |callerDocument| is not [=allowed to use=] the "{{tools}}" feature, then return [=a promise
    rejected with=] a "{{NotAllowedError}}" {{DOMException}}.
 
 1. Let |expectedTargetOriginURL| be the result of [=URL parser|parsing=] |tool|'s
@@ -854,8 +854,8 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputArgument
 1. Run the following steps [=in parallel=]:
 
    1. If |targetDocument|'s [=node navigable=]'s [=navigable/traversable navigable=] is not
-      |invokingDocument|'s [=node navigable=]'s [=navigable/traversable navigable=], then [=queue a
-      global task=] on the [=webmcp task source=] given |invokingDocument|'s [=relevant global
+      |callerDocument|'s [=node navigable=]'s [=navigable/traversable navigable=], then [=queue a
+      global task=] on the [=webmcp task source=] given |callerDocument|'s [=relevant global
       object=] to [=reject=] |promise| with an "{{UnknownError}}" {{DOMException}}, and abort these
       steps.
 
@@ -866,10 +866,10 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputArgument
 
    1. Let |targetOrigin| be |targetDocument|'s [=Document/origin=].
 
-   1. Let |callerOrigin| be |invokingDocument|'s [=Document/origin=].
+   1. Let |callerOrigin| be |callerDocument|'s [=Document/origin=].
 
    1. If |targetOrigin| is not [=same origin=] with |expectedTargetOrigin|, then [=queue a global
-      task=] on the [=webmcp task source=] given |invokingDocument|'s [=relevant global object=] to
+      task=] on the [=webmcp task source=] given |callerDocument|'s [=relevant global object=] to
       [=reject=] |promise| with an "{{UnknownError}}" {{DOMException}}, and abort these steps.
 
       Issue: Support more granular errors than "{{UnknownError}}", based on each failure case.
@@ -880,7 +880,7 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputArgument
    1. Let |toolName| be |tool|'s {{RegisteredTool/name}}.
 
    1. If |targetToolMap|[|toolName|] does not [=map/exist=], then [=queue a global task=] on the
-      [=webmcp task source=] given |invokingDocument|'s [=relevant global object=] to [=reject=]
+      [=webmcp task source=] given |callerDocument|'s [=relevant global object=] to [=reject=]
       |promise| with an "{{UnknownError}}" {{DOMException}}, and abort these steps.
 
       Issue: Support more granular errors than "{{UnknownError}}", based on each failure case.
@@ -889,7 +889,7 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputArgument
 
    1. If [=tool is exposed to an origin=] given |targetOrigin|, |tool definition|'s [=tool
       definition/exposed origins=], and |callerOrigin| returns false, then [=queue a global task=]
-      on the [=webmcp task source=] given |invokingDocument|'s [=relevant global object=] to
+      on the [=webmcp task source=] given |callerDocument|'s [=relevant global object=] to
       [=reject=] |promise| with an "{{UnknownError}}" {{DOMException}}, and abort these steps.
 
       Issue: Support more granular errors than "{{UnknownError}}", based on each failure case.
@@ -941,16 +941,16 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputArgument
          navigable=]'s [=traversable navigable/pending tool executions map=][|uuid|].
 
       1. If |success| is true, then [=queue a global task=] on the [=webmcp task source=] given
-         |invokingDocument|'s [=relevant global object=] to [=resolve=] |promise| with |result|.
+         |callerDocument|'s [=relevant global object=] to [=resolve=] |promise| with |result|.
 
-      1. Otherwise, [=queue a global task=] on the [=webmcp task source=] given |invokingDocument|'s
+      1. Otherwise, [=queue a global task=] on the [=webmcp task source=] given |callerDocument|'s
          [=relevant global object=] to [=reject=] |promise| with an "{{UnknownError}}"
          {{DOMException}}.
 
    1. Let |execution| be a new [=pending tool execution=], with the following [=struct/items=]:
 
       : [=pending tool execution/caller document=]
-      :: |invokingDocument|
+      :: |callerDocument|
 
       : [=pending tool execution/target document=]
       :: |targetDocument|
