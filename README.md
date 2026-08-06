@@ -4,6 +4,7 @@ WebMCP lets developers expose web application functionality—either JavaScript 
 
 TypeScript type definitions for WebMCP are available in the [`webmcp-types`](https://www.npmjs.com/package/webmcp-types) npm package.
 
+See [Implementation Status](implementation-status.md) for browser support.
 
 ## Background and Motivation
 
