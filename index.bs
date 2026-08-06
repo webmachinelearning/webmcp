@@ -411,7 +411,9 @@ The <dfn>imperative execute steps</dfn>, given a {{ModelContextTool}} |tool|, a 
 1. If |inputObject| [=Object type|is not an Object=] is false, then run |completionSteps| given null
    and false, and abort these steps.
 
-   Issue(#146): Specify and fire the "<code>toolactivated</code>" event.
+1. [=Fire an event=] named {{ModelContext/toolactivated}} at |targetDocument|'s [=Document/associated
+   ModelContext|associated <code>ModelContext</code>=], using {{ToolActivatedEvent}}, with its
+   {{ToolActivatedEvent/toolName}} attribute initialized to |tool|'s {{ModelContextTool/name}}.
 
 1. Let |toolPromise| be the result of [=invoke|invoking=] |tool|'s {{ModelContextTool/execute}} with
    |inputObject|.
