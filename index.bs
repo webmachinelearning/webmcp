@@ -832,6 +832,11 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputArgument
 
 1. [=Assert=]: |expectedTargetOrigin| is not an [=opaque origin=].
 
+1. Let |targetWindow| be |tool|'s {{RegisteredTool/window}}.
+
+1. Let |targetDocument| be |targetWindow|'s [=associated Document|associated
+   <code>Document</code>=].
+
 1. Let |promise| be [=a new promise=] created in [=this=]'s [=relevant realm=].
 
 1. If |options|'s {{ModelContextExecuteToolOptions/signal}} [=map/exists=], then:
@@ -845,15 +850,13 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputArgument
 
       1. [=Reject=] |promise| with |signal|'s [=AbortSignal/abort reason=].
 
+      1. [=Fire an event=] named {{ModelContext/toolcancel}} at |targetDocument|'s
+         [=Document/associated ModelContext|associated <code>ModelContext</code>=], using
+         {{ToolCancelEvent}}, with its {{ToolCancelEvent/toolName}} attribute initialized to
+         |tool|'s {{RegisteredTool/name}}.
+
       Issue(#48): Wire up |signal| to the tool execution callback in the tool host's document, so
-      that tool abort is communicated all the way through. This should also fire the
-      "<code>toolcanceled</code>" event in the target document. See also <a
-      href=https://github.com/webmachinelearning/webmcp/issues/146>issue #146</a>.
-
-1. Let |targetWindow| be |tool|'s {{RegisteredTool/window}}.
-
-1. Let |targetDocument| be |targetWindow|'s [=associated Document|associated
-   <code>Document</code>=].
+      that tool abort is communicated all the way through.
 
 1. Run the following steps [=in parallel=]:
 
