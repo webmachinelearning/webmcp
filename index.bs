@@ -407,6 +407,20 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
      </ol>
    </div>
 
+1. Let |exposed origins| be an empty [=list=] of [=origins=].
+
+1. If |options|'s {{ModelContextRegisterToolOptions/exposedTo}} [=map/exists=], then:
+
+     1. [=list/For each=] |origin| of |options|'s {{ModelContextRegisterToolOptions/exposedTo}}:
+
+          1. Let |parsedURL| be the result of running the [=URL parser=] on |origin|.
+
+          1. If |parsedURL| is failure or its [=url/origin=] is not [$is origin potentially
+             trustworthy?|potentially trustworthy$], then return [=a promise rejected with=] a
+             "{{SecurityError}}" {{DOMException}}.
+
+          1. [=list/Append=] |parsedURL|'s [=url/origin=] to |exposed origins|.
+
 1. Let |promise| be [=a new promise=] created in [=this=]'s [=relevant realm=].
 
 1. If |options|'s {{ModelContextRegisterToolOptions/signal}} [=map/exists=], then:
@@ -421,20 +435,6 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
         1. [=model context/Unregister a tool=] given [=this=] and |tool name|.
 
         1. [=Reject=] |promise| with |signal|'s [=AbortSignal/abort reason=].
-
-1. Let |exposed origins| be an empty [=list=] of [=origins=].
-
-1. If |options|'s {{ModelContextRegisterToolOptions/exposedTo}} [=map/exists=], then:
-
-     1. [=list/For each=] |origin| of |options|'s {{ModelContextRegisterToolOptions/exposedTo}}:
-
-          1. Let |parsedURL| be the result of running the [=URL parser=] on |origin|.
-
-          1. If |parsedURL| is failure or its [=url/origin=] is not [$is origin potentially
-             trustworthy?|potentially trustworthy$], then return [=a promise rejected with=] a
-             "{{SecurityError}}" {{DOMException}}.
-
-          1. [=list/Append=] |parsedURL|'s [=url/origin=] to |exposed origins|.
 
 1. Let |tool definition| be a new [=tool definition=], with the following [=struct/items=]:
 
@@ -669,17 +669,17 @@ definition itself.
 
 <xmp class="idl">
 dictionary ModelContextRegisterToolOptions {
-  AbortSignal signal;
   sequence<USVString> exposedTo;
+  AbortSignal signal;
 };
 </xmp>
 
 <dl class="domintro">
+  : <code><var ignore>options</var>["{{ModelContextRegisterToolOptions/exposedTo}}"]</code>
+  :: An array of origins that control which documents this tool is exposed to, in the current document's tree.
+
   : <code><var ignore>options</var>["{{ModelContextRegisterToolOptions/signal}}"]</code>
   :: An {{AbortSignal}} that unregisters the tool when aborted.
-
-  : <code><var ignore>options</var>["{{ModelContextRegisterToolOptions/exposedTo}}"]</code>
-  :: <p>An array of origins that control which documents this tool is exposed to, in the current document's tree.
 </dl>
 
 <h4 id="model-context-get-tool-options">ModelContextGetToolOptions Dictionary</h4>
