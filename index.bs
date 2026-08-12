@@ -775,8 +775,9 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
             :: |tool definition|'s [=tool definition/description=]
 
             : {{RegisteredTool/inputSchema}}
-            :: |tool definition|'s [=tool definition/input schema=] if it is not the empty string;
-               otherwise undefined.
+            :: the result of [=parse a JSON string to a JavaScript value=] given |tool
+               definition|'s [=tool definition/input schema=], if |tool definition|'s [=tool
+               definition/input schema=] is not the empty string; otherwise undefined.
 
             : {{RegisteredTool/window}}
             :: |targetDocument|'s [=relevant global object=]
@@ -1121,7 +1122,7 @@ dictionary RegisteredTool {
   // done, and there's no need to do it again on tool exposure.
   DOMString title;
   required DOMString description;
-  DOMString inputSchema;
+  object inputSchema;
   required Window window;
   required USVString origin;
   ToolAnnotations annotations;
@@ -1142,9 +1143,9 @@ dictionary RegisteredTool {
      tool registration, via {{ModelContextTool/description}}.
 
   : <code><var ignore>tool</var>["{{RegisteredTool/inputSchema}}"]</code>
-  :: A stringified JSON Schema object describing the expected input parameters for the tool
-     [[!JSON-SCHEMA]]. It is the string derived from {{ModelContextTool/inputSchema}} during
-     registration.
+  :: A JSON Schema object describing the expected input parameters for the tool
+     [[!JSON-SCHEMA]]. It is the same value provided at tool registration, via
+     {{ModelContextTool/inputSchema}}.
 
   : <code><var ignore>tool</var>["{{RegisteredTool/window}}"]</code>
   :: The {{Window}} of the document that registered the tool.
