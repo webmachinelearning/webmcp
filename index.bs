@@ -779,6 +779,9 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
                definition|'s [=tool definition/input schema=], if |tool definition|'s [=tool
                definition/input schema=] is not the empty string; otherwise undefined.
 
+               Note: This will never throw an exception, because the string stored in the tool
+               definition is always a valid JSON string.
+
             : {{RegisteredTool/window}}
             :: |targetDocument|'s [=relevant global object=]
 
@@ -1144,7 +1147,7 @@ dictionary RegisteredTool {
 
   : <code><var ignore>tool</var>["{{RegisteredTool/inputSchema}}"]</code>
   :: A JSON Schema object describing the expected input parameters for the tool
-     [[!JSON-SCHEMA]]. It is the same value provided at tool registration, via
+     [[!JSON-SCHEMA]]. It is a deep copy of the schema provided at tool registration, via
      {{ModelContextTool/inputSchema}}.
 
   : <code><var ignore>tool</var>["{{RegisteredTool/window}}"]</code>
