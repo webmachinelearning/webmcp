@@ -325,7 +325,7 @@ By default, WebMCP is enabled in top-level `Window`s and its same-origin iframes
 
 Calls to `document.modelContext.registerTool()` will return a promise rejected with `NotAllowedError` DOMException when the permission is disabled, whether by the `allow` attribute or the `Permissions-Policy: tools=()` header. Handling of declarative tool registration errors, including when the permission is disabled is TBD; see [Issue #182](https://github.com/webmachinelearning/webmcp/issues/182).
 
-#### Cross-origin iframe exposure: `exposedTo`
+#### Cross-origin iframe exposure: `registerTool() and `exposedTo`
 
 By default, tools registered by a document are only exposed to itself, same-origin documents in the same tree, and built-in browser agents (see this <a href=#built-in-agent-default-exposure>discussion</a>). To support author-provided agents running in frames, developers can selectively share tools with secure origins of their choice, `exposedTo` option during registration:
 
@@ -342,9 +342,76 @@ Any document in the tree matching these origins (and allowed to use `tools` perm
 - Receive the `toolchange` event on its `document.modelContext` when the tool is registered or unregistered.
 - Be able to discover and run the tools
 
-#### Discovering and running tools
+#### Discovering and running tools: `getTools()` and `executeTool()`
 
-TODO: Spec and describe the `modelContext.getTools()` and `modelContext.executeTool()` APIs.
+Once tools are registered, in-page agents can discover and invoke them using `getTools()` and `executeTool()`.
+
+Calling `document.modelContext.getTools()` returns a promise that resolves with an array of `RegisteredTool` dictionary objects. Each object contains the tool's `name`, `description`, `inputSchema`, `origin`, and owner `window`:
+
+```js
+// Discover tools exposed by same-origin frames in the tree (default)
+const tools = await document.modelContext.getTools();
+
+for (const tool of tools) {
+  console.log(`Tool: ${tool.name} (from ${tool.origin})`);
+  console.log(`Description: ${tool.description}`);
+  console.log(`Parameters schema:`, tool.inputSchema);
+}
+
+// Or discover tools exposed by specific cross-origin partner frames:
+const crossOriginTools = await document.modelContext.getTools({
+  fromOrigins: ["https://trusted-partner.example"]
+});
+```
+
+An agent executes a discovered `RegisteredTool` by passing the tool dictionary and input arguments along to `document.modelContext.executeTool()`. The browser securely mediates the execution, ensuring the [`exposedTo`](https://webmachinelearning.github.io/webmcp/#dom-modelcontextregistertooloptions-exposedto) and [`fromOrigins`](https://webmachinelearning.github.io/webmcp/#dom-modelcontextgettooloptions-fromorigins) agree, and the tool runs in the tool owner's execution context:
+
+```js
+const tools = await document.modelContext.getTools();
+const addTodoTool = tools.find(t => t.name === "add-todo");
+
+if (addTodoTool) {
+  try {
+    const result = await document.modelContext.executeTool(
+      addTodoTool,
+      { text: "Buy groceries" }
+    );
+    console.log("Tool result:", result);
+  } catch (error) {
+    console.error("Tool execution failed:", error);
+  }
+}
+```
+
+##### Cancelling execution with `AbortSignal`
+
+Tool invocations can be cancelled mid-execution (e.g., if the user aborts an ongoing request, as they might with the "stop button" that's present in most agent UIs) by passing an `AbortSignal`:
+
+```js
+const controller = new AbortController();
+
+const executionPromise = document.modelContext.executeTool(
+  addTodoTool,
+  { text: "Buy groceries" },
+  { signal: controller.signal }
+);
+
+// If the user cancels the interaction:
+stopButton.addEventListener('click', e => controller.abort());
+```
+
+The tool's [execution callback](https://webmachinelearning.github.io/webmcp/#callbackdef-toolexecutecallback) receives this signal via its [`options.signal`](https://webmachinelearning.github.io/webmcp/#dom-modelcontextexecutetooloptions-signal) parameter, allowing it to abort underlying network requests or asynchronous tasks cleanly.
+
+##### Responding to dynamic tool updates: the `toolchange` event
+
+When tools are added, removed, or updated dynamically (such as when user interactions result in new tools being registered), `document.modelContext` fires a `toolchange` event:
+
+```js
+document.modelContext.addEventListener("toolchange", async () => {
+  const currentTools = await document.modelContext.getTools();
+  updateAgentToolRegistry(currentTools);
+});
+```
 
 
 ## Alternatives Considered
