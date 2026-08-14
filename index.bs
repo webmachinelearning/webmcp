@@ -238,8 +238,8 @@ outside any individual Document process's event loop, and is accessed asynchrono
 inter-process communication mechanism.
 
 <div algorithm>
-To <dfn for="pending tool execution">cancel a pending tool execution</dfn> given a [=traversable
-navigable=] |traversable| and a [=unique internal value=] |uuid|:
+To <dfn>cancel a pending tool execution</dfn> given a [=traversable navigable=] |traversable| and a
+[=unique internal value=] |uuid|:
 
 1. [=Assert=]: these steps are running [=in parallel=].
 
@@ -309,9 +309,8 @@ follows:
          Note: This removes |execution| from the [=traversable navigable/pending tool executions
          map=].
 
-      1. If |document| is |execution|'s [=pending tool execution/caller document=], then
-         [=pending tool execution/cancel a pending tool execution|cancel=] given |traversable| and
-         |uuid|.
+      1. If |document| is |execution|'s [=pending tool execution/caller document=], then [=cancel a
+         pending tool execution=] given |traversable| and |uuid|.
 
       1. [=Assert=]: |traversable|'s [=traversable navigable/pending tool executions map=][|uuid|]
          does not [=map/exist=].
@@ -968,8 +967,7 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</
 
       1. Run the following steps [=in parallel=]:
 
-         1. Run [=pending tool execution/cancel a pending tool execution|cancel=] given |traversable|
-            and |uuid|.
+         1. [=Cancel a pending tool execution|cancel=] given |traversable| and |uuid|.
 
 1. Run the following steps [=in parallel=]:
 
