@@ -844,7 +844,7 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputArgument
       Issue(#48): Wire up |signal| to the tool execution callback in the tool host's document, so
       that tool abort is communicated all the way through. This should also fire the
       "<code>toolcanceled</code>" event in the target document. See also <a
-      href=https://github.com/webmachinelearning/webmcp/issues/146>issue #146</a>.
+      href=https://github.com/webmachinelearning/webmcp/pull/146>pull request #146</a>.
 
 1. Let |targetWindow| be |tool|'s {{RegisteredTool/window}}.
 
