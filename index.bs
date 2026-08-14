@@ -258,6 +258,12 @@ To <dfn>cancel a pending tool execution</dfn> given a [=traversable navigable=] 
 
 1. Let |targetDocument| be |execution|'s [=pending tool execution/target document=].
 
+   Note: |targetDocument| is guaranteed to still exist (i.e., not be unloaded or destroyed) when
+   these steps run, because if |targetDocument| had been destroyed, then <a
+   href=#target-destroyed-cleanup>this specification's unloading document cleanup steps</a> would
+   have already removed |execution| from the map, and we'd have ended up in the early return path
+   above.
+
 1. [=Queue a global task=] on the [=webmcp task source=] given |targetDocument|'s [=relevant global
    object=] to run the following steps:
 
@@ -302,15 +308,20 @@ follows:
       1. Let |execution| be |traversable|'s [=traversable navigable/pending tool executions
          map=][|uuid|].
 
-      1. <p id=caller-destroyed-cleanup>If |document| is |execution|'s [=pending tool
-         execution/target document=], then run |execution|'s [=pending tool execution/completion
-         steps=] given null and false.</p>
+      1. <p id=target-destroyed-cleanup>If |document| is |execution|'s [=pending tool
+         execution/target document=] and is not |execution|'s [=pending tool execution/caller
+         document=], then run |execution|'s [=pending tool execution/completion steps=] given null
+         and false.</p>
 
          Note: This removes |execution| from the [=traversable navigable/pending tool executions
          map=].
 
-      1. If |document| is |execution|'s [=pending tool execution/caller document=], then [=cancel a
-         pending tool execution=] given |traversable| and |uuid|.
+      1. <p id=caller-destroyed-cleanup>Otherwise, if |document| is |execution|'s [=pending tool
+         execution/caller document=] and is not |execution|'s [=pending tool execution/target
+         document=], then [=cancel a pending tool execution=] given |traversable| and |uuid|.</p>
+
+      1. Otherwise, [=map/Remove=] |traversable|'s [=traversable navigable/pending tool executions
+         map=][|uuid|].
 
       1. [=Assert=]: |traversable|'s [=traversable navigable/pending tool executions map=][|uuid|]
          does not [=map/exist=].
