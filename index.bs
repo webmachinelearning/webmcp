@@ -134,6 +134,20 @@ A <dfn>model context</dfn> is a [=struct=] with the following [=struct/items=]:
   : <dfn>tool map</dfn>
   :: a [=map=] whose [=map/keys=] are [=strings=] and whose [=map/values=] are [=tool definition=]
      [=structs=].
+
+  : <dfn>pending executions map</dfn>
+  :: a [=map=] whose [=map/keys=] are [=unique internal values=] and whose [=map/values=] are [=local
+     pending tool execution=] [=structs=]. It is initially empty.
+</dl>
+
+A <dfn>local pending tool execution</dfn> is a [=struct=] with the following [=struct/items=]:
+
+<dl dfn-for="local pending tool execution">
+  : <dfn>tool name</dfn>
+  :: a [=string=].
+
+  : <dfn>abort controller</dfn>
+  :: an {{AbortController}}.
 </dl>
 
 
@@ -170,8 +184,8 @@ A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]
 
   : <dfn>execute steps</dfn>
   :: an algorithm that takes a {{Document}} <var ignore>targetDocument</var>, a [=string=] <var
-     ignore>inputArguments</var>, and an algorithm <var ignore>completionSteps</var> that takes a
-     [=string=]-or-null and a [=boolean=].
+     ignore>inputArguments</var>, an algorithm <var ignore>completionSteps</var> that takes a
+     [=string=]-or-null and a [=boolean=], and a [=unique internal value=] <var ignore>uuid</var>.
 
      Note: For tools registered imperatively, these steps will simply invoke the [=imperative
      execute steps=]. For tools registered
@@ -223,6 +237,47 @@ authoritative "browser process" that most modern browsers implement, where execu
 outside any individual Document process's event loop, and is accessed asynchronously via some
 inter-process communication mechanism.
 
+<div algorithm>
+To <dfn for="pending tool execution">cancel a pending tool execution</dfn> given a [=traversable
+navigable=] |traversable| and a [=unique internal value=] |uuid|:
+
+1. [=Assert=]: these steps are running [=in parallel=].
+
+1. If |traversable|'s [=traversable navigable/pending tool executions map=][|uuid|] does not
+   [=map/exist=], then return.
+
+   Note: See <a href=#unregistration-race>this note</a> to learn how a tool's natural
+   resolution/rejection can race with the caller's cancellation. This might result in the pending
+   execution entry for |uuid| being removed before we get here. In that case, the
+   {{ModelContext/executeTool()}} promise will still be rejected with the abort
+   [=AbortSignal/abort reason=], and will never observe the tool's natural resolution/rejection.
+
+1. Let |execution| be |traversable|'s [=traversable navigable/pending tool executions map=][|uuid|].
+
+1. [=map/Remove=] |traversable|'s [=traversable navigable/pending tool executions map=][|uuid|].
+
+1. Let |targetDocument| be |execution|'s [=pending tool execution/target document=].
+
+1. [=Queue a global task=] on the [=webmcp task source=] given |targetDocument|'s [=relevant global
+   object=] to run the following steps:
+
+   1. Let |localExecutions| be |targetDocument|'s [=Document/associated ModelContext|associated
+      <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/pending
+      executions map=].
+
+   1. If |localExecutions|[|uuid|] does not [=map/exist=], then return.
+
+   1. Let |localExecution| be |localExecutions|[|uuid|].
+
+   1. [=map/Remove=] |localExecutions|[|uuid|].
+
+   1. [=AbortController/signal abort|Signal abort=] on |localExecution|'s [=local pending tool
+      execution/abort controller=].
+
+      Issue(#146): Fire the "toolcanceled" event at |targetDocument|'s relevant global object.
+
+</div>
+
 <hr>
 
 <div algorithm=unloading-document-cleanup-steps>
@@ -254,13 +309,9 @@ follows:
          Note: This removes |execution| from the [=traversable navigable/pending tool executions
          map=].
 
-      1. If |document| is |execution|'s [=pending tool execution/caller document=], then:
-
-         1. [=map/Remove=] |traversable|'s [=traversable navigable/pending tool executions
-            map=][|uuid|].
-
-         1. Issue(#48): Abort the `AbortSignal` in |execution|'s [=pending tool execution/target
-            document=], so the tool can abort early now that the caller is dead.
+      1. If |document| is |execution|'s [=pending tool execution/caller document=], then
+         [=pending tool execution/cancel a pending tool execution|cancel=] given |traversable| and
+         |uuid|.
 
       1. [=Assert=]: |traversable|'s [=traversable navigable/pending tool executions map=][|uuid|]
          does not [=map/exist=].
@@ -335,19 +386,58 @@ a [=list=] of [=origins=] |exposed origins|, and an [=origin=] |accessing origin
 </div>
 
 <div algorithm>
-The <dfn>tool execute steps</dfn>, given a [=string=] |toolName|, a {{Document}} |targetDocument|, a
-[=string=] |inputArguments|, and an algorithm |completionSteps|, are as follows. The
-|completionSteps| algorithm takes a [=string=]-or-null <var ignore>result</var> and a [=boolean=]
-<var ignore>success</var>.
+To <dfn for="model context">finish a tool execution</dfn> given a {{Document}} |targetDocument|, a
+[=unique internal value=] |uuid|, a [=string=]-or-null |result|, a [=boolean=] |success|, and an
+algorithm |completionSteps|:
 
 1. [=Assert=]: these steps are running on |targetDocument|'s [=relevant agent=]'s [=agent/event
    loop=].
 
+1. [=map/Remove=] |targetDocument|'s [=Document/associated ModelContext|associated
+   <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/pending
+   executions map=][|uuid|].
+
+1. Run |completionSteps| given |result| and |success|.
+
+</div>
+
+<div algorithm>
+The <dfn>tool execute steps</dfn>, given a [=string=] |toolName|, a {{Document}} |targetDocument|, a
+[=string=] |inputArguments|, an algorithm |completionSteps|, and a [=unique internal value=] |uuid|,
+are as follows. The |completionSteps| algorithm takes a [=string=]-or-null <var ignore>result</var>
+and a [=boolean=] <var ignore>success</var>.
+
+1. [=Assert=]: these steps are running on |targetDocument|'s [=relevant agent=]'s [=agent/event
+   loop=].
+
+1. Let |traversable| be |targetDocument|'s [=node navigable=]'s [=navigable/traversable navigable=].
+
+1. If |traversable|'s [=traversable navigable/pending tool executions map=][|uuid|] does not
+   [=map/exist=], then return.
+
+1. Let |controller| be a [=new=] {{AbortController}} created in |targetDocument|'s [=relevant
+   realm=].
+
+1. Let |signal| be |controller|'s [=AbortController/signal=].
+
+1. Let |localExecution| be a new [=local pending tool execution=] with the following [=struct/items=]:
+
+   : [=local pending tool execution/tool name=]
+   :: |toolName|
+
+   : [=local pending tool execution/abort controller=]
+   :: |controller|
+
+1. Set |targetDocument|'s [=Document/associated ModelContext|associated
+   <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/pending
+   executions map=][|uuid|] to |localExecution|.
+
 1. Let |toolMap| be |targetDocument|'s [=Document/associated ModelContext|associated
    <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/tool map=].
 
-1. If |toolMap|[|toolName|] does not [=map/exist=], then run |completionSteps| given null and false,
-   and abort these steps.
+1. If |toolMap|[|toolName|] does not [=map/exist=], then [=model context/finish a tool
+   execution|finish=] given |targetDocument|, |uuid|, null, false, and |completionSteps|, and abort
+   these steps.
 
    Issue: Support the plumbing of more granular errors back to the invoker; this should result in a
    "{{NotFoundError}}" in the calling document.
@@ -387,8 +477,8 @@ The <dfn>tool execute steps</dfn>, given a [=string=] |toolName|, a {{Document}}
 
 1. Let |tool| be |toolMap|[|toolName|].
 
-1. Run |tool|'s [=tool definition/execute steps=] given |targetDocument|, |inputArguments|, and
-   |completionSteps|.
+1. Run |tool|'s [=tool definition/execute steps=] given |targetDocument|, |inputArguments|,
+   |completionSteps|, and |uuid|.
 
    Note: This is the point where we branch into either the [=imperative execute steps=] or the
    [=declarative execute steps=].
@@ -397,42 +487,52 @@ The <dfn>tool execute steps</dfn>, given a [=string=] |toolName|, a {{Document}}
 
 <div algorithm>
 The <dfn>imperative execute steps</dfn>, given a {{ModelContextTool}} |tool|, a {{Document}}
-|targetDocument|, a [=string=] |inputArguments|, and an algorithm |completionSteps|, are as follows:
+|targetDocument|, a [=string=] |inputArguments|, an algorithm |completionSteps|, an {{AbortSignal}}
+|signal|, and a [=unique internal value=] |uuid|, are as follows:
 
 1. [=Assert=]: these steps are running on |targetDocument|'s [=relevant agent=]'s [=agent/event
    loop=].
 
 1. Let |inputObject| be the result of [=parse a JSON string to a JavaScript value=] given
    |inputArguments| and |targetDocument|'s [=relevant realm=]. If <a lt="an exception was
-   thrown">exception was thrown</a>, then run |completionSteps| given null and false, and abort
-   these steps.
+   thrown">exception was thrown</a>, then [=model context/finish a tool execution|finish=] given
+   |targetDocument|, |uuid|, null, false, and |completionSteps|, and abort these steps.
 
    Issue: Support more granular errors; here we should return something that prompts the caller to
    reject its {{Promise}} with a "{{DataError}}" {{DOMException}}.
 
-1. If |inputObject| [=Object type|is not an Object=] is false, then run |completionSteps| given null
-   and false, and abort these steps.
+1. If |inputObject| [=Object type|is not an Object=] is false, then [=model context/finish a tool
+   execution|finish=] given |targetDocument|, |uuid|, null, false, and |completionSteps|, and abort
+   these steps.
 
    Issue(#146): Specify and fire the "<code>toolactivated</code>" event.
 
+1. Let |options| be a new {{ToolExecuteCallbackOptions}} dictionary, with the following fields:
+
+   : {{ToolExecuteCallbackOptions/signal}}
+   :: |signal|
+
 1. Let |toolPromise| be the result of [=invoke|invoking=] |tool|'s {{ModelContextTool/execute}} with
-   |inputObject|.
+   |inputObject| and |options|.
 
 1. [=promise/React=] to |toolPromise|:
 
    - If |toolPromise| was fulfilled with value |v|:
 
        1. Let |serializedResult| be the result of [=serializing a JavaScript value to a JSON
-          string=] given |v|. If this throws an exception, run |completionSteps| given null and
-          false, and abort these steps.
+          string=] given |v|. If this throws an exception, [=model context/finish a tool
+          execution|finish=] given |targetDocument|, |uuid|, null, false, and |completionSteps|, and
+          abort these steps.
 
-       1. Run |completionSteps| given |serializedResult| and true.
+       1. [=model context/finish a tool execution|finish=] given |targetDocument|, |uuid|,
+          |serializedResult|, true, and |completionSteps|.
 
    - If |toolPromise| was rejected with reason |r|, then:
 
        1. Optionally [=report a warning to the console=] describing |r|.
 
-       1. Run |completionSteps| given null and false.
+       1. [=model context/finish a tool execution|finish=] given |targetDocument|, |uuid|, null,
+          false, and |completionSteps|.
 
 </div>
 
@@ -664,9 +764,10 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
    :: |stringified input schema|
 
    : [=tool definition/execute steps=]
-   :: An algorithm that takes a {{Document}} |targetDocument|, a [=string=] |inputArguments|, and an
-      algorithm |completionSteps|, and runs the [=imperative execute steps=] given |tool|,
-      |targetDocument|, |inputArguments|, and |completionSteps|.
+   :: An algorithm that takes a {{Document}} |targetDocument|, a [=string=] |inputArguments|, an
+      algorithm |completionSteps|, and a [=unique internal value=] |uuid|, and runs the [=imperative
+      execute steps=] given |tool|, |targetDocument|, |inputArguments|, |completionSteps|, and
+      |uuid|.
 
    : [=tool definition/annotations=]
    :: null if |tool|'s {{ModelContextTool/annotations}} does not [=map/exist=]. Otherwise, an
@@ -844,6 +945,13 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</
 
 1. Let |promise| be [=a new promise=] created in [=this=]'s [=relevant realm=].
 
+1. Let |targetWindow| be |tool|'s {{RegisteredTool/window}}.
+
+1. Let |targetDocument| be |targetWindow|'s [=associated Document|associated
+   <code>Document</code>=].
+
+1. Let |uuid| be a new [=unique internal value=].
+
 1. If |options|'s {{ModelContextExecuteToolOptions/signal}} [=map/exists=], then:
 
    1. Let |signal| be |options|'s {{ModelContextExecuteToolOptions/signal}}.
@@ -851,19 +959,17 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</
    1. If |signal| is [=AbortSignal/aborted=], then return [=a promise rejected with=] |signal|'s
       [=AbortSignal/abort reason=].
 
+   1. Let |traversable| be |targetDocument|'s [=node navigable=]'s [=navigable/traversable
+      navigable=].
+
    1. [=AbortSignal/add|Add the following abort steps=] to |signal|:
 
       1. [=Reject=] |promise| with |signal|'s [=AbortSignal/abort reason=].
 
-      Issue(#48): Wire up |signal| to the tool execution callback in the tool host's document, so
-      that tool abort is communicated all the way through. This should also fire the
-      "<code>toolcanceled</code>" event in the target document. See also <a
-      href=https://github.com/webmachinelearning/webmcp/pull/146>pull request #146</a>.
+      1. Run the following steps [=in parallel=]:
 
-1. Let |targetWindow| be |tool|'s {{RegisteredTool/window}}.
-
-1. Let |targetDocument| be |targetWindow|'s [=associated Document|associated
-   <code>Document</code>=].
+         1. Run [=pending tool execution/cancel a pending tool execution|cancel=] given |traversable|
+            and |uuid|.
 
 1. Run the following steps [=in parallel=]:
 
@@ -908,8 +1014,6 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</
 
       Issue: Support more granular errors than "{{UnknownError}}", based on each failure case.
 
-   1. Let |uuid| be a new [=unique internal value=].
-
    1. Let |completionSteps| be an algorithm that takes a [=string=]-or-null |result| and a
       [=boolean=] |success|, and runs the following steps:
 
@@ -922,7 +1026,8 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</
          <div class=note>
           <p>It is possible that a pending execution identified by |uuid| no longer exists. This can
           happen due to a race between (a) tool cancellation when the caller document <a
-          href=#caller-destroyed-cleanup>gets destroyed</a>; and (b) tool promise resolution. Both
+          href=#caller-destroyed-cleanup>gets destroyed</a> or when the caller aborts the
+          execution via the options signal; and (b) tool promise resolution. Both
           of these race to invoke |completionSteps|, and the first invocation will remove the
           pending execution by its key |uuid|, this check protects subsequent racing
           invocations.</p>
@@ -979,7 +1084,8 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</
       [=traversable navigable/pending tool executions map=][|uuid|] to |execution|.
 
    1. [=Queue a global task=] on the [=webmcp task source=] given |targetWindow| to run the [=tool
-      execute steps=] given |toolName|, |targetDocument|, |inputArguments|, and |completionSteps|.
+      execute steps=] given |toolName|, |targetDocument|, |inputArguments|, |completionSteps|,
+      and |uuid|.
 
       Note: Because documents only process tasks on their event loops when [=Document/fully
       active=], if |targetDocument| is not [=Document/fully active=], this will simply queue the
@@ -1011,7 +1117,11 @@ dictionary ToolAnnotations {
   boolean untrustedContentHint = false;
 };
 
-callback ToolExecuteCallback = Promise<any> (object inputObject);
+dictionary ToolExecuteCallbackOptions {
+  required AbortSignal signal;
+};
+
+callback ToolExecuteCallback = Promise<any> (object inputObject, ToolExecuteCallbackOptions options);
 </xmp>
 
 <dl class="domintro">
@@ -1041,7 +1151,8 @@ callback ToolExecuteCallback = Promise<any> (object inputObject);
 
   <dt><code><var ignore>tool</var>["{{ModelContextTool/execute}}"]</code></dt>
   <dd>
-    <p>A callback function that is invoked when an [=agent=] calls the tool. The function receives the input parameters.
+    <p>A callback function that is invoked when an [=agent=] calls the tool. The function receives
+    the input parameters and execution options.
 
     <p>The function can be asynchronous and return a promise, in which case the [=agent=] will receive the result once the promise is resolved.
   </dd>
@@ -1062,6 +1173,15 @@ The {{ToolAnnotations}} dictionary provides optional metadata about a tool:
   :: If true, indicates that the tool's output contains data that is untrusted, from the perspective of the author registering the tool.
 </dl>
 
+<h4 id="tool-execute-callback-options">ToolExecuteCallbackOptions Dictionary</h4>
+
+The {{ToolExecuteCallbackOptions}} dictionary carries options passed to a tool's
+{{ToolExecuteCallback}} when the tool is executed.
+
+<dl class="domintro">
+  : <code><var ignore>options</var>["{{ToolExecuteCallbackOptions/signal}}"]</code>
+  :: An {{AbortSignal}} that communicates when the execution of the tool has been aborted.
+</dl>
 
 <h4 id="model-context-register-tool-options">ModelContextRegisterToolOptions Dictionary</h4>
 
