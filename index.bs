@@ -407,6 +407,10 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
      </ol>
    </div>
 
+1. If |options|'s {{ModelContextRegisterToolOptions/signal}} [=map/exists=] and is
+   [=AbortSignal/aborted=], then return [=a promise rejected with=] |options|'s
+   {{ModelContextRegisterToolOptions/signal}}'s [=AbortSignal/abort reason=].
+
 1. Let |exposed origins| be an empty [=list=] of [=origins=].
 
 1. If |options|'s {{ModelContextRegisterToolOptions/exposedTo}} [=map/exists=], then:
