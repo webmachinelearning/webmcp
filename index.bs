@@ -275,7 +275,7 @@ To <dfn>notify documents of a tool change</dfn> given a {{Document}} |tool owner
 1. [=Assert=]: these steps are running [=in parallel=].
 
 1. Let |navigablesToNotify| be |tool owner|'s [=node navigable=]'s [=navigable/traversable
-   navigable=]'s [=Document/descendant navigables=].
+   navigable=]'s [=Document/inclusive descendant navigables=].
 
 1. [=list/For each=] |navigable| of |navigablesToNotify|:
 
@@ -679,7 +679,8 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
    : [=tool definition/exposed origins=]
    :: |exposed origins|
 
-1. Set [=this=]'s [=ModelContext/internal context=][|tool name|] to |tool definition|.
+1. Set [=this=]'s [=ModelContext/internal context=]'s [=model context/tool map=][|tool name|] to
+   |tool definition|.
 
 1. Run the following steps [=in parallel=]:
 
@@ -1280,7 +1281,7 @@ steps:
 
 1. [=Assert=]: This algorithm is running in the [=browser agent=]'s [=AI agent queue=].
 
-1. [=Assert=]: |traversable|'s [=navigable/active document=] is not [=Document/fully active=].
+1. [=Assert=]: |traversable|'s [=navigable/active document=] is [=Document/fully active=].
 
 1. Let |observation| be a new [=observation=].
 
@@ -1289,7 +1290,7 @@ steps:
 
 1. [=list/For each=] [=navigable=] |descendant| of |flat descendants|:
 
-     1. Let |document| be |descendant|'s [=navigable/active document=]'s.
+     1. Let |document| be |descendant|'s [=navigable/active document=].
 
      1. Let |id| be |document|'s [=Document/unique ID=].
 
