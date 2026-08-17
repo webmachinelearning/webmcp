@@ -417,6 +417,12 @@ and a [=boolean=] <var ignore>success</var>.
 1. [=Assert=]: these steps are running on |targetDocument|'s [=relevant agent=]'s [=agent/event
    loop=].
 
+1. Let |toolMap| be |targetDocument|'s [=Document/associated ModelContext|associated
+   <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/tool map=].
+
+1. If |toolMap|[|toolName|] does not [=map/exist=], then run |completionSteps| given null and false,
+   and abort these steps.
+
 1. Let |controller| be a [=new=] {{AbortController}} created in |targetDocument|'s [=relevant
    realm=].
 
@@ -430,13 +436,6 @@ and a [=boolean=] <var ignore>success</var>.
 1. Set |targetDocument|'s [=Document/associated ModelContext|associated
    <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/pending
    executions map=][|uuid|] to |localExecution|.
-
-1. Let |toolMap| be |targetDocument|'s [=Document/associated ModelContext|associated
-   <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/tool map=].
-
-1. If |toolMap|[|toolName|] does not [=map/exist=], then [=model context/finish a tool
-   execution|finish=] given |targetDocument|, |uuid|, null, false, and |completionSteps|, and abort
-   these steps.
 
    Issue: Support the plumbing of more granular errors back to the invoker; this should result in a
    "{{NotFoundError}}" in the calling document.
