@@ -963,7 +963,7 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</
 
       1. Run the following steps [=in parallel=]:
 
-         1. [=Cancel a pending tool execution|cancel=] given |traversable| and |uuid|.
+         1. [=Cancel a pending tool execution=] given |traversable| and |uuid|.
 
 1. Run the following steps [=in parallel=]:
 
