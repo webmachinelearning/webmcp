@@ -347,7 +347,7 @@ Any document in the tree matching these origins (and allowed to use `tools` perm
 
 Once tools are registered, in-page agents can discover and invoke them using `getTools()` and `executeTool()`.
 
-Calling `document.modelContext.getTools()` returns a promise that resolves with an array of `RegisteredTool` dictionary objects. Each object contains the tool's `name`, `description`, `inputSchema`, `origin`, and owner `window`:
+Calling `document.modelContext.getTools()` returns a promise that resolves with an array of `RegisteredTool` dictionary objects. Each object contains the tool's `name`, `description`, `inputSchema`, `origin`, and owner `window`. By default, `getTools()` only returns tools registered by documents same-origin with the caller in the frame tree. To retrieve cross-origin tools, you must explicitly list their origins in the `fromOrigins` option. This array only supports secure origins.
 
 ```js
 // Discover tools exposed by same-origin frames in the tree (default)
@@ -359,7 +359,8 @@ for (const tool of tools) {
   console.log(`Parameters schema:`, tool.inputSchema);
 }
 
-// Or discover tools exposed by specific cross-origin partner frames:
+// Discover additional tools provided by a cross-origin frame (in addition to
+// same-origin ones):
 const crossOriginTools = await document.modelContext.getTools({
   fromOrigins: ["https://trusted-partner.example"]
 });
