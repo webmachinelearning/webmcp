@@ -426,20 +426,6 @@ and a [=boolean=] <var ignore>success</var>.
    Issue: Support the plumbing of more granular errors back to the invoker; this should result in a
    "{{NotFoundError}}" in the calling document.
 
-1. Let |controller| be a [=new=] {{AbortController}} created in |targetDocument|'s [=relevant
-   realm=].
-
-1. Let |signal| be |controller|'s [=AbortController/signal=].
-
-1. Let |localExecution| be a new [=local pending tool execution=] with the following [=struct/items=]:
-
-   : [=local pending tool execution/abort controller=]
-   :: |controller|
-
-1. Set |targetDocument|'s [=Document/associated ModelContext|associated
-   <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/pending
-   executions map=][|uuid|] to |localExecution|.
-
    <div class=note>
     <p>This protects us against a race between tool unregistration and execution. While tool
     <em>existence</em> is protected from this race, tool unregistration followed by a quick
@@ -472,6 +458,20 @@ and a [=boolean=] <var ignore>success</var>.
      </xmp>
     </div>
    </div>
+
+1. Let |controller| be a [=new=] {{AbortController}} created in |targetDocument|'s [=relevant
+   realm=].
+
+1. Let |signal| be |controller|'s [=AbortController/signal=].
+
+1. Let |localExecution| be a new [=local pending tool execution=] with the following [=struct/items=]:
+
+   : [=local pending tool execution/abort controller=]
+   :: |controller|
+
+1. Set |targetDocument|'s [=Document/associated ModelContext|associated
+   <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/pending
+   executions map=][|uuid|] to |localExecution|.
 
 1. Let |tool| be |toolMap|[|toolName|].
 
