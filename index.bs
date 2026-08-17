@@ -393,22 +393,6 @@ a [=list=] of [=origins=] |exposed origins|, and an [=origin=] |accessing origin
 </div>
 
 <div algorithm>
-To <dfn for="model context">finish a tool execution</dfn> given a {{Document}} |targetDocument|, a
-[=unique internal value=] |uuid|, a [=string=]-or-null |result|, a [=boolean=] |success|, and an
-algorithm |completionSteps|:
-
-1. [=Assert=]: these steps are running on |targetDocument|'s [=relevant agent=]'s [=agent/event
-   loop=].
-
-1. [=map/Remove=] |targetDocument|'s [=Document/associated ModelContext|associated
-   <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/pending
-   executions map=][|uuid|].
-
-1. Run |completionSteps| given |result| and |success|.
-
-</div>
-
-<div algorithm>
 The <dfn>tool execute steps</dfn>, given a [=string=] |toolName|, a {{Document}} |targetDocument|, a
 [=string=] |inputArguments|, an algorithm |completionSteps|, and a [=unique internal value=] |uuid|,
 are as follows. The |completionSteps| algorithm takes a [=string=]-or-null <var ignore>result</var>
@@ -459,20 +443,6 @@ and a [=boolean=] <var ignore>success</var>.
     </div>
    </div>
 
-1. Let |controller| be a [=new=] {{AbortController}} created in |targetDocument|'s [=relevant
-   realm=].
-
-1. Let |signal| be |controller|'s [=AbortController/signal=].
-
-1. Let |localExecution| be a new [=local pending tool execution=] with the following [=struct/items=]:
-
-   : [=local pending tool execution/abort controller=]
-   :: |controller|
-
-1. Set |targetDocument|'s [=Document/associated ModelContext|associated
-   <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/pending
-   executions map=][|uuid|] to |localExecution|.
-
 1. Let |tool| be |toolMap|[|toolName|].
 
 1. Run |tool|'s [=tool definition/execute steps=] given |targetDocument|, |inputArguments|,
@@ -485,30 +455,40 @@ and a [=boolean=] <var ignore>success</var>.
 
 <div algorithm>
 The <dfn>imperative execute steps</dfn>, given a {{ModelContextTool}} |tool|, a {{Document}}
-|targetDocument|, a [=string=] |inputArguments|, an algorithm |completionSteps|, an {{AbortSignal}}
-|signal|, and a [=unique internal value=] |uuid|, are as follows:
+|targetDocument|, a [=string=] |inputArguments|, an algorithm |completionSteps|, and a [=unique
+internal value=] |uuid|, are as follows:
 
 1. [=Assert=]: these steps are running on |targetDocument|'s [=relevant agent=]'s [=agent/event
    loop=].
 
 1. Let |inputObject| be the result of [=parse a JSON string to a JavaScript value=] given
    |inputArguments| and |targetDocument|'s [=relevant realm=]. If <a lt="an exception was
-   thrown">exception was thrown</a>, then [=model context/finish a tool execution|finish=] given
-   |targetDocument|, |uuid|, null, false, and |completionSteps|, and abort these steps.
+   thrown">exception was thrown</a>, then run |completionSteps| given null and false, and abort
+   these steps.
 
    Issue: Support more granular errors; here we should return something that prompts the caller to
    reject its {{Promise}} with a "{{DataError}}" {{DOMException}}.
 
-1. If |inputObject| [=Object type|is not an Object=] is false, then [=model context/finish a tool
-   execution|finish=] given |targetDocument|, |uuid|, null, false, and |completionSteps|, and abort
-   these steps.
+1. If |inputObject| [=Object type|is not an Object=] is false, then run |completionSteps| given null
+   and false, and abort these steps.
 
    Issue(#146): Specify and fire the "<code>toolactivated</code>" event.
 
+1. Let |controller| be a [=new=] {{AbortController}} created in |targetDocument|'s [=relevant
+   realm=].
+
+1. Let |localExecution| be a new [=local pending tool execution=] with the following [=struct/items=]:
+
+   : [=local pending tool execution/abort controller=]
+   :: |controller|
+
+1. Set |targetDocument|'s [=Document/associated ModelContext|associated
+   <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/pending
+   executions map=][|uuid|] to |localExecution|.
 1. Let |options| be a new {{ToolExecuteCallbackOptions}} dictionary, with the following fields:
 
    : {{ToolExecuteCallbackOptions/signal}}
-   :: |signal|
+   :: |controller|'s [=AbortController/signal=]
 
 1. Let |toolPromise| be the result of [=invoke|invoking=] |tool|'s {{ModelContextTool/execute}} with
    |inputObject| and |options|.
@@ -517,20 +497,37 @@ The <dfn>imperative execute steps</dfn>, given a {{ModelContextTool}} |tool|, a 
 
    - If |toolPromise| was fulfilled with value |v|:
 
-       1. Let |serializedResult| be the result of [=serializing a JavaScript value to a JSON
-          string=] given |v|. If this throws an exception, [=model context/finish a tool
-          execution|finish=] given |targetDocument|, |uuid|, null, false, and |completionSteps|, and
-          abort these steps.
+       1. Let |localExecutions| be |targetDocument|'s [=Document/associated ModelContext|associated
+          <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/pending
+          executions map=].
 
-       1. [=model context/finish a tool execution|finish=] given |targetDocument|, |uuid|,
-          |serializedResult|, true, and |completionSteps|.
+       1. If |localExecutions|[|uuid|] does not [=map/exist=], then return.
+
+          Note: The entry corresponding to |uuid| will not exist if the execution was [=cancel a
+          pending tool execution|cancelled=] (and thus the corresponding entry was removed) before
+          the developer's |toolPromise| settles.
+
+       1. [=map/Remove=] |localExecutions|[|uuid|].
+
+       1. Let |serializedResult| be the result of [=serializing a JavaScript value to a JSON
+          string=] given |v|. If this throws an exception, run |completionSteps| given null and
+          false, and abort these steps.
+
+       1. Run |completionSteps| given |serializedResult| and true.
 
    - If |toolPromise| was rejected with reason |r|, then:
 
+       1. Let |localExecutions| be |targetDocument|'s [=Document/associated ModelContext|associated
+          <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/pending
+          executions map=].
+
+       1. If |localExecutions|[|uuid|] does not [=map/exist=], then return.
+
+       1. [=map/Remove=] |localExecutions|[|uuid|].
+
        1. Optionally [=report a warning to the console=] describing |r|.
 
-       1. [=model context/finish a tool execution|finish=] given |targetDocument|, |uuid|, null,
-          false, and |completionSteps|.
+       1. Run |completionSteps| given null and false.
 
 </div>
 
