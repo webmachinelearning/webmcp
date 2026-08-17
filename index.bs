@@ -143,9 +143,6 @@ A <dfn>model context</dfn> is a [=struct=] with the following [=struct/items=]:
 A <dfn>local pending tool execution</dfn> is a [=struct=] with the following [=struct/items=]:
 
 <dl dfn-for="local pending tool execution">
-  : <dfn>tool name</dfn>
-  :: a [=string=].
-
   : <dfn>abort controller</dfn>
   :: an {{AbortController}}.
 </dl>
@@ -420,20 +417,12 @@ and a [=boolean=] <var ignore>success</var>.
 1. [=Assert=]: these steps are running on |targetDocument|'s [=relevant agent=]'s [=agent/event
    loop=].
 
-1. Let |traversable| be |targetDocument|'s [=node navigable=]'s [=navigable/traversable navigable=].
-
-1. If |traversable|'s [=traversable navigable/pending tool executions map=][|uuid|] does not
-   [=map/exist=], then return.
-
 1. Let |controller| be a [=new=] {{AbortController}} created in |targetDocument|'s [=relevant
    realm=].
 
 1. Let |signal| be |controller|'s [=AbortController/signal=].
 
 1. Let |localExecution| be a new [=local pending tool execution=] with the following [=struct/items=]:
-
-   : [=local pending tool execution/tool name=]
-   :: |toolName|
 
    : [=local pending tool execution/abort controller=]
    :: |controller|
