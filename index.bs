@@ -379,7 +379,7 @@ The <dfn>tool execute steps</dfn>, given a [=string=] |toolName|, a {{Document}}
      // This could target either the "old" tool, or the "new" one above,
      // and the execution might encounter any requisite errors due to the mismatch.
      const [tool] = await document.modelContext.getTools();
-     document.modelContext.executeTool(tool, "{a: 10}");
+     document.modelContext.executeTool(tool, {a: 10});
      </xmp>
     </div>
    </div>
@@ -523,7 +523,7 @@ The {{ModelContext}} interface provides methods for web applications to register
 interface ModelContext : EventTarget {
   Promise<undefined> registerTool(ModelContextTool tool, optional ModelContextRegisterToolOptions options = {});
   Promise<sequence<RegisteredTool>> getTools(optional ModelContextGetToolOptions options = {});
-  Promise<DOMString> executeTool(RegisteredTool tool, DOMString inputArguments, optional ModelContextExecuteToolOptions options = {});
+  Promise<DOMString> executeTool(RegisteredTool tool, optional object inputObject = {}, optional ModelContextExecuteToolOptions options = {});
 
   attribute EventHandler ontoolchange;
 };
@@ -550,7 +550,7 @@ is a [=model context=] [=struct=] created alongside the {{ModelContext}}.
     agent=] uses a different internal mechanism to retrieve the tools exposed to it.</p>
   </dd>
 
-  <dt><code><var ignore>document</var>.{{Document/modelContext}}.{{ModelContext/executeTool(tool, inputArguments, options)}}</code></dt>
+  <dt><code><var ignore>document</var>.{{Document/modelContext}}.{{ModelContext/executeTool(tool, inputObject, options)}}</code></dt>
   <dd>
     <p>Executes a tool on the document it was registered on. Returns a promise that resolves to the
     stringified result of the tool's execution.</p>
@@ -808,7 +808,7 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
 </div>
 
 <div algorithm>
-The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputArguments</var>,
+The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</var>,
 <var>options</var>)</dfn> method steps are:
 
 1. Let |callerDocument| be [=this=]'s [=relevant global object=]'s [=associated
@@ -835,6 +835,9 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputArgument
 1. Let |expectedTargetOrigin| be |expectedTargetOriginURL|'s [=url/origin=].
 
 1. [=Assert=]: |expectedTargetOrigin| is not an [=opaque origin=].
+
+1. Let |inputArguments| be the result of [=serializing a JavaScript value to a JSON string=] given
+   |inputObject|. If this threw an exception, then return [=a promise rejected with=] that exception.
 
 1. Let |promise| be [=a new promise=] created in [=this=]'s [=relevant realm=].
 
@@ -1005,7 +1008,7 @@ dictionary ToolAnnotations {
   boolean untrustedContentHint = false;
 };
 
-callback ToolExecuteCallback = Promise<any> (object input);
+callback ToolExecuteCallback = Promise<any> (object inputObject);
 </xmp>
 
 <dl class="domintro">
