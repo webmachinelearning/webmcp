@@ -169,8 +169,9 @@ A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]
      [[!JSON-SCHEMA]]
 
   : <dfn>execute steps</dfn>
-  :: an algorithm that takes both a [=string=] and an algorithm <var ignore>completionSteps</var>
-     that itself takes a [=string=]-or-null and a [=boolean=].
+  :: an algorithm that takes a [=string=] <var ignore>inputArguments</var>, an algorithm <var
+     ignore>completionSteps</var> that takes a [=string=]-or-null and a [=boolean=], and a
+     {{Document}} <var ignore>targetDocument</var>.
 
      Note: For tools registered imperatively, these steps will simply invoke the [=imperative
      execute steps=]. For tools registered
@@ -386,7 +387,8 @@ The <dfn>tool execute steps</dfn>, given a [=string=] |toolName|, a {{Document}}
 
 1. Let |tool| be |toolMap|[|toolName|].
 
-1. Run |tool|'s [=tool definition/execute steps=] given |inputArguments| and |completionSteps|.
+1. Run |tool|'s [=tool definition/execute steps=] given |inputArguments|, |completionSteps|, and
+   |targetDocument|.
 
    Note: This is the point where we branch into either the [=imperative execute steps=] or the
    [=declarative execute steps=].
@@ -662,9 +664,9 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
    :: |stringified input schema|
 
    : [=tool definition/execute steps=]
-   :: An algorithm that take a [=string=] |inputArguments| and an algorithm |completionSteps| and
-      runs the [=imperative execute steps=] given |tool|, |tool owner|, |inputArguments|, and
-      |completionSteps|.
+   :: An algorithm that takes a [=string=] |inputArguments|, an algorithm |completionSteps|, and a
+      {{Document}} |targetDocument|, and runs the [=imperative execute steps=] given |tool|,
+      |targetDocument|, |inputArguments|, and |completionSteps|.
 
    : [=tool definition/annotations=]
    :: null if |tool|'s {{ModelContextTool/annotations}} does not [=map/exist=]. Otherwise, an
