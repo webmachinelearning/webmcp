@@ -135,18 +135,10 @@ A <dfn>model context</dfn> is a [=struct=] with the following [=struct/items=]:
   :: a [=map=] whose [=map/keys=] are [=strings=] and whose [=map/values=] are [=tool definition=]
      [=structs=].
 
-  : <dfn>pending executions map</dfn>
+  : <dfn>local pending tool executions map</dfn>
   :: a [=map=] whose [=map/keys=] are [=unique internal values=] and whose [=map/values=] are [=local
      pending tool execution=] [=structs=]. It is initially empty.
 </dl>
-
-A <dfn>local pending tool execution</dfn> is a [=struct=] with the following [=struct/items=]:
-
-<dl dfn-for="local pending tool execution">
-  : <dfn>abort controller</dfn>
-  :: an {{AbortController}}.
-</dl>
-
 
 A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]:
 
@@ -195,6 +187,13 @@ A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]
 
   : <dfn>exposed origins</dfn>
   :: a [=list=] or [=origins=], initially [=list/empty=].
+</dl>
+
+A <dfn>local pending tool execution</dfn> is a [=struct=] with the following [=struct/items=]:
+
+<dl dfn-for="local pending tool execution">
+  : <dfn>abort controller</dfn>
+  :: an {{AbortController}}.
 </dl>
 
 An <dfn>annotations</dfn> is a [=struct=] with the following [=struct/items=]:
@@ -265,8 +264,8 @@ To <dfn>cancel a pending tool execution</dfn> given a [=traversable navigable=] 
    object=] to run the following steps:
 
    1. Let |localExecutions| be |targetDocument|'s [=Document/associated ModelContext|associated
-      <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/pending
-      executions map=].
+      <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/local
+      pending tool executions map=].
 
    1. If |localExecutions|[|uuid|] does not [=map/exist=], then return.
 
@@ -483,8 +482,8 @@ internal value=] |uuid|, are as follows:
    :: |controller|
 
 1. Set |targetDocument|'s [=Document/associated ModelContext|associated
-   <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/pending
-   executions map=][|uuid|] to |localExecution|.
+   <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/local pending
+   tool executions map=][|uuid|] to |localExecution|.
 1. Let |options| be a new {{ToolExecuteCallbackOptions}} dictionary, with the following fields:
 
    : {{ToolExecuteCallbackOptions/signal}}
@@ -498,8 +497,8 @@ internal value=] |uuid|, are as follows:
    - If |toolPromise| was fulfilled with value |v|:
 
        1. Let |localExecutions| be |targetDocument|'s [=Document/associated ModelContext|associated
-          <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/pending
-          executions map=].
+          <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/local
+          pending tool executions map=].
 
        1. If |localExecutions|[|uuid|] does not [=map/exist=], then return.
 
@@ -518,8 +517,8 @@ internal value=] |uuid|, are as follows:
    - If |toolPromise| was rejected with reason |r|, then:
 
        1. Let |localExecutions| be |targetDocument|'s [=Document/associated ModelContext|associated
-          <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/pending
-          executions map=].
+          <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/local
+          pending tool executions map=].
 
        1. If |localExecutions|[|uuid|] does not [=map/exist=], then return.
 
@@ -1172,7 +1171,7 @@ The {{ToolExecuteCallbackOptions}} dictionary carries options passed to a tool's
 
 <dl class="domintro">
   : <code><var ignore>options</var>["{{ToolExecuteCallbackOptions/signal}}"]</code>
-  :: An {{AbortSignal}} that communicates when the execution of the tool has been aborted.
+  :: An {{AbortSignal}} that communicates when the execution of the tool has been cancelled.
 </dl>
 
 <h4 id="model-context-register-tool-options">ModelContextRegisterToolOptions Dictionary</h4>
