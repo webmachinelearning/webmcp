@@ -136,8 +136,15 @@ A <dfn>model context</dfn> is a [=struct=] with the following [=struct/items=]:
      [=structs=].
 
   : <dfn>local pending tool executions map</dfn>
-  :: a [=map=] whose [=map/keys=] are [=unique internal values=] and whose [=map/values=] are [=local
-     pending tool execution=] [=structs=]. It is initially empty.
+  :: a [=map=] whose [=map/keys=] are [=unique internal values=] and whose [=map/values=] are
+     [=local pending tool execution=] [=structs=]. It is initially empty.
+
+     Note: this map is similar to a [=traversable navigable=]'s [=traversable navigable/pending tool
+     executions map=], but it only contains pending execution information for tools under a single
+     {{ModelContext}} object. It is used to store objects that can only be accessed from that
+     object's event loop, and because it is event-loop-local, it can get out of sync from the
+     [=traversable navigable=]'s more "global" map.
+
 </dl>
 
 A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]:
