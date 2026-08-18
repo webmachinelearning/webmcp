@@ -8,7 +8,7 @@
   <meta content="Bikeshed version d113b2e81, updated Tue Jun 9 14:57:55 2026 -0700" name="generator">
   <link href="https://webmachinelearning.github.io/webmcp" rel="canonical">
   <link href="https://www.w3.org/2008/site/images/favicon.ico" rel="icon">
-  <meta content="a724ab1ddb7ea770f425934de4d9424e85599940" name="revision">
+  <meta content="9c7ce3e35e9124e46c4f21fc12dce38b9a5753b9" name="revision">
   <meta content="dark light" name="color-scheme">
   <link href="https://www.w3.org/StyleSheets/TR/2021/dark.css" media="(prefers-color-scheme: dark)" rel="stylesheet" type="text/css">
 <style>
@@ -841,7 +841,7 @@ var[data-var-color="6"] { --var-vg: #FFBCF2; }
 </p>
    <h1 class="no-ref p-name" id="title">WebMCP</h1>
    <p id="w3c-state"><a href="https://www.w3.org/standards/types/#CG-DRAFT">Draft Community Group Report</a>,
-    <time class="dt-updated" datetime="2026-08-17">17 August 2026</time></p>
+    <time class="dt-updated" datetime="2026-08-18">18 August 2026</time></p>
    <details open>
     <summary>More details about this document</summary>
     <div data-fill-with="spec-metadata">
@@ -1021,8 +1021,8 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
  <a data-link-type="biblio" href="#biblio-json-schema" title="JSON Schema: A Media Type for Describing JSON Documents">[JSON-SCHEMA]</a></p>
     <dt data-md><dfn class="dfn-paneled" data-dfn-for="tool definition" data-dfn-type="dfn" data-noexport id="tool-definition-execute-steps">execute steps</dfn>
     <dd data-md>
-     <p>an algorithm that takes both a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string⑤">string</a> and an algorithm <var>completionSteps</var>
- that itself takes a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string⑥">string</a>-or-null and a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#boolean" id="ref-for-boolean">boolean</a>.</p>
+     <p>an algorithm that takes a <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#document" id="ref-for-document">Document</a></code> <var>targetDocument</var>, a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string⑤">string</a> <var>inputArguments</var>, and an algorithm <var>completionSteps</var> that takes a
+ <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string⑥">string</a>-or-null and a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#boolean" id="ref-for-boolean">boolean</a>.</p>
      <p class="note" role="note"><span class="marker">Note:</span> For tools registered imperatively, these steps will simply invoke the <a data-link-type="dfn" href="#imperative-execute-steps" id="ref-for-imperative-execute-steps">imperative execute steps</a>. For tools registered
  <a href="https://github.com/webmachinelearning/webmcp/pull/76">declaratively</a>, this will be a set of
  "internal" steps that have not been defined yet, that describe how to fill out a <code><a data-link-type="element" href="https://html.spec.whatwg.org/multipage/forms.html#the-form-element" id="ref-for-the-form-element">form</a></code> and
@@ -1048,10 +1048,10 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
    <dl>
     <dt data-md><dfn class="dfn-paneled" data-dfn-for="pending tool execution" data-dfn-type="dfn" data-noexport id="pending-tool-execution-caller-document">caller document</dfn>
     <dd data-md>
-     <p>a <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#document" id="ref-for-document">Document</a></code>.</p>
+     <p>a <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#document" id="ref-for-document①">Document</a></code>.</p>
     <dt data-md><dfn class="dfn-paneled" data-dfn-for="pending tool execution" data-dfn-type="dfn" data-noexport id="pending-tool-execution-target-document">target document</dfn>
     <dd data-md>
-     <p>a <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#document" id="ref-for-document①">Document</a></code>.</p>
+     <p>a <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#document" id="ref-for-document②">Document</a></code>.</p>
     <dt data-md><dfn class="dfn-paneled" data-dfn-for="pending tool execution" data-dfn-type="dfn" data-noexport id="pending-tool-execution-tool-name">tool name</dfn>
     <dd data-md>
      <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string⑦">string</a>.</p>
@@ -1069,7 +1069,7 @@ inter-process communication mechanism.</p>
    <hr>
    <div class="algorithm" data-algorithm="unloading-document-cleanup-steps">
     
-This specification’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/document-lifecycle.html#unloading-document-cleanup-steps" id="ref-for-unloading-document-cleanup-steps">unloading document cleanup steps</a>, given a <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#document" id="ref-for-document②">Document</a></code> <var>document</var>, are as
+This specification’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/document-lifecycle.html#unloading-document-cleanup-steps" id="ref-for-unloading-document-cleanup-steps">unloading document cleanup steps</a>, given a <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#document" id="ref-for-document③">Document</a></code> <var>document</var>, are as
 follows:
 
 
@@ -1115,7 +1115,7 @@ follows:
    <hr>
    <div class="algorithm" data-algorithm="notify documents of a tool change">
     
-To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="notify-documents-of-a-tool-change">notify documents of a tool change</dfn> given a <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#document" id="ref-for-document③">Document</a></code> <var>tool owner</var> and a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list②">list</a> of
+To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="notify-documents-of-a-tool-change">notify documents of a tool change</dfn> given a <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#document" id="ref-for-document④">Document</a></code> <var>tool owner</var> and a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list②">list</a> of
 <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#concept-origin" id="ref-for-concept-origin①">origins</a> <var>exposed origins</var>, run these steps:
 
 
@@ -1186,7 +1186,7 @@ a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for
    </div>
    <div class="algorithm" data-algorithm="tool execute steps">
     
-The <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="tool-execute-steps">tool execute steps</dfn>, given a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string⑨">string</a> <var>toolName</var>, a <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#document" id="ref-for-document④">Document</a></code> <var>targetDocument</var>, a
+The <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="tool-execute-steps">tool execute steps</dfn>, given a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string⑨">string</a> <var>toolName</var>, a <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#document" id="ref-for-document⑤">Document</a></code> <var>targetDocument</var>, a
 <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①⓪">string</a> <var>inputArguments</var>, and an algorithm <var>completionSteps</var>, are as follows. The
 <var>completionSteps</var> algorithm takes a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①①">string</a>-or-null <var>result</var> and a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#boolean" id="ref-for-boolean④">boolean</a>
 <var>success</var>.
@@ -1235,14 +1235,15 @@ document<c- p>.</c->modelContext<c- p>.</c->executeTool<c- p>(</c->tool<c- p>,</
      <li data-md>
       <p>Let <var>tool</var> be <var>toolMap</var>[<var>toolName</var>].</p>
      <li data-md>
-      <p>Run <var>tool</var>’s <a data-link-type="dfn" href="#tool-definition-execute-steps" id="ref-for-tool-definition-execute-steps">execute steps</a> given <var>inputArguments</var> and <var>completionSteps</var>.</p>
+      <p>Run <var>tool</var>’s <a data-link-type="dfn" href="#tool-definition-execute-steps" id="ref-for-tool-definition-execute-steps">execute steps</a> given <var>targetDocument</var>, <var>inputArguments</var>, and
+ <var>completionSteps</var>.</p>
       <p class="note" role="note"><span class="marker">Note:</span> This is the point where we branch into either the <a data-link-type="dfn" href="#imperative-execute-steps" id="ref-for-imperative-execute-steps①">imperative execute steps</a> or the
  <a data-link-type="dfn" href="#declarative-execute-steps" id="ref-for-declarative-execute-steps">declarative execute steps</a>.</p>
     </ol>
    </div>
    <div class="algorithm" data-algorithm="imperative execute steps">
     
-The <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="imperative-execute-steps">imperative execute steps</dfn>, given a <code class="idl"><a data-link-type="idl" href="#dictdef-modelcontexttool" id="ref-for-dictdef-modelcontexttool">ModelContextTool</a></code> <var>tool</var>, a <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#document" id="ref-for-document⑤">Document</a></code>
+The <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="imperative-execute-steps">imperative execute steps</dfn>, given a <code class="idl"><a data-link-type="idl" href="#dictdef-modelcontexttool" id="ref-for-dictdef-modelcontexttool">ModelContextTool</a></code> <var>tool</var>, a <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#document" id="ref-for-document⑥">Document</a></code>
 <var>targetDocument</var>, a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①②">string</a> <var>inputArguments</var>, and an algorithm <var>completionSteps</var>, are as follows:
 
 
@@ -1334,14 +1335,14 @@ To <dfn class="dfn-paneled" data-dfn-for="model context" data-dfn-type="dfn" dat
     </ol>
    </div>
    <h2 class="heading settled" data-level="4" id="api"><span class="secno">4. </span><span class="content">API</span><a class="self-link" href="#api"></a></h2>
-   <h3 class="heading settled" data-level="4.1" id="document-extension"><span class="secno">4.1. </span><span class="content">Extensions to <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#document" id="ref-for-document⑥">Document</a></code></span><a class="self-link" href="#document-extension"></a></h3>
-   <p>Each <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#document" id="ref-for-document⑦">Document</a></code> object has an <dfn class="dfn-paneled" data-dfn-for="Document" data-dfn-type="dfn" data-noexport id="document-associated-modelcontext">associated <code class="idl"><a data-link-type="idl" href="#modelcontext" id="ref-for-modelcontext①">ModelContext</a></code></dfn>, which is a
+   <h3 class="heading settled" data-level="4.1" id="document-extension"><span class="secno">4.1. </span><span class="content">Extensions to <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#document" id="ref-for-document⑦">Document</a></code></span><a class="self-link" href="#document-extension"></a></h3>
+   <p>Each <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#document" id="ref-for-document⑧">Document</a></code> object has an <dfn class="dfn-paneled" data-dfn-for="Document" data-dfn-type="dfn" data-noexport id="document-associated-modelcontext">associated <code class="idl"><a data-link-type="idl" href="#modelcontext" id="ref-for-modelcontext①">ModelContext</a></code></dfn>, which is a
 <code class="idl"><a data-link-type="idl" href="#modelcontext" id="ref-for-modelcontext②">ModelContext</a></code> object.</p>
-   <p>Upon creation of the <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#document" id="ref-for-document⑧">Document</a></code> object, its <a data-link-type="dfn" href="#document-associated-modelcontext" id="ref-for-document-associated-modelcontext②">associated
+   <p>Upon creation of the <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#document" id="ref-for-document⑨">Document</a></code> object, its <a data-link-type="dfn" href="#document-associated-modelcontext" id="ref-for-document-associated-modelcontext②">associated
 <code>ModelContext</code></a> must be set to a <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#new" id="ref-for-new">new</a> <code class="idl"><a data-link-type="idl" href="#modelcontext" id="ref-for-modelcontext③">ModelContext</a></code> object created in the
-<code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#document" id="ref-for-document⑨">Document</a></code>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-realm" id="ref-for-concept-relevant-realm①">relevant realm</a>.</p>
+<code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#document" id="ref-for-document①⓪">Document</a></code>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-realm" id="ref-for-concept-relevant-realm①">relevant realm</a>.</p>
    <hr>
-<pre class="def highlight idl"><c- b>partial</c-> <c- b>interface</c-> <a class="idl-code" data-link-type="interface" href="https://dom.spec.whatwg.org/#document" id="ref-for-document①⓪"><c- g>Document</c-></a> {
+<pre class="def highlight idl"><c- b>partial</c-> <c- b>interface</c-> <a class="idl-code" data-link-type="interface" href="https://dom.spec.whatwg.org/#document" id="ref-for-document①①"><c- g>Document</c-></a> {
   [<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#SecureContext" id="ref-for-SecureContext"><c- g>SecureContext</c-></a>, <a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#SameObject" id="ref-for-SameObject"><c- g>SameObject</c-></a>] <c- b>readonly</c-> <c- b>attribute</c-> <a data-link-type="idl-name" href="#modelcontext" id="ref-for-modelcontext④"><c- n>ModelContext</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="ModelContext" href="#dom-document-modelcontext" id="ref-for-dom-document-modelcontext"><c- g>modelContext</c-></a>;
 };
 </pre>
@@ -1498,9 +1499,9 @@ The <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContext" data-dfn-type=
         <p><var>stringified input schema</var></p>
        <dt data-md><a data-link-type="dfn" href="#tool-definition-execute-steps" id="ref-for-tool-definition-execute-steps①">execute steps</a>
        <dd data-md>
-        <p>An algorithm that take a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①④">string</a> <var>inputArguments</var> and an algorithm <var>completionSteps</var> and
-  runs the <a data-link-type="dfn" href="#imperative-execute-steps" id="ref-for-imperative-execute-steps②">imperative execute steps</a> given <var>tool</var>, <var>tool owner</var>, <var>inputArguments</var>, and
-  <var>completionSteps</var>.</p>
+        <p>An algorithm that takes a <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#document" id="ref-for-document①②">Document</a></code> <var>targetDocument</var>, a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①④">string</a> <var>inputArguments</var>, and an
+  algorithm <var>completionSteps</var>, and runs the <a data-link-type="dfn" href="#imperative-execute-steps" id="ref-for-imperative-execute-steps②">imperative execute steps</a> given <var>tool</var>,
+  <var>targetDocument</var>, <var>inputArguments</var>, and <var>completionSteps</var>.</p>
        <dt data-md><a data-link-type="dfn" href="#tool-definition-annotations" id="ref-for-tool-definition-annotations">annotations</a>
        <dd data-md>
         <p>null if <var>tool</var>’s <code class="idl"><a data-link-type="idl" href="#dom-modelcontexttool-annotations" id="ref-for-dom-modelcontexttool-annotations">annotations</a></code> does not <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists⑧">exist</a>. Otherwise, an
@@ -2092,7 +2093,7 @@ steps:
    can most safely carry out the end user’s intent.</strong></p>
     </ol>
    </div>
-   <p>Each <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#document" id="ref-for-document①①">Document</a></code> object has a <dfn class="dfn-paneled" data-dfn-for="Document" data-dfn-type="dfn" data-noexport id="document-unique-id">unique ID</dfn>, which is a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/common-microsyntaxes.html#unique-internal-value" id="ref-for-unique-internal-value②">unique internal value</a>.</p>
+   <p>Each <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#document" id="ref-for-document①③">Document</a></code> object has a <dfn class="dfn-paneled" data-dfn-for="Document" data-dfn-type="dfn" data-noexport id="document-unique-id">unique ID</dfn>, which is a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/common-microsyntaxes.html#unique-internal-value" id="ref-for-unique-internal-value②">unique internal value</a>.</p>
    <p>The times at which a <a data-link-type="dfn" href="#browsers-agent" id="ref-for-browsers-agent①③">browser agent</a> <a data-link-type="dfn" href="#perform-an-observation" id="ref-for-perform-an-observation">performs an observation</a> are <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#implementation-defined" id="ref-for-implementation-defined③">implementation-defined</a>.
 A <a data-link-type="dfn" href="#browsers-agent" id="ref-for-browsers-agent①④">browser agent</a> may <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#enqueue-the-following-steps" id="ref-for-enqueue-the-following-steps">enqueue steps</a> to the <a data-link-type="dfn" href="#ai-agent-queue" id="ref-for-ai-agent-queue①">AI agent queue</a> to <a data-link-type="dfn" href="#perform-an-observation" id="ref-for-perform-an-observation①">perform an observation</a> given any <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/document-sequences.html#top-level-browsing-context" id="ref-for-top-level-browsing-context">top-level browsing context</a> in the <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#user-agent" id="ref-for-user-agent⑤">user agent</a> <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/document-sequences.html#browsing-context-group-set" id="ref-for-browsing-context-group-set">browsing context group set</a>, at any time, although implementations typically reserve this operation for when the
 user is interacting with a <a data-link-type="dfn" href="#browsers-agent" id="ref-for-browsers-agent①⑤">browser agent</a> while web content is in view.</p>
@@ -3077,7 +3078,7 @@ let dfnPanelData = {
 "81dd847b": {"dfnID":"81dd847b","dfnText":"UnknownError","external":true,"refSections":[{"refs":[{"id":"ref-for-unknownerror"},{"id":"ref-for-unknownerror\u2460"},{"id":"ref-for-unknownerror\u2461"},{"id":"ref-for-unknownerror\u2462"},{"id":"ref-for-unknownerror\u2463"},{"id":"ref-for-unknownerror\u2464"},{"id":"ref-for-unknownerror\u2465"},{"id":"ref-for-unknownerror\u2466"},{"id":"ref-for-unknownerror\u2467"}],"title":"4.2. ModelContext Interface"}],"url":"https://webidl.spec.whatwg.org/#unknownerror"},
 "8219d486": {"dfnID":"8219d486","dfnText":"starting a new parallel queue","external":true,"refSections":[{"refs":[{"id":"ref-for-starting-a-new-parallel-queue"}],"title":"5.1. Event loop integration"}],"url":"https://html.spec.whatwg.org/multipage/infrastructure.html#starting-a-new-parallel-queue"},
 "82ca3efc": {"dfnID":"82ca3efc","dfnText":"TypeError","external":true,"refSections":[{"refs":[{"id":"ref-for-exceptiondef-typeerror"}],"title":"4.2. ModelContext Interface"}],"url":"https://webidl.spec.whatwg.org/#exceptiondef-typeerror"},
-"85394472": {"dfnID":"85394472","dfnText":"Document","external":true,"refSections":[{"refs":[{"id":"ref-for-document"},{"id":"ref-for-document\u2460"},{"id":"ref-for-document\u2461"},{"id":"ref-for-document\u2462"},{"id":"ref-for-document\u2463"},{"id":"ref-for-document\u2464"}],"title":"3.1. Pending tool executions"},{"refs":[{"id":"ref-for-document\u2465"},{"id":"ref-for-document\u2466"},{"id":"ref-for-document\u2467"},{"id":"ref-for-document\u2468"},{"id":"ref-for-document\u2460\u24ea"}],"title":"4.1. Extensions to Document"},{"refs":[{"id":"ref-for-document\u2460\u2460"}],"title":"5.2. Page observations"}],"url":"https://dom.spec.whatwg.org/#document"},
+"85394472": {"dfnID":"85394472","dfnText":"Document","external":true,"refSections":[{"refs":[{"id":"ref-for-document"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-document\u2460"},{"id":"ref-for-document\u2461"},{"id":"ref-for-document\u2462"},{"id":"ref-for-document\u2463"},{"id":"ref-for-document\u2464"},{"id":"ref-for-document\u2465"}],"title":"3.1. Pending tool executions"},{"refs":[{"id":"ref-for-document\u2466"},{"id":"ref-for-document\u2467"},{"id":"ref-for-document\u2468"},{"id":"ref-for-document\u2460\u24ea"},{"id":"ref-for-document\u2460\u2460"}],"title":"4.1. Extensions to Document"},{"refs":[{"id":"ref-for-document\u2460\u2461"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-document\u2460\u2462"}],"title":"5.2. Page observations"}],"url":"https://dom.spec.whatwg.org/#document"},
 "860300d4": {"dfnID":"860300d4","dfnText":"implementation-defined","external":true,"refSections":[{"refs":[{"id":"ref-for-implementation-defined"},{"id":"ref-for-implementation-defined\u2460"},{"id":"ref-for-implementation-defined\u2461"},{"id":"ref-for-implementation-defined\u2462"}],"title":"5.2. Page observations"}],"url":"https://infra.spec.whatwg.org/#implementation-defined"},
 "87bc23a5": {"dfnID":"87bc23a5","dfnText":"add","external":true,"refSections":[{"refs":[{"id":"ref-for-abortsignal-add"},{"id":"ref-for-abortsignal-add\u2460"}],"title":"4.2. ModelContext Interface"}],"url":"https://dom.spec.whatwg.org/#abortsignal-add"},
 "87fcd40c": {"dfnID":"87fcd40c","dfnText":"iframe","external":true,"refSections":[{"refs":[{"id":"ref-for-the-iframe-element"}],"title":"4.2. ModelContext Interface"}],"url":"https://html.spec.whatwg.org/multipage/iframe-embed-object.html#the-iframe-element"},
