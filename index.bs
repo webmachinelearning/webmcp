@@ -523,6 +523,8 @@ internal value=] |uuid|, are as follows:
 
    - If |toolPromise| was rejected with reason |r|, then:
 
+       1. Optionally [=report a warning to the console=] describing |r|.
+
        1. Let |localExecutions| be |targetDocument|'s [=Document/associated ModelContext|associated
           <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/local
           pending tool executions map=].
@@ -530,8 +532,6 @@ internal value=] |uuid|, are as follows:
        1. If |localExecutions|[|uuid|] does not [=map/exist=], then return.
 
        1. [=map/Remove=] |localExecutions|[|uuid|].
-
-       1. Optionally [=report a warning to the console=] describing |r|.
 
        1. Run |completionSteps| given null and false.
 
