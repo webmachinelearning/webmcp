@@ -556,9 +556,8 @@ To <dfn for="model context">unregister a tool</dfn> given a {{ModelContext}} |mo
 1. Let |targetDocument| be |modelContext|'s [=relevant global object=]'s [=associated
    Document|associated <code>Document</code>=].
 
-1. Run the following steps [=in parallel=]:
-
-   1. [=Notify documents of a tool change=] given |targetDocument| and |exposed origins|.
+1. [=In parallel=], [=notify documents of a tool change=] given |targetDocument| and |exposed
+   origins|.
 
 </div>
 
