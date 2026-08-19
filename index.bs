@@ -249,7 +249,7 @@ To <dfn>cancel a pending tool execution</dfn> given a [=traversable navigable=] 
 1. If |traversable|'s [=traversable navigable/pending tool executions map=][|uuid|] does not
    [=map/exist=], then return.
 
-   Note: See <a href=#unregistration-race>this note</a> to learn how a tool's natural
+   Note: See <a href=#pending-execution-removal-race>this note</a> to learn how a tool's natural
    resolution/rejection can race with the caller's cancellation. This might result in the pending
    execution entry for |uuid| being removed before we get here. In that case, the
    {{ModelContext/executeTool()}} promise will still be rejected with the abort
@@ -556,30 +556,8 @@ To <dfn for="model context">unregister a tool</dfn> given a {{ModelContext}} |mo
 1. Let |targetDocument| be |modelContext|'s [=relevant global object=]'s [=associated
    Document|associated <code>Document</code>=].
 
-1. Let |traversable| be |targetDocument|'s [=node navigable=]'s [=navigable/traversable navigable=].
-
-1. Run the following steps [=in parallel=]:
-
-   1. Let |canceledExecutions| be an empty [=list=].
-
-   1. [=map/For each=] |uuid| &rarr; |execution| of |traversable|'s [=traversable navigable/pending
-      tool executions map=]:
-
-      1. If |execution|'s [=pending tool execution/target document=] is |targetDocument| and
-         |execution|'s [=pending tool execution/tool name=] is |tool name|, then [=list/append=]
-         |uuid| to |canceledExecutions|.
-
-   1. [=list/For each=] |uuid| of |canceledExecutions|:
-
-      1. Let |execution| be |traversable|'s [=traversable navigable/pending tool executions
-         map=][|uuid|].
-
-      1. Run |execution|'s [=pending tool execution/completion steps=] given null and false.
-
-         Note: This removes |execution| from the [=traversable navigable/pending tool executions
-         map=].
-
-   1. [=Notify documents of a tool change=] given |targetDocument| and |exposed origins|.
+1. [=In parallel=], [=notify documents of a tool change=] given |targetDocument| and |exposed
+   origins|.
 
 </div>
 
@@ -1021,7 +999,7 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</
          [=traversable navigable/pending tool executions map=][|uuid|] does not [=map/exist=], then
          return.
 
-         <div class=note>
+         <div class=note id=pending-execution-removal-race>
           <p>It is possible that a pending execution identified by |uuid| no longer exists. This can
           happen due to a race between (a) tool cancellation when the caller document <a
           href=#caller-destroyed-cleanup>gets destroyed</a> or when the caller aborts the
@@ -1029,29 +1007,6 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</
           of these race to invoke |completionSteps|, and the first invocation will remove the
           pending execution by its key |uuid|, this check protects subsequent racing
           invocations.</p>
-
-          <p>This can also happen due to a limitation with tool unregistration. Consider this
-          example:</p>
-
-          <div class=example id=unregistration-race>
-           <xmp class=language-js>
-            const ac = new AbortController();
-            document.modelContext.registerTool({
-              name: "tool"
-              description: "a racy tool",
-              execute: async () => {
-                return new Promise(resolve => {
-                  resolve("tool result");
-                  ac.abort();
-                });
-              }
-            }, {signal: ac.signal});
-           </xmp>
-
-           <p>In this case, tool unregistration happens after a tool Promise is resolved, but before
-           its fulfillment handler runs. Since both run |completionSteps|, this check protects the
-           second invocation from trying to remove the same pending execution twice.</p>
-          </div>
          </div>
 
       1. [=map/Remove=] |targetDocument|'s [=node navigable=]'s [=navigable/traversable
