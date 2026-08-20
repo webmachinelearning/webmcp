@@ -604,7 +604,7 @@ The {{ModelContext}} interface provides methods for web applications to register
 interface ModelContext : EventTarget {
   Promise<undefined> registerTool(ModelContextTool tool, optional ModelContextRegisterToolOptions options = {});
   Promise<sequence<RegisteredTool>> getTools(optional ModelContextGetToolOptions options = {});
-  Promise<DOMString> executeTool(RegisteredTool tool, optional object inputObject = {}, optional ModelContextExecuteToolOptions options = {});
+  Promise<DOMString> executeTool(RegisteredTool tool, optional any inputObject, optional ModelContextExecuteToolOptions options = {});
 
   attribute EventHandler ontoolchange;
 };
@@ -919,8 +919,16 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</
 
 1. [=Assert=]: |expectedTargetOrigin| is not an [=opaque origin=].
 
-1. Let |inputArguments| be the result of [=serializing a JavaScript value to a JSON string=] given
-   |inputObject|. If this threw an exception, then return [=a promise rejected with=] that exception.
+1. Let |inputArguments| be "<code>{}</code>".
+
+1. If |inputObject| is not {{undefined}}, then:
+
+   1. If |inputObject| [=Object type|is not an Object=], then return [=a promise rejected with=] a
+      {{TypeError}}.
+
+   1. Set |inputArguments| to the result of [=serializing a JavaScript value to a JSON string=]
+      given |inputObject|. If this threw an exception, then return [=a promise rejected with=] that
+      exception.
 
 1. Let |promise| be [=a new promise=] created in [=this=]'s [=relevant realm=].
 
