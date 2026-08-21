@@ -211,6 +211,9 @@ An <dfn>annotations</dfn> is a [=struct=] with the following [=struct/items=]:
 
   : <dfn>untrusted content hint</dfn>
   :: a [=boolean=], initially false.
+
+  : <dfn>debugging</dfn>
+  :: a [=boolean=], initially false.
 </dl>
 
 <h3 id="pending-tool-executions">Pending tool executions</h3>
@@ -758,6 +761,9 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
       : [=annotations/untrusted content hint=]
       :: |tool|'s {{ModelContextTool/annotations}}'s {{ToolAnnotations/untrustedContentHint}}
 
+      : [=annotations/debugging=]
+      :: |tool|'s {{ModelContextTool/annotations}}'s {{ToolAnnotations/debugging}}
+
    : [=tool definition/exposed origins=]
    :: |exposed origins|
 
@@ -874,9 +880,11 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
             : {{RegisteredTool/annotations}}
             :: if |tool definition|'s [=tool definition/annotations=] is not null, a
                {{ToolAnnotations}} dictionary whose {{ToolAnnotations/readOnlyHint}} is |tool
-               definition|'s [=tool definition/annotations=]'s [=annotations/read-only hint=] and
+               definition|'s [=tool definition/annotations=]'s [=annotations/read-only hint=],
                {{ToolAnnotations/untrustedContentHint}} is |tool definition|'s [=tool
-               definition/annotations=]'s [=annotations/untrusted content hint=].
+               definition/annotations=]'s [=annotations/untrusted content hint=], and
+               {{ToolAnnotations/debugging}} is |tool definition|'s [=tool
+               definition/annotations=]'s [=annotations/debugging=].
 
          1. [=list/Append=] |registeredTool| to |tools|.
 
@@ -1068,6 +1076,7 @@ dictionary ModelContextTool {
 dictionary ToolAnnotations {
   boolean readOnlyHint = false;
   boolean untrustedContentHint = false;
+  boolean debugging = false;
 };
 
 dictionary ToolExecuteCallbackOptions {
@@ -1124,6 +1133,9 @@ The {{ToolAnnotations}} dictionary provides optional metadata about a tool:
 
   : <code><var ignore>annotations</var>["{{ToolAnnotations/untrustedContentHint}}"]</code>
   :: If true, indicates that the tool's output contains data that is untrusted, from the perspective of the author registering the tool.
+
+  : <code><var ignore>annotations</var>["{{ToolAnnotations/debugging}}"]</code>
+  :: If true, indicates that the tool is intended for debugging and developer tooling rather than end-user interactions.
 </dl>
 
 <h4 id="tool-execute-callback-options">ToolExecuteCallbackOptions Dictionary</h4>
