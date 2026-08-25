@@ -173,7 +173,7 @@ A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]
      Note: For tools registered by the imperative form of this API (i.e.,
      {{ModelContext/registerTool()}}), this is the stringified representation of
      {{ModelContextTool/inputSchema}}. For tools registered
-     [declaratively](https://github.com/webmachinelearning/webmcp/pull/76), this will be a
+     [declaratively](https://github.com/webmachinelearning/webmcp/blob/main/declarative-api-explainer.md), this will be a
      stringified JSON Schema object created by the
      [=synthesize a declarative JSON Schema object algorithm=].
      [[!JSON-SCHEMA]]
@@ -185,7 +185,7 @@ A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]
 
      Note: For tools registered imperatively, these steps will simply invoke the [=imperative
      execute steps=]. For tools registered
-     [declaratively](https://github.com/webmachinelearning/webmcp/pull/76), this will be a set of
+     [declaratively](https://github.com/webmachinelearning/webmcp/blob/main/declarative-api-explainer.md), this will be a set of
      "internal" steps that have not been defined yet, that describe how to fill out a <{form}> and
      its [=form-associated elements=].
 
@@ -1247,7 +1247,7 @@ dictionary RegisteredTool {
 
 <h3 id="declarative-api">Declarative WebMCP</h3>
 
-This section is entirely a TODO. For now, refer to the [explainer draft](https://github.com/webmachinelearning/webmcp/pull/76).
+This section is entirely a TODO. For now, refer to the [Declarative API explainer](https://github.com/webmachinelearning/webmcp/blob/main/declarative-api-explainer.md).
 
 <div algorithm>
 The <dfn>synthesize a declarative JSON Schema object algorithm</dfn>, given a <{form}> element
