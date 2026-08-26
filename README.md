@@ -323,7 +323,7 @@ Calls to `document.modelContext.registerTool()` will return a promise rejected w
 
 #### Cross-origin iframe exposure: `registerTool() and `exposedTo`
 
-By default, tools registered by a document are only exposed to itself, same-origin documents in the same tree, and built-in browser agents (see this <a href=#built-in-agent-default-exposure>discussion</a>). To support author-provided agents running in frames, developers can selectively share tools with secure origins of their choice, `exposedTo` option during registration:
+By default, tools registered by a document are only exposed to itself, same-origin documents in the same tree, and built-in browser agents (see this <a href=#built-in-agent-default-exposure>discussion</a>). To support author-provided agents running in frames, developers can selectively share tools with specific secure origins via the `exposedTo` option:
 
 ```js
 await document.modelContext.registerTool({
