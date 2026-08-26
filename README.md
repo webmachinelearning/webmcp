@@ -311,12 +311,7 @@ The reason WebMCP is not limited to only declarative form tools is for the same 
 
 ### Permissions policy and iframes
 
-While much of this explainer assumes integration with built-in browser agents, WebMCP also supports **author-provided agents**, such as agents embedded directly on a page or running in an iframe, that can collaborate with parent frames and nested contexts. See:
- - [Issue #57](https://github.com/webmachinelearning/webmcp/issues/57)
- - [Issue #117](https://github.com/webmachinelearning/webmcp/issues/117)
- - [Issue #159](https://github.com/webmachinelearning/webmcp/issues/159)
- - [Issue #160](https://github.com/webmachinelearning/webmcp/issues/160)
- - [Issue #178](https://github.com/webmachinelearning/webmcp/issues/178)
+While much of this explainer assumes integration with built-in browser agents, WebMCP also supports **author-provided agents**, such as agents embedded directly on a page or running in an iframe, that can collaborate with parent frames and nested contexts.
 
 By default, WebMCP is enabled in top-level `Window`s and its same-origin iframes, but access can be delegated to cross-origin iframes using the [Permissions Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Permissions_Policy) `allow="tools"`:
 

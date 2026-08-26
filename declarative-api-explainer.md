@@ -206,7 +206,8 @@ It's an open question as to whether [an
 WebMCP tools, and therefore if the `agentResponse` Promise passed to `SubmitEvent#respondWith()`
 must resolve to an object conforming to such schema.
 
-It is TBD how *declarative* WebMCP tools will be exposed to any interface that exposes a site's
-tools to JavaScript. See https://github.com/webmachinelearning/webmcp/issues/51 for context. Should
-a declarative WebMCP tool be able to be invoked from such an interface, should it exist in the
-future? Almost certainly, yes. But details are TBD.
+In-page agents can discover and run imperative tools with
+[`getTools()`](https://webmachinelearning.github.io/webmcp/#dom-modelcontext-gettools) and
+[`executeTool()`](https://webmachinelearning.github.io/webmcp/#dom-modelcontext-executetool). How
+*declarative* tools show up there is still TBD. Should they be invokable from that interface?
+Almost certainly, yes. But details are TBD.
