@@ -18,6 +18,8 @@ WebMCP is supported in [ChatGPT Desktop](https://chatgpt.com/download/).
 
 An [Origin Trial](https://developer.chrome.com/blog/ai-webmcp-origin-trial) is live in Chrome 149.
 
+For [local development](https://developer.chrome.com/docs/ai/webmcp#local_webmcp), enable the `about:flags#enable-webmcp-testing` flag.
+
 * [Early preview program](https://developer.chrome.com/docs/ai/join-epp)
 * [Intent to Experiment](https://groups.google.com/a/chromium.org/g/blink-dev/c/gmYffo5WOE8/m/OJxuQRP3AAAJ)
 * [Chrome Status entry](https://chromestatus.com/feature/5117755740913664)
