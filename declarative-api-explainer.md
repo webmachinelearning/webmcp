@@ -29,7 +29,7 @@ propose:
 3. Two ways of getting a form response back to the agent that invoked the form tool:
     1. `SubmitEvent#respondWith()`, which lets JavaScript on the page override the default form
        action, and pipe a response back to the agent without navigating the page.
-    2. Extracting `<script type="application/json-ld">` tags on the page that the form navigated to,
+    2. Extracting `<script type="application/ld+json">` tags on the page that the form navigated to,
        and using that structured data as a response to the form.
 
 ## Form attributes
