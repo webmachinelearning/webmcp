@@ -225,12 +225,12 @@ self.modelContext.registerTool({
   name: "add-to-cart",
   description: "Add an item to the user's shopping cart.",
   inputSchema: {  /* ... */ },
-  async execute(params, clientInfo) {
+  async execute(params, options) {
     // fetch shopping cart for this session.
-    const cart = carts.get(clientInfo.sessionId);
+    const cart = carts.get(options.sessionId);
     cart.add(params.itemId);
   }
-})
+});
 ```
 
 ### Alternatives Considered
