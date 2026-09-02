@@ -397,7 +397,7 @@ const executionPromise = document.modelContext.executeTool(
 stopButton.addEventListener('click', e => controller.abort());
 ```
 
-The tool's [execution callback](https://webmachinelearning.github.io/webmcp/#callbackdef-toolexecutecallback) receives this signal via its [`options.signal`](https://webmachinelearning.github.io/webmcp/#dom-modelcontextexecutetooloptions-signal) parameter, allowing it to abort underlying network requests or asynchronous tasks cleanly.
+The tool's [execution callback](https://webmachinelearning.github.io/webmcp/#callbackdef-toolexecutecallback) receives a corresponding signal via its [`options.signal`](https://webmachinelearning.github.io/webmcp/#dom-toolexecutecallbackoptions-signal) parameter, allowing it to abort underlying network requests or asynchronous tasks cleanly.
 
 ##### Responding to dynamic tool updates: the `toolchange` event
 
