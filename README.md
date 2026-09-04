@@ -4,7 +4,7 @@ WebMCP lets developers expose web application functionality—either JavaScript 
 
 TypeScript type definitions for WebMCP are available in the [`webmcp-types`](https://www.npmjs.com/package/webmcp-types) npm package.
 
-See [Implementation Status](implementation-status.md) for browser and agent support.
+See [Implementation Status](implementation-status.md) for browser and agent support, and [Best Practices](#best-practices) for guidance on designing effective tools.
 
 ## Background and Motivation
 
@@ -292,6 +292,8 @@ await document.modelContext.registerTool({
 // controller.abort();
 ```
 
+Tools can be unregistered at any time by aborting the signal. For applications with many potential tools, dynamically registering and unregistering them based on the active page state is a recommended pattern to avoid overloading the agent's context window (see [Best Practices](#best-practices)).
+
 ### Lifecycle of a Tool Call
 1. **Registration**: The web page registers one or more tools using `document.modelContext.registerTool()`.
 2. **Discovery**: An agent connected to the page queries the browser to discover the active list of tools and their schemas.
@@ -409,6 +411,36 @@ document.modelContext.addEventListener("toolchange", async () => {
   updateAgentToolRegistry(currentTools);
 });
 ```
+
+
+## Best Practices
+
+Designing tools for AI agents requires different considerations than building traditional user interfaces or server-side APIs. For comprehensive guidance, see the [Chrome WebMCP Best Practices guide](https://developer.chrome.com/docs/ai/webmcp/best-practices) and [Creating Security-Minded Tools](https://developer.chrome.com/docs/ai/webmcp/secure-tools). Key recommendations include:
+
+### Tool Strategy and Budget
+
+- **Mind the tool budget and context window**: While the WebMCP specification does not define an arbitrary architectural limit on how many tools a page can register, AI models have finite context windows. Every registered tool (its name, description, and input schema) consumes tokens in the model prompt, adds to inference latency, and increases the potential for tool confusion or hallucination. Exposing too many tools (e.g., dozens or hundreds) can severely degrade agent performance or lead agent browsers to drop tools or fail to process them.
+- **Single responsibility**: Each tool should represent a single, well-defined function. Avoid registering overlapping or redundant tools that perform similar actions, as this confuses the agent during tool selection.
+- **Manage tool registration dynamically**: Rather than registering a large catalog of tools upfront, dynamically register tools relevant to the active page state or workflow, and unregister them when no longer applicable by aborting the `AbortSignal` passed to `registerTool()` (or removing form attributes in the declarative API).
+- **Default to static registration for simple apps**: For simpler web applications with a handful of tools, static registration on page load is recommended. Dynamic lifecycle management is most valuable for complex, multi-state applications.
+- **Trust the agent**: Frame tool descriptions around what the tool accomplishes and what inputs it requires, rather than trying to enforce rigid step-by-step procedural chains through prompt text.
+
+### Clear Language and Semantic Naming
+
+- **Precise verbs and distinctions**: Distinguish immediate execution from initiating a workflow (e.g., `create-event` to immediately book an event vs. `start-event-creation` to navigate to an event form).
+- **Positive, descriptive instructions**: Tool descriptions should clearly state what the tool does and when to use it. Prefer positive framing ("This tool searches products by keyword...") over negative constraints ("Do not use this for orders").
+
+### Minimize Cognitive Computing for the Model
+
+- **Accept raw user input**: Do not require the model to perform mental math, convert time zones, or transform complex strings. Accept raw input where reasonable and handle normalization in your client code.
+- **Use self-explanatory enum values and types**: Prefer natural language strings in enums (e.g., `shippingMethod: "express"`) rather than arbitrary internal IDs (e.g., `shippingId: 1`).
+- **Document schemas with descriptions**: Provide helpful `description` fields on all input parameters in `inputSchema` to help the agent supply appropriate values.
+
+### Reliability and Error Handling
+
+- **Validate strictly in code, loosely in schema**: Schema constraints provide hints to models, but strict schema validation failures can cause agents to stall. Perform detailed validation in your `execute` handler and return clear, actionable error messages so the agent can self-correct and retry with valid arguments.
+- **Handle rate limits and failures gracefully**: If an action is rate-limited or fails, return an informative error message or instruct the agent to ask the user to complete the task manually in the UI.
+- **Synchronize visual UI state**: Ensure the web page's visual UI updates immediately to reflect actions taken by tools. AI agents and human users collaborate in the same browser session, so shared, synchronized state is essential.
 
 
 ## Alternatives Considered
