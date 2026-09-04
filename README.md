@@ -77,7 +77,7 @@ sequenceDiagram
 
     Agent->>Page: 6. Scrape / actuate DOM<br/>to reconcile visible UI
 
-    Note over Page,Agent: Front-end state must be inferred and manipulated indirectly
+    Note over Page,Agent: Front-end state must be inferred<br/>and manipulated indirectly
 ```
 
 Many challenges faced by assistive technology also apply to AI agents that struggle to navigate existing human-first interfaces when agent-first "tools" are not available. Even when agents succeed, simple operations often require multiple steps and can be slow or unreliable.
