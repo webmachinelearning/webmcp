@@ -100,11 +100,11 @@ The proposed API will not conflict with these existing automation techniques. If
 - **Prevent web content disintermediation**: Prevent disintermediation of web apps by backend integrations by adapting front-ends for use by agents, rather than replacing them.
 - **Code reuse**: Any task that a user can accomplish through a page's UI can be turned into a tool by reusing much of the page's existing client-side code.
 - **Improve accessibility through agents**: Enable agents to assist users of accessibility technology. WebMCP itself is not designed for ingestion by accessibility technology, nor is it designed to interact directly with a page's accessibility tree; rather, it enables agents to act as highly capable intermediaries (see [Issue #91](https://github.com/webmachinelearning/webmcp/issues/91)).
+- **Headless browsing scenarios**: Tools exposed for human-in-the-loop can also be used for task completion in headless scenarios, and is particularly useful when switching between human-in-the-loop and headless experiences.
 
 ### Non-Goals
 
-- **Headless browsing scenarios**: While it may be possible to run these tools in headless environments, this API is primarily designed for local browser workflows with a human in the loop.
-- **Fully autonomous workflows**: The API is not intended for fully autonomous agents operating without human oversight or where a browser UI is not present.
+- **Fully autonomous workflows**: The API is not intended for fully autonomous agents where a browser UI is not present, it is meant to be a client-side implementation that can also call server-side APIs. It would not make sense for purely server-side task completion.
 - **Replacement of backend integrations**: WebMCP is designed to complement, not replace, existing backend-focused protocols like MCP.
 - **Replacement of human interfaces**: The human web interface remains primary; agent tools augment rather than replace user interaction.
 
