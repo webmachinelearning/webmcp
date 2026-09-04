@@ -28,45 +28,56 @@ Backend integrations work well for server-side actions, but they pose significan
 #### WebMCP In-browser tool flow
 
 ```mermaid
-graph TD
-    subgraph WB["<b><i>Web browser</i></b>"]
-        BA["Browser-integrated AI agent"]
-        subgraph RP["Running Page 'index.html'"]
-            WMCP["WebMCP tools"]
-        end
-    end
+sequenceDiagram
+    participant Page as Running Page<br/>index.html
+    participant Agent as Browser-integrated<br/>AI agent
+    participant AI as AI agent platform
+    participant Service as Third-party origin<br/>example.com
 
-    AI["<b><i>AI agent platform</i></b>"]
-    TP["<b><i>Third-party service<br>(example.com)</i></b>"]
+    Agent->>AI: 1. Send user prompt
 
-    %% Connections
-    TP -->|"1. Browser loads page over HTTP"| RP
-    AI <-->|"2. LLM in the cloud communicates with a browser AI agent to act on web content"| BA
-    BA <-->|"3. Browser agent uses WebMCP tools to actuate the current page"| WMCP
-    WMCP -->|"4. WebMCP tools update UI and make API calls"| TP
+    AI-->>Agent: 2. Inspect or act on<br/>the current page
+
+    Agent->>Page: 3. Invoke page-provided<br/>WebMCP tool
+
+    Page->>Service: 4. Make API call as needed
+    Service-->>Page: API response
+
+    Page->>Page: 5. Update application state<br/>and visible UI
+
+    Page-->>Agent: 6. WebMCP tool result
+    Agent-->>AI: Tool result
+
+    Note over Page,Agent: Site-owned code performs the action and keeps its UI in sync
 ```
 
 #### Direct backend MCP flow
 
 ```mermaid
-graph TD
-    AI["<b><i>AI agent platform</i></b>"]
+sequenceDiagram
+    participant Page as Running Page<br/>index.html
+    participant Agent as Browser-integrated<br/>AI agent
+    participant AI as AI agent platform
+    participant Service as Third-party origin<br/>example.com
 
-    subgraph WB["<b><i>Web Browser</i></b>"]
-        BIA["Browser-integrated AI agent"]
-        RP["Running Page &lt;index.html&gt;"]
-    end
+    Agent->>AI: 1. Send user prompt
 
-    subgraph TP["<b><i>Third-party service (example.com)</i></b>"]
-        MCP[("MCP Server")]
-    end
+    AI-->>Agent: 2. Inspect or act on<br/>the current page
 
-    RP <-->|1. Browser loads page over HTTP| TP
-    BIA -->|2. User prompt sent to agent platform in the cloud.| AI
-    AI -->|"3. Agent platform uses pre-configured MCP server to interact directly with service and fulfill user request."| MCP
-    MCP -->|4a. MCP response routed back to agent platform.| AI
-    AI -->|5. Response rendered to user by browser agent. Web page has no direct visibility or control.| BIA
-    RP <-.->|4b. Service manually pushes updates to page.| TP
+    Agent->>Page: 3. Scrape / actuate via<br/>DOM and browser APIs
+    Page-->>Agent: Visible page state
+    Agent-->>AI: Page state
+
+    AI->>Service: 4. MCP call
+    Service-->>AI: MCP response
+
+    Note over Page,Service: Backend state may now differ from the visible page
+
+    AI-->>Agent: 5. Continue browser task<br/>with MCP result
+
+    Agent->>Page: 6. Scrape / actuate DOM<br/>to reconcile visible UI
+
+    Note over Page,Agent: Front-end state must be inferred and manipulated indirectly
 ```
 
 Many challenges faced by assistive technology also apply to AI agents that struggle to navigate existing human-first interfaces when agent-first "tools" are not available. Even when agents succeed, simple operations often require multiple steps and can be slow or unreliable.
