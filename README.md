@@ -48,7 +48,7 @@ sequenceDiagram
     Page-->>Agent: 6. WebMCP tool result
     Agent-->>AI: Tool result
 
-    Note over Page,Agent: Site-owned code performs the action and keeps its UI in sync
+    Note over Page,Agent: Site-owned code performs the<br/> action and keeps its UI in sync
 ```
 
 #### Direct backend MCP flow
