@@ -133,7 +133,7 @@ The output of this hypothetical discovery step is the URL of a web app manifest 
 
 ### Tool Registration and Use
 
-Service workers have a new `agent` object available in their global scope; the same `agent` object as specified in the original WebMCP explainer. When the service worker is activated, the worker script can call the `agent` object's methods to register tools with the browser. These tools are then available for use by in-browser AI agents.
+Service workers have a new `modelContext` object available in their global scope; the service worker counterpart of the `document.modelContext` object specified in the main WebMCP explainer. When the service worker is activated, the worker script can call the `modelContext` object's methods to register tools with the browser. These tools are then available for use by in-browser AI agents.
 
 Tools are scoped to the service worker and origin that created them, so it's not possible for a single app to squat common tool names like "search" or "add-to-cart". On the agent side, each conversation should have a limited set of WebMCP service workers connected which are relevant to the topic of the conversation. This prevents giving the agent more privileges than necessary and conserves the LLMs limited context window. Service worker selection may happen either automatically based on the agent's suggestions or manually based on user configuration. If two or more WebMCP service workers with similar tools and purposes are enabled in the same conversation, then agents may resolve the ambiguity by asking the user to pick one and remember their preference; much like how users choose a default browser for their OS. 
 
@@ -221,20 +221,16 @@ To implement certain kinds of multi-step workflows, it may be necessary for the 
 A solution would be to add a Session ID to tool calls and include this information as a parameter to tools' execute functions. Now, when a tool call is handled, the function has both the input parameters of the tool call, and client info with a session ID which it can use to cache state unique to that session (i.e. the user's shopping cart in the example above).
 
 ```js
-self.agent.provideContext({
-  tools: [
-    {
-      name: "add-to-cart",
-      description: "Add an item to the user's shopping cart.",
-      inputSchema: {  /* ... */ },
-      async execute(params, clientInfo) {
-        // fetch shopping cart for this session.
-        const cart = carts.get(clientInfo.sessionId);
-        cart.add(params.itemId);
-      }
-    }
-  ]
-})
+self.modelContext.registerTool({
+  name: "add-to-cart",
+  description: "Add an item to the user's shopping cart.",
+  inputSchema: {  /* ... */ },
+  async execute(params, options) {
+    // fetch shopping cart for this session.
+    const cart = carts.get(options.sessionId);
+    cart.add(params.itemId);
+  }
+});
 ```
 
 ### Alternatives Considered

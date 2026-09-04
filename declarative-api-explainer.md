@@ -80,7 +80,7 @@ await document.modelContext.registerTool({
     },
     required: ["make", "model"]
   },
-  execute({make, model}, agent) { ... }
+  execute({make, model}, options) { ... }
 });
 ```
 
