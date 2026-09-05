@@ -1355,7 +1355,21 @@ The [=browser agent=], on the other hand, does not run JavaScript on the page. I
 view of the page's tools and any other relevant context by getting an [=observation=]. An
 <dfn>observation</dfn> is an [=implementation-defined=] data structure containing at least a <dfn
 for=observation>tool map</dfn>, which is a [=map=] whose [=map/keys=] are [=Document/unique ID=]s,
-and whose [=map/values=] are [=lists=] of [=tool definition=] [=structs=].
+and whose [=map/values=] are [=observed tool collection=] [=structs=].
+
+An <dfn>observed tool collection</dfn> is a [=struct=] with the following [=struct/items=]:
+
+<dl dfn-for="observed tool collection">
+  : <dfn>origin</dfn>
+  :: an [=origin=].
+
+     Note: While exposure of tools to the [=browser agent=] is [=implementation-defined=], [=user
+     agents=] are expected to include the origin field to avoid confusion that could be exploited by
+     an attacker.
+
+  : <dfn>tools</dfn>
+  :: a [=list=] of [=tool definition=] [=structs=].
+</dl>
 
 Note: An [=observation=] is usually a "snapshot" distillation of a page being presented to the user,
 along with any other state the [=user agent=] believes is relevant for the [=browser agent=]; this
@@ -1384,9 +1398,19 @@ steps:
 
      1. Let |id| be |document|'s [=Document/unique ID=].
 
-     1. Set |observation|'s [=observation/tool map=][|id|] = |document|'s [=Document/associated
-        ModelContext|associated <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s
-        [=model context/tool map=]'s [=map/values=], which are [=tool definitions=].
+     1. Let |tools| be |document|'s [=Document/associated ModelContext|associated
+        <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/tool
+        map=]'s [=map/values=], which are [=tool definitions=].
+
+     1. Let |observedToolCollection| be a new [=observed tool collection=] with the following [=struct/items=]:
+
+        : [=observed tool collection/origin=]
+        :: |document|'s [=Document/origin=]
+
+        : [=observed tool collection/tools=]
+        :: |tools|
+
+     1. Set |observation|'s [=observation/tool map=][|id|] to |observedToolCollection|.
 
 1. Perform any [=implementation-defined=] steps to add anything to |observation| that the [=user
    agent=] might deem useful or necessary, besides just populating the [=observation/tool map=].
@@ -1400,11 +1424,6 @@ steps:
      format in which tools are exposed to the [=browser agent=]. Browsers are free to distill and
      expose tools via Model Context Protocol, other proprietary "function calling" methods, or any
      other way it deems appropriate.
-
-     Advisement: Implementations are expected to convey to the [=browser agent=] any relevant
-     security information associated with [=tool definitions=], such as the originating [=origin=],
-     among other things, so that the backing model has an idea of the different parties at play, and
-     can most safely carry out the end user's intent.
 
 </div>
 
