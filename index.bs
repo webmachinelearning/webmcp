@@ -1716,7 +1716,7 @@ await document.modelContext.registerTool({
 <h5 id="intent-current-gaps">Current Gaps</h5>
 
 <ul>
-  <li><strong>No verification mechanism</strong>: Agent implementors cannot verify that tool implementations match their descriptions</li>
+  <li><strong>No verification mechanism</strong>: Agent implementers cannot verify that tool implementations match their descriptions</li>
   <li><strong>Semantic ambiguity</strong>: Natural language descriptions are subjective and open to interpretation</li>
   <li><strong>No behavioral contracts</strong>: Unlike typed APIs, tool behaviors cannot be statically analyzed or verified</li>
   <li><strong>Agent trust assumptions</strong>: [=Agents=] must assume good faith from site developers</li>
