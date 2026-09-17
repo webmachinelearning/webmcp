@@ -436,6 +436,14 @@ Designing tools for AI agents requires different considerations than building tr
 - **Default to static registration for simple apps**: For simpler web applications with a handful of tools, static registration on page load is recommended. Dynamic lifecycle management is most valuable for complex, multi-state applications.
 - **Trust the agent**: Frame tool descriptions around what the tool accomplishes and what inputs it requires, rather than trying to enforce rigid step-by-step procedural chains through prompt text.
 
+### Keep Dynamic Tool Definitions Current
+
+- **Delegate changing behavior through the registered callback**: If a tool's name, description, and schema remain accurate, its `execute` callback can read current application state or call a mutable implementation reference. The tool does not need to be re-registered merely because its implementation changes.
+- **Re-register changed agent-facing metadata**: To change a tool's name, description, or input schema, abort the signal used for its registration and register the replacement definition. Unregistration and registration each produce a `toolchange` event; consumers that observe the event can refresh their tool list, while other consumers may enumerate tools on their own schedule.
+- **Revalidate at execution time**: A discovered schema describes the tool when it was observed, but application state can change before invocation. The `execute` callback must still validate current inputs, authorization, and workflow preconditions before performing the action.
+
+WebMCP does not currently define an in-place `updateTool()` method, lazy schemas, or disabled and grouped tool states. Those potential additions remain under discussion in [issue #167](https://github.com/webmachinelearning/webmcp/issues/167) and [issue #255](https://github.com/webmachinelearning/webmcp/issues/255).
+
 ### Clear Language and Semantic Naming
 
 - **Precise verbs and distinctions**: Distinguish immediate execution from initiating a workflow (e.g., `create-event` to immediately book an event vs. `start-event-creation` to navigate to an event form).
