@@ -565,6 +565,12 @@ To <dfn for="model context">unregister a tool</dfn> given a {{ModelContext}} |mo
 
 1. [=map/Remove=] |tool map|[|tool name|].
 
+   Note: Unregistering a tool does not cancel an execution that has already invoked its
+   {{ToolExecuteCallback}}, including when the callback itself performs the unregistration.
+   The registration-time {{ModelContextRegisterToolOptions/signal}} only controls tool
+   availability, while the execution-time {{ModelContextExecuteToolOptions/signal}} controls the
+   lifetime of an specific invocation.
+
 1. Let |targetDocument| be |modelContext|'s [=relevant global object=]'s [=associated
    Document|associated <code>Document</code>=].
 
