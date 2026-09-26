@@ -334,7 +334,7 @@ By default, WebMCP is enabled in top-level `Window`s and its same-origin iframes
 
 Calls to `document.modelContext.registerTool()` will return a promise rejected with `NotAllowedError` DOMException when the permission is disabled, whether by the `allow` attribute or the `Permissions-Policy: tools=()` header. Handling of declarative tool registration errors, including when the permission is disabled is TBD; see [Issue #182](https://github.com/webmachinelearning/webmcp/issues/182).
 
-#### Cross-origin iframe exposure: `registerTool() and `exposedTo`
+#### Cross-origin iframe exposure: `registerTool()` and `exposedTo`
 
 By default, tools registered by a document are only exposed to itself, same-origin documents in the same tree, and built-in browser agents (see this <a href=#built-in-agent-default-exposure>discussion</a>). To support author-provided agents running in frames, developers can selectively share tools with specific secure origins via the `exposedTo` option:
 

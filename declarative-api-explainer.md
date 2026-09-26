@@ -88,8 +88,8 @@ await document.modelContext.registerTool({
 
 ```html
 <form toolname="search-cars" tooldescription="Perform a car make/model search" [...]>
- <input type=text name="make" toolparamdescription="The vehicle's make (i.e., BMW, Ford)" required>
- <input type=text name="model" toolparamdescription="The vehicle's model (i.e., 330i, F-150)" required>
+ <input type=text name="make" toolparamdescription="The vehicle's make (e.g., BMW, Ford)" required>
+ <input type=text name="model" toolparamdescription="The vehicle's model (e.g., 330i, F-150)" required>
  <button type=submit>Search</button>
 </form>
 ```
@@ -107,7 +107,7 @@ cancellation.
 
 TODO: The exact algorithms reducing a form, its form-associated elements, and *their* attributes
 like [`step`](https://html.spec.whatwg.org/C#the-step-attribute) and
-[`min`](https://html.spec.whatwg.org/C#attr-input-min) is TBD. We need to concretely specify how
+[`min`](https://html.spec.whatwg.org/C#attr-input-min) are TBD. We need to concretely specify how
 various form-associated elements like `<input>` and `<select>` reduce to a JSON Schema that includes
 `anyOf`, `oneOf`, and `maximum`/`minimum` declarations.
 
@@ -124,7 +124,7 @@ This topic is currently under debate; see https://github.com/webmachinelearning/
 When a form element performs a navigation, the first `<script type=application/ld+json>` tag on the
 target page is used as the cross-document tool's "response" that gets sent to the model.
 
-When no such a tag is present, probably we'll decide that the page's entire contents is sent to the
+When no such tag is present, probably we'll decide that the page's entire contents is sent to the
 model as the response, since that's an accurate semantic representation of the result of the tool.
 However, this is technically TBD at the moment.
 
@@ -156,7 +156,7 @@ element.
 
 **Additions to `SubmitEvent`**
 
-The `SubmitEvent` interface gets two new members, `agentInvoked` to let `submit` event handler react
+The `SubmitEvent` interface gets two new members, `agentInvoked` to let `submit` event handlers react
 to agent-invoked form submissions, and the `respondWith()` method.
 
 This method takes a `Promise<any>` that resolves to the response that the agent will consume. This
@@ -172,7 +172,7 @@ interface SubmitEvent : Event {
 };
 ```
 
-**`toolactivated` and `toolcanceled` events
+**`toolactivated` and `toolcanceled` events**
 
 We introduce these events that get fired at the `ModelContext` object when a WebMCP tool is run, and when
 its invocation is canceled.
