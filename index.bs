@@ -1319,8 +1319,8 @@ The <dfn>synthesize a declarative JSON Schema object algorithm</dfn>, given a <{
 <pre class="biblio">
 {
   "mcp": {
-    "href": "https://modelcontextprotocol.io/specification/latest",
-    "title": "Model Context Protocol (MCP) Specification",
+    "href": "https://modelcontextprotocol.io/specification/2026-07-28",
+    "title": "Model Context Protocol (MCP) Specification, revision 2026-07-28",
     "publisher": "The Linux Foundation"
   },
   "json-schema": {
