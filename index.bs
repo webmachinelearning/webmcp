@@ -659,7 +659,8 @@ is a [=model context=] [=struct=] created alongside the {{ModelContext}}.
     <p><var ignore>tool</var> is a {{RegisteredTool}}, often retrieved by
     {{ModelContext/getTools()}}. Callers pass a JavaScript object in as the
     {{ModelContext/executeTool(tool)/inputObject}} argument for the tool; it's expected to match the
-    schema described by the tool's {{RegisteredTool/inputSchema}}.</p>
+    schema described by the tool's {{RegisteredTool/inputSchema}}. If the argument is omitted, the
+    tool receives an empty object.</p>
   </dd>
 </dl>
 
@@ -967,10 +968,16 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</
 
 1. [=Assert=]: |expectedTargetOrigin| is not an [=opaque origin=].
 
-1. If |inputObject| [=is not an Object=], then return [=a promise rejected with=] a {{TypeError}}.
+1. Let |inputArguments| be "<code>{}</code>".
 
-1. Let |inputArguments| be the result of [=serializing a JavaScript value to a JSON string=] given
-   |inputObject|. If this threw an exception, then return [=a promise rejected with=] that exception.
+1. If |inputObject| is given, then:
+
+   1. If |inputObject| [=is not an Object=], then return [=a promise rejected with=] a
+      {{TypeError}}.
+
+   1. Set |inputArguments| to the result of [=serializing a JavaScript value to a JSON string=]
+      given |inputObject|. If this threw an exception, then return [=a promise rejected with=]
+      that exception.
 
 1. Let |promise| be [=a new promise=] created in [=this=]'s [=relevant realm=].
 
