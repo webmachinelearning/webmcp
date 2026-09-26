@@ -8,7 +8,7 @@
   <meta content="Bikeshed version ea4009a02, updated Thu Sep 17 15:24:44 2026 -0700" name="generator">
   <link href="https://webmachinelearning.github.io/webmcp" rel="canonical">
   <link href="https://www.w3.org/2008/site/images/favicon.ico" rel="icon">
-  <meta content="321d83cc72bf15793a28e3623ddbcab50046f052" name="revision">
+  <meta content="69b73b4ab821ccb2e95a8b8551b15ab133bc862b" name="revision">
   <meta content="dark light" name="color-scheme">
   <link href="https://www.w3.org/StyleSheets/TR/2021/dark.css" media="(prefers-color-scheme: dark)" rel="stylesheet" type="text/css">
 <style>
@@ -841,7 +841,7 @@ var[data-var-color="6"] { --var-vg: #FFBCF2; }
 </p>
    <h1 class="no-ref p-name" id="title">WebMCP</h1>
    <p id="w3c-state"><a href="https://www.w3.org/standards/types/#CG-DRAFT">Draft Community Group Report</a>,
-    <time class="dt-updated" datetime="2026-09-25">25 September 2026</time></p>
+    <time class="dt-updated" datetime="2026-09-26">26 September 2026</time></p>
    <details open>
     <summary>More details about this document</summary>
     <div data-fill-with="spec-metadata">
@@ -1480,7 +1480,24 @@ is a <a data-link-type="dfn" href="#model-context" id="ref-for-model-context①"
     <dd>
      <p>Executes a tool on the document it was registered on. Returns a promise that resolves to the
     stringified result of the tool’s execution.</p>
+     <p><var>tool</var> is a <code class="idl"><a data-link-type="idl" href="#dictdef-registeredtool" id="ref-for-dictdef-registeredtool②">RegisteredTool</a></code>, often retrieved by
+    <code class="idl"><a data-link-type="idl" href="#dom-modelcontext-gettools" id="ref-for-dom-modelcontext-gettools②">getTools()</a></code>. Callers pass a JavaScript object in as the
+    <code class="idl"><a data-link-type="idl" href="#dom-modelcontext-executetool-tool-inputobject-options-inputobject" id="ref-for-dom-modelcontext-executetool-tool-inputobject-options-inputobject">inputObject</a></code> argument for the tool; it’s expected to match the
+    schema described by the tool’s <code class="idl"><a data-link-type="idl" href="#dom-registeredtool-inputschema" id="ref-for-dom-registeredtool-inputschema">inputSchema</a></code>.</p>
    </dl>
+   <div class="example" id="executing-a-discovered-tool">
+    <a class="self-link" href="#executing-a-discovered-tool"></a>
+  The following discovers a tool and executes it with input arguments:
+
+  
+<pre class="highlight language-js"><c- a>const</c-> tools <c- o>=</c-> <c- k>await</c-> document<c- p>.</c->modelContext<c- p>.</c->getTools<c- p>();</c->
+<c- a>const</c-> tool <c- o>=</c-> tools<c- p>.</c->find<c- p>(</c->t <c- p>=></c-> t<c- p>.</c->name <c- o>===</c-> <c- t>'example_tool'</c-><c- p>);</c->
+
+<c- k>if</c-> <c- p>(</c->tool<c- p>)</c-> <c- p>{</c->
+  <c- a>const</c-> result <c- o>=</c-> <c- k>await</c-> document<c- p>.</c->modelContext<c- p>.</c->executeTool<c- p>(</c->tool<c- p>,</c-> <c- p>{</c->message<c- o>:</c-> <c- u>"hello"</c-><c- p>});</c->
+<c- p>}</c->
+</pre>
+   </div>
    <div class="algorithm" data-algorithm="registerTool(tool, options)" data-algorithm-for="ModelContext">
     
 The <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContext" data-dfn-type="method" data-export data-lt="registerTool(tool, options)|registerTool(tool)" id="dom-modelcontext-registertool"><code>registerTool(<var>tool</var>, <var>options</var>)</code></dfn> method steps are:
@@ -1677,7 +1694,7 @@ The <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContext" data-dfn-type=
       <p>Run the following steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel" id="ref-for-in-parallel⑦">in parallel</a>:</p>
       <ol>
        <li data-md>
-        <p>Let <var>tools</var> be an empty <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list⑥">list</a> of <code class="idl"><a data-link-type="idl" href="#dictdef-registeredtool" id="ref-for-dictdef-registeredtool②">RegisteredTool</a></code> dictionaries.</p>
+        <p>Let <var>tools</var> be an empty <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list⑥">list</a> of <code class="idl"><a data-link-type="idl" href="#dictdef-registeredtool" id="ref-for-dictdef-registeredtool③">RegisteredTool</a></code> dictionaries.</p>
        <li data-md>
         <p>Let <var>navigables</var> be <var>toolRequestor</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/document-sequences.html#node-navigable" id="ref-for-node-navigable②">node navigable</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/document-sequences.html#nav-traversable" id="ref-for-nav-traversable②">traversable navigable</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/document-sequences.html#inclusive-descendant-navigables" id="ref-for-inclusive-descendant-navigables①">inclusive descendant navigables</a>.</p>
        <li data-md>
@@ -1707,7 +1724,7 @@ The <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContext" data-dfn-type=
             <p>If <a data-link-type="dfn" href="#tool-is-exposed-to-an-origin" id="ref-for-tool-is-exposed-to-an-origin①">tool is exposed to an origin</a> given <var>targetOrigin</var>, <var>tool definition</var>’s <a data-link-type="dfn" href="#tool-definition-exposed-origins" id="ref-for-tool-definition-exposed-origins②">exposed origins</a>, and <var>callerOrigin</var> returns false, then
   <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#iteration-continue" id="ref-for-iteration-continue③">continue</a>.</p>
            <li data-md>
-            <p>Let <var>registeredTool</var> be a new <code class="idl"><a data-link-type="idl" href="#dictdef-registeredtool" id="ref-for-dictdef-registeredtool③">RegisteredTool</a></code> dictionary, with the following fields:</p>
+            <p>Let <var>registeredTool</var> be a new <code class="idl"><a data-link-type="idl" href="#dictdef-registeredtool" id="ref-for-dictdef-registeredtool④">RegisteredTool</a></code> dictionary, with the following fields:</p>
             <dl>
              <dt data-md><code class="idl"><a data-link-type="idl" href="#dom-registeredtool-name" id="ref-for-dom-registeredtool-name">name</a></code>
              <dd data-md>
@@ -1721,7 +1738,7 @@ The <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContext" data-dfn-type=
              <dt data-md><code class="idl"><a data-link-type="idl" href="#dom-registeredtool-description" id="ref-for-dom-registeredtool-description">description</a></code>
              <dd data-md>
               <p><var>tool definition</var>’s <a data-link-type="dfn" href="#tool-definition-description" id="ref-for-tool-definition-description①">description</a></p>
-             <dt data-md><code class="idl"><a data-link-type="idl" href="#dom-registeredtool-inputschema" id="ref-for-dom-registeredtool-inputschema">inputSchema</a></code>
+             <dt data-md><code class="idl"><a data-link-type="idl" href="#dom-registeredtool-inputschema" id="ref-for-dom-registeredtool-inputschema①">inputSchema</a></code>
              <dd data-md>
               <p>the result of <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#parse-a-json-string-to-a-javascript-value" id="ref-for-parse-a-json-string-to-a-javascript-value①">parse a JSON string to a JavaScript value</a> given <var>tool
  definition</var>’s <a data-link-type="dfn" href="#tool-definition-input-schema" id="ref-for-tool-definition-input-schema②">input schema</a>, if <var>tool definition</var>’s <a data-link-type="dfn" href="#tool-definition-input-schema" id="ref-for-tool-definition-input-schema③">input schema</a> is not the empty string; otherwise undefined.</p>
@@ -2018,7 +2035,7 @@ definition itself.</p>
    </dl>
    <h4 class="heading settled" data-level="4.2.4" id="model-context-get-tool-options"><span class="secno">4.2.4. </span><span class="content">ModelContextGetToolOptions Dictionary</span><a class="self-link" href="#model-context-get-tool-options"></a></h4>
    <p>The <code class="idl"><a data-link-type="idl" href="#dictdef-modelcontextgettooloptions" id="ref-for-dictdef-modelcontextgettooloptions①">ModelContextGetToolOptions</a></code> dictionary allows web applications to filter the tools returned
-by <code class="idl"><a data-link-type="idl" href="#dom-modelcontext-gettools" id="ref-for-dom-modelcontext-gettools②">getTools()</a></code>.</p>
+by <code class="idl"><a data-link-type="idl" href="#dom-modelcontext-gettools" id="ref-for-dom-modelcontext-gettools③">getTools()</a></code>.</p>
 <pre class="def highlight idl"><c- b>dictionary</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="dictionary" data-export id="dictdef-modelcontextgettooloptions"><code><c- g>ModelContextGetToolOptions</c-></code></dfn> {
   <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#idl-sequence" id="ref-for-idl-sequence②"><c- b>sequence</c-></a>&lt;<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-USVString" id="ref-for-idl-USVString②"><c- b>USVString</c-></a>> <dfn class="dfn-paneled idl-code" data-dfn-for="ModelContextGetToolOptions" data-dfn-type="dict-member" data-export data-type="sequence<USVString>" id="dom-modelcontextgettooloptions-fromorigins"><code><c- g>fromOrigins</c-></code></dfn>;
 };
@@ -2043,7 +2060,7 @@ by <code class="idl"><a data-link-type="idl" href="#dom-modelcontext-gettools" i
      <p>An <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#abortsignal" id="ref-for-abortsignal⑤">AbortSignal</a></code> that can be used to cancel the execution of the tool.</p>
    </dl>
    <h4 class="heading settled" data-level="4.2.6" id="registered-tool"><span class="secno">4.2.6. </span><span class="content">RegisteredTool Dictionary</span><a class="self-link" href="#registered-tool"></a></h4>
-   <p>The <code class="idl"><a data-link-type="idl" href="#dictdef-registeredtool" id="ref-for-dictdef-registeredtool④">RegisteredTool</a></code> dictionary represents a tool that has been registered and is available for
+   <p>The <code class="idl"><a data-link-type="idl" href="#dictdef-registeredtool" id="ref-for-dictdef-registeredtool⑤">RegisteredTool</a></code> dictionary represents a tool that has been registered and is available for
 execution.</p>
 <pre class="def highlight idl"><c- b>dictionary</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="dictionary" data-export id="dictdef-registeredtool"><code><c- g>RegisteredTool</c-></code></dfn> {
   <c- b>required</c-> <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-DOMString" id="ref-for-idl-DOMString③"><c- b>DOMString</c-></a> <dfn class="dfn-paneled idl-code" data-dfn-for="RegisteredTool" data-dfn-type="dict-member" data-export data-type="DOMString" id="dom-registeredtool-name"><code><c- g>name</c-></code></dfn>;
@@ -2071,7 +2088,7 @@ execution.</p>
     <dd data-md>
      <p>A natural language description of the tool’s functionality. It is the same value provided at
  tool registration, via <code class="idl"><a data-link-type="idl" href="#dom-modelcontexttool-description" id="ref-for-dom-modelcontexttool-description④">description</a></code>.</p>
-    <dt data-md><code><var>tool</var>["<code class="idl"><a data-link-type="idl" href="#dom-registeredtool-inputschema" id="ref-for-dom-registeredtool-inputschema①">inputSchema</a></code>"]</code>
+    <dt data-md><code><var>tool</var>["<code class="idl"><a data-link-type="idl" href="#dom-registeredtool-inputschema" id="ref-for-dom-registeredtool-inputschema②">inputSchema</a></code>"]</code>
     <dd data-md>
      <p>A JSON Schema object describing the expected input parameters for the tool
  <a data-link-type="biblio" href="#biblio-json-schema" title="JSON Schema: A Media Type for Describing JSON Documents">[JSON-SCHEMA]</a>. It is a deep copy of the schema provided at tool registration, via
@@ -3424,7 +3441,7 @@ let dfnPanelData = {
 "dictdef-modelcontextgettooloptions": {"dfnID":"dictdef-modelcontextgettooloptions","dfnText":"ModelContextGetToolOptions","external":false,"refSections":[{"refs":[{"id":"ref-for-dictdef-modelcontextgettooloptions"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dictdef-modelcontextgettooloptions\u2460"}],"title":"4.2.4. ModelContextGetToolOptions Dictionary"}],"url":"#dictdef-modelcontextgettooloptions"},
 "dictdef-modelcontextregistertooloptions": {"dfnID":"dictdef-modelcontextregistertooloptions","dfnText":"ModelContextRegisterToolOptions","external":false,"refSections":[{"refs":[{"id":"ref-for-dictdef-modelcontextregistertooloptions"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dictdef-modelcontextregistertooloptions\u2460"}],"title":"4.2.3. ModelContextRegisterToolOptions Dictionary"}],"url":"#dictdef-modelcontextregistertooloptions"},
 "dictdef-modelcontexttool": {"dfnID":"dictdef-modelcontexttool","dfnText":"ModelContextTool","external":false,"refSections":[{"refs":[{"id":"ref-for-dictdef-modelcontexttool"}],"title":"3.1. Pending tool executions"},{"refs":[{"id":"ref-for-dictdef-modelcontexttool\u2460"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dictdef-modelcontexttool\u2461"}],"title":"4.2.1. ModelContextTool Dictionary"},{"refs":[{"id":"ref-for-dictdef-modelcontexttool\u2462"}],"title":"4.2.3. ModelContextRegisterToolOptions Dictionary"}],"url":"#dictdef-modelcontexttool"},
-"dictdef-registeredtool": {"dfnID":"dictdef-registeredtool","dfnText":"RegisteredTool","external":false,"refSections":[{"refs":[{"id":"ref-for-dictdef-registeredtool"},{"id":"ref-for-dictdef-registeredtool\u2460"},{"id":"ref-for-dictdef-registeredtool\u2461"},{"id":"ref-for-dictdef-registeredtool\u2462"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dictdef-registeredtool\u2463"}],"title":"4.2.6. RegisteredTool Dictionary"}],"url":"#dictdef-registeredtool"},
+"dictdef-registeredtool": {"dfnID":"dictdef-registeredtool","dfnText":"RegisteredTool","external":false,"refSections":[{"refs":[{"id":"ref-for-dictdef-registeredtool"},{"id":"ref-for-dictdef-registeredtool\u2460"},{"id":"ref-for-dictdef-registeredtool\u2461"},{"id":"ref-for-dictdef-registeredtool\u2462"},{"id":"ref-for-dictdef-registeredtool\u2463"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dictdef-registeredtool\u2464"}],"title":"4.2.6. RegisteredTool Dictionary"}],"url":"#dictdef-registeredtool"},
 "dictdef-toolactivatedeventinit": {"dfnID":"dictdef-toolactivatedeventinit","dfnText":"ToolActivatedEventInit","external":false,"refSections":[{"refs":[{"id":"ref-for-dictdef-toolactivatedeventinit"}],"title":"4.4.1. ToolActivatedEvent Interface"}],"url":"#dictdef-toolactivatedeventinit"},
 "dictdef-toolannotations": {"dfnID":"dictdef-toolannotations","dfnText":"ToolAnnotations","external":false,"refSections":[{"refs":[{"id":"ref-for-dictdef-toolannotations"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dictdef-toolannotations\u2460"},{"id":"ref-for-dictdef-toolannotations\u2461"}],"title":"4.2.1. ModelContextTool Dictionary"},{"refs":[{"id":"ref-for-dictdef-toolannotations\u2462"}],"title":"4.2.6. RegisteredTool Dictionary"}],"url":"#dictdef-toolannotations"},
 "dictdef-toolcanceleventinit": {"dfnID":"dictdef-toolcanceleventinit","dfnText":"ToolCancelEventInit","external":false,"refSections":[{"refs":[{"id":"ref-for-dictdef-toolcanceleventinit"}],"title":"4.4.2. ToolCancelEvent Interface"}],"url":"#dictdef-toolcanceleventinit"},
@@ -3433,10 +3450,10 @@ let dfnPanelData = {
 "document-unique-id": {"dfnID":"document-unique-id","dfnText":"unique ID","external":false,"refSections":[{"refs":[{"id":"ref-for-document-unique-id"},{"id":"ref-for-document-unique-id\u2460"}],"title":"5.2. Page observations"}],"url":"#document-unique-id"},
 "dom-document-modelcontext": {"dfnID":"dom-document-modelcontext","dfnText":"modelContext","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-document-modelcontext"}],"title":"4.1. Extensions to Document"},{"refs":[{"id":"ref-for-dom-document-modelcontext\u2460"},{"id":"ref-for-dom-document-modelcontext\u2461"},{"id":"ref-for-dom-document-modelcontext\u2462"}],"title":"4.2. ModelContext Interface"}],"url":"#dom-document-modelcontext"},
 "dom-modelcontext-executetool": {"dfnID":"dom-modelcontext-executetool","dfnText":"executeTool(tool, inputObject,\noptions)","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontext-executetool"}],"title":"3.1. Pending tool executions"},{"refs":[{"id":"ref-for-dom-modelcontext-executetool\u2460"},{"id":"ref-for-dom-modelcontext-executetool\u2461"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dom-modelcontext-executetool\u2462"}],"title":"4.2.5. ModelContextExecuteToolOptions Dictionary"}],"url":"#dom-modelcontext-executetool"},
-"dom-modelcontext-executetool-tool-inputobject-options-inputobject": {"dfnID":"dom-modelcontext-executetool-tool-inputobject-options-inputobject","dfnText":"inputObject","external":false,"refSections":[],"url":"#dom-modelcontext-executetool-tool-inputobject-options-inputobject"},
+"dom-modelcontext-executetool-tool-inputobject-options-inputobject": {"dfnID":"dom-modelcontext-executetool-tool-inputobject-options-inputobject","dfnText":"inputObject","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontext-executetool-tool-inputobject-options-inputobject"}],"title":"4.2. ModelContext Interface"}],"url":"#dom-modelcontext-executetool-tool-inputobject-options-inputobject"},
 "dom-modelcontext-executetool-tool-inputobject-options-options": {"dfnID":"dom-modelcontext-executetool-tool-inputobject-options-options","dfnText":"options","external":false,"refSections":[],"url":"#dom-modelcontext-executetool-tool-inputobject-options-options"},
 "dom-modelcontext-executetool-tool-inputobject-options-tool": {"dfnID":"dom-modelcontext-executetool-tool-inputobject-options-tool","dfnText":"tool","external":false,"refSections":[],"url":"#dom-modelcontext-executetool-tool-inputobject-options-tool"},
-"dom-modelcontext-gettools": {"dfnID":"dom-modelcontext-gettools","dfnText":"getTools(options)","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontext-gettools"},{"id":"ref-for-dom-modelcontext-gettools\u2460"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dom-modelcontext-gettools\u2461"}],"title":"4.2.4. ModelContextGetToolOptions Dictionary"}],"url":"#dom-modelcontext-gettools"},
+"dom-modelcontext-gettools": {"dfnID":"dom-modelcontext-gettools","dfnText":"getTools(options)","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontext-gettools"},{"id":"ref-for-dom-modelcontext-gettools\u2460"},{"id":"ref-for-dom-modelcontext-gettools\u2461"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dom-modelcontext-gettools\u2462"}],"title":"4.2.4. ModelContextGetToolOptions Dictionary"}],"url":"#dom-modelcontext-gettools"},
 "dom-modelcontext-gettools-options-options": {"dfnID":"dom-modelcontext-gettools-options-options","dfnText":"options","external":false,"refSections":[],"url":"#dom-modelcontext-gettools-options-options"},
 "dom-modelcontext-ontoolactivated": {"dfnID":"dom-modelcontext-ontoolactivated","dfnText":"ontoolactivated","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontext-ontoolactivated"}],"title":"4.2. ModelContext Interface"}],"url":"#dom-modelcontext-ontoolactivated"},
 "dom-modelcontext-ontoolcancel": {"dfnID":"dom-modelcontext-ontoolcancel","dfnText":"ontoolcancel","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontext-ontoolcancel"}],"title":"4.2. ModelContext Interface"}],"url":"#dom-modelcontext-ontoolcancel"},
@@ -3456,7 +3473,7 @@ let dfnPanelData = {
 "dom-modelcontexttool-title": {"dfnID":"dom-modelcontexttool-title","dfnText":"title","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontexttool-title"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-dom-modelcontexttool-title\u2460"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dom-modelcontexttool-title\u2461"}],"title":"4.2.1. ModelContextTool Dictionary"},{"refs":[{"id":"ref-for-dom-modelcontexttool-title\u2462"}],"title":"4.2.6. RegisteredTool Dictionary"}],"url":"#dom-modelcontexttool-title"},
 "dom-registeredtool-annotations": {"dfnID":"dom-registeredtool-annotations","dfnText":"annotations","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-registeredtool-annotations"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dom-registeredtool-annotations\u2460"}],"title":"4.2.6. RegisteredTool Dictionary"}],"url":"#dom-registeredtool-annotations"},
 "dom-registeredtool-description": {"dfnID":"dom-registeredtool-description","dfnText":"description","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-registeredtool-description"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dom-registeredtool-description\u2460"}],"title":"4.2.6. RegisteredTool Dictionary"}],"url":"#dom-registeredtool-description"},
-"dom-registeredtool-inputschema": {"dfnID":"dom-registeredtool-inputschema","dfnText":"inputSchema","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-registeredtool-inputschema"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dom-registeredtool-inputschema\u2460"}],"title":"4.2.6. RegisteredTool Dictionary"}],"url":"#dom-registeredtool-inputschema"},
+"dom-registeredtool-inputschema": {"dfnID":"dom-registeredtool-inputschema","dfnText":"inputSchema","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-registeredtool-inputschema"},{"id":"ref-for-dom-registeredtool-inputschema\u2460"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dom-registeredtool-inputschema\u2461"}],"title":"4.2.6. RegisteredTool Dictionary"}],"url":"#dom-registeredtool-inputschema"},
 "dom-registeredtool-name": {"dfnID":"dom-registeredtool-name","dfnText":"name","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-registeredtool-name"},{"id":"ref-for-dom-registeredtool-name\u2460"},{"id":"ref-for-dom-registeredtool-name\u2461"},{"id":"ref-for-dom-registeredtool-name\u2462"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dom-registeredtool-name\u2463"}],"title":"4.2.6. RegisteredTool Dictionary"}],"url":"#dom-registeredtool-name"},
 "dom-registeredtool-origin": {"dfnID":"dom-registeredtool-origin","dfnText":"origin","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-registeredtool-origin"},{"id":"ref-for-dom-registeredtool-origin\u2460"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dom-registeredtool-origin\u2461"}],"title":"4.2.6. RegisteredTool Dictionary"}],"url":"#dom-registeredtool-origin"},
 "dom-registeredtool-title": {"dfnID":"dom-registeredtool-title","dfnText":"title","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-registeredtool-title"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dom-registeredtool-title\u2460"}],"title":"4.2.6. RegisteredTool Dictionary"}],"url":"#dom-registeredtool-title"},
@@ -3938,6 +3955,7 @@ let refsData = {
 "#document-unique-id": {"displayText":"unique id","export":true,"for_":["Document"],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"unique id","type":"dfn","url":"#document-unique-id"},
 "#dom-document-modelcontext": {"displayText":"modelContext","export":true,"for_":["Document"],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"modelContext","type":"attribute","url":"#dom-document-modelcontext"},
 "#dom-modelcontext-executetool": {"displayText":"executeTool(tool)","export":true,"for_":["ModelContext"],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"executeTool(tool)","type":"method","url":"#dom-modelcontext-executetool"},
+"#dom-modelcontext-executetool-tool-inputobject-options-inputobject": {"displayText":"inputObject","export":true,"for_":["ModelContext/executeTool(tool)","ModelContext/executeTool(tool, inputObject)","ModelContext/executeTool(tool, inputObject, options)"],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"inputObject","type":"argument","url":"#dom-modelcontext-executetool-tool-inputobject-options-inputobject"},
 "#dom-modelcontext-gettools": {"displayText":"getTools(options)","export":true,"for_":["ModelContext"],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"getTools(options)","type":"method","url":"#dom-modelcontext-gettools"},
 "#dom-modelcontext-ontoolactivated": {"displayText":"ontoolactivated","export":true,"for_":["ModelContext"],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"ontoolactivated","type":"attribute","url":"#dom-modelcontext-ontoolactivated"},
 "#dom-modelcontext-ontoolcancel": {"displayText":"ontoolcancel","export":true,"for_":["ModelContext"],"level":"","normative":true,"shortname":"webmcp","spec":"webmcp","status":"local","text":"ontoolcancel","type":"attribute","url":"#dom-modelcontext-ontoolcancel"},
