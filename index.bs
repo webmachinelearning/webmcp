@@ -584,7 +584,7 @@ To <dfn for="model context">unregister a tool</dfn> given a {{ModelContext}} |mo
 
 <!--
 TODO: Sketch initial algorithms, define attributes and methods etc.
-https://github.com/webmachinelearning/webmcp/blob/main/docs/proposal.md#api
+https://github.com/webmachinelearning/webmcp/blob/main/README.md#detailed-design
 https://dlaliberte.github.io/bikeshed-intro/#a-strategy-for-incremental-development
 -->
 
