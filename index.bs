@@ -350,7 +350,7 @@ To <dfn>notify documents of a tool change</dfn> given a {{Document}} |tool owner
 1. [=Assert=]: these steps are running [=in parallel=].
 
 1. Let |navigablesToNotify| be |tool owner|'s [=node navigable=]'s [=navigable/traversable
-   navigable=]'s [=Document/inclusive descendant navigables=].
+   navigable=]'s [=navigable/active document=]'s [=Document/inclusive descendant navigables=].
 
 1. [=list/For each=] |navigable| of |navigablesToNotify|:
 
@@ -485,7 +485,7 @@ internal value=] |uuid|, are as follows:
    Issue: Support more granular errors; here we should return something that prompts the caller to
    reject its {{Promise}} with a "{{DataError}}" {{DOMException}}.
 
-1. If |inputObject| [=Object type|is not an Object=] is false, then run |completionSteps| given null
+1. If |inputObject| [=Object type|is not an Object=], then run |completionSteps| given null
    and false, and abort these steps.
 
 1. [=Fire an event=] named {{ModelContext/toolactivated}} at |targetDocument|'s [=Document/associated
@@ -858,7 +858,7 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
    1. Let |tools| be an empty [=list=] of {{RegisteredTool}} dictionaries.
 
    1. Let |navigables| be |toolRequestor|'s [=node navigable=]'s [=navigable/traversable
-      navigable=]'s [=Document/inclusive descendant navigables=].
+      navigable=]'s [=navigable/active document=]'s [=Document/inclusive descendant navigables=].
 
    1. [=list/For each=] |navigable| of |navigables|:
 
@@ -1041,13 +1041,11 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</
       Issue: Support more granular errors than "{{UnknownError}}", based on each failure case.
 
    1. Let |completionSteps| be an algorithm that takes a [=string=]-or-null |result| and a
-      [=boolean=] |success|, and runs the following steps:
-
-      1. [=Assert=]: these steps are running [=in parallel=].
+      [=boolean=] |success|, and runs the following steps [=in parallel=]:
 
       1. If |targetDocument|'s [=node navigable=]'s [=navigable/traversable navigable=]'s
-         [=traversable navigable/pending tool executions map=][|uuid|] does not [=map/exist=], then
-         return.
+         [=traversable navigable/pending tool executions map=][|uuid|] does not [=map/exist=],
+         then return.
 
          <div class=note id=pending-execution-removal-race>
           <p>It is possible that a pending execution identified by |uuid| no longer exists. This can
