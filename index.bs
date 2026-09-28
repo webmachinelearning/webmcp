@@ -1885,9 +1885,57 @@ This creates a personalization-to-fingerprinting pipeline where sites can extrac
 
 <h4 id="violation-same-origin-boundaries">Violation of Same-Origin Boundaries</h4>
 
-<p class="XXX">
-  TODO: Document risks and implications of [=agents=] carrying state from one origin to another. Detail how tools executed on one origin may carry state from another origin, potentially leading to data leakage or same-origin policy bypasses if not handled securely by the [=user agent=]. This section should probably talk about the WebMCP permissions policy and other cross-origin opt in mechanisms. 
-</p>
+The Same-Origin Policy (SOP) is the foundational security boundary of the web platform, isolating documents of different [=origins=] so that one [=origin=] cannot inspect or manipulate the state of another without explicit consent. In the context of WebMCP, potential violations of same-origin boundaries arise across two distinct pathways:
+
+<ol>
+  <li>
+    <strong>Direct Cross-Document / Cross-Origin Tool Exposure</strong>: Where an in-page script (such as an in-page [=agent=]) in one {{Document}} attempts to discover or invoke WebMCP tools registered by another {{Document}} in the frame tree ({{ModelContext/getTools()}} and {{ModelContext/executeTool()}}).
+  </li>
+  <li>
+    <strong>Agent-Mediated Cross-Origin State Transfer</strong>: Where an external or browser-integrated [=agent=] ([=browser's agent=]) interacts with multiple [=origins=] over the course of a task and carries state derived from one [=origin=] into tool invocations on another [=origin=]. This is not a WebMCP-specific threat.
+  </li>
+</ol>
+
+<h5 id="in-page-cross-origin-exposure">In-Page Cross-Origin Tool Exposure and the Two-Sided Opt-In Model</h5>
+
+By default, WebMCP enforces strict [=same origin=] isolation: a tool registered via <code><var ignore>document</var>.{{Document/modelContext}}.{{ModelContext/registerTool()}}</code> is only visible to and executable by {{Document}}s that are [=same origin=] with the registering {{Document}} (tool owner). Cross-origin {{Document}}s cannot discover, observe {{ModelContext/toolchange}} events for, or execute a tool unless three independent access-control gates are satisfied:
+
+<ol>
+  <li>
+    <strong>Embedder Delegation via Permissions Policy (<code>allow="tools"</code>)</strong>: Access to all WebMCP APIs ({{ModelContext/registerTool()}}, {{ModelContext/getTools()}}, and {{ModelContext/executeTool()}}) is gated behind the "{{tools}}" [=policy-controlled feature=], whose [=policy-controlled feature/default allowlist=] is <code>[=default allowlist/'self'=]</code>. Consequently, a cross-origin <{iframe}> cannot register or expose tools—nor will an ancestor's {{ModelContext/getTools()}} traversal inspect that subframe—unless the embedding {{Document}} explicitly delegates the "{{tools}}" feature to the subframe via <code>&lt;iframe allow="tools"&gt;</code>.
+  </li>
+  <li>
+    <strong>Tool Provider Opt-In ({{ModelContextRegisterToolOptions/exposedTo}})</strong>: A {{Document}} registering a tool must explicitly opt in to cross-origin exposure by specifying the permitted caller [=origins=] in {{ModelContextRegisterToolOptions/exposedTo}}. Each listed [=origin=] must be a valid, [$is origin potentially trustworthy?|potentially trustworthy$] [=origin=]. During both discovery ({{ModelContext/getTools()}}) and invocation ({{ModelContext/executeTool()}}), the [=user agent=] evaluates the [=tool is exposed to an origin=] algorithm, ensuring that only callers whose [=Document/origin=] is [=same origin=] with the tool owner or explicitly listed in {{ModelContextRegisterToolOptions/exposedTo}} can access the tool.
+  </li>
+  <li>
+    <strong>Tool Consumer Opt-In ({{ModelContextGetToolOptions/fromOrigins}})</strong>: Even when an embedded cross-origin {{Document}} has been delegated <code>allow="tools"</code> and has exposed a tool to its parent [=origin=] via {{ModelContextRegisterToolOptions/exposedTo}}, {{ModelContext/getTools()}} only returns tools from [=same origin=] {{Document}}s by default. To discover tools from a cross-origin descendant [=navigable=], the calling {{Document}} must also explicitly list the target [=origin=] in {{ModelContextGetToolOptions/fromOrigins}}.
+  </li>
+</ol>
+
+**Why Two-Sided Opt-In Matters**: Requiring mutual consent from both the tool provider ({{ModelContextRegisterToolOptions/exposedTo}}) and the tool consumer ({{ModelContextGetToolOptions/fromOrigins}}) prevents unsolicited tool-list pollution. Without consumer opt-in ({{ModelContextGetToolOptions/fromOrigins}}), a compromised or untrusted third-party <{iframe}> could unilaterally expose tools with deceptive names or prompt-injected descriptions ([[#metadata-description-attacks]]) into the parent page's {{ModelContext/getTools()}} results. Conversely, without provider opt-in ({{ModelContextRegisterToolOptions/exposedTo}}), a malicious parent page could invoke internal tools inside an embedded third-party widget that were intended only for [=same origin=] use.
+
+```js
+// 1. Parent document (https://app.example.com) explicitly delegates the "tools"
+//    feature to the embedded widget (<iframe src="https://widget.example.org" allow="tools">)
+//    and explicitly requests tools from that origin via `fromOrigins`:
+const tools = await document.modelContext.getTools({
+  fromOrigins: ["https://widget.example.org"]
+});
+
+// 2. Child iframe (https://widget.example.org) explicitly exposes the tool
+//    to the parent origin via `exposedTo`:
+await document.modelContext.registerTool(
+  {
+    name: "generate-chart",
+    description: "Renders a chart inside the widget",
+    inputSchema: { type: "object", properties: { data: { type: "array" } } },
+    execute: async ({ data }) => { /* ... */ }
+  },
+  {
+    exposedTo: ["https://app.example.com"]
+  }
+);
+```
 
 <h4 id="interaction-with-private-browsing">Interaction with Private Browsing Modes</h4>
 
