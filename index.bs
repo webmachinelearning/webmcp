@@ -113,7 +113,7 @@ spec: ECMASCRIPT; urlPrefix: https://tc39.es/ecma262/
 
 <h2 id="intro">Introduction</h2>
 
-WebMCP API is a new JavaScript interface that allows web developers to expose their web application functionality as “tools” - JavaScript functions with natural language descriptions and structured schemas that can be invoked by [=agents=], [=browser's agents=], and [=assistive technologies=]. Web pages that use WebMCP can be thought of as Model Context Protocol [[!MCP]] servers that implement tools in client-side script instead of on the backend. WebMCP enables collaborative workflows where users and agents work together within the same web interface, leveraging existing application logic while maintaining shared context and user control.
+WebMCP API is a new JavaScript interface that allows web developers to expose their web application functionality as “tools” - JavaScript functions with natural language descriptions and structured schemas that can be invoked by [=agents=], [=browser's agents=], and [=assistive technologies=]. Web pages that use WebMCP can be thought of as Model Context Protocol [[MCP]] servers that implement tools in client-side script instead of on the backend. WebMCP enables collaborative workflows where users and agents work together within the same web interface, leveraging existing application logic while maintaining shared context and user control.
 
 <h2 id="terminology">Terminology</h2>
 
@@ -1295,8 +1295,8 @@ The <dfn>synthesize a declarative JSON Schema object algorithm</dfn>, given a <{
 <pre class="biblio">
 {
   "mcp": {
-    "href": "https://modelcontextprotocol.io/specification/2026-07-28",
-    "title": "Model Context Protocol (MCP) Specification, revision 2026-07-28",
+    "href": "https://modelcontextprotocol.io/specification/latest",
+    "title": "Model Context Protocol (MCP) Specification",
     "publisher": "The Linux Foundation"
   },
   "json-schema": {
