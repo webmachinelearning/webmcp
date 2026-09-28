@@ -108,7 +108,7 @@ spec: ECMASCRIPT; urlPrefix: https://tc39.es/ecma262/
   type: dfn
     text: surrounding agent; url: surrounding-agent
     text: agent cluster; url: sec-agent-clusters
-    text: is not an object; url: sec-object-type
+    text: is an object; url: sec-object-type
 </pre>
 
 <h2 id="intro">Introduction</h2>
@@ -622,7 +622,7 @@ The {{ModelContext}} interface provides methods for web applications to register
 interface ModelContext : EventTarget {
   Promise<undefined> registerTool(ModelContextTool tool, optional ModelContextRegisterToolOptions options = {});
   Promise<sequence<RegisteredTool>> getTools(optional ModelContextGetToolOptions options = {});
-  Promise<DOMString> executeTool(RegisteredTool tool, optional any inputObject, optional ModelContextExecuteToolOptions options = {});
+  Promise<DOMString> executeTool(RegisteredTool tool, optional object inputObject, optional ModelContextExecuteToolOptions options = {});
 
   attribute EventHandler ontoolchange;
   attribute EventHandler ontoolactivated;
@@ -968,16 +968,13 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</
 
 1. [=Assert=]: |expectedTargetOrigin| is not an [=opaque origin=].
 
-1. Let |inputArguments| be [$OrdinaryObjectCreate$]({{%Object.prototype%}}).
+1. If |inputObject| was not given, then set |inputObject| to
+   [$OrdinaryObjectCreate$]({{%Object.prototype%}}).
 
-1. If |inputObject| is given, then:
+1. [=Assert=]: |inputObject| [=is an Object=].
 
-   1. If |inputObject| [=is not an Object=], then return [=a promise rejected with=] a
-      {{TypeError}}.
-
-   1. Set |inputArguments| to the result of [=serializing a JavaScript value to a JSON string=]
-      given |inputObject|. If this threw an exception, then return [=a promise rejected with=]
-      that exception.
+1. Set |inputArguments| to the result of [=serializing a JavaScript value to a JSON string=] given
+   |inputObject|. If this threw an exception, then return [=a promise rejected with=] that exception.
 
 1. Let |promise| be [=a new promise=] created in [=this=]'s [=relevant realm=].
 
