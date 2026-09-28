@@ -582,12 +582,6 @@ To <dfn for="model context">unregister a tool</dfn> given a {{ModelContext}} |mo
 
 <h2 id="api">API</h2>
 
-<!--
-TODO: Sketch initial algorithms, define attributes and methods etc.
-https://github.com/webmachinelearning/webmcp/blob/main/docs/proposal.md#api
-https://dlaliberte.github.io/bikeshed-intro/#a-strategy-for-incremental-development
--->
-
 <h3 id="document-extension">Extensions to {{Document}}</h3>
 
 Each {{Document}} object has an <dfn for=Document>associated {{ModelContext}}</dfn>, which is a
