@@ -968,7 +968,7 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</
 
 1. [=Assert=]: |expectedTargetOrigin| is not an [=opaque origin=].
 
-1. Let |inputArguments| be [$OrdinaryObjectCreate$]({{%Object.prototype%}}).
+1. Let |inputArguments| be "<code>{}</code>".
 
 1. If |inputObject| is given, then:
 
