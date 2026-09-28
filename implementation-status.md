@@ -2,7 +2,7 @@
 
 This document shows the implementation status of WebMCP across different browsers and agents.
 
-<a href="#brave"><img width=64 src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/brave/brave_128x128.png" alt="Brave logo"></a> <a href="#chatgpt-desktop"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/openai-white.svg"><source media="(prefers-color-scheme: light)" srcset="assets/openai.svg"><img width=64 src="assets/openai.svg" alt="OpenAI logo"></picture></a> <a href="#chrome"><img width=64 src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/chrome/chrome_128x128.png" alt="Chrome logo"></a> <a href="#edge"><img width=64 src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/edge/edge_128x128.png" alt="Edge logo"></a> <a href="#firefox"><img width=64 src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/firefox/firefox_128x128.png" alt="Firefox logo"></a> <a href="#safari"><img width=64 src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/safari/safari_128x128.png" alt="Safari logo"></a>
+<a href="#brave"><img width=64 src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/brave/brave_128x128.png" alt="Brave logo"></a> <a href="#chatgpt-desktop"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/openai-white.svg"><source media="(prefers-color-scheme: light)" srcset="assets/openai.svg"><img width=64 src="assets/openai.svg" alt="OpenAI logo"></picture></a> <a href="#chrome"><img width=64 src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/chrome/chrome_128x128.png" alt="Chrome logo"></a> <a href="#edge"><img width=64 src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/edge/edge_128x128.png" alt="Edge logo"></a> <a href="#firefox"><img width=64 src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/firefox/firefox_128x128.png" alt="Firefox logo"></a> <a href="#meta-ray-ban-display"><img width=64 src="assets/meta.svg" alt="Meta logo"></a> <a href="#safari"><img width=64 src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/safari/safari_128x128.png" alt="Safari logo"></a>
 
 # Brave
 
@@ -34,6 +34,12 @@ Refer to Chrome implementation status for platform support.
 
 * [Mozilla standards-positions](https://github.com/mozilla/standards-positions/issues/1412)
 * [Bugzilla entry](https://bugzilla.mozilla.org/show_bug.cgi?id=2018306)
+
+# Meta Ray-Ban Display
+
+WebMCP for [Web Apps](https://wearables.developer.meta.com/docs/develop/webapps/agent-tools) is coming soon, letting Meta AI on the glasses call tools registered with `document.modelContext.registerTool()`.
+
+It is off by default and enabled per device, either in Developer Mode or for wearers in the rollout.
 
 # Safari
 
