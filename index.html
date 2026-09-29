@@ -8,7 +8,7 @@
   <meta content="Bikeshed version ea4009a02, updated Thu Sep 17 15:24:44 2026 -0700" name="generator">
   <link href="https://webmachinelearning.github.io/webmcp" rel="canonical">
   <link href="https://www.w3.org/2008/site/images/favicon.ico" rel="icon">
-  <meta content="4e4d63b35ba8e5cddaab9c004f32bf2f6aa2ecb6" name="revision">
+  <meta content="19fc56516057e2a190eeeab608e9ed5bf02de383" name="revision">
   <meta content="dark light" name="color-scheme">
   <link href="https://www.w3.org/StyleSheets/TR/2021/dark.css" media="(prefers-color-scheme: dark)" rel="stylesheet" type="text/css">
 <style>
@@ -2233,6 +2233,11 @@ along with any other state the <a data-link-type="dfn" href="https://infra.spec.
 often includes screenshots of the page, not just a DOM serialization. See <a href="https://chromium.googlesource.com/chromium/src.git/+/main/third_party/blink/renderer/modules/content_extraction/readme.md">Annotated Page Content
 (APC)</a>
 in the Chromium project for an example of what might contribute to an observation.</p>
+   <p class="note" role="note"><span class="marker">Note:</span> Exposing a complete <a data-link-type="dfn" href="#observation-tool-map" id="ref-for-observation-tool-map">tool map</a> in each <a data-link-type="dfn" href="#observation" id="ref-for-observation②">observation</a> does not require an agent
+to repeatedly append that map verbatim to a backing model’s input. Implementations might diff,
+cache, filter, or otherwise absorb repeated observations before incorporating relevant information
+into an agent’s working context. Such absorption and context-management strategies are agent product
+decisions and are outside the scope of this specification.</p>
    <hr>
    <div class="algorithm" data-algorithm="perform an observation">
     
@@ -2246,7 +2251,7 @@ steps:
      <li data-md>
       <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#assert" id="ref-for-assert⑨">Assert</a>: <var>traversable</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/document-sequences.html#nav-document" id="ref-for-nav-document④">active document</a> is <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/document-sequences.html#fully-active" id="ref-for-fully-active⑤">fully active</a>.</p>
      <li data-md>
-      <p>Let <var>observation</var> be a new <a data-link-type="dfn" href="#observation" id="ref-for-observation②">observation</a>.</p>
+      <p>Let <var>observation</var> be a new <a data-link-type="dfn" href="#observation" id="ref-for-observation③">observation</a>.</p>
      <li data-md>
       <p>Let <var>flat descendants</var> be the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/document-sequences.html#inclusive-descendant-navigables" id="ref-for-inclusive-descendant-navigables②">inclusive descendant navigables</a> of <var>traversable</var>’s
  <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/document-sequences.html#nav-document" id="ref-for-nav-document⑤">active document</a>.</p>
@@ -2271,14 +2276,14 @@ steps:
           <p><var>tools</var></p>
         </dl>
        <li data-md>
-        <p>Set <var>observation</var>’s <a data-link-type="dfn" href="#observation-tool-map" id="ref-for-observation-tool-map">tool map</a>[<var>id</var>] to <var>observedToolCollection</var>.</p>
+        <p>Set <var>observation</var>’s <a data-link-type="dfn" href="#observation-tool-map" id="ref-for-observation-tool-map①">tool map</a>[<var>id</var>] to <var>observedToolCollection</var>.</p>
       </ol>
      <li data-md>
-      <p>Perform any <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#implementation-defined" id="ref-for-implementation-defined②">implementation-defined</a> steps to add anything to <var>observation</var> that the <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#user-agent" id="ref-for-user-agent⑤">user agent</a> might deem useful or necessary, besides just populating the <a data-link-type="dfn" href="#observation-tool-map" id="ref-for-observation-tool-map①">tool map</a>.
+      <p>Perform any <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#implementation-defined" id="ref-for-implementation-defined②">implementation-defined</a> steps to add anything to <var>observation</var> that the <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#user-agent" id="ref-for-user-agent⑤">user agent</a> might deem useful or necessary, besides just populating the <a data-link-type="dfn" href="#observation-tool-map" id="ref-for-observation-tool-map②">tool map</a>.
  This might include annotated screenshots of the page, parts of the accessibility tree, etc.</p>
      <li data-md>
       <p>Perform any <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#implementation-defined" id="ref-for-implementation-defined③">implementation-defined</a> steps with <var>observation</var> and the <a data-link-type="dfn" href="#browsers-agent" id="ref-for-browsers-agent①⓪">browser agent</a>, to
- expose the <var>observation</var>’s <a data-link-type="dfn" href="#observation-tool-map" id="ref-for-observation-tool-map②">tool map</a> to the <a data-link-type="dfn" href="#browsers-agent" id="ref-for-browsers-agent①①">browser agent</a> in whatever way it
+ expose the <var>observation</var>’s <a data-link-type="dfn" href="#observation-tool-map" id="ref-for-observation-tool-map③">tool map</a> to the <a data-link-type="dfn" href="#browsers-agent" id="ref-for-browsers-agent①①">browser agent</a> in whatever way it
  accepts.</p>
       <p class="note" role="note"><span class="marker">Note:</span> Despite the name of this API (i., Web<em>MCP</em>), this specification does not prescribe the
    format in which tools are exposed to the <a data-link-type="dfn" href="#browsers-agent" id="ref-for-browsers-agent①②">browser agent</a>. Browsers are free to distill and
@@ -3521,8 +3526,8 @@ let dfnPanelData = {
 "modelcontext": {"dfnID":"modelcontext","dfnText":"ModelContext","external":false,"refSections":[{"refs":[{"id":"ref-for-modelcontext"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-modelcontext\u2460"}],"title":"3.1. Pending tool executions"},{"refs":[{"id":"ref-for-modelcontext\u2461"},{"id":"ref-for-modelcontext\u2462"},{"id":"ref-for-modelcontext\u2463"},{"id":"ref-for-modelcontext\u2464"}],"title":"4.1. Extensions to Document"},{"refs":[{"id":"ref-for-modelcontext\u2465"},{"id":"ref-for-modelcontext\u2466"},{"id":"ref-for-modelcontext\u2467"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-modelcontext\u2468"}],"title":"4.4. Events"},{"refs":[{"id":"ref-for-modelcontext\u2460\u24ea"}],"title":"4.4.1. ToolActivatedEvent Interface"},{"refs":[{"id":"ref-for-modelcontext\u2460\u2460"}],"title":"4.4.2. ToolCancelEvent Interface"},{"refs":[{"id":"ref-for-modelcontext\u2460\u2461"},{"id":"ref-for-modelcontext\u2460\u2462"}],"title":"5.1. Event loop integration"},{"refs":[{"id":"ref-for-modelcontext\u2460\u2463"}],"title":"5.2. Page observations"}],"url":"#modelcontext"},
 "modelcontext-internal-context": {"dfnID":"modelcontext-internal-context","dfnText":"internal context","external":false,"refSections":[{"refs":[{"id":"ref-for-modelcontext-internal-context"},{"id":"ref-for-modelcontext-internal-context\u2460"},{"id":"ref-for-modelcontext-internal-context\u2461"},{"id":"ref-for-modelcontext-internal-context\u2462"},{"id":"ref-for-modelcontext-internal-context\u2463"},{"id":"ref-for-modelcontext-internal-context\u2464"}],"title":"3.1. Pending tool executions"},{"refs":[{"id":"ref-for-modelcontext-internal-context\u2465"},{"id":"ref-for-modelcontext-internal-context\u2466"},{"id":"ref-for-modelcontext-internal-context\u2467"},{"id":"ref-for-modelcontext-internal-context\u2468"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-modelcontext-internal-context\u2460\u24ea"}],"title":"5.2. Page observations"}],"url":"#modelcontext-internal-context"},
 "notify-documents-of-a-tool-change": {"dfnID":"notify-documents-of-a-tool-change","dfnText":"notify documents of a tool change","external":false,"refSections":[{"refs":[{"id":"ref-for-notify-documents-of-a-tool-change"}],"title":"3.1. Pending tool executions"},{"refs":[{"id":"ref-for-notify-documents-of-a-tool-change\u2460"}],"title":"4.2. ModelContext Interface"}],"url":"#notify-documents-of-a-tool-change"},
-"observation": {"dfnID":"observation","dfnText":"observation","external":false,"refSections":[{"refs":[{"id":"ref-for-observation"},{"id":"ref-for-observation\u2460"},{"id":"ref-for-observation\u2461"}],"title":"5.2. Page observations"}],"url":"#observation"},
-"observation-tool-map": {"dfnID":"observation-tool-map","dfnText":"tool map","external":false,"refSections":[{"refs":[{"id":"ref-for-observation-tool-map"},{"id":"ref-for-observation-tool-map\u2460"},{"id":"ref-for-observation-tool-map\u2461"}],"title":"5.2. Page observations"}],"url":"#observation-tool-map"},
+"observation": {"dfnID":"observation","dfnText":"observation","external":false,"refSections":[{"refs":[{"id":"ref-for-observation"},{"id":"ref-for-observation\u2460"},{"id":"ref-for-observation\u2461"},{"id":"ref-for-observation\u2462"}],"title":"5.2. Page observations"}],"url":"#observation"},
+"observation-tool-map": {"dfnID":"observation-tool-map","dfnText":"tool map","external":false,"refSections":[{"refs":[{"id":"ref-for-observation-tool-map"},{"id":"ref-for-observation-tool-map\u2460"},{"id":"ref-for-observation-tool-map\u2461"},{"id":"ref-for-observation-tool-map\u2462"}],"title":"5.2. Page observations"}],"url":"#observation-tool-map"},
 "observed-tool-collection": {"dfnID":"observed-tool-collection","dfnText":"observed tool collection","external":false,"refSections":[{"refs":[{"id":"ref-for-observed-tool-collection"},{"id":"ref-for-observed-tool-collection\u2460"}],"title":"5.2. Page observations"}],"url":"#observed-tool-collection"},
 "observed-tool-collection-origin": {"dfnID":"observed-tool-collection-origin","dfnText":"origin","external":false,"refSections":[{"refs":[{"id":"ref-for-observed-tool-collection-origin"}],"title":"5.2. Page observations"}],"url":"#observed-tool-collection-origin"},
 "observed-tool-collection-tools": {"dfnID":"observed-tool-collection-tools","dfnText":"tools","external":false,"refSections":[{"refs":[{"id":"ref-for-observed-tool-collection-tools"}],"title":"5.2. Page observations"}],"url":"#observed-tool-collection-tools"},
