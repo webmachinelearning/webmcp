@@ -78,9 +78,7 @@ execute callback to access context about the current tool execution and request
 tokens.
 
 ```js
-
-dictionary ToolExecuteCallbackOptions {
-  required AbortSignal signal;
+partial dictionary ToolExecuteCallbackOptions {
   required ModelContextToolInvocation invocation;
 };
 
@@ -96,9 +94,9 @@ Notes:
 * `requestToken()` returns a DOMString to allow simple storage and transmission
   of the token.
 * `requestToken()` returns a `Promise` to allow the token to be successfully
-  registered with agents and bound to the correct origin before returning, which
-  likely requires cross-process IPC.
-* `requestToken()` rejects if the current task is not executing the callback for a tool.
+  registered with agents and bound to the correct origin before returning.
+* `requestToken()` rejects if the tool Promise associated with the invocation
+  has settled.
 
 ## Token Redemption
 
@@ -161,7 +159,6 @@ blocks the agent until the completion of a chain of continued tool calls.
 
 ```js
 // /billing.html
-<script>
 modelContext.registerTool({
    name: "checkout",
    inputSchema: {
@@ -177,15 +174,13 @@ modelContext.registerTool({
     // Handle billing_address (submit to server, etc.)
     await submitBillingAddress(input.billing_address);
     // Navigate to /shipping.html
-    window.location.href = '/shipping.html?checkout_token=${token}';
+    window.location.href = '/shipping.html?token=${token}';
   }
 )};
-</script>
 ```
 
 ```js
 // /shipping.html
-<script>
 // Request resumption of the checkout tool.
 modelContext.resumeTool(
   new URLSearchParams(window.location.search).get('token'),
@@ -198,7 +193,6 @@ modelContext.resumeTool(
     window.location.href = '/confirmation.html?token=${token}';
   }
 );
-</script>
 ```
 # Alternatives Considered
 
