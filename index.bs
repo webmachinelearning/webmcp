@@ -93,7 +93,6 @@ spec:html; type:dfn;
   text:form-associated element
   text:browsing context group set
   text:unique internal value
-  text:is origin-keyed
 spec: webidl; type: dfn;
   text: an exception was thrown
 </pre>
@@ -106,8 +105,6 @@ spec: SECURE-CONTEXTS; urlPrefix: https://w3c.github.io/webappsec-secure-context
     text: is origin potentially trustworthy?; url: is-origin-trustworthy
 spec: ECMASCRIPT; urlPrefix: https://tc39.es/ecma262/
   type: dfn
-    text: surrounding agent; url: surrounding-agent
-    text: agent cluster; url: sec-agent-clusters
     text: is an object; url: sec-object-type
 </pre>
 
@@ -682,11 +679,6 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
 1. If |tool owner| is not [=Document/fully active=], then return [=a promise rejected with=] an
    "{{InvalidStateError}}" {{DOMException}}.
 
-1. If [=this=]'s [=surrounding agent=]'s [=agent cluster=]'s [=is origin-keyed=] is false
-   and [=this=]'s [=relevant settings object=]'s [=environment settings object/origin=]'s
-   [=origin/scheme=] is not <code>"file"</code>, then return [=a promise rejected with=] a
-   "{{SecurityError}}" {{DOMException}}.
-
 1. If |tool owner| is not [=allowed to use=] the "{{tools}}" feature, then return [=a promise
    rejected with=] a "{{NotAllowedError}}" {{DOMException}}.
 
@@ -824,11 +816,6 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
 1. If |toolRequestor| is not [=Document/fully active=], then return [=a promise rejected with=] an
    "{{InvalidStateError}}" {{DOMException}}.
 
-1. If [=this=]'s [=surrounding agent=]'s [=agent cluster=]'s [=is origin-keyed=] is false and [=this=]'s
-   [=relevant settings object=]'s [=environment settings object/origin=]'s [=origin/scheme=] is not
-   <code>"file"</code>, then return [=a promise rejected with=] a "{{SecurityError}}"
-   {{DOMException}}.
-
 1. If |toolRequestor| is not [=allowed to use=] the "{{tools}}" feature, then return [=a promise
    rejected with=] a "{{NotAllowedError}}" {{DOMException}}.
 
@@ -942,11 +929,6 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</
 
 1. If |callerDocument| is not [=Document/fully active=], then return [=a promise rejected with=]
    an "{{InvalidStateError}}" {{DOMException}}.
-
-1. If [=this=]'s [=surrounding agent=]'s [=agent cluster=]'s [=is origin-keyed=] is false and
-   [=this=]'s [=relevant settings object=]'s [=environment settings object/origin=]'s
-   [=origin/scheme=] is not "<code>file</code>", then return [=a promise rejected with=] a
-   "{{SecurityError}}" {{DOMException}}.
 
 1. If |callerDocument| is not [=allowed to use=] the "{{tools}}" feature, then return [=a promise
    rejected with=] a "{{NotAllowedError}}" {{DOMException}}.
