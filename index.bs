@@ -1883,20 +1883,13 @@ This creates a personalization-to-fingerprinting pipeline where sites can extrac
   <li><strong>Discrimination risk</strong>: Extracted attributes (age, pregnancy status, location) could be used for price discrimination or biased service</li>
 </ul>
 
-<h4 id="violation-same-origin-boundaries">Violation of Same-Origin Boundaries</h4>
+<h4 id="interaction-with-same-origin-policy">Interaction with the Same-Origin Policy</h4>
 
-The Same-Origin Policy (SOP) is the foundational security boundary of the web platform, isolating documents of different [=origins=] so that one [=origin=] cannot inspect or manipulate the state of another without explicit consent. In the context of WebMCP, potential violations of same-origin boundaries arise across two distinct pathways:
+The Same-Origin Policy (SOP) is the foundational security boundary of the web platform, isolating documents of different [=origins=] so that one [=origin=] cannot inspect or manipulate the state of another without explicit consent.
 
-<ol>
-  <li>
-    <strong>Direct Cross-Document / Cross-Origin Tool Exposure</strong>: Where an in-page script (such as an in-page [=agent=]) in one {{Document}} attempts to discover or invoke WebMCP tools registered by another {{Document}} in the frame tree ({{ModelContext/getTools()}} and {{ModelContext/executeTool()}}).
-  </li>
-  <li>
-    <strong>Agent-Mediated Cross-Origin State Transfer</strong>: Where an external or browser-integrated [=agent=] ([=browser's agent=]) interacts with multiple [=origins=] over the course of a task and carries state derived from one [=origin=] into tool invocations on another [=origin=]. This is not a WebMCP-specific threat.
-  </li>
-</ol>
+In WebMCP, a registered tool's {{ModelContextTool/execute}} callback always runs within the registering {{Document}}'s execution context, with full access to that [=origin=]'s DOM, storage, and ambient credentials. Consequently, allowing a cross-origin {{Document}} in the frame tree to discover a tool ({{ModelContext/getTools()}}), invoke it ({{ModelContext/executeTool()}}), and receive its serialized return value crosses a privilege boundary. Without strict enforcement, a malicious embedding page or embedded subframe could silently invoke privileged operations or extract sensitive state from another [=origin=].
 
-<h5 id="in-page-cross-origin-exposure">In-Page Cross-Origin Tool Exposure and the Two-Sided Opt-In Model</h5>
+<h5 id="in-page-cross-origin-exposure">Enforcing Same-Origin Isolation via Two-Sided Opt-In</h5>
 
 By default, WebMCP enforces strict [=same origin=] isolation: a tool registered via <code><var ignore>document</var>.{{Document/modelContext}}.{{ModelContext/registerTool()}}</code> is only visible to and executable by {{Document}}s that are [=same origin=] with the registering {{Document}} (tool owner). Cross-origin {{Document}}s cannot discover, observe {{ModelContext/toolchange}} events for, or execute a tool unless three independent access-control gates are satisfied:
 
@@ -1912,7 +1905,7 @@ By default, WebMCP enforces strict [=same origin=] isolation: a tool registered 
   </li>
 </ol>
 
-**Why Two-Sided Opt-In Matters**: Requiring mutual consent from both the tool provider ({{ModelContextRegisterToolOptions/exposedTo}}) and the tool consumer ({{ModelContextGetToolOptions/fromOrigins}}) prevents unsolicited tool-list pollution. Without consumer opt-in ({{ModelContextGetToolOptions/fromOrigins}}), a compromised or untrusted third-party <{iframe}> could unilaterally expose tools with deceptive names or prompt-injected descriptions ([[#metadata-description-attacks]]) into the parent page's {{ModelContext/getTools()}} results. Conversely, without provider opt-in ({{ModelContextRegisterToolOptions/exposedTo}}), a malicious parent page could invoke internal tools inside an embedded third-party widget that were intended only for [=same origin=] use.
+**Why Two-Sided Opt-In Matters**: Requiring mutual consent from both the tool provider ({{ModelContextRegisterToolOptions/exposedTo}}) and the tool consumer ({{ModelContextGetToolOptions/fromOrigins}}) prevents both unauthorized cross-origin actuation and unsolicited tool-list pollution. Without provider opt-in ({{ModelContextRegisterToolOptions/exposedTo}}), a malicious parent page could invoke internal tools inside an embedded third-party widget that were intended only for [=same origin=] use. Conversely, without consumer opt-in ({{ModelContextGetToolOptions/fromOrigins}}), a compromised or untrusted third-party <{iframe}> could unilaterally expose tools with deceptive names or prompt-injected descriptions ([[#metadata-description-attacks]]) into the parent page's {{ModelContext/getTools()}} results.
 
 ```js
 // 1. Parent document (https://app.example.com) explicitly delegates the "tools"
@@ -1936,6 +1929,19 @@ await document.modelContext.registerTool(
   }
 );
 ```
+
+<h5 id="same-origin-residual-risks">Residual Risks</h5>
+
+Even when cross-origin access is governed by the mechanisms above, two categories of residual risk remain:
+
+<ul>
+  <li>
+    <strong>Direct Cross-Origin Exposure</strong>: Even when two [=origins=] mutually opt in via {{ModelContextRegisterToolOptions/exposedTo}} and {{ModelContextGetToolOptions/fromOrigins}}, they remain separate trust domains: tool providers must still treat caller-supplied arguments as untrusted input, and callers must treat cross-origin tool descriptions and return values as untrusted data (see [[#prompt-injection]]). Additionally, because {{ModelContext/getTools()}} aggregates tools across all descendant frames at the [=origin=] level, callers should inspect {{RegisteredTool/origin}} and {{RegisteredTool/window}} on each {{RegisteredTool}} to disambiguate tools when multiple subframes or [=origins=] expose tools with the same {{RegisteredTool/name}}.
+  </li>
+  <li>
+    <strong>Agent-Mediated Cross-Origin State Transfer</strong>: Where an external or browser-integrated [=agent=] ([=browser's agent=]) interacts with multiple [=origins=] over the course of a task and carries state derived from one [=origin=] into tool invocations on another [=origin=]. This is a general risk of agentic browsing across the web rather than a WebMCP-specific threat.
+  </li>
+</ul>
 
 <h4 id="interaction-with-private-browsing">Interaction with Private Browsing Modes</h4>
 
