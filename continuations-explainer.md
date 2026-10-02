@@ -1,6 +1,7 @@
 # Continuation Tokens
 
-[*mark a. foltz*](mailto:mfoltz@google.com)
+[*mark a. foltz*](mailto:mfoltz@google.com), grateful for input from Dominic
+Farolino and several others.
 
 # Overview
 
@@ -129,9 +130,9 @@ partial interface ModelContext {
 * Calls to resumeTool() while the initial tool is executing are allowed, but any
   invocation of the callback will occur after the initial tool call is complete.
 * Redemption fails if the document is not same-origin and part of the same
-  browsing context. same browsing context group.
+  browsing context.
 * If the original tool call is canceled by the caller (via AbortSignal for
-  web-platform callers, or internally by a built-in agent)`,`then the token is
+  web-platform callers, or internally by a built-in agent), then the token is
   revoked.
 * The browser may limit the lifetime of a token, i.e. it cannot be redeemed at
   an arbitrary time later.  The initial limit will be set by looking at agent
@@ -142,12 +143,19 @@ partial interface ModelContext {
 
 If any of these conditions are not met, then `resumeTool()` rejects.
 
+Note that `resumeTool()` is passed a `signal` via
+`ToolExecuteCallbackOptions.signal` for the browser or agent to signal
+cancellation of a resumed tool execution, the same way a `signal` was passed to
+the original invocation of `executeTool()`.  If that `signal` is triggered
+during the execution of the `resumeTool()` callback, then its `Promise` will be
+rejected.
+
 ## Agent Behaviors
 
 When the tool requests a token, this is a signal to the agent that the tool has
 not completed execution.  Any output from the tool should be considered as
-partial output, and the browser should expect additional output before the tool
-invocation is completed.
+intermediate output that is not shown to the agent, and the browser should
+expect final output to show to the agent when the tool invocation is completed.
 
 The browser will wait until all tokens are redeemed in the chain, all tool calls
 have resolved, and show the model the final output of all tool calls.  This
@@ -160,21 +168,21 @@ blocks the agent until the completion of a chain of continued tool calls.
 ```js
 // /billing.html
 modelContext.registerTool({
-   name: "checkout",
-   inputSchema: {
-     type: "object",
-     properties: {
-       billing_address: { type: "string" },
-       shipping_address: { type: "string" }
-     }, required: ["billing_address", "shipping_address"]
-   },
-   execute: async (input, options) => {
+  name: "checkout",
+  inputSchema: {
+    type: "object",
+    properties: {
+      billing_address: { type: "string" },
+      shipping_address: { type: "string" }
+    }, required: ["billing_address", "shipping_address"]
+  },
+  execute: async (input, options) => {
     // We'll need to continue on the next page for billing info.
     const token = await options.invocation.requestToken();
     // Handle billing_address (submit to server, etc.)
     await submitBillingAddress(input.billing_address);
     // Navigate to /shipping.html
-    window.location.href = '/shipping.html?token=${token}';
+    window.location.href = `/shipping.html?token=${token}`;
   }
 )};
 ```
@@ -190,7 +198,7 @@ modelContext.resumeTool(
     // Handle shipping_address (submit to server, etc.)
     await submitShippingAddress(input.shipping_address);
     // Navigate to /confirmation.html
-    window.location.href = '/confirmation.html?token=${token}';
+    window.location.href = `/confirmation.html?token=${token}`;
   }
 );
 ```
