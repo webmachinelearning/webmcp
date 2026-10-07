@@ -110,7 +110,7 @@ spec: ECMASCRIPT; urlPrefix: https://tc39.es/ecma262/
 
 <h2 id="intro">Introduction</h2>
 
-WebMCP API is a new JavaScript interface that allows web developers to expose their web application functionality as “tools” - JavaScript functions with natural language descriptions and structured schemas that can be invoked by [=agents=], [=browser's agents=], and [=assistive technologies=]. Web pages that use WebMCP can be thought of as Model Context Protocol [[MCP]] servers that implement tools in client-side script instead of on the backend. WebMCP enables collaborative workflows where users and agents work together within the same web interface, leveraging existing application logic while maintaining shared context and user control.
+WebMCP API is a new JavaScript interface that allows web developers to expose their web application functionality as “tools” - JavaScript functions with natural language descriptions and structured schemas that can be invoked by [=agents=], [=browser's agents=], and assistive technologies. Web pages that use WebMCP can be thought of as Model Context Protocol [[MCP]] servers that implement tools in client-side script instead of on the backend. WebMCP enables collaborative workflows where users and agents work together within the same web interface, leveraging existing application logic while maintaining shared context and user control.
 
 <h2 id="terminology">Terminology</h2>
 
@@ -120,7 +120,7 @@ TODO: Define any reusable high-level terms here that are not specific to algorit
 
 An <dfn>agent</dfn> is an autonomous assistant that can understand a user’s goals and take actions on the user’s behalf to achieve them. Today, these are typically implemented by large language model (LLM) based [=AI platforms=], interacting with users via text-based chat interfaces.
 
-A <dfn>browser’s agent</dfn> is an [=agent=] provided by or through the browser that could be built directly into the browser or hosted by it, for example, via an extension or plug-in.
+A <dfn lt="browser agent|browser's agent">browser agent</dfn> is an [=agent=] provided by or through the browser that could be built directly into the browser or hosted by it, for example, via an extension or plug-in.
 
 An <dfn>AI platform</dfn> is a provider of agentic assistants such as OpenAI’s ChatGPT, Anthropic’s Claude, or Google’s Gemini.
 
@@ -191,7 +191,7 @@ A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]
   :: an [=annotations=]-or-null.
 
   : <dfn>exposed origins</dfn>
-  :: a [=list=] or [=origins=], initially [=list/empty=].
+  :: a [=list=] of [=origins=], initially [=list/empty=].
 </dl>
 
 A <dfn>local pending tool execution</dfn> is a [=struct=] with the following [=struct/items=]:
@@ -802,7 +802,7 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
   1. [=Queue a global task=] on the [=webmcp task source=] given |global| to [=resolve=] |promise|
      with undefined.
 
-1. Return |promise|
+1. Return |promise|.
 
 </div>
 
@@ -1294,31 +1294,6 @@ The <dfn>synthesize a declarative JSON Schema object algorithm</dfn>, given a <{
 
 </div>
 
-<pre class="biblio">
-{
-  "mcp": {
-    "href": "https://modelcontextprotocol.io/specification/latest",
-    "title": "Model Context Protocol (MCP) Specification",
-    "publisher": "The Linux Foundation"
-  },
-  "json-schema": {
-    "href": "https://json-schema.org/draft/2020-12/json-schema-core.html",
-    "title": "JSON Schema: A Media Type for Describing JSON Documents",
-    "publisher": "JSON Schema"
-  },
-  "spotlighting": {
-    "href": "https://arxiv.org/abs/2403.14720",
-    "title": "Defending Against Indirect Prompt Injection Attacks With Spotlighting",
-    "publisher": "arXiv"
-  },
-  "sockpuppetting": {
-    "href": "https://arxiv.org/abs/2601.13359",
-    "title": "Sockpuppetting: Jailbreaking LLMs by Combining Prefilling with Optimization",
-    "publisher": "arXiv"
-  }
-}
-</pre>
-
 <div algorithm>
 The <dfn>declarative execute steps</dfn> are as follows:
 
@@ -1500,7 +1475,7 @@ steps:
    expose the |observation|'s [=observation/tool map=] to the [=browser agent=] in whatever way it
    accepts.
 
-     Note: Despite the name of this API (i., Web*MCP*), this specification does not prescribe the
+     Note: Despite the name of this API (i.e., Web*MCP*), this specification does not prescribe the
      format in which tools are exposed to the [=browser agent=]. Browsers are free to distill and
      expose tools via Model Context Protocol, other proprietary "function calling" methods, or any
      other way it deems appropriate.
@@ -1909,7 +1884,7 @@ page, protecting against malicious scripts or dependencies from using WebMCP API
 
 **What:** Shared evals for prompt injection attacks against WebMCP
 
-**Threats addressed:** [[#prompt-injection]] (potentially [[#privacy-leakage-over-parameterization]]
+**Threats addressed:** [[#prompt-injection]] (potentially [[#privacy-leakage-over-parameterization]])
 
 **How:** Ensuring an interoperable basis for prompt injection defense, by requiring any implementer to protect against at least the attacks in that dataset. See [Issue #106](https://github.com/webmachinelearning/webmcp/issues/106).
 
@@ -1952,3 +1927,28 @@ for the initial explainer, proposals, discussions, and other contributions that 
 Also many thanks to Alex Nahas and Jason McGhee for sharing early implementation experience.
 
 Finally, thanks to the participants of the Web Machine Learning Community Group for feedback and suggestions.
+
+<pre class="biblio">
+{
+  "mcp": {
+    "href": "https://modelcontextprotocol.io/specification/latest",
+    "title": "Model Context Protocol (MCP) Specification",
+    "publisher": "The Linux Foundation"
+  },
+  "json-schema": {
+    "href": "https://json-schema.org/draft/2020-12/json-schema-core.html",
+    "title": "JSON Schema: A Media Type for Describing JSON Documents",
+    "publisher": "JSON Schema"
+  },
+  "spotlighting": {
+    "href": "https://arxiv.org/abs/2403.14720",
+    "title": "Defending Against Indirect Prompt Injection Attacks With Spotlighting",
+    "publisher": "arXiv"
+  },
+  "sockpuppetting": {
+    "href": "https://arxiv.org/abs/2601.13359",
+    "title": "Sockpuppetting: Jailbreaking LLMs by Combining Prefilling with Optimization",
+    "publisher": "arXiv"
+  }
+}
+</pre>
