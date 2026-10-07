@@ -90,7 +90,6 @@ table td, table th { border-left: solid; border-right: solid; border-bottom: sol
 
 <pre class="link-defaults">
 spec:html; type:dfn;
-  text:form-associated element
   text:browsing context group set
   text:unique internal value
 spec: webidl; type: dfn;
@@ -168,24 +167,16 @@ A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]
   : <dfn>input schema</dfn>
   :: a [=string=].
 
-     Note: For tools registered by the imperative form of this API (i.e.,
-     {{ModelContext/registerTool()}}), this is the stringified representation of
-     {{ModelContextTool/inputSchema}}. For tools registered
-     [declaratively](https://github.com/webmachinelearning/webmcp/blob/main/declarative-api-explainer.md), this will be a
-     stringified JSON Schema object created by the
-     [=synthesize a declarative JSON Schema object algorithm=].
-     [[!JSON-SCHEMA]]
+     Note: This is the stringified representation of the {{ModelContextTool/inputSchema}} passed to
+     {{ModelContext/registerTool()}}. [[!JSON-SCHEMA]]
 
   : <dfn>execute steps</dfn>
   :: an algorithm that takes a {{Document}} <var ignore>targetDocument</var>, a [=string=] <var
      ignore>inputArguments</var>, an algorithm <var ignore>completionSteps</var> that takes a
      [=string=]-or-null and a [=boolean=], and a [=unique internal value=] <var ignore>uuid</var>.
 
-     Note: For tools registered imperatively, these steps will simply invoke the [=imperative
-     execute steps=]. For tools registered
-     [declaratively](https://github.com/webmachinelearning/webmcp/blob/main/declarative-api-explainer.md), this will be a set of
-     "internal" steps that have not been defined yet, that describe how to fill out a <{form}> and
-     its [=form-associated elements=].
+     Note: These steps [=invoke the execute callback=] of the {{ModelContextTool}} passed to
+     {{ModelContext/registerTool()}}.
 
   : <dfn>annotations</dfn>
   :: an [=annotations=]-or-null.
@@ -461,15 +452,12 @@ and a [=boolean=] <var ignore>success</var>.
 1. Run |tool|'s [=tool definition/execute steps=] given |targetDocument|, |inputArguments|,
    |completionSteps|, and |uuid|.
 
-   Note: This is the point where we branch into either the [=imperative execute steps=] or the
-   [=declarative execute steps=].
-
 </div>
 
 <div algorithm>
-The <dfn>imperative execute steps</dfn>, given a {{ModelContextTool}} |tool|, a {{Document}}
+To <dfn>invoke the execute callback</dfn>, given a {{ModelContextTool}} |tool|, a {{Document}}
 |targetDocument|, a [=string=] |inputArguments|, an algorithm |completionSteps|, and a [=unique
-internal value=] |uuid|, are as follows:
+internal value=] |uuid|, run the following steps:
 
 1. [=Assert=]: these steps are running on |targetDocument|'s [=relevant agent=]'s [=agent/event
    loop=].
@@ -769,9 +757,9 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
 
    : [=tool definition/execute steps=]
    :: An algorithm that takes a {{Document}} |targetDocument|, a [=string=] |inputArguments|, an
-      algorithm |completionSteps|, and a [=unique internal value=] |uuid|, and runs the [=imperative
-      execute steps=] given |tool|, |targetDocument|, |inputArguments|, |completionSteps|, and
-      |uuid|.
+      algorithm |completionSteps|, and a [=unique internal value=] |uuid|, and [=invoke the execute
+      callback|invokes the execute callback=] given |tool|, |targetDocument|, |inputArguments|,
+      |completionSteps|, and |uuid|.
 
    : [=tool definition/annotations=]
    :: null if |tool|'s {{ModelContextTool/annotations}} does not [=map/exist=]. Otherwise, an
@@ -1281,19 +1269,6 @@ dictionary RegisteredTool {
 </dl>
 
 
-<h3 id="declarative-api">Declarative WebMCP</h3>
-
-This section is entirely a TODO. For now, refer to the [Declarative API explainer](https://github.com/webmachinelearning/webmcp/blob/main/declarative-api-explainer.md).
-
-<div algorithm>
-The <dfn>synthesize a declarative JSON Schema object algorithm</dfn>, given a <{form}> element
-|form|, runs the following steps. They return a [=map=] representing a JSON Schema object.
-[[!JSON-SCHEMA]]
-
-1. TODO: Derive a conformant JSON Schema object from |form| and its [=form-associated elements=].
-
-</div>
-
 <pre class="biblio">
 {
   "mcp": {
@@ -1318,13 +1293,6 @@ The <dfn>synthesize a declarative JSON Schema object algorithm</dfn>, given a <{
   }
 }
 </pre>
-
-<div algorithm>
-The <dfn>declarative execute steps</dfn> are as follows:
-
-Issue: Spec the declarative execution steps, and their integration with form elements.
-
-</div>
 
 <h3 id="events">Events</h3>
 
