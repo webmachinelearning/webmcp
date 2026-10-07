@@ -613,7 +613,7 @@ The {{ModelContext}} interface provides methods for web applications to register
 interface ModelContext : EventTarget {
   Promise<undefined> registerTool(ModelContextTool tool, optional ModelContextRegisterToolOptions options = {});
   Promise<sequence<RegisteredTool>> getTools(optional ModelContextGetToolOptions options = {});
-  Promise<DOMString> executeTool(RegisteredTool tool, optional object inputObject, optional ModelContextExecuteToolOptions options = {});
+  Promise<DOMString?> executeTool(RegisteredTool tool, optional object inputObject, optional ModelContextExecuteToolOptions options = {});
 
   attribute EventHandler ontoolchange;
   attribute EventHandler ontoolactivated;
@@ -645,7 +645,7 @@ is a [=model context=] [=struct=] created alongside the {{ModelContext}}.
   <dt><code><var ignore>document</var>.{{Document/modelContext}}.{{ModelContext/executeTool(tool, inputObject, options)}}</code></dt>
   <dd>
     <p>Executes a tool on the document it was registered on. Returns a promise that resolves to the
-    stringified result of the tool's execution.</p>
+    stringified result of the tool's execution, or null if the execution navigated the document.</p>
 
     <p><var ignore>tool</var> is a {{RegisteredTool}}, often retrieved by
     {{ModelContext/getTools()}}. Callers pass a JavaScript object in as the
