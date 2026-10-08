@@ -895,9 +895,8 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
 
             : {{RegisteredTool/inputSchema}}
             :: the result of [=parse a JSON string to a JavaScript value=] given |tool
-               definition|'s [=tool definition/input schema=] and [=this=]'s [=relevant realm=], if
-               |tool definition|'s [=tool definition/input schema=] is not the empty string;
-               otherwise undefined.
+               definition|'s [=tool definition/input schema=], if |tool definition|'s
+               [=tool definition/input schema=] is not the empty string; otherwise undefined.
 
                Note: This will never throw an exception, because the string stored in the tool
                definition is always a valid JSON string.
@@ -1499,8 +1498,8 @@ steps:
         map=]'s [=map/values=], which are [=tool definitions=].
 
         Note: Although these steps run on the [=AI agent queue=] [=in parallel=] with each
-        {{Document}}'s [=relevant agent=]'s [=agent/event loop=], implementations synchronize access
-        to registered [=tool definitions=] via inter-process communication or locking so that
+        {{Document}}'s [=relevant agent=]'s [=agent/event loop=], implementations synchronize
+        access to each [=model context/tool map=] via inter-process communication or locking so that
         partial updates are never observed.
 
      1. Let |observedToolCollection| be a new [=observed tool collection=] with the following [=struct/items=]:
