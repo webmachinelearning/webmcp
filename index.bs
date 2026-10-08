@@ -107,6 +107,30 @@ spec: ECMASCRIPT; urlPrefix: https://tc39.es/ecma262/
   type: dfn
     text: is an object; url: sec-object-type
 </pre>
+<pre class="biblio">
+{
+  "mcp": {
+    "href": "https://modelcontextprotocol.io/specification/latest",
+    "title": "Model Context Protocol (MCP) Specification",
+    "publisher": "The Linux Foundation"
+  },
+  "json-schema": {
+    "href": "https://json-schema.org/draft/2020-12/json-schema-core.html",
+    "title": "JSON Schema: A Media Type for Describing JSON Documents",
+    "publisher": "JSON Schema"
+  },
+  "spotlighting": {
+    "href": "https://arxiv.org/abs/2403.14720",
+    "title": "Defending Against Indirect Prompt Injection Attacks With Spotlighting",
+    "publisher": "arXiv"
+  },
+  "sockpuppetting": {
+    "href": "https://arxiv.org/abs/2601.13359",
+    "title": "Sockpuppetting: Jailbreaking LLMs by Combining Prefilling with Optimization",
+    "publisher": "arXiv"
+  }
+}
+</pre>
 
 <h2 id="intro">Introduction</h2>
 
@@ -1927,28 +1951,3 @@ for the initial explainer, proposals, discussions, and other contributions that 
 Also many thanks to Alex Nahas and Jason McGhee for sharing early implementation experience.
 
 Finally, thanks to the participants of the Web Machine Learning Community Group for feedback and suggestions.
-
-<pre class="biblio">
-{
-  "mcp": {
-    "href": "https://modelcontextprotocol.io/specification/latest",
-    "title": "Model Context Protocol (MCP) Specification",
-    "publisher": "The Linux Foundation"
-  },
-  "json-schema": {
-    "href": "https://json-schema.org/draft/2020-12/json-schema-core.html",
-    "title": "JSON Schema: A Media Type for Describing JSON Documents",
-    "publisher": "JSON Schema"
-  },
-  "spotlighting": {
-    "href": "https://arxiv.org/abs/2403.14720",
-    "title": "Defending Against Indirect Prompt Injection Attacks With Spotlighting",
-    "publisher": "arXiv"
-  },
-  "sockpuppetting": {
-    "href": "https://arxiv.org/abs/2601.13359",
-    "title": "Sockpuppetting: Jailbreaking LLMs by Combining Prefilling with Optimization",
-    "publisher": "arXiv"
-  }
-}
-</pre>
