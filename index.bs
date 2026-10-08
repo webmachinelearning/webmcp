@@ -457,7 +457,7 @@ and a [=boolean=] <var ignore>success</var>.
 <div algorithm>
 To <dfn>invoke the execute callback</dfn>, given a {{ModelContextTool}} |tool|, a {{Document}}
 |targetDocument|, a [=string=] |inputArguments|, an algorithm |completionSteps|, and a [=unique
-internal value=] |uuid|, run the following steps:
+internal value=] |uuid|, run these steps:
 
 1. [=Assert=]: these steps are running on |targetDocument|'s [=relevant agent=]'s [=agent/event
    loop=].
@@ -757,9 +757,8 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
 
    : [=tool definition/execute steps=]
    :: An algorithm that takes a {{Document}} |targetDocument|, a [=string=] |inputArguments|, an
-      algorithm |completionSteps|, and a [=unique internal value=] |uuid|, and [=invoke the execute
-      callback|invokes the execute callback=] given |tool|, |targetDocument|, |inputArguments|,
-      |completionSteps|, and |uuid|.
+      algorithm |completionSteps|, and a [=unique internal value=] |uuid|, and [=invokes the execute
+      callback=] given |tool|, |targetDocument|, |inputArguments|, |completionSteps|, and |uuid|.
 
    : [=tool definition/annotations=]
    :: null if |tool|'s {{ModelContextTool/annotations}} does not [=map/exist=]. Otherwise, an
