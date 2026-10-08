@@ -249,7 +249,7 @@ exception name</dfn>.
  execution error/corresponding exception name=].</p>
 
  <p>Also note that this table only tracks the list of <em>platform-defined</em>
- failures. Tool execution failures defined by tool authors may also be reported
+ failures. Tool execution failures defined by tool authors can also be reported
  to the tool caller in the response JSON string.</p>
  </div>
 
