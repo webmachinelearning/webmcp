@@ -463,9 +463,8 @@ internal value=] |uuid|, run these steps:
    loop=].
 
 1. Let |inputObject| be the result of [=parse a JSON string to a JavaScript value=] given
-   |inputArguments| and |targetDocument|'s [=relevant realm=]. If <a lt="an exception was
-   thrown">exception was thrown</a>, then run |completionSteps| given null and false, and abort
-   these steps.
+   |inputArguments|. If <a lt="an exception was thrown">exception was thrown</a>, then run
+   |completionSteps| given null and false, and abort these steps.
 
    Issue: Support more granular errors; here we should return something that prompts the caller to
    reject its {{Promise}} with a "{{DataError}}" {{DOMException}}.
