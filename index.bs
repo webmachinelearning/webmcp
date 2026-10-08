@@ -257,10 +257,10 @@ exception name</dfn>.
  types that <em>do</em> get exposed to the caller; the caller only ever observes the [=tool
  execution error/corresponding exception name=].</p>
 
- <p>Also note that this table only tracks the list of <em>platform-defined</em> failures. Tool
- execution failures defined in <em>userland</em> by web developers that write tools can come in any
- shape or format in the response JSON string.</p>
-</div>
+ <p>Also note that this table only tracks the list of <em>platform-defined</em>
+ failures. Tool execution failures defined by tool authors may also be reported
+ to the tool caller in the response JSON string.</p>
+ </div>
 
 <h3 id="pending-tool-executions">Pending tool executions</h3>
 
