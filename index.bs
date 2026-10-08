@@ -1289,6 +1289,29 @@ dictionary RegisteredTool {
     "href": "https://arxiv.org/abs/2601.13359",
     "title": "Sockpuppetting: Jailbreaking LLMs by Combining Prefilling with Optimization",
     "publisher": "arXiv"
+  },
+  "agenticweb-wg": {
+    "href": "https://w3c.github.io/charter-drafts/2026/agenticweb-wg.html",
+    "title": "Agentic Web Working Group Charter",
+    "publisher": "W3C"
+  },
+  "chrome-agent-security": {
+    "href": "https://developer.chrome.com/docs/agents/security",
+    "title": "Agent security considerations for WebMCP",
+    "authors": [
+      "Julia Pagnucco",
+      "Alexandra Klepper"
+    ],
+    "publisher": "Google Chrome Developers"
+  },
+  "chrome-secure-tools": {
+    "href": "https://developer.chrome.com/docs/ai/webmcp/secure-tools",
+    "title": "Secure tools with WebMCP",
+    "authors": [
+      "Julia Pagnucco",
+      "Alexandra Klepper"
+    ],
+    "publisher": "Google Chrome Developers"
   }
 }
 </pre>
@@ -1528,6 +1551,8 @@ This section assumes [=agents=] operate with certain baseline capabilities that 
 </ul>
 
 These capabilities enable powerful user experiences but also create new risks that must be addressed through a combination of protocol design, agent implementation, and user controls.
+
+Many of the risks associated with these baseline capabilities—such as indirect prompt injection from untrusted web content, cross-origin data correlation, and unauthorized actions within an authenticated session—apply broadly to any [=agent=] operating on the web on a user's behalf, regardless of whether a site exposes WebMCP tools. While WebMCP provides protocol-level boundaries and semantic hints ({{ToolAnnotations/readOnlyHint}}, {{ToolAnnotations/consequentialHint}}, {{ToolAnnotations/untrustedContentHint}}), a malicious site can omit or misrepresent those hints. Preventing an [=agent=] from being manipulated by an untrusted site or inappropriately disclosing cross-origin data is primarily the responsibility of the [=agent=]'s own security model rather than something a single web API specification can normatively enforce. Broader standardization and guidance around [=agent=] permissions, delegation, and web interactions are being explored in the proposed [Agentic Web Working Group](https://w3c.github.io/charter-drafts/2026/agenticweb-wg.html) [[AGENTICWEB-WG]].
 
 <h3 id="key-risks">Key Security and Privacy Risks</h3>
 
@@ -1895,6 +1920,14 @@ page, protecting against malicious scripts or dependencies from using WebMCP API
 **Threats addressed:** [[#misrepresentation-of-intent]]
 
 **How:** A boolean {{ToolAnnotations/consequentialHint}} annotation acts as a signal to the client or agent that the tool performs a consequential action, such as booking a flight or transferring money. This way they can selectively enforce mandatory user confirmation prompts before executing high-stakes tools, directly mitigating the risk of accidental or malicious misrepresentation of intent.
+
+<h4 id="mitigation-agent-level-guardrails">Agent-Level Guardrails and Best Practices</h4>
+
+**What:** Deterministic and probabilistic guardrails enforced by the [=agent=] or [=user agent=] harness when consuming WebMCP tools.
+
+**Threats addressed:** [[#prompt-injection]], [[#misrepresentation-of-intent]], [[#privacy-leakage-over-parameterization]]
+
+**How:** Because websites registering WebMCP tools may themselves be untrusted or compromised, [=agents=] cannot rely solely on site-asserted tool descriptions or annotations for security. Defining the architecture of a secure browser-use [=agent=] is outside the scope of this specification; however, [=agent=] implementers are strongly encouraged to implement defense-in-depth guardrails. For external implementation guidance on securing [=agents=] and tools that use WebMCP, see [[CHROME-AGENT-SECURITY]] and [[CHROME-SECURE-TOOLS]]. Broader cross-ecosystem discussions on expressing policies, constraints, and guidance for [=agent=] interactions on the web are also underway in the proposed [Agentic Web Working Group](https://w3c.github.io/charter-drafts/2026/agenticweb-wg.html) [[AGENTICWEB-WG]].
 
 <h2 id="accessibility">Accessibility considerations</h2>
 
