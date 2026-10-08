@@ -173,7 +173,8 @@ A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]
   : <dfn>execute steps</dfn>
   :: an algorithm that takes a {{Document}} <var ignore>targetDocument</var>, a [=string=] <var
      ignore>inputArguments</var>, an algorithm <var ignore>completionSteps</var> that takes a
-     [=string=]-or-null and a [=boolean=], and a [=unique internal value=] <var ignore>uuid</var>.
+     [=string=]-or-null and a [=tool execution error=]-or-null, and a [=unique internal value=]
+     <var ignore>uuid</var>.
 
      Note: These steps [=invoke the execute callback=] of the {{ModelContextTool}} passed to
      {{ModelContext/registerTool()}}.
@@ -208,6 +209,50 @@ An <dfn>annotations</dfn> is a [=struct=] with the following [=struct/items=]:
   :: a [=boolean=], initially false.
 </dl>
 
+A <dfn>tool execution error</dfn> represents the reason that a tool execution failed. It is one of
+the values in the following table, each of which has a <dfn for="tool execution error">corresponding
+exception name</dfn>.
+
+<table dfn-for="tool execution error">
+  <thead>
+    <tr>
+      <th>Value
+      <th>Description
+      <th>[=tool execution error/Corresponding exception name=]
+  <tbody>
+    <tr>
+      <td><dfn>tool not found</dfn>
+      <td>The tool being executed is not registered in the target {{Document}}.
+      <td>"{{NotFoundError}}"
+    <tr>
+      <td><dfn>invalid input</dfn>
+      <td>The input arguments could not be parsed into a JavaScript Object.
+      <td>"{{DataError}}"
+    <tr>
+      <td><dfn>tool rejected</dfn>
+      <td>The tool's {{ModelContextTool/execute}} callback returned a rejected {{Promise}}.
+      <td>"{{OperationError}}"
+    <tr>
+      <td><dfn>unserializable result</dfn>
+      <td>The tool's result could not be serialized to a JSON string.
+      <td>"{{OperationError}}"
+    <tr>
+      <td><dfn>target document unloaded</dfn>
+      <td>The target {{Document}} was unloaded before the execution completed.
+      <td>"{{AbortError}}"
+</table>
+
+<div class="note">
+ <p>[=Tool execution errors=] are not exposed to the web. They exist as a spec concept to give tool
+ execution algorithms a realm-agnostic set of failure reasons that correspond to {{DOMException}}
+ types that <em>do</em> get exposed to the caller; the caller only ever observes the [=tool
+ execution error/corresponding exception name=].</p>
+
+ <p>Also note that this table only tracks the list of <em>platform-defined</em>
+ failures. Tool execution failures defined by tool authors can also be reported
+ to the tool caller in the response JSON string.</p>
+ </div>
+
 <h3 id="pending-tool-executions">Pending tool executions</h3>
 
 A <dfn>pending tool execution</dfn> is a [=struct=] with the following [=struct/items=]:
@@ -223,7 +268,7 @@ A <dfn>pending tool execution</dfn> is a [=struct=] with the following [=struct/
   :: a [=string=].
 
   : <dfn>completion steps</dfn>
-  :: an algorithm that takes a [=string=]-or-null and a [=boolean=].
+  :: an algorithm that takes a [=string=]-or-null and a [=tool execution error=]-or-null.
 </dl>
 
 A [=traversable navigable=] has a <dfn for="traversable navigable">pending tool executions
@@ -312,7 +357,7 @@ follows:
       1. <p id=target-destroyed-cleanup>If |document| is |execution|'s [=pending tool
          execution/target document=] and is not |execution|'s [=pending tool execution/caller
          document=], then run |execution|'s [=pending tool execution/completion steps=] given null
-         and false.</p>
+         and [=tool execution error/target document unloaded=].</p>
 
          Note: This removes |execution| from the [=traversable navigable/pending tool executions
          map=].
@@ -400,7 +445,7 @@ a [=list=] of [=origins=] |exposed origins|, and an [=origin=] |accessing origin
 The <dfn>tool execute steps</dfn>, given a [=string=] |toolName|, a {{Document}} |targetDocument|, a
 [=string=] |inputArguments|, an algorithm |completionSteps|, and a [=unique internal value=] |uuid|,
 are as follows. The |completionSteps| algorithm takes a [=string=]-or-null <var ignore>result</var>
-and a [=boolean=] <var ignore>success</var>.
+and a [=tool execution error=]-or-null <var ignore>error</var>.
 
 1. [=Assert=]: these steps are running on |targetDocument|'s [=relevant agent=]'s [=agent/event
    loop=].
@@ -408,11 +453,8 @@ and a [=boolean=] <var ignore>success</var>.
 1. Let |toolMap| be |targetDocument|'s [=Document/associated ModelContext|associated
    <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/tool map=].
 
-1. If |toolMap|[|toolName|] does not [=map/exist=], then run |completionSteps| given null and false,
-   and abort these steps.
-
-   Issue: Support the plumbing of more granular errors back to the invoker; this should result in a
-   "{{NotFoundError}}" in the calling document.
+1. If |toolMap|[|toolName|] does not [=map/exist=], then run |completionSteps| given null and
+   [=tool execution error/tool not found=], and abort these steps.
 
    <div class=note>
     <p>This protects us against a race between tool unregistration and execution. While tool
@@ -464,13 +506,10 @@ internal value=] |uuid|, run these steps:
 
 1. Let |inputObject| be the result of [=parse a JSON string to a JavaScript value=] given
    |inputArguments|. If <a lt="an exception was thrown">exception was thrown</a>, then run
-   |completionSteps| given null and false, and abort these steps.
-
-   Issue: Support more granular errors; here we should return something that prompts the caller to
-   reject its {{Promise}} with a "{{DataError}}" {{DOMException}}.
+   |completionSteps| given null and [=tool execution error/invalid input=], and abort these steps.
 
 1. If |inputObject| [=Object type|is not an Object=], then run |completionSteps| given null
-   and false, and abort these steps.
+   and [=tool execution error/invalid input=], and abort these steps.
 
 1. [=Fire an event=] named {{ModelContext/toolactivated}} at |targetDocument|'s [=Document/associated
    ModelContext|associated <code>ModelContext</code>=], using {{ToolActivatedEvent}}, with its
@@ -513,9 +552,9 @@ internal value=] |uuid|, run these steps:
 
        1. Let |serializedResult| be the result of [=serializing a JavaScript value to a JSON
           string=] given |v|. If this throws an exception, run |completionSteps| given null and
-          false, and abort these steps.
+          [=tool execution error/unserializable result=], and abort these steps.
 
-       1. Run |completionSteps| given |serializedResult| and true.
+       1. Run |completionSteps| given |serializedResult| and null.
 
    - If |toolPromise| was rejected with reason |r|, then:
 
@@ -529,7 +568,7 @@ internal value=] |uuid|, run these steps:
 
        1. [=map/Remove=] |localExecutions|[|uuid|].
 
-       1. Run |completionSteps| given null and false.
+       1. Run |completionSteps| given null and [=tool execution error/tool rejected=].
 
 </div>
 
@@ -968,13 +1007,11 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</
    1. If |targetDocument|'s [=node navigable=]'s [=navigable/traversable navigable=] is not
       |callerDocument|'s [=node navigable=]'s [=navigable/traversable navigable=], then [=queue a
       global task=] on the [=webmcp task source=] given |callerDocument|'s [=relevant global
-      object=] to [=reject=] |promise| with an "{{UnknownError}}" {{DOMException}}, and abort these
-      steps.
+      object=] to [=reject=] |promise| with an "{{InvalidStateError}}" {{DOMException}}, and abort
+      these steps.
 
       Issue(#227): Consider supporting tool execution across top-level documents in the same
       [=browsing context group=].
-
-      Issue: Support more granular errors than "{{UnknownError}}", based on each failure case.
 
    1. Let |targetOrigin| be |targetDocument|'s [=Document/origin=].
 
@@ -982,9 +1019,7 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</
 
    1. If |targetOrigin| is not [=same origin=] with |expectedTargetOrigin|, then [=queue a global
       task=] on the [=webmcp task source=] given |callerDocument|'s [=relevant global object=] to
-      [=reject=] |promise| with an "{{UnknownError}}" {{DOMException}}, and abort these steps.
-
-      Issue: Support more granular errors than "{{UnknownError}}", based on each failure case.
+      [=reject=] |promise| with a "{{NotFoundError}}" {{DOMException}}, and abort these steps.
 
    1. Let |targetToolMap| be |targetDocument|'s [=Document/associated ModelContext|associated
       <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/tool map=].
@@ -993,21 +1028,25 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</
 
    1. If |targetToolMap|[|toolName|] does not [=map/exist=], then [=queue a global task=] on the
       [=webmcp task source=] given |callerDocument|'s [=relevant global object=] to [=reject=]
-      |promise| with an "{{UnknownError}}" {{DOMException}}, and abort these steps.
-
-      Issue: Support more granular errors than "{{UnknownError}}", based on each failure case.
+      |promise| with a "{{NotFoundError}}" {{DOMException}}, and abort these steps.
 
    1. Let |tool definition| be |targetToolMap|[|toolName|].
 
    1. If [=tool is exposed to an origin=] given |targetOrigin|, |tool definition|'s [=tool
       definition/exposed origins=], and |callerOrigin| returns false, then [=queue a global task=]
       on the [=webmcp task source=] given |callerDocument|'s [=relevant global object=] to
-      [=reject=] |promise| with an "{{UnknownError}}" {{DOMException}}, and abort these steps.
+      [=reject=] |promise| with a "{{NotFoundError}}" {{DOMException}}, and abort these steps.
 
-      Issue: Support more granular errors than "{{UnknownError}}", based on each failure case.
+      Note: Rejecting with "{{NotFoundError}}" across all three checks above—when |targetOrigin| does
+      not match |expectedTargetOrigin|, when |toolName| does not exist, and when |tool definition|
+      is not exposed to |callerOrigin|—prevents a cross-origin caller from using fabricated
+      {{RegisteredTool}} dictionaries to probe |targetDocument|'s current origin or enumerate
+      private tools not exposed to |callerOrigin|.
 
    1. Let |completionSteps| be an algorithm that takes a [=string=]-or-null |result| and a
-      [=boolean=] |success|, and runs the following steps [=in parallel=]:
+      [=tool execution error=]-or-null |error|, and runs the following steps [=in parallel=]:
+
+      1. [=Assert=]: exactly one of |result| and |error| is null.
 
       1. If |targetDocument|'s [=node navigable=]'s [=navigable/traversable navigable=]'s
          [=traversable navigable/pending tool executions map=][|uuid|] does not [=map/exist=],
@@ -1026,12 +1065,16 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</
       1. [=map/Remove=] |targetDocument|'s [=node navigable=]'s [=navigable/traversable
          navigable=]'s [=traversable navigable/pending tool executions map=][|uuid|].
 
-      1. If |success| is true, then [=queue a global task=] on the [=webmcp task source=] given
+      1. If |error| is null, then [=queue a global task=] on the [=webmcp task source=] given
          |callerDocument|'s [=relevant global object=] to [=resolve=] |promise| with |result|.
 
       1. Otherwise, [=queue a global task=] on the [=webmcp task source=] given |callerDocument|'s
-         [=relevant global object=] to [=reject=] |promise| with an "{{UnknownError}}"
-         {{DOMException}}.
+         [=relevant global object=] to [=reject=] |promise| with a {{DOMException}} whose name is
+         |error|'s [=tool execution error/corresponding exception name=].
+
+         Note: Passing only a [=tool execution error=] (rather than any internal JavaScript
+         exception object or message thrown in |targetDocument|) prevents leaking provider
+         implementation details or stack traces across origins.
 
    1. Let |execution| be a new [=pending tool execution=], with the following [=struct/items=]:
 
