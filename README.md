@@ -1,6 +1,6 @@
 # WebMCP 🧪
 
-WebMCP lets developers expose web application functionality—either JavaScript functions or HTML `<form>` elements—as "tools" with natural language descriptions and structured schemas, designed for AI agent ingestion. These tools can be invoked by AI agents, including those built into the browser, hosted in iframes, or running in extensions to actuate web content that was traditionally designed for human interaction.
+WebMCP lets developers expose web application functionality as "tools"—JavaScript functions with natural language descriptions and structured schemas, designed for AI agent ingestion. These tools can be invoked by AI agents, including those built into the browser, hosted in iframes, or running in extensions to actuate web content that was traditionally designed for human interaction. A [declarative API](#future-exploration-declarative-api) based on HTML `<form>` elements is also being explored.
 
 TypeScript type definitions for WebMCP are available in the [`webmcp-types`](https://www.npmjs.com/package/webmcp-types) npm package.
 
@@ -312,15 +312,13 @@ Tools can be unregistered at any time by aborting the signal. For applications w
 4. **Execution**: The browser mediates the call, invokes the tool's `execute` callback with the provided arguments, and executes client-side logic on the page.
 5. **Response**: The page's callback returns structured results back to the agent, which processes them to continue collaborating with the user.
 
-### Declarative API
+### Future Exploration: Declarative API
 
-For forms and standard HTML inputs, a declarative counterpart to the imperative API allows the browser to automatically synthesize tool definitions from `<form>` elements. This is detailed in the [Declarative API Explainer](./declarative-api-explainer.md). It will be soon folded into this explainer document.
+WebMCP is currently focused on the imperative `document.modelContext.registerTool()` API described above, which is what the specification defines.
 
-We've gotten the following question a few times:
+A declarative counterpart, which would let the browser synthesize tool definitions from HTML `<form>` elements, is being explored separately. Early ideas are captured in the [Declarative API Explainer](./declarative-api-explainer.md), but it is not part of the specification at this time.
 
-> why isn't declarative WebMCP sufficient on its own—why must there be an imperative counterpart? 
-
-The reason WebMCP is not limited to only declarative form tools is for the same reason that websites cannot be built exclusively out of declarative forms. Some of the web's functionality is only possible with JavaScript, and for WebMCP to represent the web's full functionality to agents, it must be able to expose that JavaScript functionality through imperative tools, not just declarative ones.
+Even if a declarative API is added, it would complement rather than replace the imperative API. Websites cannot be built exclusively out of declarative forms: some of the web's functionality is only possible with JavaScript, and for WebMCP to represent the web's full functionality to agents, it must be able to expose that JavaScript functionality through imperative tools.
 
 ### Permissions policy and iframes
 
@@ -332,7 +330,7 @@ By default, WebMCP is enabled in top-level `Window`s and its same-origin iframes
   <iframe src="https://chat-bot-provider.example/" allow="tools"></iframe>
   ```
 
-Calls to `document.modelContext.registerTool()` will return a promise rejected with `NotAllowedError` DOMException when the permission is disabled, whether by the `allow` attribute or the `Permissions-Policy: tools=()` header. Handling of declarative tool registration errors, including when the permission is disabled is TBD; see [Issue #182](https://github.com/webmachinelearning/webmcp/issues/182).
+Calls to `document.modelContext.registerTool()` will return a promise rejected with `NotAllowedError` DOMException when the permission is disabled, whether by the `allow` attribute or the `Permissions-Policy: tools=()` header.
 
 #### Cross-origin iframe exposure: `registerTool()` and `exposedTo`
 
@@ -433,7 +431,7 @@ Designing tools for AI agents requires different considerations than building tr
 
 - **Mind the tool budget and context window**: While the WebMCP specification does not define an arbitrary architectural limit on how many tools a page can register, AI models have finite context windows. Every registered tool (its name, description, and input schema) consumes tokens in the model prompt, adds to inference latency, and increases the potential for tool confusion or hallucination. Exposing too many tools (e.g., dozens or hundreds) can severely degrade agent performance or lead agent browsers to drop tools or fail to process them.
 - **Single responsibility**: Each tool should represent a single, well-defined function. Avoid registering overlapping or redundant tools that perform similar actions, as this confuses the agent during tool selection.
-- **Manage tool registration dynamically**: Rather than registering a large catalog of tools upfront, dynamically register tools relevant to the active page state or workflow, and unregister them when no longer applicable by aborting the `AbortSignal` passed to `registerTool()` (or removing form attributes in the declarative API).
+- **Manage tool registration dynamically**: Rather than registering a large catalog of tools upfront, dynamically register tools relevant to the active page state or workflow, and unregister them when no longer applicable by aborting the `AbortSignal` passed to `registerTool()`.
 - **Default to static registration for simple apps**: For simpler web applications with a handful of tools, static registration on page load is recommended. Dynamic lifecycle management is most valuable for complex, multi-state applications.
 - **Trust the agent**: Frame tool descriptions around what the tool accomplishes and what inputs it requires, rather than trying to enforce rigid step-by-step procedural chains through prompt text.
 
