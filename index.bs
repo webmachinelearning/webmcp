@@ -165,16 +165,14 @@ A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]
   :: a [=string=].
 
   : <dfn>input schema</dfn>
-  :: a [=string=].
-
-     Note: This is the stringified representation of the {{ModelContextTool/inputSchema}} passed to
-     {{ModelContext/registerTool()}}. [[!JSON-SCHEMA]]
+  :: a [=string=] that is either the empty string, indicating that no input schema was provided, or
+     a JSON string representing a JSON Schema object [[!JSON-SCHEMA]], as returned by the
+     [=serialize a tool schema=] algorithm.
 
   : <dfn>output schema</dfn>
-  :: a [=string=].
-
-     Note: This is the stringified representation of the {{ModelContextTool/outputSchema}} passed to
-     {{ModelContext/registerTool()}}. [[!JSON-SCHEMA]]
+  :: a [=string=] that is either the empty string, indicating that no output schema was provided,
+     or a JSON string representing a JSON Schema object [[!JSON-SCHEMA]], as returned by the
+     [=serialize a tool schema=] algorithm.
 
   : <dfn>execute steps</dfn>
   :: an algorithm that takes a {{Document}} <var ignore>targetDocument</var>, a [=string=] <var
@@ -609,12 +607,11 @@ To <dfn for="model context">unregister a tool</dfn> given a {{ModelContext}} |mo
 </div>
 
 <div algorithm>
-To <dfn>serialize a tool schema</dfn> given a {{ModelContextTool}} |tool|'s
-{{ModelContextTool/inputSchema}} or {{ModelContextTool/outputSchema}} |schema|:
+To <dfn>serialize a tool schema</dfn> given an {{object}}-or-undefined |schema|:
 
-1. If |tool|'s |schema| does not [=map/exist=], then return the empty string.
+1. If |schema| is undefined, then return the empty string.
 
-1. Return the result of [=serializing a JavaScript value to a JSON string=] given |tool|'s |schema|.
+1. Return the result of [=serializing a JavaScript value to a JSON string=] given |schema|.
 
 <div class="note">
   <p>The [=serialize a JavaScript value to a JSON string=] algorithm throws exceptions in the
@@ -627,7 +624,7 @@ To <dfn>serialize a tool schema</dfn> given a {{ModelContextTool}} |tool|'s
     "<code>outputSchema: { toJSON() {return undefined;}}</code>".</p></li>
 
     <li><p><i>Re-throws exceptions</i> thrown by "<code>JSON.stringify()</code>", e.g., when
-    |tool|'s |schema| is an object with a circular reference, etc.</p></li>
+    |schema| is an object with a circular reference, etc.</p></li>
   </ol>
 </div>
 
@@ -756,13 +753,13 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
 1. If |tool|'s {{ModelContextTool/description}} is the empty string, then return [=a promise
    rejected with=] an {{InvalidStateError}} {{DOMException}}.
 
-1. Let |stringified input schema| be the result of [=serializing a tool schema=]
-   given |tool|'s {{ModelContextTool/inputSchema}}. If this threw an exception, then return [=a
-   promise rejected with=] that exception.
+1. Let |stringified input schema| be the result of [=serializing a tool schema=] given |tool|'s
+   {{ModelContextTool/inputSchema}} if it [=map/exists=], and undefined otherwise. If this threw an
+   exception, then return [=a promise rejected with=] that exception.
 
-1. Let |stringified output schema| be the result of [=serializing a tool schema=]
-   given |tool|'s {{ModelContextTool/outputSchema}}. If this threw an exception, then return [=a
-   promise rejected with=] that exception.
+1. Let |stringified output schema| be the result of [=serializing a tool schema=] given |tool|'s
+   {{ModelContextTool/outputSchema}} if it [=map/exists=], and undefined otherwise. If this threw an
+   exception, then return [=a promise rejected with=] that exception.
 
 1. If |options|'s {{ModelContextRegisterToolOptions/signal}} [=map/exists=] and is
    [=AbortSignal/aborted=], then return [=a promise rejected with=] |options|'s
@@ -1193,9 +1190,9 @@ callback ToolExecuteCallback = Promise<any> (object inputObject, ToolExecuteCall
 
   <dt><code><var ignore>tool</var>["{{ModelContextTool/outputSchema}}"]</code></dt>
   <dd>
-    <p>A JSON Schema object describing the expected output structure for the tool [[!JSON-SCHEMA]],
-    so that [=agents=] may use it to insert an [=implementation-defined=] message to guide the
-    language model’s behavior.
+    <p>A JSON Schema object describing the expected output structure for the tool [[!JSON-SCHEMA]].
+    Tool output is expected to conform to the provided schema, and [=agents=] may reject outputs
+    that do not validate.
   </dd>
 
   <dt><code><var ignore>tool</var>["{{ModelContextTool/execute}}"]</code></dt>
@@ -1333,9 +1330,9 @@ dictionary RegisteredTool {
      {{ModelContextTool/inputSchema}}.
 
   : <code><var ignore>tool</var>["{{RegisteredTool/outputSchema}}"]</code>
-  :: A JSON Schema object describing the expected output structure for the tool [[!JSON-SCHEMA]], so
-     that [=agents=] may use it to insert an [=implementation-defined=] message to guide the
-     language model’s behavior. It is a deep copy of the schema provided at tool registration, via
+  :: A JSON Schema object describing the expected output structure for the tool [[!JSON-SCHEMA]].
+     Tool output is expected to conform to the provided schema, and [=agents=] may reject outputs
+     that do not validate. It is a deep copy of the schema provided at tool registration, via
      {{ModelContextTool/outputSchema}}.
 
   : <code><var ignore>tool</var>["{{RegisteredTool/window}}"]</code>
