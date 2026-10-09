@@ -1938,6 +1938,20 @@ page, protecting against malicious scripts or dependencies from using WebMCP API
 
 **How:** A boolean {{ToolAnnotations/consequentialHint}} annotation acts as a signal to the client or agent that the tool performs a consequential action, such as booking a flight or transferring money. This way they can selectively enforce mandatory user confirmation prompts before executing high-stakes tools, directly mitigating the risk of accidental or malicious misrepresentation of intent.
 
+<h4 id="mitigation-page-enforced-write-boundaries">Page-Enforced Write Boundaries</h4>
+
+**What:** Have the page enforce the user's intended scope for tools that write application state.
+
+**Threats addressed:** [[#prompt-injection]] and other cases where an [=agent=] calls a write tool outside the task the user delegated, or overwrites changes made while the task was in progress.
+
+**How:** Site authors can check the target and current state in each write tool's implementation before applying a change. For example, a page can let the user select which documents an [=agent=] may edit, reject writes to other documents, and require the version of each document that the [=agent=] read to still be current. The scope and version checks need to happen when the write is applied, including after any in-page confirmation, so that a pending call cannot use an earlier approval after the target or policy changes. A rejected write should leave application state unchanged and return a result that lets the caller identify the failed precondition and recover. WebMCP does not currently define a standard shape for such a refusal; see [Issue #282](https://github.com/webmachinelearning/webmcp/issues/282).
+
+For actions that are unavailable in the current page state, a site can also omit their tools from the registered set. This is a coarse boundary: it cannot express permission for individual targets or revisions. A tool that remains available can explain which actions are unavailable and how the user can enable them, since disappearing tools alone can leave an [=agent=] without that context; see [Issue #262](https://github.com/webmachinelearning/webmcp/issues/262).
+
+For long-running or multi-step writes, sites can provide a page control to stop further changes and report which changes already took effect. A caller receiving an abort or error cannot assume that no changes were applied. Site authors should reconcile completed effects before retrying the operation; see [Issue #299](https://github.com/webmachinelearning/webmcp/issues/299).
+
+These checks constrain calls through the site's tools. They do not prevent an [=agent=] that can also automate the page from using the ordinary UI to perform the same write or to activate an in-page approval control; see [Issue #288](https://github.com/webmachinelearning/webmcp/issues/288). Sites should not treat synthetic-versus-physical input checks as proof of user authorization: such checks can impede assistive technology and do not establish who authorized an action. Server-side authorization and concurrency controls remain necessary for writes that reach a server.
+
 <h2 id="accessibility">Accessibility considerations</h2>
 
 
