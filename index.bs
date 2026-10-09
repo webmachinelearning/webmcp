@@ -794,8 +794,7 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
 
    1. Let |signal| be |options|'s {{ModelContextRegisterToolOptions/signal}}.
 
-   1. If |signal| is [=AbortSignal/aborted=], then return [=a promise rejected with=]
-      |signal|'s [=AbortSignal/abort reason=].
+   1. [=Assert=]: |signal| is not [=AbortSignal/aborted=].
 
    1. [=AbortSignal/add|Add the following abort steps=] to |signal|:
 
@@ -886,7 +885,7 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
 
 1. Run the following steps [=in parallel=]:
 
-   1. Let |tools| be an empty [=list=] of {{RegisteredTool}} dictionaries.
+   1. Let |discoveredTools| be an empty [=list=].
 
    1. Let |navigables| be |toolRequestor|'s [=node navigable=]'s [=navigable/traversable
       navigable=]'s [=navigable/active document=]'s [=Document/inclusive descendant navigables=].
@@ -917,6 +916,17 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
             definition/exposed origins=], and |callerOrigin| returns false, then
             [=iteration/continue=].
 
+         1. [=list/Append=] (|tool definition|, |targetDocument|, |targetOrigin|) to
+            |discoveredTools|.
+
+   1. [=Queue a global task=] on the [=webmcp task source=] given |global| to run the following
+      steps:
+
+      1. Let |tools| be an empty [=list=] of {{RegisteredTool}} dictionaries.
+
+      1. [=list/For each=] (|tool definition|, |targetDocument|, |targetOrigin|) of
+         |discoveredTools|:
+
          1. Let |registeredTool| be a new {{RegisteredTool}} dictionary, with the following fields:
 
             : {{RegisteredTool/name}}
@@ -934,8 +944,8 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
 
             : {{RegisteredTool/inputSchema}}
             :: the result of [=parse a JSON string to a JavaScript value=] given |tool
-               definition|'s [=tool definition/input schema=], if |tool definition|'s [=tool
-               definition/input schema=] is not the empty string; otherwise undefined.
+               definition|'s [=tool definition/input schema=], if |tool definition|'s
+               [=tool definition/input schema=] is not the empty string; otherwise undefined.
 
                Note: This will never throw an exception, because the string stored in the tool
                definition is always a valid JSON string.
@@ -959,11 +969,10 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
 
          1. [=list/Append=] |registeredTool| to |tools|.
 
-   1. [=list/Sort in ascending order=] |tools|, with |a| being less than |b| if
-      |a|["{{RegisteredTool/name}}"] is [=code unit less than=] |b|["{{RegisteredTool/name}}"].
+      1. [=list/Sort in ascending order=] |tools|, with |a| being less than |b| if
+         |a|["{{RegisteredTool/name}}"] is [=code unit less than=] |b|["{{RegisteredTool/name}}"].
 
-   1. [=Queue a global task=] on the [=webmcp task source=] given |global| to [=resolve=] |promise|
-      with |tools|.
+      1. [=Resolve=] |promise| with |tools|.
 
 1. Return |promise|.
 
@@ -1007,6 +1016,9 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</
 
 1. Let |targetDocument| be |targetWindow|'s [=associated Document|associated
    <code>Document</code>=].
+
+1. If |targetDocument|'s [=node navigable=] is null, then return [=a promise rejected with=] an
+   "{{InvalidStateError}}" {{DOMException}}.
 
 1. Let |uuid| be a new [=unique internal value=].
 
@@ -1484,11 +1496,19 @@ steps:
 
      1. Let |document| be |descendant|'s [=navigable/active document=].
 
+     1. If |document| is not [=allowed to use=] the "{{tools}}" feature, then
+        [=iteration/continue=].
+
      1. Let |id| be |document|'s [=Document/unique ID=].
 
      1. Let |tools| be |document|'s [=Document/associated ModelContext|associated
         <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/tool
         map=]'s [=map/values=], which are [=tool definitions=].
+
+        Note: Although these steps run on the [=AI agent queue=] [=in parallel=] with each
+        {{Document}}'s [=relevant agent=]'s [=agent/event loop=], implementations synchronize
+        access to each [=model context/tool map=] via inter-process communication or locking so that
+        partial updates are never observed.
 
      1. Let |observedToolCollection| be a new [=observed tool collection=] with the following [=struct/items=]:
 
