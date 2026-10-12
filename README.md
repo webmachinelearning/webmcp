@@ -362,7 +362,7 @@ const tools = await document.modelContext.getTools();
 for (const tool of tools) {
   console.log(`Tool: ${tool.name} (from ${tool.origin})`);
   console.log(`Description: ${tool.description}`);
-  console.log(`Parameters schema:`, tool.inputSchema);
+  console.log(`Input schema:`, tool.inputSchema);
   console.log(`Output schema:`, tool.outputSchema);
 }
 
