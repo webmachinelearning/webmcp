@@ -613,9 +613,9 @@ To <dfn>serialize a tool schema</dfn> given an {{object}}-or-undefined |schema|:
 
 1. Return the result of [=serializing a JavaScript value to a JSON string=] given |schema|.
 
-<div class="note">
-  <p>The [=serialize a JavaScript value to a JSON string=] algorithm throws exceptions in the
-  following cases:</p>
+<div class="note" role="note"><span class="marker">Note:</span>
+  <span>The [=serialize a JavaScript value to a JSON string=] algorithm throws exceptions in the
+  following cases:</span>
 
   <ol>
     <li><p><i>Throws a new {{TypeError}}</i> when the backing "<code>JSON.stringify()</code>"
