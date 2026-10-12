@@ -754,12 +754,14 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
    rejected with=] an {{InvalidStateError}} {{DOMException}}.
 
 1. Let |stringified input schema| be the result of [=serializing a tool schema=] given |tool|'s
-   {{ModelContextTool/inputSchema}} if it [=map/exists=], and undefined otherwise. If this threw an
-   exception, then return [=a promise rejected with=] that exception.
+   {{ModelContextTool/inputSchema}} if it [=map/exists=], and undefined otherwise. If
+   [=serializing a tool schema=] threw an exception, then return [=a promise rejected with=] that
+   exception.
 
 1. Let |stringified output schema| be the result of [=serializing a tool schema=] given |tool|'s
-   {{ModelContextTool/outputSchema}} if it [=map/exists=], and undefined otherwise. If this threw an
-   exception, then return [=a promise rejected with=] that exception.
+   {{ModelContextTool/outputSchema}} if it [=map/exists=], and undefined otherwise. If
+   [=serializing a tool schema=] threw an exception, then return [=a promise rejected with=] that
+   exception.
 
 1. If |options|'s {{ModelContextRegisterToolOptions/signal}} [=map/exists=] and is
    [=AbortSignal/aborted=], then return [=a promise rejected with=] |options|'s
