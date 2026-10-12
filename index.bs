@@ -624,7 +624,7 @@ To <dfn>serialize a tool schema</dfn> given an {{object}}-or-undefined |schema|:
     "<code>outputSchema: { toJSON() {return undefined;}}</code>".</p></li>
 
     <li><p><i>Re-throws exceptions</i> thrown by "<code>JSON.stringify()</code>", e.g., when
-    |schema| is an object with a circular reference, etc.</p></li>
+    the <i>object</i> value has a circular reference.</p></li>
   </ol>
 </div>
 
