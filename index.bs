@@ -916,16 +916,14 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
             definition/exposed origins=], and |callerOrigin| returns false, then
             [=iteration/continue=].
 
-         1. [=list/Append=] (|tool definition|, |targetDocument|, |targetOrigin|) to
-            |discoveredTools|.
+         1. [=list/Append=] (|tool definition|, |targetDocument|) to |discoveredTools|.
 
    1. [=Queue a global task=] on the [=webmcp task source=] given |global| to run the following
       steps:
 
       1. Let |tools| be an empty [=list=] of {{RegisteredTool}} dictionaries.
 
-      1. [=list/For each=] (|tool definition|, |targetDocument|, |targetOrigin|) of
-         |discoveredTools|:
+      1. [=list/For each=] (|tool definition|, |targetDocument|) of |discoveredTools|:
 
          1. Let |registeredTool| be a new {{RegisteredTool}} dictionary, with the following fields:
 
@@ -954,7 +952,7 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
             :: |targetDocument|'s [=relevant global object=]
 
             : {{RegisteredTool/origin}}
-            :: |targetOrigin|, [=serialization of an origin|serialized=].
+            :: [=serialization of an origin|serialized=] |targetDocument|'s [=Document/origin=].
 
             : {{RegisteredTool/annotations}}
             :: if |tool definition|'s [=tool definition/annotations=] is not null, a
@@ -1495,9 +1493,6 @@ steps:
 1. [=list/For each=] [=navigable=] |descendant| of |flat descendants|:
 
      1. Let |document| be |descendant|'s [=navigable/active document=].
-
-     1. If |document| is not [=allowed to use=] the "{{tools}}" feature, then
-        [=iteration/continue=].
 
      1. Let |id| be |document|'s [=Document/unique ID=].
 
