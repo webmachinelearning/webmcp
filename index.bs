@@ -621,6 +621,13 @@ To <dfn for="model context">unregister a tool</dfn> given a {{ModelContext}} |mo
 1. Let |targetDocument| be |modelContext|'s [=relevant global object=]'s [=associated
    Document|associated <code>Document</code>=].
 
+1. If |targetDocument| is not [=Document/fully active=], then return.
+
+   Note: This can happen if a tool's {{ModelContextRegisterToolOptions/signal}} is aborted after
+   |targetDocument| has been removed from its [=navigable=], for example because its
+   <{iframe}> was removed. In that case, |targetDocument| has no [=node navigable=] from which to
+   find other documents to notify.
+
 1. [=In parallel=], [=notify documents of a tool change=] given |targetDocument| and |exposed
    origins|.
 
@@ -769,6 +776,13 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
        "<code>inputSchema</code>" is an object with a circular reference, etc.</p></li>
      </ol>
    </div>
+
+1. If |tool owner| is not [=Document/fully active=], then return [=a promise rejected with=] an
+   "{{InvalidStateError}}" {{DOMException}}.
+
+   Note: |tool owner| was already checked for being [=Document/fully active=] above, but serializing
+   |tool|'s {{ModelContextTool/inputSchema}} can run script (e.g., a `toJSON()` method) that makes
+   |tool owner| no longer [=Document/fully active=], for example by removing its <{iframe}>.
 
 1. If |options|'s {{ModelContextRegisterToolOptions/signal}} [=map/exists=] and is
    [=AbortSignal/aborted=], then return [=a promise rejected with=] |options|'s
