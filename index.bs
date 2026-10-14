@@ -777,6 +777,13 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
      </ol>
    </div>
 
+1. If |tool owner| is not [=Document/fully active=], then return [=a promise rejected with=] an
+   "{{InvalidStateError}}" {{DOMException}}.
+
+   Note: |tool owner| was already checked for being [=Document/fully active=] above, but serializing
+   |tool|'s {{ModelContextTool/inputSchema}} can run script (e.g., a `toJSON()` method) that makes
+   |tool owner| no longer [=Document/fully active=], for example by removing its <{iframe}>.
+
 1. If |options|'s {{ModelContextRegisterToolOptions/signal}} [=map/exists=] and is
    [=AbortSignal/aborted=], then return [=a promise rejected with=] |options|'s
    {{ModelContextRegisterToolOptions/signal}}'s [=AbortSignal/abort reason=].
