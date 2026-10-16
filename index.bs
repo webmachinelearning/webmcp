@@ -156,10 +156,6 @@ A <dfn>model context</dfn> is a [=struct=] with the following [=struct/items=]:
   :: a [=map=] whose [=map/keys=] are [=unique internal values=] and whose [=map/values=] are [=tool
      definition=] [=structs=].
 
-     Note: Each [=map/key=] identifies a specific registration of a tool. Unlike the tool's [=tool
-     definition/name=], it is never reused when a tool is unregistered and another tool is
-     registered under the same name.
-
   : <dfn>local pending tool executions map</dfn>
   :: a [=map=] whose [=map/keys=] are [=unique internal values=] and whose [=map/values=] are
      [=local pending tool execution=] [=structs=]. It is initially empty.
@@ -175,6 +171,12 @@ A <dfn>model context</dfn> is a [=struct=] with the following [=struct/items=]:
 A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]:
 
 <dl dfn-for="tool definition">
+  : <dfn>tool id</dfn>
+  :: a [=unique internal value=].
+
+     Note: This identifies a specific registration of a tool. Unlike the tool's [=tool
+     definition/name=], it is not reused when a same-named tool is re-registered later.
+
   : <dfn>name</dfn>
   :: a [=string=] uniquely identifying a tool registered within a [=model context=]'s [=model
      context/tool map=].
@@ -841,6 +843,9 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
 
 1. Let |tool definition| be a new [=tool definition=], with the following [=struct/items=]:
 
+   : [=tool definition/tool id=]
+   :: |tool id|
+
    : [=tool definition/name=]
    :: |tool name|
 
@@ -947,23 +952,26 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
          <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/tool
          map=].
 
-      1. [=map/For each=] |tool id| → |tool definition| of |targetToolMap|:
+      1. [=list/For each=] |tool definition| of |targetToolMap|'s [=map/values=]:
 
          1. If [=tool is exposed to an origin=] given |targetOrigin|, |tool definition|'s [=tool
             definition/exposed origins=], and |callerOrigin| returns false, then
             [=iteration/continue=].
 
-         1. [=list/Append=] (|tool id|, |tool definition|, |targetDocument|) to |discoveredTools|.
+         1. [=list/Append=] (|tool definition|, |targetDocument|) to |discoveredTools|.
 
    1. [=Queue a global task=] on the [=webmcp task source=] given |global| to run the following
       steps:
 
       1. Let |tools| be an empty [=list=] of {{Tool}} objects.
 
-      1. [=list/For each=] (|tool id|, |tool definition|, |targetDocument|) of |discoveredTools|:
+      1. [=list/For each=] (|tool definition|, |targetDocument|) of |discoveredTools|:
 
          1. Let |newTool| be a [=new=] {{Tool}} object created in [=this=]'s [=relevant realm=],
             whose members are set as follows:
+
+            : [=Tool/tool id=]
+            :: |tool definition|'s [=tool definition/tool id=]
 
             : [=Tool/name=]
             :: |tool definition|'s [=tool definition/name=]
@@ -1002,9 +1010,6 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
 
             : [=Tool/origin=]
             :: |targetDocument|'s [=Document/origin=]
-
-            : [=Tool/tool id=]
-            :: |tool id|
 
          1. [=list/Append=] |newTool| to |tools|.
 
@@ -1357,6 +1362,13 @@ interface Tool {
 Each {{Tool}} object has the following associated members:
 
 <dl dfn-for="Tool">
+  : <dfn>tool id</dfn>
+  :: a [=unique internal value=].
+
+     Note: This is the [=tool definition/tool id=] of the [=tool definition=] that this {{Tool}}
+     represents. It is not exposed to script; {{ModelContext/executeTool()}} uses it to execute
+     exactly the tool that {{ModelContext/getTools()}} returned.
+
   : <dfn>name</dfn>
   :: a [=string=].
 
@@ -1380,15 +1392,6 @@ Each {{Tool}} object has the following associated members:
 
   : <dfn>origin</dfn>
   :: an [=origin=].
-
-  : <dfn>tool id</dfn>
-  :: a [=unique internal value=] identifying the registered tool that this {{Tool}} represents, in
-     its [=Tool/window=]'s [=associated Document|associated <code>Document</code>=]'s
-     [=Document/associated ModelContext|associated <code>ModelContext</code>=]'s [=ModelContext/internal
-     context=]'s [=model context/tool map=].
-
-     Note: This is not exposed to script. {{ModelContext/executeTool()}} uses it to execute exactly
-     the tool that {{ModelContext/getTools()}} returned.
 </dl>
 
 <div algorithm>
