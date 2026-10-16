@@ -1339,8 +1339,9 @@ dictionary ModelContextExecuteToolOptions {
 
 <h4 id="tool-interface">Tool Interface</h4>
 
-The {{Tool}} interface represents a tool that has been registered and is available for execution,
-as returned by {{ModelContext/getTools()}}. A {{Tool}} is a snapshot of the tool at the time
+The {{Tool}} interface represents a tool that has been registered and exposed to a document for
+execution. It is obtained by {{ModelContext/getTools()}}, and executed with
+{{ModelContext/executeTool()}}. A {{Tool}} is a snapshot of the tool at the time
 {{ModelContext/getTools()}} discovered it, and identifies that specific registration of the tool.
 
 <xmp class="idl">
