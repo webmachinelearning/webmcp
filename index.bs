@@ -1040,8 +1040,7 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</
 1. If |expectedTargetOrigin| is an [=opaque origin=], then return [=a promise rejected with=] a
    "{{NotSupportedError}}" {{DOMException}}.
 
-   Note: Documents with an [=opaque origin=] can register tools, for example to expose them to the
-   [=browser agent=], but those tools cannot be executed with this method.
+   Issue(#349): Allow the execution of tools registered by documents with an [=opaque origin=].
 
 1. If |inputObject| was not given, then set |inputObject| to
    [$OrdinaryObjectCreate$]({{%Object.prototype%}}).
