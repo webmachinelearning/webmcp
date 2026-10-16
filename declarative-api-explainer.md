@@ -172,7 +172,7 @@ interface SubmitEvent : Event {
 };
 ```
 
-**`toolactivated` and `toolcanceled` events**
+**`toolactivated` and `toolcancel` events**
 
 We introduce these events that get fired at the `ModelContext` object when a WebMCP tool is run, and when
 its invocation is canceled.
@@ -183,7 +183,7 @@ form to the user's attention, once a declarative tool is filled out but before i
 JavaScript equivalent of the [`:tool-form-active` pseudo-class](#pseudo-classes).
 
 When the agent cancels a tool call (perhaps because a user has instigated another turn of the
-conversation, obviating the need for the pending tool), the `toolcanceled` event is fired. Note that
+conversation, obviating the need for the pending tool), the `toolcancel` event is fired. Note that
 this event does not fire when the site itself cancels the tool, due to removing the form element or
 changing its name or description.
 
@@ -195,7 +195,7 @@ Some open questions:
 > that](https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/core/script_tools/model_context.cc;l=265-274;drc=2af6413cf36d701fdaffb09188f2ab2a5be37f4f).
 
 > [!WARNING]
-> For declarative, should they be fired at `Window` or at the `<form>` that registered the tool in
+> For declarative, should they be fired at `ModelContext` or at the `<form>` that registered the tool in
 > the first place, and bubble up to the document that way? See
 > https://github.com/webmachinelearning/webmcp/issues/126.
 
