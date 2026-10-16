@@ -618,8 +618,8 @@ To <dfn for="model context">unregister a tool</dfn> given a {{ModelContext}} |mo
 
    Note: These steps only run as the abort steps of the {{ModelContextRegisterToolOptions/signal}}
    passed to the {{ModelContext/registerTool()}} call that registered the tool identified by
-   |tool id|. Since {{AbortSignal}} only abort at most once, and nothing else removes entries from
-   |tool map|, we can guarantee that the tool we're targeting is still registered.
+   |tool id|. Since {{AbortSignal}}s only abort at most once, and nothing else removes tools from
+   the |tool map|, we can guarantee that the tool we're targeting is still registered.
 
 1. Let |exposed origins| be |tool map|[|tool id|]'s [=tool definition/exposed origins=].
 
@@ -1001,7 +1001,7 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
 
             : [=Tool/annotations=]
             :: null if |tool definition|'s [=tool definition/annotations=] is null. Otherwise, the
-               result of [=converted to a JavaScript value|converting=] to a JavaScript value a
+               result of [=converted to a JavaScript value|converting to a JavaScript value=] a
                {{ToolAnnotations}} dictionary whose {{ToolAnnotations/readOnlyHint}} is |tool
                definition|'s [=tool definition/annotations=]'s [=annotations/read-only hint=],
                {{ToolAnnotations/untrustedContentHint}} is |tool definition|'s [=tool
