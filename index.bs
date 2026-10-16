@@ -1380,7 +1380,7 @@ Each {{Tool}} object has the following associated members:
   :: a [=string=].
 
   : <dfn>input schema</dfn>
-  :: an {{object}} or null.
+  :: an {{object}}-or-null.
 
   : <dfn>window</dfn>
   :: a {{Window}}.
@@ -1389,10 +1389,7 @@ Each {{Tool}} object has the following associated members:
   :: an [=origin=].
 
   : <dfn>annotations</dfn>
-  :: an {{object}} or null.
-
-     Note: This is an {{object}} rather than a {{ToolAnnotations}} dictionary, because Web IDL
-     attributes cannot have dictionary types.
+  :: an {{object}}-or-null.
 </dl>
 
 <div algorithm>
