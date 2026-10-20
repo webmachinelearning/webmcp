@@ -9,6 +9,7 @@ URL: https://webmachinelearning.github.io/webmcp
 Editor: Brandon Walderman, Microsoft https://www.microsoft.com, brwalder@microsoft.com, w3cid 115877
 Editor: Khushal Sagar, Google https://www.google.com, khushalsagar@google.com, w3cid 122787
 Editor: Dominic Farolino, Google https://www.google.com, domfarolino@google.com, w3cid 102763
+Editor: Samuel Dallstream, Microsoft https://www.microsoft.com, sadallst@microsoft.com, w3cid 121507
 Abstract: The WebMCP API enables web applications to provide JavaScript-based tools to AI agents.
 Markup Shorthands: markdown yes, css no
 Complain About: accidental-2119 yes, missing-example-ids yes
@@ -90,7 +91,6 @@ table td, table th { border-left: solid; border-right: solid; border-bottom: sol
 
 <pre class="link-defaults">
 spec:html; type:dfn;
-  text:form-associated element
   text:browsing context group set
   text:unique internal value
 spec: webidl; type: dfn;
@@ -107,10 +107,57 @@ spec: ECMASCRIPT; urlPrefix: https://tc39.es/ecma262/
   type: dfn
     text: is an object; url: sec-object-type
 </pre>
+<pre class="biblio">
+{
+  "mcp": {
+    "href": "https://modelcontextprotocol.io/specification/latest",
+    "title": "Model Context Protocol (MCP) Specification",
+    "publisher": "The Linux Foundation"
+  },
+  "json-schema": {
+    "href": "https://json-schema.org/draft/2020-12/json-schema-core.html",
+    "title": "JSON Schema: A Media Type for Describing JSON Documents",
+    "publisher": "JSON Schema"
+  },
+  "spotlighting": {
+    "href": "https://arxiv.org/abs/2403.14720",
+    "title": "Defending Against Indirect Prompt Injection Attacks With Spotlighting",
+    "publisher": "arXiv"
+  },
+  "sockpuppetting": {
+    "href": "https://arxiv.org/abs/2601.13359",
+    "title": "Sockpuppetting: Jailbreaking LLMs by Combining Prefilling with Optimization",
+    "publisher": "arXiv"
+  },
+  "agenticweb-wg": {
+    "href": "https://w3c.github.io/charter-drafts/2026/agenticweb-wg.html",
+    "title": "Agentic Web Working Group Charter",
+    "publisher": "W3C"
+  },
+  "chrome-agent-security": {
+    "href": "https://developer.chrome.com/docs/agents/security",
+    "title": "Agent security considerations for WebMCP",
+    "authors": [
+      "Julia Pagnucco",
+      "Alexandra Klepper"
+    ],
+    "publisher": "Google Chrome Developers"
+  },
+  "chrome-secure-tools": {
+    "href": "https://developer.chrome.com/docs/ai/webmcp/secure-tools",
+    "title": "Secure tools with WebMCP",
+    "authors": [
+      "Julia Pagnucco",
+      "Alexandra Klepper"
+    ],
+    "publisher": "Google Chrome Developers"
+  }
+}
+</pre>
 
 <h2 id="intro">Introduction</h2>
 
-WebMCP API is a new JavaScript interface that allows web developers to expose their web application functionality as “tools” - JavaScript functions with natural language descriptions and structured schemas that can be invoked by [=agents=], [=browser's agents=], and [=assistive technologies=]. Web pages that use WebMCP can be thought of as Model Context Protocol [[MCP]] servers that implement tools in client-side script instead of on the backend. WebMCP enables collaborative workflows where users and agents work together within the same web interface, leveraging existing application logic while maintaining shared context and user control.
+WebMCP API is a new JavaScript interface that allows web developers to expose their web application functionality as “tools” - JavaScript functions with natural language descriptions and structured schemas that can be invoked by [=agents=], [=browser's agents=], and assistive technologies. Web pages that use WebMCP can be thought of as Model Context Protocol [[MCP]] servers that implement tools in client-side script instead of on the backend. WebMCP enables collaborative workflows where users and agents work together within the same web interface, leveraging existing application logic while maintaining shared context and user control.
 
 <h2 id="terminology">Terminology</h2>
 
@@ -120,7 +167,7 @@ TODO: Define any reusable high-level terms here that are not specific to algorit
 
 An <dfn>agent</dfn> is an autonomous assistant that can understand a user’s goals and take actions on the user’s behalf to achieve them. Today, these are typically implemented by large language model (LLM) based [=AI platforms=], interacting with users via text-based chat interfaces.
 
-A <dfn>browser’s agent</dfn> is an [=agent=] provided by or through the browser that could be built directly into the browser or hosted by it, for example, via an extension or plug-in.
+A <dfn lt="browser agent|browser's agent">browser agent</dfn> is an [=agent=] provided by or through the browser that could be built directly into the browser or hosted by it, for example, via an extension or plug-in.
 
 An <dfn>AI platform</dfn> is a provider of agentic assistants such as OpenAI’s ChatGPT, Anthropic’s Claude, or Google’s Gemini.
 
@@ -168,30 +215,23 @@ A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]
   : <dfn>input schema</dfn>
   :: a [=string=].
 
-     Note: For tools registered by the imperative form of this API (i.e.,
-     {{ModelContext/registerTool()}}), this is the stringified representation of
-     {{ModelContextTool/inputSchema}}. For tools registered
-     [declaratively](https://github.com/webmachinelearning/webmcp/blob/main/declarative-api-explainer.md), this will be a
-     stringified JSON Schema object created by the
-     [=synthesize a declarative JSON Schema object algorithm=].
-     [[!JSON-SCHEMA]]
+     Note: This is the stringified representation of the {{ModelContextTool/inputSchema}} passed to
+     {{ModelContext/registerTool()}}. [[!JSON-SCHEMA]]
 
   : <dfn>execute steps</dfn>
   :: an algorithm that takes a {{Document}} <var ignore>targetDocument</var>, a [=string=] <var
      ignore>inputArguments</var>, an algorithm <var ignore>completionSteps</var> that takes a
-     [=string=]-or-null and a [=boolean=], and a [=unique internal value=] <var ignore>uuid</var>.
+     [=string=]-or-null and a [=tool execution error=]-or-null, and a [=unique internal value=]
+     <var ignore>uuid</var>.
 
-     Note: For tools registered imperatively, these steps will simply invoke the [=imperative
-     execute steps=]. For tools registered
-     [declaratively](https://github.com/webmachinelearning/webmcp/blob/main/declarative-api-explainer.md), this will be a set of
-     "internal" steps that have not been defined yet, that describe how to fill out a <{form}> and
-     its [=form-associated elements=].
+     Note: These steps [=invoke the execute callback=] of the {{ModelContextTool}} passed to
+     {{ModelContext/registerTool()}}.
 
   : <dfn>annotations</dfn>
   :: an [=annotations=]-or-null.
 
   : <dfn>exposed origins</dfn>
-  :: a [=list=] or [=origins=], initially [=list/empty=].
+  :: a [=list=] of [=origins=], initially [=list/empty=].
 </dl>
 
 A <dfn>local pending tool execution</dfn> is a [=struct=] with the following [=struct/items=]:
@@ -217,6 +257,50 @@ An <dfn>annotations</dfn> is a [=struct=] with the following [=struct/items=]:
   :: a [=boolean=], initially false.
 </dl>
 
+A <dfn>tool execution error</dfn> represents the reason that a tool execution failed. It is one of
+the values in the following table, each of which has a <dfn for="tool execution error">corresponding
+exception name</dfn>.
+
+<table dfn-for="tool execution error">
+  <thead>
+    <tr>
+      <th>Value
+      <th>Description
+      <th>[=tool execution error/Corresponding exception name=]
+  <tbody>
+    <tr>
+      <td><dfn>tool not found</dfn>
+      <td>The tool being executed is not registered in the target {{Document}}.
+      <td>"{{NotFoundError}}"
+    <tr>
+      <td><dfn>invalid input</dfn>
+      <td>The input arguments could not be parsed into a JavaScript Object.
+      <td>"{{DataError}}"
+    <tr>
+      <td><dfn>tool rejected</dfn>
+      <td>The tool's {{ModelContextTool/execute}} callback returned a rejected {{Promise}}.
+      <td>"{{OperationError}}"
+    <tr>
+      <td><dfn>unserializable result</dfn>
+      <td>The tool's result could not be serialized to a JSON string.
+      <td>"{{OperationError}}"
+    <tr>
+      <td><dfn>target document unloaded</dfn>
+      <td>The target {{Document}} was unloaded before the execution completed.
+      <td>"{{AbortError}}"
+</table>
+
+<div class="note">
+ <p>[=Tool execution errors=] are not exposed to the web. They exist as a spec concept to give tool
+ execution algorithms a realm-agnostic set of failure reasons that correspond to {{DOMException}}
+ types that <em>do</em> get exposed to the caller; the caller only ever observes the [=tool
+ execution error/corresponding exception name=].</p>
+
+ <p>Also note that this table only tracks the list of <em>platform-defined</em>
+ failures. Tool execution failures defined by tool authors can also be reported
+ to the tool caller in the response JSON string.</p>
+ </div>
+
 <h3 id="pending-tool-executions">Pending tool executions</h3>
 
 A <dfn>pending tool execution</dfn> is a [=struct=] with the following [=struct/items=]:
@@ -232,7 +316,7 @@ A <dfn>pending tool execution</dfn> is a [=struct=] with the following [=struct/
   :: a [=string=].
 
   : <dfn>completion steps</dfn>
-  :: an algorithm that takes a [=string=]-or-null and a [=boolean=].
+  :: an algorithm that takes a [=string=]-or-null and a [=tool execution error=]-or-null.
 </dl>
 
 A [=traversable navigable=] has a <dfn for="traversable navigable">pending tool executions
@@ -321,7 +405,7 @@ follows:
       1. <p id=target-destroyed-cleanup>If |document| is |execution|'s [=pending tool
          execution/target document=] and is not |execution|'s [=pending tool execution/caller
          document=], then run |execution|'s [=pending tool execution/completion steps=] given null
-         and false.</p>
+         and [=tool execution error/target document unloaded=].</p>
 
          Note: This removes |execution| from the [=traversable navigable/pending tool executions
          map=].
@@ -409,7 +493,7 @@ a [=list=] of [=origins=] |exposed origins|, and an [=origin=] |accessing origin
 The <dfn>tool execute steps</dfn>, given a [=string=] |toolName|, a {{Document}} |targetDocument|, a
 [=string=] |inputArguments|, an algorithm |completionSteps|, and a [=unique internal value=] |uuid|,
 are as follows. The |completionSteps| algorithm takes a [=string=]-or-null <var ignore>result</var>
-and a [=boolean=] <var ignore>success</var>.
+and a [=tool execution error=]-or-null <var ignore>error</var>.
 
 1. [=Assert=]: these steps are running on |targetDocument|'s [=relevant agent=]'s [=agent/event
    loop=].
@@ -417,11 +501,8 @@ and a [=boolean=] <var ignore>success</var>.
 1. Let |toolMap| be |targetDocument|'s [=Document/associated ModelContext|associated
    <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/tool map=].
 
-1. If |toolMap|[|toolName|] does not [=map/exist=], then run |completionSteps| given null and false,
-   and abort these steps.
-
-   Issue: Support the plumbing of more granular errors back to the invoker; this should result in a
-   "{{NotFoundError}}" in the calling document.
+1. If |toolMap|[|toolName|] does not [=map/exist=], then run |completionSteps| given null and
+   [=tool execution error/tool not found=], and abort these steps.
 
    <div class=note>
     <p>This protects us against a race between tool unregistration and execution. While tool
@@ -461,29 +542,22 @@ and a [=boolean=] <var ignore>success</var>.
 1. Run |tool|'s [=tool definition/execute steps=] given |targetDocument|, |inputArguments|,
    |completionSteps|, and |uuid|.
 
-   Note: This is the point where we branch into either the [=imperative execute steps=] or the
-   [=declarative execute steps=].
-
 </div>
 
 <div algorithm>
-The <dfn>imperative execute steps</dfn>, given a {{ModelContextTool}} |tool|, a {{Document}}
+To <dfn>invoke the execute callback</dfn>, given a {{ModelContextTool}} |tool|, a {{Document}}
 |targetDocument|, a [=string=] |inputArguments|, an algorithm |completionSteps|, and a [=unique
-internal value=] |uuid|, are as follows:
+internal value=] |uuid|, run these steps:
 
 1. [=Assert=]: these steps are running on |targetDocument|'s [=relevant agent=]'s [=agent/event
    loop=].
 
 1. Let |inputObject| be the result of [=parse a JSON string to a JavaScript value=] given
-   |inputArguments| and |targetDocument|'s [=relevant realm=]. If <a lt="an exception was
-   thrown">exception was thrown</a>, then run |completionSteps| given null and false, and abort
-   these steps.
-
-   Issue: Support more granular errors; here we should return something that prompts the caller to
-   reject its {{Promise}} with a "{{DataError}}" {{DOMException}}.
+   |inputArguments|. If <a lt="an exception was thrown">exception was thrown</a>, then run
+   |completionSteps| given null and [=tool execution error/invalid input=], and abort these steps.
 
 1. If |inputObject| [=Object type|is not an Object=], then run |completionSteps| given null
-   and false, and abort these steps.
+   and [=tool execution error/invalid input=], and abort these steps.
 
 1. [=Fire an event=] named {{ModelContext/toolactivated}} at |targetDocument|'s [=Document/associated
    ModelContext|associated <code>ModelContext</code>=], using {{ToolActivatedEvent}}, with its
@@ -526,9 +600,9 @@ internal value=] |uuid|, are as follows:
 
        1. Let |serializedResult| be the result of [=serializing a JavaScript value to a JSON
           string=] given |v|. If this throws an exception, run |completionSteps| given null and
-          false, and abort these steps.
+          [=tool execution error/unserializable result=], and abort these steps.
 
-       1. Run |completionSteps| given |serializedResult| and true.
+       1. Run |completionSteps| given |serializedResult| and null.
 
    - If |toolPromise| was rejected with reason |r|, then:
 
@@ -542,7 +616,7 @@ internal value=] |uuid|, are as follows:
 
        1. [=map/Remove=] |localExecutions|[|uuid|].
 
-       1. Run |completionSteps| given null and false.
+       1. Run |completionSteps| given null and [=tool execution error/tool rejected=].
 
 </div>
 
@@ -570,6 +644,13 @@ To <dfn for="model context">unregister a tool</dfn> given a {{ModelContext}} |mo
 
 1. Let |targetDocument| be |modelContext|'s [=relevant global object=]'s [=associated
    Document|associated <code>Document</code>=].
+
+1. If |targetDocument| is not [=Document/fully active=], then return.
+
+   Note: This can happen if a tool's {{ModelContextRegisterToolOptions/signal}} is aborted after
+   |targetDocument| has been removed from its [=navigable=], for example because its
+   <{iframe}> was removed. In that case, |targetDocument| has no [=node navigable=] from which to
+   find other documents to notify.
 
 1. [=In parallel=], [=notify documents of a tool change=] given |targetDocument| and |exposed
    origins|.
@@ -720,6 +801,19 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
      </ol>
    </div>
 
+1. If |tool owner| is not [=Document/fully active=], then return [=a promise rejected with=] an
+   "{{InvalidStateError}}" {{DOMException}}.
+
+   Note: |tool owner| was already checked for being [=Document/fully active=] above, but serializing
+   |tool|'s {{ModelContextTool/inputSchema}} can run script (e.g., a `toJSON()` method) that makes
+   |tool owner| no longer [=Document/fully active=], for example by removing its <{iframe}>.
+
+1. If |tool map|[|tool name|] [=map/exists=], then return [=a promise rejected with=] an
+   {{InvalidStateError}} {{DOMException}}.
+
+   Note: Similarly, script run while serializing |tool|'s {{ModelContextTool/inputSchema}} can
+   register another tool named |tool name|.
+
 1. If |options|'s {{ModelContextRegisterToolOptions/signal}} [=map/exists=] and is
    [=AbortSignal/aborted=], then return [=a promise rejected with=] |options|'s
    {{ModelContextRegisterToolOptions/signal}}'s [=AbortSignal/abort reason=].
@@ -744,8 +838,7 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
 
    1. Let |signal| be |options|'s {{ModelContextRegisterToolOptions/signal}}.
 
-   1. If |signal| is [=AbortSignal/aborted=], then return [=a promise rejected with=]
-      |signal|'s [=AbortSignal/abort reason=].
+   1. [=Assert=]: |signal| is not [=AbortSignal/aborted=].
 
    1. [=AbortSignal/add|Add the following abort steps=] to |signal|:
 
@@ -769,9 +862,8 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
 
    : [=tool definition/execute steps=]
    :: An algorithm that takes a {{Document}} |targetDocument|, a [=string=] |inputArguments|, an
-      algorithm |completionSteps|, and a [=unique internal value=] |uuid|, and runs the [=imperative
-      execute steps=] given |tool|, |targetDocument|, |inputArguments|, |completionSteps|, and
-      |uuid|.
+      algorithm |completionSteps|, and a [=unique internal value=] |uuid|, and [=invokes the execute
+      callback=] given |tool|, |targetDocument|, |inputArguments|, |completionSteps|, and |uuid|.
 
    : [=tool definition/annotations=]
    :: null if |tool|'s {{ModelContextTool/annotations}} does not [=map/exist=]. Otherwise, an
@@ -802,7 +894,7 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
   1. [=Queue a global task=] on the [=webmcp task source=] given |global| to [=resolve=] |promise|
      with undefined.
 
-1. Return |promise|
+1. Return |promise|.
 
 </div>
 
@@ -837,7 +929,7 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
 
 1. Run the following steps [=in parallel=]:
 
-   1. Let |tools| be an empty [=list=] of {{RegisteredTool}} dictionaries.
+   1. Let |discoveredTools| be an empty [=list=].
 
    1. Let |navigables| be |toolRequestor|'s [=node navigable=]'s [=navigable/traversable
       navigable=]'s [=navigable/active document=]'s [=Document/inclusive descendant navigables=].
@@ -868,6 +960,15 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
             definition/exposed origins=], and |callerOrigin| returns false, then
             [=iteration/continue=].
 
+         1. [=list/Append=] (|tool definition|, |targetDocument|) to |discoveredTools|.
+
+   1. [=Queue a global task=] on the [=webmcp task source=] given |global| to run the following
+      steps:
+
+      1. Let |tools| be an empty [=list=] of {{RegisteredTool}} dictionaries.
+
+      1. [=list/For each=] (|tool definition|, |targetDocument|) of |discoveredTools|:
+
          1. Let |registeredTool| be a new {{RegisteredTool}} dictionary, with the following fields:
 
             : {{RegisteredTool/name}}
@@ -885,8 +986,8 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
 
             : {{RegisteredTool/inputSchema}}
             :: the result of [=parse a JSON string to a JavaScript value=] given |tool
-               definition|'s [=tool definition/input schema=], if |tool definition|'s [=tool
-               definition/input schema=] is not the empty string; otherwise undefined.
+               definition|'s [=tool definition/input schema=], if |tool definition|'s
+               [=tool definition/input schema=] is not the empty string; otherwise undefined.
 
                Note: This will never throw an exception, because the string stored in the tool
                definition is always a valid JSON string.
@@ -895,7 +996,7 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
             :: |targetDocument|'s [=relevant global object=]
 
             : {{RegisteredTool/origin}}
-            :: |targetOrigin|, [=serialization of an origin|serialized=].
+            :: [=serialization of an origin|serialized=] |targetDocument|'s [=Document/origin=].
 
             : {{RegisteredTool/annotations}}
             :: if |tool definition|'s [=tool definition/annotations=] is not null, a
@@ -910,11 +1011,10 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
 
          1. [=list/Append=] |registeredTool| to |tools|.
 
-   1. [=list/Sort in ascending order=] |tools|, with |a| being less than |b| if
-      |a|["{{RegisteredTool/name}}"] is [=code unit less than=] |b|["{{RegisteredTool/name}}"].
+      1. [=list/Sort in ascending order=] |tools|, with |a| being less than |b| if
+         |a|["{{RegisteredTool/name}}"] is [=code unit less than=] |b|["{{RegisteredTool/name}}"].
 
-   1. [=Queue a global task=] on the [=webmcp task source=] given |global| to [=resolve=] |promise|
-      with |tools|.
+      1. [=Resolve=] |promise| with |tools|.
 
 1. Return |promise|.
 
@@ -959,6 +1059,9 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</
 1. Let |targetDocument| be |targetWindow|'s [=associated Document|associated
    <code>Document</code>=].
 
+1. If |targetDocument|'s [=node navigable=] is null, then return [=a promise rejected with=] an
+   "{{InvalidStateError}}" {{DOMException}}.
+
 1. Let |uuid| be a new [=unique internal value=].
 
 1. If |options|'s {{ModelContextExecuteToolOptions/signal}} [=map/exists=], then:
@@ -982,13 +1085,11 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</
    1. If |targetDocument|'s [=node navigable=]'s [=navigable/traversable navigable=] is not
       |callerDocument|'s [=node navigable=]'s [=navigable/traversable navigable=], then [=queue a
       global task=] on the [=webmcp task source=] given |callerDocument|'s [=relevant global
-      object=] to [=reject=] |promise| with an "{{UnknownError}}" {{DOMException}}, and abort these
-      steps.
+      object=] to [=reject=] |promise| with an "{{InvalidStateError}}" {{DOMException}}, and abort
+      these steps.
 
       Issue(#227): Consider supporting tool execution across top-level documents in the same
       [=browsing context group=].
-
-      Issue: Support more granular errors than "{{UnknownError}}", based on each failure case.
 
    1. Let |targetOrigin| be |targetDocument|'s [=Document/origin=].
 
@@ -996,9 +1097,7 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</
 
    1. If |targetOrigin| is not [=same origin=] with |expectedTargetOrigin|, then [=queue a global
       task=] on the [=webmcp task source=] given |callerDocument|'s [=relevant global object=] to
-      [=reject=] |promise| with an "{{UnknownError}}" {{DOMException}}, and abort these steps.
-
-      Issue: Support more granular errors than "{{UnknownError}}", based on each failure case.
+      [=reject=] |promise| with a "{{NotFoundError}}" {{DOMException}}, and abort these steps.
 
    1. Let |targetToolMap| be |targetDocument|'s [=Document/associated ModelContext|associated
       <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/tool map=].
@@ -1007,21 +1106,25 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</
 
    1. If |targetToolMap|[|toolName|] does not [=map/exist=], then [=queue a global task=] on the
       [=webmcp task source=] given |callerDocument|'s [=relevant global object=] to [=reject=]
-      |promise| with an "{{UnknownError}}" {{DOMException}}, and abort these steps.
-
-      Issue: Support more granular errors than "{{UnknownError}}", based on each failure case.
+      |promise| with a "{{NotFoundError}}" {{DOMException}}, and abort these steps.
 
    1. Let |tool definition| be |targetToolMap|[|toolName|].
 
    1. If [=tool is exposed to an origin=] given |targetOrigin|, |tool definition|'s [=tool
       definition/exposed origins=], and |callerOrigin| returns false, then [=queue a global task=]
       on the [=webmcp task source=] given |callerDocument|'s [=relevant global object=] to
-      [=reject=] |promise| with an "{{UnknownError}}" {{DOMException}}, and abort these steps.
+      [=reject=] |promise| with a "{{NotFoundError}}" {{DOMException}}, and abort these steps.
 
-      Issue: Support more granular errors than "{{UnknownError}}", based on each failure case.
+      Note: Rejecting with "{{NotFoundError}}" across all three checks above—when |targetOrigin| does
+      not match |expectedTargetOrigin|, when |toolName| does not exist, and when |tool definition|
+      is not exposed to |callerOrigin|—prevents a cross-origin caller from using fabricated
+      {{RegisteredTool}} dictionaries to probe |targetDocument|'s current origin or enumerate
+      private tools not exposed to |callerOrigin|.
 
    1. Let |completionSteps| be an algorithm that takes a [=string=]-or-null |result| and a
-      [=boolean=] |success|, and runs the following steps [=in parallel=]:
+      [=tool execution error=]-or-null |error|, and runs the following steps [=in parallel=]:
+
+      1. [=Assert=]: exactly one of |result| and |error| is null.
 
       1. If |targetDocument|'s [=node navigable=]'s [=navigable/traversable navigable=]'s
          [=traversable navigable/pending tool executions map=][|uuid|] does not [=map/exist=],
@@ -1040,12 +1143,16 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</
       1. [=map/Remove=] |targetDocument|'s [=node navigable=]'s [=navigable/traversable
          navigable=]'s [=traversable navigable/pending tool executions map=][|uuid|].
 
-      1. If |success| is true, then [=queue a global task=] on the [=webmcp task source=] given
+      1. If |error| is null, then [=queue a global task=] on the [=webmcp task source=] given
          |callerDocument|'s [=relevant global object=] to [=resolve=] |promise| with |result|.
 
       1. Otherwise, [=queue a global task=] on the [=webmcp task source=] given |callerDocument|'s
-         [=relevant global object=] to [=reject=] |promise| with an "{{UnknownError}}"
-         {{DOMException}}.
+         [=relevant global object=] to [=reject=] |promise| with a {{DOMException}} whose name is
+         |error|'s [=tool execution error/corresponding exception name=].
+
+         Note: Passing only a [=tool execution error=] (rather than any internal JavaScript
+         exception object or message thrown in |targetDocument|) prevents leaking provider
+         implementation details or stack traces across origins.
 
    1. Let |execution| be a new [=pending tool execution=], with the following [=struct/items=]:
 
@@ -1281,74 +1388,6 @@ dictionary RegisteredTool {
 </dl>
 
 
-<h3 id="declarative-api">Declarative WebMCP</h3>
-
-This section is entirely a TODO. For now, refer to the [Declarative API explainer](https://github.com/webmachinelearning/webmcp/blob/main/declarative-api-explainer.md).
-
-<div algorithm>
-The <dfn>synthesize a declarative JSON Schema object algorithm</dfn>, given a <{form}> element
-|form|, runs the following steps. They return a [=map=] representing a JSON Schema object.
-[[!JSON-SCHEMA]]
-
-1. TODO: Derive a conformant JSON Schema object from |form| and its [=form-associated elements=].
-
-</div>
-
-<pre class="biblio">
-{
-  "mcp": {
-    "href": "https://modelcontextprotocol.io/specification/latest",
-    "title": "Model Context Protocol (MCP) Specification",
-    "publisher": "The Linux Foundation"
-  },
-  "json-schema": {
-    "href": "https://json-schema.org/draft/2020-12/json-schema-core.html",
-    "title": "JSON Schema: A Media Type for Describing JSON Documents",
-    "publisher": "JSON Schema"
-  },
-  "spotlighting": {
-    "href": "https://arxiv.org/abs/2403.14720",
-    "title": "Defending Against Indirect Prompt Injection Attacks With Spotlighting",
-    "publisher": "arXiv"
-  },
-  "sockpuppetting": {
-    "href": "https://arxiv.org/abs/2601.13359",
-    "title": "Sockpuppetting: Jailbreaking LLMs by Combining Prefilling with Optimization",
-    "publisher": "arXiv"
-  },
-  "agenticweb-wg": {
-    "href": "https://w3c.github.io/charter-drafts/2026/agenticweb-wg.html",
-    "title": "Agentic Web Working Group Charter",
-    "publisher": "W3C"
-  },
-  "chrome-agent-security": {
-    "href": "https://developer.chrome.com/docs/agents/security",
-    "title": "Agent security considerations for WebMCP",
-    "authors": [
-      "Julia Pagnucco",
-      "Alexandra Klepper"
-    ],
-    "publisher": "Google Chrome Developers"
-  },
-  "chrome-secure-tools": {
-    "href": "https://developer.chrome.com/docs/ai/webmcp/secure-tools",
-    "title": "Secure tools with WebMCP",
-    "authors": [
-      "Julia Pagnucco",
-      "Alexandra Klepper"
-    ],
-    "publisher": "Google Chrome Developers"
-  }
-}
-</pre>
-
-<div algorithm>
-The <dfn>declarative execute steps</dfn> are as follows:
-
-Issue: Spec the declarative execution steps, and their integration with form elements.
-
-</div>
-
 <h3 id="events">Events</h3>
 
 The following are the [=event handlers=] (and their corresponding [=event handler event types=])
@@ -1505,6 +1544,11 @@ steps:
         <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/tool
         map=]'s [=map/values=], which are [=tool definitions=].
 
+        Note: Although these steps run on the [=AI agent queue=] [=in parallel=] with each
+        {{Document}}'s [=relevant agent=]'s [=agent/event loop=], implementations synchronize
+        access to each [=model context/tool map=] via inter-process communication or locking so that
+        partial updates are never observed.
+
      1. Let |observedToolCollection| be a new [=observed tool collection=] with the following [=struct/items=]:
 
         : [=observed tool collection/origin=]
@@ -1523,7 +1567,7 @@ steps:
    expose the |observation|'s [=observation/tool map=] to the [=browser agent=] in whatever way it
    accepts.
 
-     Note: Despite the name of this API (i., Web*MCP*), this specification does not prescribe the
+     Note: Despite the name of this API (i.e., Web*MCP*), this specification does not prescribe the
      format in which tools are exposed to the [=browser agent=]. Browsers are free to distill and
      expose tools via Model Context Protocol, other proprietary "function calling" methods, or any
      other way it deems appropriate.
@@ -1946,7 +1990,7 @@ page, protecting against malicious scripts or dependencies from using WebMCP API
 
 **What:** Shared evals for prompt injection attacks against WebMCP
 
-**Threats addressed:** [[#prompt-injection]] (potentially [[#privacy-leakage-over-parameterization]]
+**Threats addressed:** [[#prompt-injection]] (potentially [[#privacy-leakage-over-parameterization]])
 
 **How:** Ensuring an interoperable basis for prompt injection defense, by requiring any implementer to protect against at least the attacks in that dataset. See [Issue #106](https://github.com/webmachinelearning/webmcp/issues/106).
 
