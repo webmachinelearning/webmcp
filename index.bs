@@ -1968,8 +1968,8 @@ page, protecting against malicious scripts or dependencies from using WebMCP API
 
 <h4 id="mitigation-agent-level-guardrails">Agent-Level Guardrails and Best Practices</h4>
 
-**What:** Deterministic and probabilistic guardrails enforced by the [=agent=] or [=user agent=]
-harness when consuming WebMCP tools.
+**What:** Deterministic and probabilistic guardrails enforced by the [=agent=] when consuming WebMCP
+tools.
 
 **Threats addressed:** [[#prompt-injection]], [[#misrepresentation-of-intent]],
 [[#privacy-leakage-over-parameterization]]
