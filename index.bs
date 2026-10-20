@@ -1246,6 +1246,16 @@ The {{ToolAnnotations}} dictionary provides optional metadata about a tool:
   :: If true, indicates that the tool is intended for debugging and developer tooling rather than end-user interactions.
 </dl>
 
+Note: A member that is not specified has the value false, and once the dictionary is converted a
+tool that leaves a member out cannot be told apart from one that sets it to false. A false
+{{ToolAnnotations/consequentialHint}} or {{ToolAnnotations/untrustedContentHint}} is therefore not
+an assurance from the site that the tool's effects are minor or that its output can be trusted. It
+can mean only that the site made no claim. The annotations are supplied by the site that registers
+the tool and are not verified by the [=user agent=] (see [[#misrepresentation-of-intent]]).
+[=Agents=] are encouraged to honor a hint that increases scrutiny, and not to rely on a hint that
+decreases it as the only reason to skip a user confirmation or a sanitization step that they would
+otherwise apply.
+
 <h4 id="tool-execute-callback-options">ToolExecuteCallbackOptions Dictionary</h4>
 
 The {{ToolExecuteCallbackOptions}} dictionary carries options passed to a tool's
