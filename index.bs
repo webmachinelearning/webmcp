@@ -264,6 +264,9 @@ An <dfn>annotations</dfn> is a [=struct=] with the following [=struct/items=]:
   : <dfn>consequential hint</dfn>
   :: a [=boolean=], initially false.
 
+  : <dfn>open world hint</dfn>
+  :: a [=boolean=], initially true.
+
   : <dfn>debugging</dfn>
   :: a [=boolean=], initially false.
 </dl>
@@ -905,6 +908,9 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
       : [=annotations/consequential hint=]
       :: |tool|'s {{ModelContextTool/annotations}}'s {{ToolAnnotations/consequentialHint}}
 
+      : [=annotations/open world hint=]
+      :: |tool|'s {{ModelContextTool/annotations}}'s {{ToolAnnotations/openWorldHint}}
+
       : [=annotations/debugging=]
       :: |tool|'s {{ModelContextTool/annotations}}'s {{ToolAnnotations/debugging}}
 
@@ -1040,7 +1046,9 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
                {{ToolAnnotations/untrustedContentHint}} is |tool definition|'s [=tool
                definition/annotations=]'s [=annotations/untrusted content hint=],
                {{ToolAnnotations/consequentialHint}} is |tool definition|'s [=tool
-               definition/annotations=]'s [=annotations/consequential hint=], and
+               definition/annotations=]'s [=annotations/consequential hint=],
+               {{ToolAnnotations/openWorldHint}} is |tool definition|'s [=tool
+               definition/annotations=]'s [=annotations/open world hint=], and
                {{ToolAnnotations/debugging}} is |tool definition|'s [=tool
                definition/annotations=]'s [=annotations/debugging=].
 
@@ -1240,6 +1248,7 @@ dictionary ToolAnnotations {
   boolean readOnlyHint = false;
   boolean untrustedContentHint = false;
   boolean consequentialHint = false;
+  boolean openWorldHint = true;
   boolean debugging = false;
 };
 
@@ -1307,6 +1316,13 @@ The {{ToolAnnotations}} dictionary provides optional metadata about a tool:
 
   : <code><var ignore>annotations</var>["{{ToolAnnotations/consequentialHint}}"]</code>
   :: If true, indicates that executing the tool will result in consequential actions that are significant, real-world, or non-reversible, ex: booking a flight, transferring money.
+
+  : <code><var ignore>annotations</var>["{{ToolAnnotations/openWorldHint}}"]</code>
+  :: If true, indicates that the tool may send data to, or read data from, parties other than the
+     [=Document/origin=] of the page that registered it, for example through requests to other
+     origins. If false, indicates that the tool only uses the page and its own origin. Unlike the
+     other hints this one is true when it is not specified, so a tool that does not declare it is
+     treated as open to the world. The [=user agent=] does not enforce it.
 
   : <code><var ignore>annotations</var>["{{ToolAnnotations/debugging}}"]</code>
   :: If true, indicates that the tool is intended for debugging and developer tooling rather than end-user interactions.
