@@ -1119,10 +1119,12 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</
       {{ModelContext/getTools()}}. But the tools registered in |targetDocument| can change after
       {{ModelContext/getTools()}} resolves: for example, the tool can be unregistered, or
       unregistered and replaced by a new tool with the same name but a different [=tool
-      definition/tool id=]. Rejecting with "{{NotFoundError}}" across all three checks above—when
-      |targetOrigin| does not match |expectedTargetOrigin|, when the tool identified by |toolId|
-      does not exist, and when |tool definition| is not exposed to |callerOrigin|—avoids revealing
-      to the caller which of these happened.
+      definition/tool id=].
+
+      Note: Rejecting with "{{NotFoundError}}" across all three checks above—when |targetOrigin|
+      does not match |expectedTargetOrigin|, when the tool identified by |toolId| does not exist,
+      and when |tool definition| is not exposed to |callerOrigin|—avoids revealing to the caller
+      which of these happened.
 
    1. Let |completionSteps| be an algorithm that takes a [=string=]-or-null |result| and a
       [=tool execution error=]-or-null |error|, and runs the following steps [=in parallel=]:
