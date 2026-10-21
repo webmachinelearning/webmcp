@@ -1222,8 +1222,7 @@ callback ToolExecuteCallback = Promise<any> (object inputObject, ToolExecuteCall
 <dl class="domintro">
   <dt><code><var ignore>tool</var>["{{ModelContextTool/name}}"]</code></dt>
   <dd>
-    <p>A unique identifier for the tool. This is used by [=agents=] to reference the tool when
-    making tool calls.
+    <p>A name for the tool. This is used by [=agents=] to reference the tool when making tool calls.
   </dd>
 
   <dt><code><var ignore>tool</var>["{{ModelContextTool/title}}"]</code></dt>
