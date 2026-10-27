@@ -177,8 +177,8 @@ A <dfn>model context</dfn> is a [=struct=] with the following [=struct/items=]:
 
 <dl dfn-for="model context">
   : <dfn>tool map</dfn>
-  :: a [=map=] whose [=map/keys=] are [=strings=] and whose [=map/values=] are [=tool definition=]
-     [=structs=].
+  :: a [=map=] whose [=map/keys=] are [=unique internal values=] and whose [=map/values=] are [=tool
+     definition=] [=structs=].
 
   : <dfn>local pending tool executions map</dfn>
   :: a [=map=] whose [=map/keys=] are [=unique internal values=] and whose [=map/values=] are
@@ -195,9 +195,15 @@ A <dfn>model context</dfn> is a [=struct=] with the following [=struct/items=]:
 A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]:
 
 <dl dfn-for="tool definition">
+  : <dfn>tool id</dfn>
+  :: a [=unique internal value=].
+
+     Note: This identifies a specific registration of a tool. Unlike the tool's [=tool
+     definition/name=], it is not reused when a same-named tool is re-registered later.
+
   : <dfn>name</dfn>
   :: a [=string=] uniquely identifying a tool registered within a [=model context=]'s [=model
-     context/tool map=]; it is the same as the [=map/key=] identifying this object.
+     context/tool map=].
 
      The [=tool definition/name=]'s [=string/length=] must be between 1 and 128, inclusive, and only
      consist of [=ASCII alphanumeric=] [=code points=], U+005F LOW LINE (_),
@@ -490,10 +496,10 @@ a [=list=] of [=origins=] |exposed origins|, and an [=origin=] |accessing origin
 </div>
 
 <div algorithm>
-The <dfn>tool execute steps</dfn>, given a [=string=] |toolName|, a {{Document}} |targetDocument|, a
-[=string=] |inputArguments|, an algorithm |completionSteps|, and a [=unique internal value=] |uuid|,
-are as follows. The |completionSteps| algorithm takes a [=string=]-or-null <var ignore>result</var>
-and a [=tool execution error=]-or-null <var ignore>error</var>.
+The <dfn>tool execute steps</dfn>, given a [=unique internal value=] |toolId|, a {{Document}}
+|targetDocument|, a [=string=] |inputArguments|, an algorithm |completionSteps|, and a [=unique
+internal value=] |uuid|, are as follows. The |completionSteps| algorithm takes a [=string=]-or-null
+<var ignore>result</var> and a [=tool execution error=]-or-null <var ignore>error</var>.
 
 1. [=Assert=]: these steps are running on |targetDocument|'s [=relevant agent=]'s [=agent/event
    loop=].
@@ -501,18 +507,18 @@ and a [=tool execution error=]-or-null <var ignore>error</var>.
 1. Let |toolMap| be |targetDocument|'s [=Document/associated ModelContext|associated
    <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/tool map=].
 
-1. If |toolMap|[|toolName|] does not [=map/exist=], then run |completionSteps| given null and
+1. If |toolMap|[|toolId|] does not [=map/exist=], then run |completionSteps| given null and
    [=tool execution error/tool not found=], and abort these steps.
 
    <div class=note>
-    <p>This protects us against a race between tool unregistration and execution. While tool
-    <em>existence</em> is protected from this race, tool unregistration followed by a quick
-    re-registration of a tool with the same |toolName| but input schema is <em>not</em> protected
-    against.</p>
+    <p>This protects against a race between tool unregistration and execution: the tool might have
+    been unregistered after {{ModelContext/executeTool()}} checked for its existence [=in
+    parallel=], but before these steps run.</p>
 
-    <p>This might result in |inputArguments| for an old tool being applied to the [=tool
-    definition/input schema=] of a newer tool, and causing whatever error that might cause, when <a
-    href=https://github.com/webmachinelearning/webmcp/issues/92>issue #92</a> is resolved.</p>
+    <p>Because tools are looked up by |toolId| rather than by name, this also protects against the
+    tool being unregistered and quickly re-registered under the same name. The re-registered tool
+    has a different |toolId|, so a caller holding a {{Tool}} for the old tool fails to execute,
+    instead of silently executing the new tool with |inputArguments| intended for the old one.</p>
 
     <div class=example id=unregistration-execution-race>
      <xmp class=language-js>
@@ -522,22 +528,24 @@ and a [=tool execution error=]-or-null <var ignore>error</var>.
      const ac = new AbortController();
      document.modelContext.registerTool({..., inputSchema: oldInputSchema}, {signal: ac.signal});
 
+     // -- Executing document. --
+     const [oldTool] = await document.modelContext.getTools();
+
+     // -- Tool owner document. --
      // Unregister, and quickly re-register with an updated input schema.
      ac.abort();
      document.modelContext.registerTool({..., inputSchema: newInputSchema});
 
-
      // -- Executing document. --
      //
-     // This could target either the "old" tool, or the "new" one above,
-     // and the execution might encounter any requisite errors due to the mismatch.
-     const [tool] = await document.modelContext.getTools();
-     document.modelContext.executeTool(tool, {a: 10});
+     // `oldTool` refers to the old tool, so this rejects with a "NotFoundError"
+     // DOMException rather than executing the new tool.
+     document.modelContext.executeTool(oldTool, {a: 10});
      </xmp>
     </div>
    </div>
 
-1. Let |tool| be |toolMap|[|toolName|].
+1. Let |tool| be |toolMap|[|toolId|].
 
 1. Run |tool|'s [=tool definition/execute steps=] given |targetDocument|, |inputArguments|,
    |completionSteps|, and |uuid|.
@@ -622,7 +630,7 @@ internal value=] |uuid|, run these steps:
 
 <div algorithm>
 To <dfn for="model context">unregister a tool</dfn> given a {{ModelContext}} |modelContext| and a
-[=string=] |tool name|, run these steps:
+[=unique internal value=] |tool id|, run these steps:
 
 1. [=Assert=]: these steps are running on |modelContext|'s [=relevant agent=]'s [=agent/event
    loop=].
@@ -630,17 +638,22 @@ To <dfn for="model context">unregister a tool</dfn> given a {{ModelContext}} |mo
 1. Let |tool map| be |modelContext|'s [=ModelContext/internal context=]'s [=model context/tool
    map=].
 
-1. If |tool map|[|tool name|] does not [=map/exist=], then return.
+1. [=Assert=]: |tool map|[|tool id|] [=map/exists=].
 
-1. Let |exposed origins| be |tool map|[|tool name|]'s [=tool definition/exposed origins=].
+   Note: These steps only run as the abort steps of the {{ModelContextRegisterToolOptions/signal}}
+   passed to the {{ModelContext/registerTool()}} call that registered the tool identified by
+   |tool id|. Since {{AbortSignal}}s only abort at most once, and nothing else removes tools from
+   the |tool map|, we can guarantee that the tool we're targeting is still registered.
 
-1. [=map/Remove=] |tool map|[|tool name|].
+1. Let |exposed origins| be |tool map|[|tool id|]'s [=tool definition/exposed origins=].
 
-   Note: Unregistering a tool does not cancel an execution that has already invoked its
-   {{ToolExecuteCallback}}, including when the callback itself performs the unregistration.
-   The registration-time {{ModelContextRegisterToolOptions/signal}} only controls tool
-   availability, while the execution-time {{ModelContextExecuteToolOptions/signal}} controls the
-   lifetime of an specific invocation.
+1. [=map/Remove=] |tool map|[|tool id|].
+
+   Note: Unregistering a tool does not cancel an execution that has already reached the [=invoke the
+   execute callback=] steps, even when the {{ToolExecuteCallback}} itself performs the
+   unregistration. The registration-time {{ModelContextRegisterToolOptions/signal}} only controls
+   tool availability, while the execution-time {{ModelContextExecuteToolOptions/signal}} controls
+   the lifetime of an specific invocation.
 
 1. Let |targetDocument| be |modelContext|'s [=relevant global object=]'s [=associated
    Document|associated <code>Document</code>=].
@@ -693,8 +706,8 @@ The {{ModelContext}} interface provides methods for web applications to register
 [Exposed=Window, SecureContext]
 interface ModelContext : EventTarget {
   Promise<undefined> registerTool(ModelContextTool tool, optional ModelContextRegisterToolOptions options = {});
-  Promise<sequence<RegisteredTool>> getTools(optional ModelContextGetToolOptions options = {});
-  Promise<DOMString> executeTool(RegisteredTool tool, optional object inputObject, optional ModelContextExecuteToolOptions options = {});
+  Promise<sequence<Tool>> getTools(optional ModelContextGetToolOptions options = {});
+  Promise<DOMString> executeTool(Tool tool, optional object inputObject, optional ModelContextExecuteToolOptions options = {});
 
   attribute EventHandler ontoolchange;
   attribute EventHandler ontoolactivated;
@@ -728,11 +741,13 @@ is a [=model context=] [=struct=] created alongside the {{ModelContext}}.
     <p>Executes a tool on the document it was registered on. Returns a promise that resolves to the
     stringified result of the tool's execution.</p>
 
-    <p><var ignore>tool</var> is a {{RegisteredTool}}, often retrieved by
-    {{ModelContext/getTools()}}. Callers pass a JavaScript object in as the
+    <p><var ignore>tool</var> is a {{Tool}}, retrieved by {{ModelContext/getTools()}}. It
+    identifies the exact tool registration that {{ModelContext/getTools()}} returned, so if that
+    tool has since been unregistered, execution fails, even if a different tool has since been
+    registered under the same name. Callers pass a JavaScript object in as the
     {{ModelContext/executeTool(tool)/inputObject}} argument for the tool; it's expected to match the
-    schema described by the tool's {{RegisteredTool/inputSchema}}. If the argument is omitted, the
-    tool receives an empty object.</p>
+    schema described by the tool's {{Tool/inputSchema}}. If the argument is omitted, the tool
+    receives an empty object.</p>
   </dd>
 </dl>
 
@@ -769,7 +784,8 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
 
 1. Let |tool title| be |tool|'s {{ModelContextTool/title}}.
 
-1. If |tool map|[|tool name|] [=map/exists=], then return [=a promise rejected with=] an
+1. If |tool map|'s [=map/values=] [=list/contains=] a [=tool definition=] whose [=tool
+   definition/name=] is |tool name|, then return [=a promise rejected with=] an
    {{InvalidStateError}} {{DOMException}}.
 
 1. If either |tool name| is the empty string, or its [=string/length=] is greater than 128, or if
@@ -808,7 +824,8 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
    |tool|'s {{ModelContextTool/inputSchema}} can run script (e.g., a `toJSON()` method) that makes
    |tool owner| no longer [=Document/fully active=], for example by removing its <{iframe}>.
 
-1. If |tool map|[|tool name|] [=map/exists=], then return [=a promise rejected with=] an
+1. If |tool map|'s [=map/values=] [=list/contains=] a [=tool definition=] whose [=tool
+   definition/name=] is |tool name|, then return [=a promise rejected with=] an
    {{InvalidStateError}} {{DOMException}}.
 
    Note: Similarly, script run while serializing |tool|'s {{ModelContextTool/inputSchema}} can
@@ -834,6 +851,8 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
 
 1. Let |promise| be [=a new promise=] created in [=this=]'s [=relevant realm=].
 
+1. Let |tool id| be a new [=unique internal value=].
+
 1. If |options|'s {{ModelContextRegisterToolOptions/signal}} [=map/exists=], then:
 
    1. Let |signal| be |options|'s {{ModelContextRegisterToolOptions/signal}}.
@@ -842,11 +861,14 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
 
    1. [=AbortSignal/add|Add the following abort steps=] to |signal|:
 
-        1. [=model context/Unregister a tool=] given [=this=] and |tool name|.
+        1. [=model context/Unregister a tool=] given [=this=] and |tool id|.
 
         1. [=Reject=] |promise| with |signal|'s [=AbortSignal/abort reason=].
 
 1. Let |tool definition| be a new [=tool definition=], with the following [=struct/items=]:
+
+   : [=tool definition/tool id=]
+   :: |tool id|
 
    : [=tool definition/name=]
    :: |tool name|
@@ -884,7 +906,7 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
    : [=tool definition/exposed origins=]
    :: |exposed origins|
 
-1. Set [=this=]'s [=ModelContext/internal context=]'s [=model context/tool map=][|tool name|] to
+1. Set [=this=]'s [=ModelContext/internal context=]'s [=model context/tool map=][|tool id|] to
    |tool definition|.
 
 1. Run the following steps [=in parallel=]:
@@ -954,7 +976,7 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
          <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/tool
          map=].
 
-      1. [=map/For each=] <var ignore>tool name</var> → |tool definition| of |targetToolMap|:
+      1. [=list/For each=] |tool definition| of |targetToolMap|'s [=map/values=]:
 
          1. If [=tool is exposed to an origin=] given |targetOrigin|, |tool definition|'s [=tool
             definition/exposed origins=], and |callerOrigin| returns false, then
@@ -965,41 +987,45 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
    1. [=Queue a global task=] on the [=webmcp task source=] given |global| to run the following
       steps:
 
-      1. Let |tools| be an empty [=list=] of {{RegisteredTool}} dictionaries.
+      1. Let |tools| be an empty [=list=] of {{Tool}} objects.
 
       1. [=list/For each=] (|tool definition|, |targetDocument|) of |discoveredTools|:
 
-         1. Let |registeredTool| be a new {{RegisteredTool}} dictionary, with the following fields:
+         1. Let |newTool| be a [=new=] {{Tool}} object created in [=this=]'s [=relevant realm=],
+            whose members are set as follows:
 
-            : {{RegisteredTool/name}}
+            : [=Tool/tool id=]
+            :: |tool definition|'s [=tool definition/tool id=]
+
+            : [=Tool/name=]
             :: |tool definition|'s [=tool definition/name=]
 
-            : {{RegisteredTool/title}}
+            : [=Tool/title=]
             :: |tool definition|'s [=tool definition/title=] if it is non-null; otherwise the empty
                string.
 
-               Issue(#224): Consider not defaulting to the empty string, and just excluding this
-               member, which will result in {{undefined}}.
+               Issue(#224): Consider not defaulting to the empty string.
 
-            : {{RegisteredTool/description}}
+            : [=Tool/description=]
             :: |tool definition|'s [=tool definition/description=]
 
-            : {{RegisteredTool/inputSchema}}
+            : [=Tool/input schema=]
             :: the result of [=parse a JSON string to a JavaScript value=] given |tool
                definition|'s [=tool definition/input schema=], if |tool definition|'s
-               [=tool definition/input schema=] is not the empty string; otherwise undefined.
+               [=tool definition/input schema=] is not the empty string; otherwise null.
 
                Note: This will never throw an exception, because the string stored in the tool
                definition is always a valid JSON string.
 
-            : {{RegisteredTool/window}}
+            : [=Tool/window=]
             :: |targetDocument|'s [=relevant global object=]
 
-            : {{RegisteredTool/origin}}
-            :: [=serialization of an origin|serialized=] |targetDocument|'s [=Document/origin=].
+            : [=Tool/origin=]
+            :: |targetDocument|'s [=Document/origin=]
 
-            : {{RegisteredTool/annotations}}
-            :: if |tool definition|'s [=tool definition/annotations=] is not null, a
+            : [=Tool/annotations=]
+            :: null if |tool definition|'s [=tool definition/annotations=] is null. Otherwise, the
+               result of [=converted to a JavaScript value|converting to a JavaScript value=] a
                {{ToolAnnotations}} dictionary whose {{ToolAnnotations/readOnlyHint}} is |tool
                definition|'s [=tool definition/annotations=]'s [=annotations/read-only hint=],
                {{ToolAnnotations/untrustedContentHint}} is |tool definition|'s [=tool
@@ -1009,10 +1035,10 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
                {{ToolAnnotations/debugging}} is |tool definition|'s [=tool
                definition/annotations=]'s [=annotations/debugging=].
 
-         1. [=list/Append=] |registeredTool| to |tools|.
+         1. [=list/Append=] |newTool| to |tools|.
 
-      1. [=list/Sort in ascending order=] |tools|, with |a| being less than |b| if
-         |a|["{{RegisteredTool/name}}"] is [=code unit less than=] |b|["{{RegisteredTool/name}}"].
+      1. [=list/Sort in ascending order=] |tools|, with |a| being less than |b| if |a|'s [=Tool/name=]
+         is [=code unit less than=] |b|'s [=Tool/name=].
 
       1. [=Resolve=] |promise| with |tools|.
 
@@ -1033,16 +1059,12 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</
 1. If |callerDocument| is not [=allowed to use=] the "{{tools}}" feature, then return [=a promise
    rejected with=] a "{{NotAllowedError}}" {{DOMException}}.
 
-1. Let |expectedTargetOriginURL| be the result of [=URL parser|parsing=] |tool|'s
-   {{RegisteredTool/origin}}.
+1. Let |expectedTargetOrigin| be |tool|'s [=Tool/origin=].
 
-1. If |expectedTargetOriginURL| is failure, or |expectedTargetOriginURL|'s [=url/origin=] is an
-   [=opaque origin=], then return [=a promise rejected with=] a "{{NotSupportedError}}"
-   {{DOMException}}.
+1. If |expectedTargetOrigin| is an [=opaque origin=], then return [=a promise rejected with=] a
+   "{{NotSupportedError}}" {{DOMException}}.
 
-1. Let |expectedTargetOrigin| be |expectedTargetOriginURL|'s [=url/origin=].
-
-1. [=Assert=]: |expectedTargetOrigin| is not an [=opaque origin=].
+   Issue(#349): Allow the execution of tools registered by documents with an [=opaque origin=].
 
 1. If |inputObject| was not given, then set |inputObject| to
    [$OrdinaryObjectCreate$]({{%Object.prototype%}}).
@@ -1054,7 +1076,7 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</
 
 1. Let |promise| be [=a new promise=] created in [=this=]'s [=relevant realm=].
 
-1. Let |targetWindow| be |tool|'s {{RegisteredTool/window}}.
+1. Let |targetWindow| be |tool|'s [=Tool/window=].
 
 1. Let |targetDocument| be |targetWindow|'s [=associated Document|associated
    <code>Document</code>=].
@@ -1102,24 +1124,31 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</
    1. Let |targetToolMap| be |targetDocument|'s [=Document/associated ModelContext|associated
       <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/tool map=].
 
-   1. Let |toolName| be |tool|'s {{RegisteredTool/name}}.
+   1. Let |toolId| be |tool|'s [=Tool/tool id=].
 
-   1. If |targetToolMap|[|toolName|] does not [=map/exist=], then [=queue a global task=] on the
+   1. If |targetToolMap|[|toolId|] does not [=map/exist=], then [=queue a global task=] on the
       [=webmcp task source=] given |callerDocument|'s [=relevant global object=] to [=reject=]
       |promise| with a "{{NotFoundError}}" {{DOMException}}, and abort these steps.
 
-   1. Let |tool definition| be |targetToolMap|[|toolName|].
+   1. Let |tool definition| be |targetToolMap|[|toolId|].
+
+   1. [=Assert=]: |tool definition|'s [=tool definition/name=] is |tool|'s [=Tool/name=].
 
    1. If [=tool is exposed to an origin=] given |targetOrigin|, |tool definition|'s [=tool
       definition/exposed origins=], and |callerOrigin| returns false, then [=queue a global task=]
       on the [=webmcp task source=] given |callerDocument|'s [=relevant global object=] to
       [=reject=] |promise| with a "{{NotFoundError}}" {{DOMException}}, and abort these steps.
 
-      Note: Rejecting with "{{NotFoundError}}" across all three checks above—when |targetOrigin| does
-      not match |expectedTargetOrigin|, when |toolName| does not exist, and when |tool definition|
-      is not exposed to |callerOrigin|—prevents a cross-origin caller from using fabricated
-      {{RegisteredTool}} dictionaries to probe |targetDocument|'s current origin or enumerate
-      private tools not exposed to |callerOrigin|.
+      Note: Callers cannot fabricate {{Tool}} objects; they only get them from
+      {{ModelContext/getTools()}}. But the tools registered in |targetDocument| can change after
+      {{ModelContext/getTools()}} resolves: for example, the tool can be unregistered, or
+      unregistered and replaced by a new tool with the same name but a different [=tool
+      definition/tool id=].
+
+      Note: Rejecting with "{{NotFoundError}}" across all three checks above—when |targetOrigin|
+      does not match |expectedTargetOrigin|, when the tool identified by |toolId| does not exist,
+      and when |tool definition| is not exposed to |callerOrigin|—avoids revealing to the caller
+      which of these happened.
 
    1. Let |completionSteps| be an algorithm that takes a [=string=]-or-null |result| and a
       [=tool execution error=]-or-null |error|, and runs the following steps [=in parallel=]:
@@ -1163,7 +1192,7 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</
       :: |targetDocument|
 
       : [=pending tool execution/tool name=]
-      :: |toolName|
+      :: |tool definition|'s [=tool definition/name=]
 
       : [=pending tool execution/completion steps=]
       :: |completionSteps|
@@ -1172,8 +1201,8 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</
       [=traversable navigable/pending tool executions map=][|uuid|] to |execution|.
 
    1. [=Queue a global task=] on the [=webmcp task source=] given |targetWindow| to run the [=tool
-      execute steps=] given |toolName|, |targetDocument|, |inputArguments|, |completionSteps|,
-      and |uuid|.
+      execute steps=] given |toolId|, |targetDocument|, |inputArguments|, |completionSteps|, and
+      |uuid|.
 
       Note: Because documents only process tasks on their event loops when [=Document/fully
       active=], if |targetDocument| is not [=Document/fully active=], this will simply queue the
@@ -1217,8 +1246,7 @@ callback ToolExecuteCallback = Promise<any> (object inputObject, ToolExecuteCall
 <dl class="domintro">
   <dt><code><var ignore>tool</var>["{{ModelContextTool/name}}"]</code></dt>
   <dd>
-    <p>A unique identifier for the tool. This is used by [=agents=] to reference the tool when
-    making tool calls.
+    <p>A name for the tool. This is used by [=agents=] to reference the tool when making tool calls.
   </dd>
 
   <dt><code><var ignore>tool</var>["{{ModelContextTool/title}}"]</code></dt>
@@ -1334,57 +1362,130 @@ dictionary ModelContextExecuteToolOptions {
   :: An {{AbortSignal}} that can be used to cancel the execution of the tool.
 </dl>
 
-<h4 id="registered-tool">RegisteredTool Dictionary</h4>
+<h4 id="tool-interface">Tool Interface</h4>
 
-The {{RegisteredTool}} dictionary represents a tool that has been registered and is available for
-execution.
+The {{Tool}} interface represents a tool that has been registered and exposed to a document for
+execution. It is obtained by {{ModelContext/getTools()}}, and executed with
+{{ModelContext/executeTool()}}. A {{Tool}} is a snapshot of the tool at the time
+{{ModelContext/getTools()}} discovered it, and identifies that specific registration of the tool.
 
 <xmp class="idl">
-dictionary RegisteredTool {
-  required DOMString name;
+[Exposed=Window, SecureContext]
+interface Tool {
+  readonly attribute DOMString name;
   // `title` can be exposed as a `DOMString` since it was taken in by a
   // `USVString`, meaning all unmatched surrogate processing has already been
   // done, and there's no need to do it again on tool exposure.
-  DOMString title;
-  required DOMString description;
-  object inputSchema;
-  required Window window;
-  required USVString origin;
-  ToolAnnotations annotations;
+  readonly attribute DOMString title;
+  readonly attribute DOMString description;
+  readonly attribute object? inputSchema;
+  readonly attribute Window? window;
+  readonly attribute USVString origin;
+  readonly attribute object? annotations;
 };
 </xmp>
 
+Each {{Tool}} object has the following associated members:
+
+<dl dfn-for="Tool">
+  : <dfn>tool id</dfn>
+  :: a [=unique internal value=].
+
+     Note: This is the [=tool definition/tool id=] of the [=tool definition=] that this {{Tool}}
+     represents. It is not exposed to script; {{ModelContext/executeTool()}} uses it to execute
+     exactly the tool that {{ModelContext/getTools()}} returned.
+
+  : <dfn>name</dfn>
+  :: a [=string=].
+
+  : <dfn>title</dfn>
+  :: a [=string=].
+
+  : <dfn>description</dfn>
+  :: a [=string=].
+
+  : <dfn>input schema</dfn>
+  :: an {{object}}-or-null.
+
+  : <dfn>window</dfn>
+  :: a {{Window}}.
+
+  : <dfn>origin</dfn>
+  :: an [=origin=].
+
+  : <dfn>annotations</dfn>
+  :: an {{object}}-or-null.
+</dl>
+
+<div algorithm>
+The <dfn attribute for=Tool>name</dfn> getter steps are to return [=this=]'s [=Tool/name=].
+</div>
+
+<div algorithm>
+The <dfn attribute for=Tool>title</dfn> getter steps are to return [=this=]'s [=Tool/title=].
+</div>
+
+<div algorithm>
+The <dfn attribute for=Tool>description</dfn> getter steps are to return [=this=]'s
+[=Tool/description=].
+</div>
+
+<div algorithm>
+The <dfn attribute for=Tool>inputSchema</dfn> getter steps are to return [=this=]'s [=Tool/input
+schema=].
+</div>
+
+<div algorithm>
+The <dfn attribute for=Tool>window</dfn> getter steps are:
+
+1. If [=this=]'s [=Tool/window=]'s [=Window/browsing context=] is null, then return null.
+
+1. Return [=this=]'s [=Tool/window=].
+
+</div>
+
+<div algorithm>
+The <dfn attribute for=Tool>origin</dfn> getter steps are to return the [=serialization of an
+origin|serialization=] of [=this=]'s [=Tool/origin=].
+</div>
+
+<div algorithm>
+The <dfn attribute for=Tool>annotations</dfn> getter steps are to return [=this=]'s
+[=Tool/annotations=].
+</div>
+
 <dl class="domintro">
-  : <code><var ignore>tool</var>["{{RegisteredTool/name}}"]</code>
+  : <code><var ignore>tool</var>.{{Tool/name}}</code>
   :: A unique identifier for the tool. It is the same value provided at tool registration, via
      {{ModelContextTool/name}}.
 
-  : <code><var ignore>tool</var>["{{RegisteredTool/title}}"]</code>
+  : <code><var ignore>tool</var>.{{Tool/title}}</code>
   :: A human-readable label for the tool. It is the same value provided at tool registration, via
      {{ModelContextTool/title}}.
 
-  : <code><var ignore>tool</var>["{{RegisteredTool/description}}"]</code>
+  : <code><var ignore>tool</var>.{{Tool/description}}</code>
   :: A natural language description of the tool's functionality. It is the same value provided at
      tool registration, via {{ModelContextTool/description}}.
 
-  : <code><var ignore>tool</var>["{{RegisteredTool/inputSchema}}"]</code>
+  : <code><var ignore>tool</var>.{{Tool/inputSchema}}</code>
   :: A JSON Schema object describing the expected input parameters for the tool
-     [[!JSON-SCHEMA]]. It is a deep copy of the schema provided at tool registration, via
-     {{ModelContextTool/inputSchema}}.
+     [[!JSON-SCHEMA]], or null if the tool was registered without one. It is a deep copy of the
+     schema provided at tool registration, via {{ModelContextTool/inputSchema}}.
 
-  : <code><var ignore>tool</var>["{{RegisteredTool/window}}"]</code>
-  :: The {{Window}} of the document that registered the tool.
+  : <code><var ignore>tool</var>.{{Tool/window}}</code>
+  :: The {{Window}} of the document that registered the tool, or null if that document has since
+     been destroyed (e.g., because its <{iframe}> was removed).
 
-  : <code><var ignore>tool</var>["{{RegisteredTool/origin}}"]</code>
-  :: The origin of the document that registered the tool. This member is only meaningful when the
-     tool is cross-origin, and the consumer of a tool cannot otherwise get the tool's origin from
-     its {{RegisteredTool/window}}. For same-origin tools, this is the same as the tool's
-     {{RegisteredTool/window}}'s {{WindowOrWorkerGlobalScope/origin}}, and the caller's own
+  : <code><var ignore>tool</var>.{{Tool/origin}}</code>
+  :: The origin of the document that registered the tool. This is only meaningful when the tool is
+     cross-origin, and the consumer of a tool cannot otherwise get the tool's origin from its
+     {{Tool/window}}. For same-origin tools, this is the same as the tool's {{Tool/window}}'s
+     {{WindowOrWorkerGlobalScope/origin}}, and the caller's own
      {{Window}}.{{WindowOrWorkerGlobalScope/origin}}.
 
-  : <code><var ignore>tool</var>["{{RegisteredTool/annotations}}"]</code>
-  :: Optional annotations providing metadata about the tool. It matches
-     {{ModelContextTool/annotations}}.
+  : <code><var ignore>tool</var>.{{Tool/annotations}}</code>
+  :: Annotations providing metadata about the tool, matching {{ModelContextTool/annotations}}, or
+     null if the tool was registered without any.
 </dl>
 
 

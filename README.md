@@ -353,7 +353,7 @@ Any document in the tree matching these origins (and allowed to use `tools` perm
 
 Once tools are registered, in-page agents can discover and invoke them using `getTools()` and `executeTool()`.
 
-Calling `document.modelContext.getTools()` returns a promise that resolves with an array of `RegisteredTool` dictionary objects. Each object contains the tool's `name`, `description`, `inputSchema`, `origin`, and owner `window`. By default, `getTools()` only returns tools registered by documents same-origin with the caller in the frame tree. To retrieve cross-origin tools, you must explicitly list their origins in the `fromOrigins` option. This array only supports secure origins.
+Calling `document.modelContext.getTools()` returns a promise that resolves with an array of [`Tool`](https://webmachinelearning.github.io/webmcp/#tool) objects. Each `Tool` exposes the tool's `name`, `title`, `description`, `inputSchema`, `annotations`, `origin`, and owner `window`. By default, `getTools()` only returns tools registered by documents same-origin with the caller in the frame tree. To retrieve cross-origin tools, you must explicitly list their origins in the `fromOrigins` option. This array only supports secure origins.
 
 ```js
 // Discover tools exposed by same-origin frames in the tree (default)
@@ -372,7 +372,7 @@ const crossOriginTools = await document.modelContext.getTools({
 });
 ```
 
-An agent executes a discovered `RegisteredTool` by passing the tool dictionary and input arguments along to `document.modelContext.executeTool()`. The browser securely mediates the execution, ensuring the [`exposedTo`](https://webmachinelearning.github.io/webmcp/#dom-modelcontextregistertooloptions-exposedto) and [`fromOrigins`](https://webmachinelearning.github.io/webmcp/#dom-modelcontextgettooloptions-fromorigins) agree, and the tool runs in the tool owner's execution context:
+An agent executes a discovered `Tool` by passing it and input arguments along to `document.modelContext.executeTool()`. The browser securely mediates the execution, ensuring the [`exposedTo`](https://webmachinelearning.github.io/webmcp/#dom-modelcontextregistertooloptions-exposedto) and [`fromOrigins`](https://webmachinelearning.github.io/webmcp/#dom-modelcontextgettooloptions-fromorigins) agree, and the tool runs in the tool owner's execution context. `Tool` objects can only be obtained from `getTools()`, and each one refers to the specific tool registration it was returned for: if that tool is unregistered, executing the `Tool` fails, even if a new tool is later registered under the same name.
 
 ```js
 const tools = await document.modelContext.getTools();
