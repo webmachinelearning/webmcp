@@ -570,10 +570,6 @@ internal value=] |uuid|, run these steps:
 1. If |inputObject| [=Object type|is not an Object=], then run |completionSteps| given null
    and [=tool execution error/invalid input=], and abort these steps.
 
-1. [=Fire an event=] named {{ModelContext/toolactivated}} at |targetDocument|'s [=Document/associated
-   ModelContext|associated <code>ModelContext</code>=], using {{ToolActivatedEvent}}, with its
-   {{ToolActivatedEvent/toolName}} attribute initialized to |tool|'s {{ModelContextTool/name}}.
-
 1. Let |controller| be a [=new=] {{AbortController}} created in |targetDocument|'s [=relevant
    realm=].
 
@@ -592,6 +588,10 @@ internal value=] |uuid|, run these steps:
 
 1. Let |toolPromise| be the result of [=invoke|invoking=] |tool|'s {{ModelContextTool/execute}} with
    |inputObject| and |options|.
+
+1. [=Fire an event=] named {{ModelContext/toolactivated}} at |targetDocument|'s [=Document/associated
+   ModelContext|associated <code>ModelContext</code>=], using {{ToolActivatedEvent}}, with its
+   {{ToolActivatedEvent/toolName}} attribute initialized to |tool|'s {{ModelContextTool/name}}.
 
 1. [=promise/React=] to |toolPromise|:
 
@@ -1463,7 +1463,8 @@ that must be supported, as [=event handler IDL attributes=], by all {{ModelConte
 <h4 id="tool-activated-event">ToolActivatedEvent Interface</h4>
 
 The {{ToolActivatedEvent}} interface represents a {{ModelContext/toolactivated}} event that is
-dispatched at a {{ModelContext}} object when the execution of a tool begins.
+dispatched at a {{ModelContext}} object after a tool's {{ModelContextTool/execute}} callback is
+invoked.
 
 <xmp class="idl">
 [Exposed=Window, SecureContext]
