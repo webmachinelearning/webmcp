@@ -190,6 +190,9 @@ A <dfn>model context</dfn> is a [=struct=] with the following [=struct/items=]:
      object's event loop, and because it is event-loop-local, it can get out of sync from the
      [=traversable navigable=]'s more "global" map.
 
+  : <dfn>pending tool readiness promises</dfn>
+  :: a [=set=] of {{Promise}} objects, initially empty.
+
 </dl>
 
 A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]:
@@ -436,8 +439,8 @@ follows:
 <hr>
 
 <div algorithm>
-To <dfn>notify documents of a tool change</dfn> given a {{Document}} |tool owner| and a [=list=] of
-[=origins=] |exposed origins|, run these steps:
+To <dfn>notify documents of a tool change</dfn> given a {{Document}} |tool owner|, a [=list=] of
+[=origins=] or "<code>*</code>" |exposed origins|, and a [=boolean=] |ready|, run these steps:
 
 1. [=Assert=]: these steps are running [=in parallel=].
 
@@ -451,11 +454,21 @@ To <dfn>notify documents of a tool change</dfn> given a {{Document}} |tool owner
      1. If |targetDocument| is not [=allowed to use=] the "{{tools}}" feature, then
         [=iteration/continue=].
 
-     1. If [=tool is exposed to an origin=] given |tool owner|'s [=Document/origin=], |exposed
-        origins|, and |targetDocument|'s [=Document/origin=], then [=queue a global task=] on the
-        [=webmcp task source=] given |targetDocument|'s [=relevant global object=] to [=fire an
-        event=] named {{ModelContext/toolchange}} at |targetDocument|'s [=Document/associated
-        ModelContext|associated <code>ModelContext</code>=].
+     1. If |exposed origins| is "<code>*</code>", or [=tool is exposed to an origin=] given |tool
+        owner|'s [=Document/origin=], |exposed origins|, and |targetDocument|'s [=Document/origin=]
+        returns true, then [=queue a global task=] on the [=webmcp task source=] given
+        |targetDocument|'s [=relevant global object=] to [=fire an event=] named
+        {{ModelContext/toolchange}} at |targetDocument|'s [=Document/associated
+        ModelContext|associated <code>ModelContext</code>=], using {{ToolChangeEvent}}, with its
+        {{ToolChangeEvent/ready}} attribute initialized to |ready|.
+
+Note: Because a {{ModelContext/toolchange}} event triggered by a [=Document/tools-ready=] state
+change cannot be filtered by a specific tool's {{ModelContextRegisterToolOptions/exposedTo}}
+origins, it uses "<code>*</code>" to notify all eligible documents in the [=traversable navigable=]
+(which will expand to the [=browsing context group=] once <a
+href="https://github.com/webmachinelearning/webmcp/issues/227">issue #227</a> is addressed).
+Implementations can optimize this by only notifying documents that have registered a
+{{ModelContext/toolchange}} event listener.
 
 <div class=example id=notify-task-ordering>
   <p>This algorithm's use of the [=webmcp task source=], and the fact that it runs [=in parallel=],
@@ -497,6 +510,70 @@ a [=list=] of [=origins=] |exposed origins|, and an [=origin=] |accessing origin
      1. If |accessing origin| is [=same origin=] with |allowed origin|, then return true.
 
 1. Return false.
+
+</div>
+
+<div algorithm>
+To <dfn>update the tools-ready state</dfn> given a {{Document}} |document|, run these steps:
+
+1. [=Assert=]: these steps are running on |document|'s [=relevant agent=]'s [=agent/event loop=].
+
+1. Let |context| be |document|'s [=Document/associated ModelContext|associated
+   <code>ModelContext</code>=]'s [=ModelContext/internal context=].
+
+1. Let |newReadyState| be true if |context|'s [=model context/pending tool readiness promises=] is
+   [=set/is empty|empty=]; otherwise false.
+
+1. If |document|'s [=Document/tools-ready=] is |newReadyState|, then return.
+
+1. Set |document|'s [=Document/tools-ready=] to |newReadyState|.
+
+1. If |document| is not [=Document/fully active=], then return.
+
+1. [=In parallel=], [=notify documents of a tool change=] given |document|, "<code>*</code>", and
+   |newReadyState|.
+
+</div>
+
+<div algorithm>
+To <dfn>wait for tools to be ready</dfn> given a [=traversable navigable=] |traversable|, run these
+steps:
+
+1. [=Assert=]: these steps are running [=in parallel=].
+
+1. Let |areAllReady| be an algorithm that returns a [=boolean=] by running these steps:
+
+   1. Let |activeDocument| be |traversable|'s [=navigable/active document=].
+
+   1. If |activeDocument| is null or is not [=Document/fully active=], then return true.
+
+      Note: If |traversable| is destroyed while waiting, its [=navigable/active document=] is
+      disconnected and is no longer [=Document/fully active=]. Returning true here immediately
+      unblocks the wait so the caller can check [=Document/fully active=] and abort.
+
+   1. [=list/For each=] [=navigable=] |navigable| of |activeDocument|'s [=Document/inclusive
+      descendant navigables=]:
+
+      1. Let |document| be |navigable|'s [=navigable/active document=].
+
+      1. If |document|'s [=Document/tools-ready=] is false, then return false.
+
+         Note: Although [=Document/tools-ready=] is modified on |document|'s [=relevant agent=]'s
+         [=agent/event loop=] and read here [=in parallel=], implementations synchronize updates to
+         [=Document/tools-ready=] (for example, via inter-process communication to the browser
+         process) ordered with updates to [=model context/tool map=].
+
+   1. Return true.
+
+1. If the result of running |areAllReady| is true, then return.
+
+1. Wait until either the result of running |areAllReady| is true, or an [=implementation-defined=]
+   timeout has elapsed since this step began.
+
+   Note: The timeout is measured from when this wait begins. Calling
+   {{ModelContext/waitForToolsUntil()}} with additional promises while a wait is already in progress
+   does not reset or extend the timeout, and calling it after |areAllReady| returns true does not
+   delay an operation that has already been unblocked.
 
 </div>
 
@@ -663,8 +740,12 @@ To <dfn for="model context">unregister a tool</dfn> given a {{ModelContext}} |mo
    <{iframe}> was removed. In that case, |targetDocument| has no [=node navigable=] from which to
    find other documents to notify.
 
-1. [=In parallel=], [=notify documents of a tool change=] given |targetDocument| and |exposed
-   origins|.
+1. Let |toolsReady| be |targetDocument|'s [=Document/tools-ready=].
+
+1. If |toolsReady| is false, then return.
+
+1. [=In parallel=], [=notify documents of a tool change=] given |targetDocument|, |exposed
+   origins|, and |toolsReady|.
 
 </div>
 
@@ -700,6 +781,12 @@ To <dfn>serialize a tool schema</dfn> given an {{object}}-or-undefined |schema|:
 Each {{Document}} object has an <dfn for=Document>associated {{ModelContext}}</dfn>, which is a
 {{ModelContext}} object.
 
+Each {{Document}} object has a <dfn for=Document>tools-ready</dfn> [=boolean=], initially true.
+
+Issue(#328): [=Document/tools-ready=] should be false when the {{Document}} is created. This gives
+authors an opportunity to use {{ModelContext/waitForToolsUntil()}} until a deterministic
+{{Document}} lifecycle point. The exact lifecycle point still needs to be resolved.
+
 Upon creation of the {{Document}} object, its [=Document/associated ModelContext|associated
 <code>ModelContext</code>=] must be set to a [=new=] {{ModelContext}} object created in the
 {{Document}}'s [=relevant realm=].
@@ -727,7 +814,10 @@ The {{ModelContext}} interface provides methods for web applications to register
 <xmp class="idl">
 [Exposed=Window, SecureContext]
 interface ModelContext : EventTarget {
+  readonly attribute boolean toolsReady;
+
   Promise<undefined> registerTool(ModelContextTool tool, optional ModelContextRegisterToolOptions options = {});
+  undefined waitForToolsUntil(Promise<any> promise);
   Promise<sequence<RegisteredTool>> getTools(optional ModelContextGetToolOptions options = {});
   Promise<DOMString> executeTool(RegisteredTool tool, optional object inputObject, optional ModelContextExecuteToolOptions options = {});
 
@@ -742,12 +832,26 @@ is a [=model context=] [=struct=] created alongside the {{ModelContext}}.
 
 
 <dl class="domintro">
+  <dt><code><var ignore>document</var>.{{Document/modelContext}}.{{ModelContext/toolsReady}}</code></dt>
+  <dd>
+    <p>Returns true if the document's tools are ready to be read, or false if the document is
+    waiting on promises passed to {{ModelContext/waitForToolsUntil()}}.</p>
+  </dd>
+
   <dt><code><var ignore>document</var>.{{Document/modelContext}}.{{ModelContext/registerTool(tool, options)}}</code></dt>
   <dd>
     <p>Registers a tool that [=agents=] can invoke. Returns a rejected promise if a tool with the
     same name is already registered, if the given {{ModelContextTool/name}} or
     {{ModelContextTool/description}} are empty strings, or if the {{ModelContextTool/inputSchema}}
     or {{ModelContextTool/outputSchema}} is invalid.</p>
+  </dd>
+
+  <dt><code><var ignore>document</var>.{{Document/modelContext}}.{{ModelContext/waitForToolsUntil(promise)}}</code></dt>
+  <dd>
+    <p>Signals that the document is asynchronously registering or updating its tools, and that tool
+    consumers should wait until <var ignore>promise</var> settles (or a timeout elapses) before
+    reading the document's tools. Multiple promises can be registered; the document's tools are
+    considered ready once all registered promises have settled.</p>
   </dd>
 
   <dt><code><var ignore>document</var>.{{Document/modelContext}}.{{ModelContext/getTools(options)}}</code></dt>
@@ -784,6 +888,33 @@ is a [=model context=] [=struct=] created alongside the {{ModelContext}}.
   ```
 </div>
 
+<div class=example id=waiting-for-tools>
+  The following delays tool discovery until asynchronous tool registration completes:
+
+  ```js
+  const toolsReady = (async () => {
+    const config = await fetch('/api/tools-config').then(r => r.json());
+    for (const tool of config.tools) {
+      await document.modelContext.registerTool({
+        name: tool.name,
+        description: tool.description,
+        execute: async (input) => { /* ... */ }
+      });
+    }
+  })();
+
+  document.modelContext.waitForToolsUntil(toolsReady);
+  ```
+</div>
+
+
+<div algorithm>
+The <dfn attribute for=ModelContext>toolsReady</dfn> getter steps are:
+
+1. Return [=this=]'s [=relevant global object=]'s [=associated Document|associated
+   <code>Document</code>=]'s [=Document/tools-ready=].
+
+</div>
 
 <div algorithm>
 The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var>)</dfn> method steps are:
@@ -914,14 +1045,48 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
 1. Set [=this=]'s [=ModelContext/internal context=]'s [=model context/tool map=][|tool name|] to
    |tool definition|.
 
+1. Let |toolsReady| be |tool owner|'s [=Document/tools-ready=].
+
 1. Run the following steps [=in parallel=]:
 
-  1. [=Notify documents of a tool change=] given |tool owner| and |exposed origins|.
+  1. If |toolsReady| is true, then [=notify documents of a tool change=] given |tool owner|,
+     |exposed origins|, and |toolsReady|.
 
   1. [=Queue a global task=] on the [=webmcp task source=] given |global| to [=resolve=] |promise|
      with undefined.
 
 1. Return |promise|.
+
+</div>
+
+<div algorithm>
+The <dfn method for=ModelContext>waitForToolsUntil(<var>promise</var>)</dfn> method steps are:
+
+1. Let |global| be [=this=]'s [=relevant global object=].
+
+1. Let |document| be |global|'s [=associated Document|associated <code>Document</code>=].
+
+1. If |document| is not [=Document/fully active=], then [=exception/throw=] an "{{InvalidStateError}}"
+   {{DOMException}}.
+
+1. If |document| is not [=allowed to use=] the "{{tools}}" feature, then [=exception/throw=] a
+   "{{NotAllowedError}}" {{DOMException}}.
+
+1. Let |context| be [=this=]'s [=ModelContext/internal context=].
+
+1. [=set/Append=] |promise| to |context|'s [=model context/pending tool readiness promises=].
+
+1. [=Update the tools-ready state=] given |document|.
+
+1. [=promise/React=] to |promise|:
+
+   - If |promise| was fulfilled or rejected, then:
+
+       1. [=set/Remove=] |promise| from |context|'s [=model context/pending tool readiness
+          promises=].
+
+       1. If |document| is [=Document/fully active=], then [=update the tools-ready state=] given
+          |document|.
 
 </div>
 
@@ -955,6 +1120,11 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
 1. Let |promise| be [=a new promise=] created in [=this=]'s [=relevant realm=].
 
 1. Run the following steps [=in parallel=]:
+
+   1. [=Wait for tools to be ready=] given |toolRequestor|'s [=node navigable=]'s
+      [=navigable/traversable navigable=].
+
+   1. If |toolRequestor| is not [=Document/fully active=], then return.
 
    1. Let |discoveredTools| be an empty [=list=].
 
@@ -1460,6 +1630,29 @@ that must be supported, as [=event handler IDL attributes=], by all {{ModelConte
       <td><dfn event for="ModelContext">toolcancel</dfn>
 </table>
 
+<h4 id="tool-change-event">ToolChangeEvent Interface</h4>
+
+The {{ToolChangeEvent}} interface represents a {{ModelContext/toolchange}} event that is dispatched
+at a {{ModelContext}} object when the tools exposed to its {{Document}} change or their readiness
+state changes.
+
+<xmp class="idl">
+[Exposed=Window, SecureContext]
+interface ToolChangeEvent : Event {
+  constructor(DOMString type, optional ToolChangeEventInit eventInitDict = {});
+  readonly attribute boolean ready;
+};
+
+dictionary ToolChangeEventInit : EventInit {
+  boolean ready = true;
+};
+</xmp>
+
+<dl class="domintro" dfn-type=attribute dfn-for=ToolChangeEvent>
+  : <dfn>ready</dfn>
+  :: Returns true if the tools are ready to be read, or false if tool updates are in progress.
+</dl>
+
 <h4 id="tool-activated-event">ToolActivatedEvent Interface</h4>
 
 The {{ToolActivatedEvent}} interface represents a {{ModelContext/toolactivated}} event that is
@@ -1579,6 +1772,11 @@ steps:
 
 1. [=Assert=]: |traversable|'s [=navigable/active document=] is [=Document/fully active=].
 
+1. [=Wait for tools to be ready=] given |traversable|.
+
+1. If |traversable|'s [=navigable/active document=] is null or is not [=Document/fully active=],
+   then return.
+
 1. Let |observation| be a new [=observation=].
 
 1. Let |flat descendants| be the [=Document/inclusive descendant navigables=] of |traversable|'s
@@ -1632,6 +1830,11 @@ A [=browser agent=] may [=parallel queue/enqueue steps=] to the [=AI agent queue
 observation=] given any [=top-level browsing context=] in the [=user agent=] [=browsing context
 group set=], at any time, although implementations typically reserve this operation for when the
 user is interacting with a [=browser agent=] while web content is in view.
+
+Note: Calling {{ModelContext/waitForToolsUntil()}} only delays [=observations=] that the [=user
+agent=] chooses to perform while a {{Document}}'s [=Document/tools-ready=] is false. Toggling
+[=Document/tools-ready=] does not by itself cause or guarantee that the [=user agent=] will
+[=perform an observation=].
 
 
 <h2 id="security-privacy">Security and Privacy Considerations</h2>
