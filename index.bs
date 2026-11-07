@@ -2149,6 +2149,44 @@ page, protecting against malicious scripts or dependencies from using WebMCP API
 
 **How:** This restriction would not fully solve prompt injection attacks but helps shrink the possible universe of attacks, preventing longer prompts that leverage e.g. repetition and sockpuppetting [[SOCKPUPPETTING]] to convince agents of malicious tasks. The specification already implements a nominal size restriction of 128 characters for the tool {{ModelContextTool/name}} (see [[#supporting-concepts]]), but further work is needed to evaluate the right size limits for titles, names, and other inputs. See [Issue #73](https://github.com/webmachinelearning/webmcp/issues/73).
 
+<h4 id="mitigation-invisible-characters">Handling invisible characters in tool metadata</h4>
+
+**What:** Normalizing or exposing characters in tool metadata that are passed to the model but are
+not visible when the text is displayed.
+
+**Threats addressed:** [[#metadata-description-attacks]]
+
+**How:** A tool's {{ModelContextTool/title}}, {{ModelContextTool/description}}, and the strings in
+its {{ModelContextTool/inputSchema}} and {{ModelContextTool/outputSchema}} can contain characters
+that take no space on screen: Unicode tag characters (U+E0000 to U+E007F), which can encode ASCII
+text, zero-width characters, and bidirectional formatting controls that change the displayed order of
+text. An instruction hidden this way is no more persuasive to a model than a visible one, but it is
+missed by anything that relies on the displayed text, such as code review, a tool list or
+confirmation prompt shown to the user, or a guardrail that matches keywords or uses a small model.
+This matters most when a script that the site author does not control registers tools on the page.
+Tool names are limited to ASCII (see [[#supporting-concepts]]) and are not affected. Length limits
+([[#mitigation-restrict-input-lengths]]) do not help, because many of these characters fit within any
+practical limit.
+
+[=Agents=] and guardrails that inspect tool metadata are encouraged to:
+<ul>
+  <li>Normalize text before matching on it, by removing or decoding these characters. Matching works
+  on [=code points=], not UTF-16 code units: tag characters are [=surrogate=] pairs, so a check of
+  individual code units does not find them. {{ModelContextTool/description}} and strings in a schema
+  can contain lone surrogates, which are best replaced before any character is removed, since
+  removing a character between two of them can produce a new tag character. Schemas reach the
+  [=agent=] as JSON text, in which lone surrogates are written as `\uXXXX` escapes, so this applies
+  to the parsed schema rather than its JSON text.</li>
+  <li>Use the Unicode
+  [Default_Ignorable_Code_Point](https://www.unicode.org/reports/tr44/#Default_Ignorable_Code_Point)
+  property as a baseline, instead of a hand-written list of characters.</li>
+  <li>Only remove characters from descriptive text, such as titles and descriptions. Property names
+  and values that are passed to the tool, such as `enum`, `const`, and `default` in a schema, cannot
+  be changed without changing what the tool receives. For those, it is safer to reject the tool, and
+  to show these characters as visible escapes in argument previews.</li>
+  <li>Show the user the same text that is given to the model when asking for approval.</li>
+</ul>
+
 <h4 id="mitigation-shared-attack-evals">Supporting interoperable probabilistic defense structures through shared attack eval datasets</h4>
 
 **What:** Shared evals for prompt injection attacks against WebMCP
