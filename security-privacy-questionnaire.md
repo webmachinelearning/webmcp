@@ -72,7 +72,7 @@ None.
 
 The feature is gated by the [`"tools"`](https://webmachinelearning.github.io/webmcp/#permissiondef-tools) permission policy. It is allowed in top-level documents and same-origin descendants by default; The permission policy can be used to allow it in cross-origin iframes and/or to disallow it in same-origin frames.
 
-Additionally, tools can specify [`exposedTo`](https://webmachinelearning.github.io/webmcp/#dom-modelcontextregistertooloptions-exposedto) to control which origins (or `native-agents`, name to be bikeshed per [#179](https://github.com/webmachinelearning/webmcp/pull/179)) can discover them.
+Additionally, tools can specify [`exposedTo`](https://webmachinelearning.github.io/webmcp/#dom-modelcontextregistertooloptions-exposedto) to control which origins can discover them. The special string `"*"` opts into exposure to all origins in the document's tree, including opaque origins. Consumers can likewise use `"*"` in [`fromOrigins`](https://webmachinelearning.github.io/webmcp/#dom-modelcontextgettooloptions-fromorigins) to query all origins. Neither wildcard bypasses Permissions Policy or the other side's opt-in; explicit origin lists are preferable when possible. Control of exposure to `native-agents` remains under discussion (name to be bikeshed per [#179](https://github.com/webmachinelearning/webmcp/pull/179)).
 
 > 15. How do the features in this specification work in the context of a browser's Private Browsing or Incognito mode?
 
@@ -101,7 +101,7 @@ Note: this behavior is not yet spec'd but is the intended direction.
 
 > 20. Does your spec define when and how new kinds of errors should be raised?
 
-Yes. `registerTool()` throws `InvalidStateError` for inactive documents, duplicate names, or invalid name/description; `NotAllowedError` when the `"tools"` Permissions Policy is disallowed; `SecurityError` for non-trustworthy [`exposedTo`](https://webmachinelearning.github.io/webmcp/#dom-modelcontextregistertooloptions-exposedto) origins; and `TypeError` when `inputSchema` or `outputSchema` serialization fails. These errors only reflect the page's own state and inputs, so they do not leak new information.
+Yes. `registerTool()` throws `InvalidStateError` for inactive documents, duplicate names, or invalid name/description; `NotAllowedError` when the `"tools"` Permissions Policy is disallowed; `SecurityError` for invalid or non-trustworthy [`exposedTo`](https://webmachinelearning.github.io/webmcp/#dom-modelcontextregistertooloptions-exposedto) entries other than `"*"`; and `TypeError` when `inputSchema` or `outputSchema` serialization fails. `getTools()` likewise rejects with `SecurityError` for invalid or non-trustworthy `fromOrigins` entries other than `"*"`. All non-wildcard entries are validated even when `"*"` is present. These errors only reflect the page's own state and inputs, so they do not leak new information.
 
 > 21. Does your feature allow sites to learn about the user's use of assistive technology?
 

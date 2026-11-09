@@ -344,7 +344,9 @@ await document.modelContext.registerTool({
 }, { exposedTo: ["https://trusted-partner.example"] });
 ```
 
-Any document in the tree matching these origins (and allowed to use `tools` permission) will:
+The special string `"*"` exposes the tool to all origins in the current document's tree, including opaque origins, using `{ exposedTo: ["*"] }`. Other entries must still be valid, potentially trustworthy origins. Only the exact `"*"` string is special; subdomain wildcard patterns such as `"https://*.example.org"` are not supported.
+
+Any document in the tree matching these origins or covered by `"*"` (and allowed to use `tools` permission) will:
 
 - Receive the `toolchange` event on its `document.modelContext` when the tool is registered or unregistered.
 - Be able to discover and run the tools
@@ -353,7 +355,9 @@ Any document in the tree matching these origins (and allowed to use `tools` perm
 
 Once tools are registered, in-page agents can discover and invoke them using `getTools()` and `executeTool()`.
 
-Calling `document.modelContext.getTools()` returns a promise that resolves with an array of `RegisteredTool` dictionary objects. Each object contains the tool's `name`, `description`, `inputSchema`, `outputSchema`, `origin`, and owner `window`. By default, `getTools()` only returns tools registered by documents same-origin with the caller in the frame tree. To retrieve cross-origin tools, you must explicitly list their origins in the `fromOrigins` option. This array only supports secure origins.
+Calling `document.modelContext.getTools()` returns a promise that resolves with an array of `RegisteredTool` dictionary objects. Each object contains the tool's `name`, `description`, `inputSchema`, `outputSchema`, `origin`, and owner `window`. By default, `getTools()` only returns tools registered by documents same-origin with the caller in the frame tree. To retrieve cross-origin tools, you must explicitly list their origins in the `fromOrigins` option, or use `{ fromOrigins: ["*"] }` to query all origins in that tree, including opaque origins. Entries other than `"*"` must be valid, potentially trustworthy origins.
+
+In either option, `"*"` does not bypass Permissions Policy, the other side's opt-in, or execution checks. Tools discovered from documents with opaque origins still cannot be executed through `executeTool()`. Prefer explicit origin lists when possible. Other entries are still validated even when `"*"` is present.
 
 ```js
 // Discover tools exposed by same-origin frames in the tree (default)
@@ -370,6 +374,11 @@ for (const tool of tools) {
 // same-origin ones):
 const crossOriginTools = await document.modelContext.getTools({
   fromOrigins: ["https://trusted-partner.example"]
+});
+
+// Discover tools exposed to the caller by frames of any origin:
+const allOriginTools = await document.modelContext.getTools({
+  fromOrigins: ["*"]
 });
 ```
 
@@ -517,7 +526,7 @@ As the WebMCP proposal continues to evolve with community and stakeholder feedba
 
 - **Cross-document tool response**: How should WebMCP handle tool responses when a tool (a form submission, for example) causes the page to navigate to another document? See [Issue #135](https://github.com/webmachinelearning/webmcp/issues/135).
 
-- **Built-in agent exposure by default**: <p id=built-in-agent-default-exposure>The [`exposedTo`](https://webmachinelearning.github.io/webmcp/#dom-modelcontextregistertooloptions-exposedto) array only takes origins, but we're considering introducing a new keyword like `native-agent`, letting authors control a tool's exposure to a built-in agent. The running idea is that by default in the top-level document, a missing `exposedTo` array would expose tools to the built-in agent, and in iframes, a missing `exposedTo` array would not expose tools to the built-in agent</p>
+- **Built-in agent exposure by default**: <p id=built-in-agent-default-exposure>The [`exposedTo`](https://webmachinelearning.github.io/webmcp/#dom-modelcontextregistertooloptions-exposedto) array takes origins and the `"*"` wildcard for window-to-window exposure, but we're considering introducing a new keyword like `native-agent`, letting authors control a tool's exposure to a built-in agent. The running idea is that by default in the top-level document, a missing `exposedTo` array would expose tools to the built-in agent, and in iframes, a missing `exposedTo` array would not expose tools to the built-in agent</p>
 
 - **Transferable/streamable tool inputs and outputs**: AI models inherently support streaming data. WebMCP should consider enabling streaming tool inputs and outputs (such as chunked generation or large data transfers) without blocking on a massive copy. See [Issue #82](https://github.com/webmachinelearning/webmcp/issues/82). See also [MCP discussion](https://github.com/modelcontextprotocol/modelcontextprotocol/discussions/263) and [MCP Apps streaming tool inputs](https://github.com/modelcontextprotocol/ext-apps/blob/main/specification/draft/apps.mdx#notifications-host--view).
 

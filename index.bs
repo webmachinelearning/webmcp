@@ -173,6 +173,8 @@ An <dfn>AI platform</dfn> is a provider of agentic assistants such as OpenAI’s
 
 <h2 id="supporting-concepts">Supporting concepts</h2>
 
+The <dfn>origin wildcard</dfn> is the [=string=] "<code>*</code>", representing all [=origins=].
+
 A <dfn>model context</dfn> is a [=struct=] with the following [=struct/items=]:
 
 <dl dfn-for="model context">
@@ -242,7 +244,7 @@ A <dfn>tool definition</dfn> is a [=struct=] with the following [=struct/items=]
   :: an [=annotations=]-or-null.
 
   : <dfn>exposed origins</dfn>
-  :: a [=list=] of [=origins=], initially [=list/empty=].
+  :: a [=list=] whose items are [=origins=] or the [=origin wildcard=], initially [=list/empty=].
 </dl>
 
 A <dfn>local pending tool execution</dfn> is a [=struct=] with the following [=struct/items=]:
@@ -436,8 +438,8 @@ follows:
 <hr>
 
 <div algorithm>
-To <dfn>notify documents of a tool change</dfn> given a {{Document}} |tool owner| and a [=list=] of
-[=origins=] |exposed origins|, run these steps:
+To <dfn>notify documents of a tool change</dfn> given a {{Document}} |tool owner| and a [=list=]
+|exposed origins| whose items are [=origins=] or the [=origin wildcard=], run these steps:
 
 1. [=Assert=]: these steps are running [=in parallel=].
 
@@ -488,9 +490,12 @@ To <dfn>notify documents of a tool change</dfn> given a {{Document}} |tool owner
 
 <div algorithm>
 To determine if a <dfn>tool is exposed to an origin</dfn> given an [=origin=] |tool owner origin|,
-a [=list=] of [=origins=] |exposed origins|, and an [=origin=] |accessing origin|, run these steps:
+a [=list=] |exposed origins| whose items are [=origins=] or the [=origin wildcard=], and an
+[=origin=] |accessing origin|, run these steps:
 
 1. If |tool owner origin| is [=same origin=] with |accessing origin|, then return true.
+
+1. If |exposed origins| [=list/contains=] the [=origin wildcard=], then return true.
 
 1. [=list/For each=] |allowed origin| of |exposed origins|:
 
@@ -842,11 +847,18 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
    [=AbortSignal/aborted=], then return [=a promise rejected with=] |options|'s
    {{ModelContextRegisterToolOptions/signal}}'s [=AbortSignal/abort reason=].
 
-1. Let |exposed origins| be an empty [=list=] of [=origins=].
+1. Let |exposed origins| be an empty [=list=] whose items will be [=origins=] or the
+   [=origin wildcard=].
 
 1. If |options|'s {{ModelContextRegisterToolOptions/exposedTo}} [=map/exists=], then:
 
      1. [=list/For each=] |origin| of |options|'s {{ModelContextRegisterToolOptions/exposedTo}}:
+
+          1. If |origin| is the [=origin wildcard=], then:
+
+               1. [=list/Append=] the [=origin wildcard=] to |exposed origins|.
+
+               1. [=iteration/Continue=].
 
           1. Let |parsedURL| be the result of running the [=URL parser=] on |origin|.
 
@@ -938,11 +950,18 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
 1. If |toolRequestor| is not [=allowed to use=] the "{{tools}}" feature, then return [=a promise
    rejected with=] a "{{NotAllowedError}}" {{DOMException}}.
 
-1. Let |from origins| be an empty [=list=] of [=origins=].
+1. Let |from origins| be an empty [=list=] whose items will be [=origins=] or the
+   [=origin wildcard=].
 
 1. If |options|'s {{ModelContextGetToolOptions/fromOrigins}} [=map/exists=], then:
 
    1. [=list/For each=] |origin| of |options|'s {{ModelContextGetToolOptions/fromOrigins}}:
+
+      1. If |origin| is the [=origin wildcard=], then:
+
+         1. [=list/Append=] the [=origin wildcard=] to |from origins|.
+
+         1. [=iteration/Continue=].
 
       1. Let |parsedURL| be the result of running the [=URL parser=] on |origin|.
 
@@ -973,7 +992,8 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
       1. Let |callerOrigin| be |toolRequestor|'s [=Document/origin=].
 
       1. Let |toolOwnerIsRequested| be true if |targetOrigin| is [=same origin=] with
-         |callerOrigin|, or if |from origins| [=list/contains=] |targetOrigin|; otherwise, false.
+         |callerOrigin|, or if |from origins| [=list/contains=] the [=origin wildcard=], or if
+         |from origins| [=list/contains=] |targetOrigin|; otherwise, false.
 
       1. If |toolOwnerIsRequested| is false, then [=iteration/continue=].
 
@@ -1337,7 +1357,10 @@ dictionary ModelContextRegisterToolOptions {
 
 <dl class="domintro">
   : <code><var ignore>options</var>["{{ModelContextRegisterToolOptions/exposedTo}}"]</code>
-  :: An array of origins that control which documents this tool is exposed to, in the current document's tree.
+  :: An array of origin strings that control which documents this tool is exposed to, in the
+     current document's tree. The special string "<code>*</code>" is the [=origin wildcard=] and
+     exposes the tool to documents of all origins in that tree, including [=opaque origins=].
+     An omitted or empty array only permits same-origin access by documents.
 
   : <code><var ignore>options</var>["{{ModelContextRegisterToolOptions/signal}}"]</code>
   :: An {{AbortSignal}} that unregisters the tool when aborted.
@@ -1358,8 +1381,33 @@ dictionary ModelContextGetToolOptions {
   : <code><var ignore>options</var>["{{ModelContextGetToolOptions/fromOrigins}}"]</code>
   :: An array of origins from which to query tools. Documents whose origin appears in this list, or
      are same-origin with the caller, have their tools queried. An empty list only includes
-     same-origin documents.
+     same-origin documents. The special string "<code>*</code>" is the [=origin wildcard=] and
+     queries documents of all origins in the current document's tree, including [=opaque origins=].
+     Tools must still be exposed to the caller, and documents must be [=allowed to use=] the
+     "{{tools}}" feature.
 </dl>
+
+<div class=example id=origin-wildcard-options>
+  Use the [=origin wildcard=] to expose a tool to all origins or discover tools from all origins
+  in the current document's tree:
+
+  ```js
+  await document.modelContext.registerTool({
+    name: "public-status",
+    description: "Returns public service status",
+    execute: async () => ({ status: "available" })
+  }, { exposedTo: ["*"] });
+
+  const tools = await document.modelContext.getTools({ fromOrigins: ["*"] });
+  ```
+
+  Only the exact string "<code>*</code>" is special; strings such as
+  "<code>https://*.example.org</code>" are not supported wildcard patterns. Other entries are
+  still parsed and validated as origins, even when the array also contains "<code>*</code>".
+
+  The wildcard does not bypass the checks in {{ModelContext/executeTool()}}. In particular,
+  tools discovered from documents with [=opaque origins=] cannot be executed through that method.
+</div>
 
 <h4 id="model-context-execute-tool-options">ModelContextExecuteToolOptions Dictionary</h4>
 
@@ -2037,13 +2085,14 @@ gates are satisfied:
   <li>
     <strong>Tool Provider Opt-In ({{ModelContextRegisterToolOptions/exposedTo}})</strong>: A
     {{Document}} registering a tool must explicitly opt in to cross-origin exposure by specifying
-    the permitted caller [=origins=] in {{ModelContextRegisterToolOptions/exposedTo}}. Each listed
-    [=origin=] must be a valid, [$is origin potentially trustworthy?|potentially trustworthy$]
-    [=origin=]. During both discovery ({{ModelContext/getTools()}}) and invocation
+    the permitted caller [=origins=] or the [=origin wildcard=] in
+    {{ModelContextRegisterToolOptions/exposedTo}}. Each entry other than the [=origin wildcard=]
+    must be a valid, [$is origin potentially trustworthy?|potentially trustworthy$] [=origin=].
+    During both discovery ({{ModelContext/getTools()}}) and invocation
     ({{ModelContext/executeTool()}}), the [=user agent=] evaluates the [=tool is exposed to an
     origin=] algorithm, ensuring that only callers whose [=Document/origin=] is [=same origin=] with
-    the tool owner or explicitly listed in {{ModelContextRegisterToolOptions/exposedTo}} can access
-    the tool.
+    the tool owner, explicitly listed in {{ModelContextRegisterToolOptions/exposedTo}}, or covered
+    by the [=origin wildcard=] can access the tool.
   </li>
   <li>
     <strong>Tool Consumer Opt-In ({{ModelContextGetToolOptions/fromOrigins}})</strong>: Even when an
@@ -2051,7 +2100,8 @@ gates are satisfied:
     a tool to its parent [=origin=] via {{ModelContextRegisterToolOptions/exposedTo}},
     {{ModelContext/getTools()}} only returns tools from [=same origin=] {{Document}}s by default. To
     discover tools from a cross-origin descendant [=navigable=], the calling {{Document}} must also
-    explicitly list the target [=origin=] in {{ModelContextGetToolOptions/fromOrigins}}.
+    explicitly list the target [=origin=] or the [=origin wildcard=] in
+    {{ModelContextGetToolOptions/fromOrigins}}.
   </li>
 </ol>
 
@@ -2065,6 +2115,10 @@ without consumer opt-in ({{ModelContextGetToolOptions/fromOrigins}}), a compromi
 third-party <{iframe}> could unilaterally expose tools with deceptive names or prompt-injected
 descriptions ([[#metadata-description-attacks]]) into the parent page's {{ModelContext/getTools()}}
 results.
+
+The [=origin wildcard=] is an explicit opt-in to all origins, not an assertion that those origins
+are trusted. Authors should prefer explicit origin lists when possible. Using "<code>*</code>"
+does not bypass the "{{tools}}" Permissions Policy or the other side's opt-in.
 
 ```js
 // 1. Parent document (https://app.example.com) explicitly delegates the "tools"
