@@ -344,20 +344,22 @@ await document.modelContext.registerTool({
 }, { exposedTo: ["https://trusted-partner.example"] });
 ```
 
-The special string `"*"` exposes the tool to all origins in the current document's tree, including opaque origins, using `{ exposedTo: ["*"] }`. Other entries must still be valid, potentially trustworthy origins. Only the exact `"*"` string is special; subdomain wildcard patterns such as `"https://*.example.org"` are not supported.
+The special string `"*"` exposes the tool to all potentially trustworthy origins in the current document's tree, using `{ exposedTo: ["*"] }`. It does not match opaque origins. Other entries must still be valid, potentially trustworthy origins. Only the exact `"*"` string is special.
 
 Any document in the tree matching these origins or covered by `"*"` (and allowed to use `tools` permission) will:
 
 - Receive the `toolchange` event on its `document.modelContext` when the tool is registered or unregistered.
-- Be able to discover and run the tools
+- Be able to discover the tools (for cross-origin discovery, the consumer's `fromOrigins` must include the provider's origin or `"*"`), and run them subject to execution checks.
+
+The `toolchange` event is not filtered by `fromOrigins`. Wildcard exposure can therefore reveal registration and unregistration timing to eligible documents even if they have not opted into discovering those tools.
 
 #### Discovering and running tools: `getTools()` and `executeTool()`
 
 Once tools are registered, in-page agents can discover and invoke them using `getTools()` and `executeTool()`.
 
-Calling `document.modelContext.getTools()` returns a promise that resolves with an array of `RegisteredTool` dictionary objects. Each object contains the tool's `name`, `description`, `inputSchema`, `outputSchema`, `origin`, and owner `window`. By default, `getTools()` only returns tools registered by documents same-origin with the caller in the frame tree. To retrieve cross-origin tools, you must explicitly list their origins in the `fromOrigins` option, or use `{ fromOrigins: ["*"] }` to query all origins in that tree, including opaque origins. Entries other than `"*"` must be valid, potentially trustworthy origins.
+Calling `document.modelContext.getTools()` returns a promise that resolves with an array of `RegisteredTool` dictionary objects. Each object contains the tool's `name`, `description`, `inputSchema`, `outputSchema`, `origin`, and owner `window`. By default, `getTools()` only returns tools registered by documents same-origin with the caller in the frame tree. To retrieve cross-origin tools, you must explicitly list their origins in the `fromOrigins` option, or use `{ fromOrigins: ["*"] }` to query all potentially trustworthy origins in that tree. The wildcard does not match opaque origins. Entries other than `"*"` must be valid, potentially trustworthy origins.
 
-In either option, `"*"` does not bypass Permissions Policy, the other side's opt-in, or execution checks. Tools discovered from documents with opaque origins still cannot be executed through `executeTool()`. Prefer explicit origin lists when possible. Other entries are still validated even when `"*"` is present.
+In either option, `"*"` does not bypass Permissions Policy or execution checks. Discovery still requires the provider's `exposedTo` to allow the caller and the consumer's `fromOrigins` to allow the provider. A wildcard opts into any eligible origin, not just origins trusted by the author; wildcard consumers may discover tools with untrusted descriptions. Prefer explicit origin lists when possible. Other entries are still validated even when `"*"` is present.
 
 ```js
 // Discover tools exposed by same-origin frames in the tree (default)
@@ -376,13 +378,13 @@ const crossOriginTools = await document.modelContext.getTools({
   fromOrigins: ["https://trusted-partner.example"]
 });
 
-// Discover tools exposed to the caller by frames of any origin:
+// Discover tools exposed to the caller by frames with potentially trustworthy origins:
 const allOriginTools = await document.modelContext.getTools({
   fromOrigins: ["*"]
 });
 ```
 
-An agent executes a discovered `RegisteredTool` by passing the tool dictionary and input arguments along to `document.modelContext.executeTool()`. The browser securely mediates the execution, ensuring the [`exposedTo`](https://webmachinelearning.github.io/webmcp/#dom-modelcontextregistertooloptions-exposedto) and [`fromOrigins`](https://webmachinelearning.github.io/webmcp/#dom-modelcontextgettooloptions-fromorigins) agree, and the tool runs in the tool owner's execution context:
+An agent executes a discovered `RegisteredTool` by passing the tool dictionary and input arguments along to `document.modelContext.executeTool()`. The browser securely mediates the execution, checking [`exposedTo`](https://webmachinelearning.github.io/webmcp/#dom-modelcontextregistertooloptions-exposedto) again, and the tool runs in the tool owner's execution context. [`fromOrigins`](https://webmachinelearning.github.io/webmcp/#dom-modelcontextgettooloptions-fromorigins) filters discovery, not execution:
 
 ```js
 const tools = await document.modelContext.getTools();
