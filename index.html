@@ -5,10 +5,10 @@
   <title>WebMCP</title>
   <meta content="CG-DRAFT" name="w3c-status">
   <link href="https://www.w3.org/StyleSheets/TR/2021/cg-draft" rel="stylesheet">
-  <meta content="Bikeshed version 49e9fdd4f, updated Tue Oct 13 14:27:53 2026 -0700" name="generator">
+  <meta content="Bikeshed version e0b165ae4, updated Mon Nov 2 15:16:49 2026 -0800" name="generator">
   <link href="https://webmachinelearning.github.io/webmcp" rel="canonical">
   <link href="https://www.w3.org/2008/site/images/favicon.ico" rel="icon">
-  <meta content="6cd745ac8a186122bd3f4aeaeb1d6cfa820251d2" name="revision">
+  <meta content="f2f2ae2294ede134bf90f9c7b35ab3e163e27379" name="revision">
   <meta content="dark light" name="color-scheme">
   <link href="https://www.w3.org/StyleSheets/TR/2021/dark.css" media="(prefers-color-scheme: dark)" rel="stylesheet" type="text/css">
 <style>
@@ -428,14 +428,17 @@ figure.table figcaption:not(.no-marker)::before {
     height: auto;
     max-height: 500px;
     overflow: auto;
+    margin: 0;
     padding: 0.5em 0.75em;
     font: small Helvetica Neue, sans-serif, Droid Sans Fallback;
     background: var(--dfnpanel-bg);
     color: var(--dfnpanel-text);
     border: outset 0.2em;
     white-space: normal; /* in case it's moved into a pre */
+    inset: auto;
+    position-area: bottom span-right;
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
 }
-.dfn-panel:not(.on) { display: none; }
 .dfn-panel * { margin: 0; padding: 0; text-indent: 0; }
 .dfn-panel > b { display: block; }
 .dfn-panel a { color: var(--dfnpanel-text); }
@@ -455,6 +458,9 @@ figure.table figcaption:not(.no-marker)::before {
 .dfn-panel.activated {
     display: inline-block;
     position: fixed;
+    position-area: none;
+    top: auto;
+    right: auto;
     left: 8px;
     bottom: 2em;
     margin: 0 auto;
@@ -511,7 +517,8 @@ figure.table figcaption:not(.no-marker)::before {
     opacity: 1;
 }
 
-.dfn-paneled[role="button"] { cursor: help; }
+.dfn-paneled { cursor: help; }
+.dfn-paneled > .dfn-panelbutton { all: unset; }
 
 .highlighted {
     animation: target-fade 3s;
@@ -841,7 +848,7 @@ var[data-var-color="6"] { --var-vg: #FFBCF2; }
 </p>
    <h1 class="no-ref p-name" id="title">WebMCP</h1>
    <p id="w3c-state"><a href="https://www.w3.org/standards/types/#CG-DRAFT">Draft Community Group Report</a>,
-    <time class="dt-updated" datetime="2026-11-02">2 November 2026</time></p>
+    <time class="dt-updated" datetime="2026-11-09">9 November 2026</time></p>
    <details open>
     <summary>More details about this document</summary>
     <div data-fill-with="spec-metadata">
@@ -1396,9 +1403,6 @@ To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="invoke-the-exe
       <p>If <var>inputObject</var> <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-object-type" id="ref-for-dfn-object-type">is not an Object</a>, then run <var>completionSteps</var> given null
  and <a data-link-type="dfn" href="#tool-execution-error-invalid-input" id="ref-for-tool-execution-error-invalid-input①">invalid input</a>, and abort these steps.</p>
      <li data-md>
-      <p><a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-fire" id="ref-for-concept-event-fire②">Fire an event</a> named <code class="idl"><a data-link-type="idl" href="#eventdef-modelcontext-toolactivated" id="ref-for-eventdef-modelcontext-toolactivated">toolactivated</a></code> at <var>targetDocument</var>’s <a data-link-type="dfn" href="#document-associated-modelcontext" id="ref-for-document-associated-modelcontext④">associated <code>ModelContext</code></a>, using <code class="idl"><a data-link-type="idl" href="#toolactivatedevent" id="ref-for-toolactivatedevent">ToolActivatedEvent</a></code>, with its
- <code class="idl"><a data-link-type="idl" href="#dom-toolactivatedevent-toolname" id="ref-for-dom-toolactivatedevent-toolname">toolName</a></code> attribute initialized to <var>tool</var>’s <code class="idl"><a data-link-type="idl" href="#dom-modelcontexttool-name" id="ref-for-dom-modelcontexttool-name">name</a></code>.</p>
-     <li data-md>
       <p>Let <var>controller</var> be a <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#new" id="ref-for-new">new</a> <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#abortcontroller" id="ref-for-abortcontroller①">AbortController</a></code> created in <var>targetDocument</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-realm" id="ref-for-concept-relevant-realm">relevant realm</a>.</p>
      <li data-md>
       <p>Let <var>localExecution</var> be a new <a data-link-type="dfn" href="#local-pending-tool-execution" id="ref-for-local-pending-tool-execution①">local pending tool execution</a> with the following <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#struct-item" id="ref-for-struct-item⑤">items</a>:</p>
@@ -1408,7 +1412,7 @@ To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="invoke-the-exe
         <p><var>controller</var></p>
       </dl>
      <li data-md>
-      <p>Set <var>targetDocument</var>’s <a data-link-type="dfn" href="#document-associated-modelcontext" id="ref-for-document-associated-modelcontext⑤">associated
+      <p>Set <var>targetDocument</var>’s <a data-link-type="dfn" href="#document-associated-modelcontext" id="ref-for-document-associated-modelcontext④">associated
  <code>ModelContext</code></a>’s <a data-link-type="dfn" href="#modelcontext-internal-context" id="ref-for-modelcontext-internal-context②">internal context</a>’s <a data-link-type="dfn" href="#model-context-local-pending-tool-executions-map" id="ref-for-model-context-local-pending-tool-executions-map①">local pending tool executions map</a>[<var>uuid</var>] to <var>localExecution</var>.</p>
      <li data-md>
       <p>Let <var>options</var> be a new <code class="idl"><a data-link-type="idl" href="#dictdef-toolexecutecallbackoptions" id="ref-for-dictdef-toolexecutecallbackoptions">ToolExecuteCallbackOptions</a></code> dictionary, with the following fields:</p>
@@ -1427,7 +1431,7 @@ To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="invoke-the-exe
         <p>If <var>toolPromise</var> was fulfilled with value <var>v</var>:</p>
         <ol>
          <li data-md>
-          <p>Let <var>localExecutions</var> be <var>targetDocument</var>’s <a data-link-type="dfn" href="#document-associated-modelcontext" id="ref-for-document-associated-modelcontext⑥">associated
+          <p>Let <var>localExecutions</var> be <var>targetDocument</var>’s <a data-link-type="dfn" href="#document-associated-modelcontext" id="ref-for-document-associated-modelcontext⑤">associated
   <code>ModelContext</code></a>’s <a data-link-type="dfn" href="#modelcontext-internal-context" id="ref-for-modelcontext-internal-context③">internal context</a>’s <a data-link-type="dfn" href="#model-context-local-pending-tool-executions-map" id="ref-for-model-context-local-pending-tool-executions-map②">local pending tool executions map</a>.</p>
          <li data-md>
           <p>If <var>localExecutions</var>[<var>uuid</var>] does not <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists④">exist</a>, then return.</p>
@@ -1447,7 +1451,7 @@ To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="invoke-the-exe
          <li data-md>
           <p>Optionally <a data-link-type="dfn" href="https://console.spec.whatwg.org/#report-a-warning-to-the-console" id="ref-for-report-a-warning-to-the-console">report a warning to the console</a> describing <var>r</var>.</p>
          <li data-md>
-          <p>Let <var>localExecutions</var> be <var>targetDocument</var>’s <a data-link-type="dfn" href="#document-associated-modelcontext" id="ref-for-document-associated-modelcontext⑦">associated
+          <p>Let <var>localExecutions</var> be <var>targetDocument</var>’s <a data-link-type="dfn" href="#document-associated-modelcontext" id="ref-for-document-associated-modelcontext⑥">associated
   <code>ModelContext</code></a>’s <a data-link-type="dfn" href="#modelcontext-internal-context" id="ref-for-modelcontext-internal-context④">internal context</a>’s <a data-link-type="dfn" href="#model-context-local-pending-tool-executions-map" id="ref-for-model-context-local-pending-tool-executions-map③">local pending tool executions map</a>.</p>
          <li data-md>
           <p>If <var>localExecutions</var>[<var>uuid</var>] does not <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists⑤">exist</a>, then return.</p>
@@ -1457,6 +1461,9 @@ To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="invoke-the-exe
           <p>Run <var>completionSteps</var> given null and <a data-link-type="dfn" href="#tool-execution-error-tool-rejected" id="ref-for-tool-execution-error-tool-rejected">tool rejected</a>.</p>
         </ol>
       </ul>
+     <li data-md>
+      <p><a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-fire" id="ref-for-concept-event-fire②">Fire an event</a> named <code class="idl"><a data-link-type="idl" href="#eventdef-modelcontext-toolactivated" id="ref-for-eventdef-modelcontext-toolactivated">toolactivated</a></code> at <var>targetDocument</var>’s <a data-link-type="dfn" href="#document-associated-modelcontext" id="ref-for-document-associated-modelcontext⑦">associated <code>ModelContext</code></a>, using <code class="idl"><a data-link-type="idl" href="#toolactivatedevent" id="ref-for-toolactivatedevent">ToolActivatedEvent</a></code>, with its
+ <code class="idl"><a data-link-type="idl" href="#dom-toolactivatedevent-toolname" id="ref-for-dom-toolactivatedevent-toolname">toolName</a></code> attribute initialized to <var>tool</var>’s <code class="idl"><a data-link-type="idl" href="#dom-modelcontexttool-name" id="ref-for-dom-modelcontexttool-name">name</a></code>.</p>
     </ol>
    </div>
    <div class="algorithm" data-algorithm="unregister a tool" data-algorithm-for="model context">
@@ -2266,7 +2273,8 @@ that must be supported, as <a data-link-type="dfn" href="https://html.spec.whatw
    </table>
    <h4 class="heading settled" data-level="4.3.1" id="tool-activated-event"><span class="secno">4.3.1. </span><span class="content">ToolActivatedEvent Interface</span><a class="self-link" href="#tool-activated-event"></a></h4>
    <p>The <code class="idl"><a data-link-type="idl" href="#toolactivatedevent" id="ref-for-toolactivatedevent①">ToolActivatedEvent</a></code> interface represents a <code class="idl"><a data-link-type="idl" href="#eventdef-modelcontext-toolactivated" id="ref-for-eventdef-modelcontext-toolactivated①">toolactivated</a></code> event that is
-dispatched at a <code class="idl"><a data-link-type="idl" href="#modelcontext" id="ref-for-modelcontext①⓪">ModelContext</a></code> object when the execution of a tool begins.</p>
+dispatched at a <code class="idl"><a data-link-type="idl" href="#modelcontext" id="ref-for-modelcontext①⓪">ModelContext</a></code> object after a tool’s <code class="idl"><a data-link-type="idl" href="#dom-modelcontexttool-execute" id="ref-for-dom-modelcontexttool-execute③">execute</a></code> callback is
+invoked.</p>
 <pre class="def highlight idl">[<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Exposed" id="ref-for-Exposed①"><c- g>Exposed</c-></a>=<c- n>Window</c->, <a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#SecureContext" id="ref-for-SecureContext②"><c- g>SecureContext</c-></a>]
 <c- b>interface</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="toolactivatedevent"><code><c- g>ToolActivatedEvent</c-></code></dfn> : <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#event" id="ref-for-event"><c- n>Event</c-></a> {
   <dfn class="dfn-paneled idl-code" data-dfn-for="ToolActivatedEvent" data-dfn-type="constructor" data-export data-lt="ToolActivatedEvent(type, eventInitDict)|constructor(type, eventInitDict)|ToolActivatedEvent(type)|constructor(type)" id="dom-toolactivatedevent-toolactivatedevent"><code><c- g>constructor</c-></code></dfn>(<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-DOMString" id="ref-for-idl-DOMString⑥"><c- b>DOMString</c-></a> <dfn class="dfn-paneled idl-code" data-dfn-for="ToolActivatedEvent/ToolActivatedEvent(type, eventInitDict), ToolActivatedEvent/constructor(type, eventInitDict), ToolActivatedEvent/ToolActivatedEvent(type), ToolActivatedEvent/constructor(type)" data-dfn-type="argument" data-export id="dom-toolactivatedevent-toolactivatedevent-type-eventinitdict-type"><code><c- g>type</c-></code></dfn>, <c- b>optional</c-> <a data-link-type="idl-name" href="#dictdef-toolactivatedeventinit" id="ref-for-dictdef-toolactivatedeventinit"><c- n>ToolActivatedEventInit</c-></a> <dfn class="dfn-paneled idl-code" data-dfn-for="ToolActivatedEvent/ToolActivatedEvent(type, eventInitDict), ToolActivatedEvent/constructor(type, eventInitDict), ToolActivatedEvent/ToolActivatedEvent(type), ToolActivatedEvent/constructor(type)" data-dfn-type="argument" data-export id="dom-toolactivatedevent-toolactivatedevent-type-eventinitdict-eventinitdict"><code><c- g>eventInitDict</c-></code></dfn> = {});
@@ -2717,7 +2725,7 @@ something this specification can normatively enforce. Broader standardization an
    <p>The Same-Origin Policy (SOP) is the foundational security boundary of the web platform, isolating
 documents of different <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#concept-origin" id="ref-for-concept-origin⑧">origins</a> so that one <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#concept-origin" id="ref-for-concept-origin⑨">origin</a> cannot inspect or manipulate the state of
 another without explicit consent.</p>
-   <p>In WebMCP, a registered tool’s <code class="idl"><a data-link-type="idl" href="#dom-modelcontexttool-execute" id="ref-for-dom-modelcontexttool-execute③">execute</a></code> callback always runs within the
+   <p>In WebMCP, a registered tool’s <code class="idl"><a data-link-type="idl" href="#dom-modelcontexttool-execute" id="ref-for-dom-modelcontexttool-execute④">execute</a></code> callback always runs within the
 registering <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#document" id="ref-for-document①⑦">Document</a></code>’s execution context, with full access to that <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#concept-origin" id="ref-for-concept-origin①⓪">origin</a>’s DOM, storage,
 and ambient credentials. Consequently, allowing a cross-origin <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#document" id="ref-for-document①⑧">Document</a></code> in the frame tree to
 discover a tool (<code class="idl"><a data-link-type="idl" href="#dom-modelcontext-gettools" id="ref-for-dom-modelcontext-gettools④">getTools()</a></code>), invoke it (<code class="idl"><a data-link-type="idl" href="#dom-modelcontext-executetool" id="ref-for-dom-modelcontext-executetool④">executeTool()</a></code>), and
@@ -3703,7 +3711,7 @@ let dfnPanelData = {
 "dom-modelcontextregistertooloptions-signal": {"dfnID":"dom-modelcontextregistertooloptions-signal","dfnText":"signal","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontextregistertooloptions-signal"},{"id":"ref-for-dom-modelcontextregistertooloptions-signal\u2460"}],"title":"3.1. Pending tool executions"},{"refs":[{"id":"ref-for-dom-modelcontextregistertooloptions-signal\u2461"},{"id":"ref-for-dom-modelcontextregistertooloptions-signal\u2462"},{"id":"ref-for-dom-modelcontextregistertooloptions-signal\u2463"},{"id":"ref-for-dom-modelcontextregistertooloptions-signal\u2464"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dom-modelcontextregistertooloptions-signal\u2465"}],"title":"4.2.3. ModelContextRegisterToolOptions Dictionary"}],"url":"#dom-modelcontextregistertooloptions-signal"},
 "dom-modelcontexttool-annotations": {"dfnID":"dom-modelcontexttool-annotations","dfnText":"annotations","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontexttool-annotations"},{"id":"ref-for-dom-modelcontexttool-annotations\u2460"},{"id":"ref-for-dom-modelcontexttool-annotations\u2461"},{"id":"ref-for-dom-modelcontexttool-annotations\u2462"},{"id":"ref-for-dom-modelcontexttool-annotations\u2463"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dom-modelcontexttool-annotations\u2464"}],"title":"4.2.1. ModelContextTool Dictionary"},{"refs":[{"id":"ref-for-dom-modelcontexttool-annotations\u2465"}],"title":"4.2.6. RegisteredTool Dictionary"}],"url":"#dom-modelcontexttool-annotations"},
 "dom-modelcontexttool-description": {"dfnID":"dom-modelcontexttool-description","dfnText":"description","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontexttool-description"},{"id":"ref-for-dom-modelcontexttool-description\u2460"},{"id":"ref-for-dom-modelcontexttool-description\u2461"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dom-modelcontexttool-description\u2462"}],"title":"4.2.1. ModelContextTool Dictionary"},{"refs":[{"id":"ref-for-dom-modelcontexttool-description\u2463"}],"title":"4.2.6. RegisteredTool Dictionary"}],"url":"#dom-modelcontexttool-description"},
-"dom-modelcontexttool-execute": {"dfnID":"dom-modelcontexttool-execute","dfnText":"execute","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontexttool-execute"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-dom-modelcontexttool-execute\u2460"}],"title":"3.1. Pending tool executions"},{"refs":[{"id":"ref-for-dom-modelcontexttool-execute\u2461"}],"title":"4.2.1. ModelContextTool Dictionary"},{"refs":[{"id":"ref-for-dom-modelcontexttool-execute\u2462"}],"title":"6.3.4. Interaction with the Same-Origin Policy"}],"url":"#dom-modelcontexttool-execute"},
+"dom-modelcontexttool-execute": {"dfnID":"dom-modelcontexttool-execute","dfnText":"execute","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontexttool-execute"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-dom-modelcontexttool-execute\u2460"}],"title":"3.1. Pending tool executions"},{"refs":[{"id":"ref-for-dom-modelcontexttool-execute\u2461"}],"title":"4.2.1. ModelContextTool Dictionary"},{"refs":[{"id":"ref-for-dom-modelcontexttool-execute\u2462"}],"title":"4.3.1. ToolActivatedEvent Interface"},{"refs":[{"id":"ref-for-dom-modelcontexttool-execute\u2463"}],"title":"6.3.4. Interaction with the Same-Origin Policy"}],"url":"#dom-modelcontexttool-execute"},
 "dom-modelcontexttool-inputschema": {"dfnID":"dom-modelcontexttool-inputschema","dfnText":"inputSchema","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontexttool-inputschema"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-dom-modelcontexttool-inputschema\u2460"},{"id":"ref-for-dom-modelcontexttool-inputschema\u2461"},{"id":"ref-for-dom-modelcontexttool-inputschema\u2462"},{"id":"ref-for-dom-modelcontexttool-inputschema\u2463"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dom-modelcontexttool-inputschema\u2464"}],"title":"4.2.1. ModelContextTool Dictionary"},{"refs":[{"id":"ref-for-dom-modelcontexttool-inputschema\u2465"}],"title":"4.2.6. RegisteredTool Dictionary"}],"url":"#dom-modelcontexttool-inputschema"},
 "dom-modelcontexttool-name": {"dfnID":"dom-modelcontexttool-name","dfnText":"name","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontexttool-name"}],"title":"3.1. Pending tool executions"},{"refs":[{"id":"ref-for-dom-modelcontexttool-name\u2460"},{"id":"ref-for-dom-modelcontexttool-name\u2461"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dom-modelcontexttool-name\u2462"}],"title":"4.2.1. ModelContextTool Dictionary"},{"refs":[{"id":"ref-for-dom-modelcontexttool-name\u2463"}],"title":"4.2.6. RegisteredTool Dictionary"},{"refs":[{"id":"ref-for-dom-modelcontexttool-name\u2464"}],"title":"6.4.2. Restricting maximum input lengths"}],"url":"#dom-modelcontexttool-name"},
 "dom-modelcontexttool-outputschema": {"dfnID":"dom-modelcontexttool-outputschema","dfnText":"outputSchema","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-modelcontexttool-outputschema"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-dom-modelcontexttool-outputschema\u2460"},{"id":"ref-for-dom-modelcontexttool-outputschema\u2461"}],"title":"4.2. ModelContext Interface"},{"refs":[{"id":"ref-for-dom-modelcontexttool-outputschema\u2462"}],"title":"4.2.1. ModelContextTool Dictionary"},{"refs":[{"id":"ref-for-dom-modelcontexttool-outputschema\u2463"}],"title":"4.2.6. RegisteredTool Dictionary"}],"url":"#dom-modelcontexttool-outputschema"},
@@ -3793,16 +3801,6 @@ let dfnPanelData = {
 
 document.addEventListener("DOMContentLoaded", ()=>{
     genAllDfnPanels();
-
-    document.body.addEventListener("click", (e) => {
-        // If not handled already, just hide all dfn panels.
-        hideAllDfnPanels();
-    });
-});
-
-window.addEventListener("resize", () => {
-    // Pin any visible dfn panel
-    queryAll(".dfn-panel.on, .dfn-panel.activated").forEach(el=>positionDfnPanel(el));
 });
 
 function genAllDfnPanels() {
@@ -3814,16 +3812,17 @@ function genAllDfnPanels() {
             continue;
         }
         dfn.panelData = panelData;
-        insertDfnPopupAction(dfn);
+        genDfnPanel(dfn, panelData);
     }
 }
 
 function genDfnPanel(dfn, { dfnID, url, dfnText, refSections, external }) {
-    const dfnPanel = mk.aside({
-        class: "dfn-panel on",
+    const dfnPanel = mk.dialog({
+        class: "dfn-panel",
         id: `infopanel-for-${dfnID}`,
+        popover: "hint",
         "data-for": dfnID,
-        "aria-labelled-by":`infopaneltitle-for-${dfnID}`,
+        "aria-labelledby": `infopaneltitle-for-${dfnID}`,
         },
         mk.span({id:`infopaneltitle-for-${dfnID}`, style:"display:none"},
             `Info about the '${dfnText}' ${external?"external":""} reference.`),
@@ -3855,106 +3854,34 @@ function genDfnPanel(dfn, { dfnID, url, dfnText, refSections, external }) {
         event.stopPropagation();
         refocusOnTarget(event);
     });
-    dfnPanel.addEventListener('keydown', (event) => {
-        if(event.keyCode == 27) { // Escape key
-            hideDfnPanel({dfnPanel});
-            event.stopPropagation();
-            event.preventDefault();
+
+    dfnPanel.addEventListener('toggle', event=>{
+        if(event.newState == "closed") {
+            unpinDfnPanel(dfnPanel);
         }
     });
 
     dfnPanel.dfn = dfn;
     dfn.dfnPanel = dfnPanel;
+    dfn.after(dfnPanel);
+    const button = mk.button(
+        {
+            class:"dfn-panelbutton",
+            "popovertarget":dfnPanel.id
+        },
+        ...dfn.childNodes
+    );
+    dfn.append(button);
     return dfnPanel;
-}
-
-
-
-function hideAllDfnPanels() {
-    // Delete the currently-active dfn panel.
-    queryAll(".dfn-panel").forEach(dfnPanel=>hideDfnPanel({dfnPanel}));
-}
-
-function showDfnPanel(dfn) {
-    hideAllDfnPanels(); // Only display one at a time.
-
-    dfn.setAttribute("aria-expanded", "true");
-
-    const dfnPanel = genDfnPanel(dfn, dfn.panelData);
-
-    // Give the dfn a unique tabindex, and then
-    // give all the tabbable panel bits successive indexes.
-    let tabIndex = 100;
-    dfn.tabIndex = tabIndex++;
-    const tabbable = dfnPanel.querySelectorAll(":is(a, button)");
-    for (const el of tabbable) {
-        el.tabIndex = tabIndex++;
-    }
-
-    append(document.body, dfnPanel);
-    positionDfnPanel(dfnPanel);
-}
-
-function positionDfnPanel(dfnPanel) {
-    const dfn = dfnPanel.dfn;
-    const dfnPos = getBounds(dfn);
-    dfnPanel.style.top = dfnPos.bottom + "px";
-    dfnPanel.style.left = dfnPos.left + "px";
-
-    const panelPos = dfnPanel.getBoundingClientRect();
-    const panelMargin = 8;
-    const maxRight = document.body.parentNode.clientWidth - panelMargin;
-    if (panelPos.right > maxRight) {
-        const overflowAmount = panelPos.right - maxRight;
-        const newLeft = Math.max(panelMargin, dfnPos.left - overflowAmount);
-        dfnPanel.style.left = newLeft + "px";
-    }
 }
 
 function pinDfnPanel(dfnPanel) {
     // Switch it to "activated" state, which pins it.
     dfnPanel.classList.add("activated");
-    dfnPanel.style.position = "fixed";
-    dfnPanel.style.left = null;
-    dfnPanel.style.top = null;
 }
 
-function hideDfnPanel({dfn, dfnPanel}) {
-    if(!dfnPanel) dfnPanel = dfn.dfnPanel;
-    if(!dfn) dfn = dfnPanel.dfn;
-    dfn.dfnPanel = undefined;
-    dfnPanel.dfn = undefined;
-    dfn.setAttribute("aria-expanded", "false");
-    dfn.tabIndex = undefined;
-    dfnPanel.remove()
-}
-
-function toggleDfnPanel(dfn) {
-    if(dfn.dfnPanel) {
-        hideDfnPanel(dfn);
-    } else {
-        showDfnPanel(dfn);
-    }
-}
-
-function insertDfnPopupAction(dfn) {
-    dfn.setAttribute('role', 'button');
-    dfn.setAttribute('aria-expanded', 'false')
-    dfn.tabIndex = 0;
-    dfn.classList.add('has-dfn-panel');
-    dfn.addEventListener('click', (event) => {
-        toggleDfnPanel(dfn);
-        event.stopPropagation();
-    });
-    dfn.addEventListener('keypress', (event) => {
-        const kc = event.keyCode;
-        // 32->Space, 13->Enter
-        if(kc == 32 || kc == 13) {
-            toggleDfnPanel(dfn);
-            event.stopPropagation();
-            event.preventDefault();
-        }
-    });
+function unpinDfnPanel(dfnPanel) {
+    dfnPanel.classList.remove("activated");
 }
 
 function refocusOnTarget(event) {
@@ -3964,21 +3891,6 @@ function refocusOnTarget(event) {
         // This is needed after browser scrolls to the destination.
         target.focus();
     });
-}
-
-// TODO: shared util
-// Returns the root-level absolute position {left and top} of element.
-function getBounds(el, relativeTo=document.body) {
-    const relativeRect = relativeTo.getBoundingClientRect();
-    const elRect = el.getBoundingClientRect();
-    const top = elRect.top - relativeRect.top;
-    const left = elRect.left - relativeRect.left;
-    return {
-        top,
-        left,
-        bottom: top + elRect.height,
-        right: left + elRect.width,
-    }
 }
 
 function scrollToTargetAndHighlight(event) {
