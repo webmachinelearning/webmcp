@@ -653,8 +653,8 @@ To <dfn for="model context">unregister a tool</dfn> given a {{ModelContext}} |mo
    availability, while the execution-time {{ModelContextExecuteToolOptions/signal}} controls the
    lifetime of an specific invocation.
 
-1. Let |targetDocument| be |modelContext|'s [=relevant global object=]'s [=associated
-   Document|associated <code>Document</code>=].
+1. Let |targetDocument| be |modelContext|'s [=ModelContext/associated Document|associated
+   <code>Document</code>=].
 
 1. If |targetDocument| is not [=Document/fully active=], then return.
 
@@ -702,7 +702,8 @@ Each {{Document}} object has an <dfn for=Document>associated {{ModelContext}}</d
 
 Upon creation of the {{Document}} object, its [=Document/associated ModelContext|associated
 <code>ModelContext</code>=] must be set to a [=new=] {{ModelContext}} object created in the
-{{Document}}'s [=relevant realm=].
+{{Document}}'s [=relevant realm=], whose [=ModelContext/associated Document|associated
+<code>Document</code>=] is set to the {{Document}}.
 
 <hr>
 
@@ -739,6 +740,10 @@ interface ModelContext : EventTarget {
 
 Each {{ModelContext}} object has an associated <dfn for=ModelContext>internal context</dfn>, which
 is a [=model context=] [=struct=] created alongside the {{ModelContext}}.
+
+Each {{ModelContext}} object has an <dfn for=ModelContext>associated {{Document}}</dfn>, which is
+the {{Document}} whose [=Document/associated ModelContext|associated <code>ModelContext</code>=] it
+is.
 
 
 <dl class="domintro">
@@ -790,7 +795,8 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
 
 1. Let |global| be [=this=]'s [=relevant global object=].
 
-1. Let |tool owner| be |global|'s [=associated Document|associated <code>Document</code>=].
+1. Let |tool owner| be [=this=]'s [=ModelContext/associated Document|associated
+   <code>Document</code>=].
 
 1. If |tool owner| is not [=Document/fully active=], then return [=a promise rejected with=] an
    "{{InvalidStateError}}" {{DOMException}}.
@@ -930,7 +936,8 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
 
 1. Let |global| be [=this=]'s [=relevant global object=].
 
-1. Let |toolRequestor| be |global|'s [=associated Document|associated <code>Document</code>=].
+1. Let |toolRequestor| be [=this=]'s [=ModelContext/associated Document|associated
+   <code>Document</code>=].
 
 1. If |toolRequestor| is not [=Document/fully active=], then return [=a promise rejected with=] an
    "{{InvalidStateError}}" {{DOMException}}.
@@ -1059,8 +1066,8 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
 The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</var>,
 <var>options</var>)</dfn> method steps are:
 
-1. Let |callerDocument| be [=this=]'s [=relevant global object=]'s [=associated
-   Document|associated <code>Document</code>=].
+1. Let |callerDocument| be [=this=]'s [=ModelContext/associated Document|associated
+   <code>Document</code>=].
 
 1. If |callerDocument| is not [=Document/fully active=], then return [=a promise rejected with=]
    an "{{InvalidStateError}}" {{DOMException}}.
