@@ -164,14 +164,12 @@ If any of these conditions are not met, then `resumeTool()` rejects:
 ## Cancellation
 
 The caller may cancel the tool call after a token was requested (via
-`AbortSignal` for web-platform callers, or internally by a built-in agent, for
-example when the agent abandons the task).
+`AbortSignal` for web-platform callers, or internally by a built-in agent).
 
 * If the token has not been redeemed, then it is **not** revoked.  It can still
   be redeemed until it expires, and the callback will run, but its result is
-  discarded.
+  discarded.  It is the developer's choice to redeem the token or not.
 
-  TODO(mfoltz): Explain why cancellation does not revoke an unredeemed token.
 * If the token was redeemed and the callback is executing, then the `signal`
   passed to the callback is aborted, and a `toolcancel` event is fired at
   `document.modelContext` in the redeeming document.
