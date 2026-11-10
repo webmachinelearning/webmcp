@@ -344,14 +344,10 @@ await document.modelContext.registerTool({
 }, { exposedTo: ["https://trusted-partner.example"] });
 ```
 
-The special string `"*"` exposes the tool to all potentially trustworthy origins in the current document's tree, using `{ exposedTo: ["*"] }`. It does not match opaque origins. Other entries must still be valid, potentially trustworthy origins. Only the exact `"*"` string is special.
-
-Any document in the tree matching these origins or covered by `"*"` (and allowed to use `tools` permission) will:
+Any document in the tree matching these origins (and allowed to use `tools` permission) will:
 
 - Receive the `toolchange` event on its `document.modelContext` when the tool is registered or unregistered.
-- Be able to discover the tools (for cross-origin discovery, the consumer's `fromOrigins` must include the provider's origin or `"*"`), and run them subject to execution checks.
-
-The `toolchange` event is not filtered by `fromOrigins`. Wildcard exposure can therefore reveal registration and unregistration timing to eligible documents even if they have not opted into discovering those tools.
+- Be able to discover and run the tools
 
 #### Discovering and running tools: `getTools()` and `executeTool()`
 
@@ -359,7 +355,7 @@ Once tools are registered, in-page agents can discover and invoke them using `ge
 
 Calling `document.modelContext.getTools()` returns a promise that resolves with an array of `RegisteredTool` dictionary objects. Each object contains the tool's `name`, `description`, `inputSchema`, `outputSchema`, `origin`, and owner `window`. By default, `getTools()` only returns tools registered by documents same-origin with the caller in the frame tree. To retrieve cross-origin tools, you must explicitly list their origins in the `fromOrigins` option, or use `{ fromOrigins: ["*"] }` to query all potentially trustworthy origins in that tree. The wildcard does not match opaque origins. Entries other than `"*"` must be valid, potentially trustworthy origins.
 
-In either option, `"*"` does not bypass Permissions Policy or execution checks. Discovery still requires the provider's `exposedTo` to allow the caller and the consumer's `fromOrigins` to allow the provider. A wildcard opts into any eligible origin, not just origins trusted by the author; wildcard consumers may discover tools with untrusted descriptions. Prefer explicit origin lists when possible. Other entries are still validated even when `"*"` is present.
+The origin wildcard does not bypass Permissions Policy or the provider's explicit `exposedTo` origin list. Authors are encouraged to use explicit origin lists and treat discovered tool descriptions as untrusted data. Other entries are still validated even when `"*"` is present.
 
 ```js
 // Discover tools exposed by same-origin frames in the tree (default)
@@ -378,13 +374,13 @@ const crossOriginTools = await document.modelContext.getTools({
   fromOrigins: ["https://trusted-partner.example"]
 });
 
-// Discover tools exposed to the caller by frames with potentially trustworthy origins:
+// Discover tools from all eligible origins:
 const allOriginTools = await document.modelContext.getTools({
   fromOrigins: ["*"]
 });
 ```
 
-An agent executes a discovered `RegisteredTool` by passing the tool dictionary and input arguments along to `document.modelContext.executeTool()`. The browser securely mediates the execution, checking [`exposedTo`](https://webmachinelearning.github.io/webmcp/#dom-modelcontextregistertooloptions-exposedto) again, and the tool runs in the tool owner's execution context. [`fromOrigins`](https://webmachinelearning.github.io/webmcp/#dom-modelcontextgettooloptions-fromorigins) filters discovery, not execution:
+An agent executes a discovered `RegisteredTool` by passing the tool dictionary and input arguments along to `document.modelContext.executeTool()`. The browser securely mediates the execution, ensuring the [`exposedTo`](https://webmachinelearning.github.io/webmcp/#dom-modelcontextregistertooloptions-exposedto) and [`fromOrigins`](https://webmachinelearning.github.io/webmcp/#dom-modelcontextgettooloptions-fromorigins) agree, and the tool runs in the tool owner's execution context:
 
 ```js
 const tools = await document.modelContext.getTools();
@@ -528,7 +524,7 @@ As the WebMCP proposal continues to evolve with community and stakeholder feedba
 
 - **Cross-document tool response**: How should WebMCP handle tool responses when a tool (a form submission, for example) causes the page to navigate to another document? See [Issue #135](https://github.com/webmachinelearning/webmcp/issues/135).
 
-- **Built-in agent exposure by default**: <p id=built-in-agent-default-exposure>The [`exposedTo`](https://webmachinelearning.github.io/webmcp/#dom-modelcontextregistertooloptions-exposedto) array takes origins and the `"*"` wildcard for window-to-window exposure, but we're considering introducing a new keyword like `native-agent`, letting authors control a tool's exposure to a built-in agent. The running idea is that by default in the top-level document, a missing `exposedTo` array would expose tools to the built-in agent, and in iframes, a missing `exposedTo` array would not expose tools to the built-in agent</p>
+- **Built-in agent exposure by default**: <p id=built-in-agent-default-exposure>The [`exposedTo`](https://webmachinelearning.github.io/webmcp/#dom-modelcontextregistertooloptions-exposedto) array only takes origins, but we're considering introducing a new keyword like `native-agent`, letting authors control a tool's exposure to a built-in agent. The running idea is that by default in the top-level document, a missing `exposedTo` array would expose tools to the built-in agent, and in iframes, a missing `exposedTo` array would not expose tools to the built-in agent</p>
 
 - **Transferable/streamable tool inputs and outputs**: AI models inherently support streaming data. WebMCP should consider enabling streaming tool inputs and outputs (such as chunked generation or large data transfers) without blocking on a massive copy. See [Issue #82](https://github.com/webmachinelearning/webmcp/issues/82). See also [MCP discussion](https://github.com/modelcontextprotocol/modelcontextprotocol/discussions/263) and [MCP Apps streaming tool inputs](https://github.com/modelcontextprotocol/ext-apps/blob/main/specification/draft/apps.mdx#notifications-host--view).
 
