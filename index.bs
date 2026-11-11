@@ -518,7 +518,7 @@ To <dfn>update the tools-ready state</dfn> given a {{Document}} |document|, run 
 
 <div algorithm>
 To <dfn>wait for tools to be ready</dfn> given a [=top-level traversable=] |traversable|, returning
-"<code>ready</code>" or "<code>navigated</code>", run these steps:
+"<code>ready</code>" or "<code>abort</code>", run these steps:
 
 1. [=Assert=]: these steps are running [=in parallel=].
 
@@ -557,7 +557,7 @@ To <dfn>wait for tools to be ready</dfn> given a [=top-level traversable=] |trav
    delay an operation that has already been unblocked.
 
 1. Return "<code>ready</code>" if |activeDocument| is [=Document/fully active=]; otherwise
-   "<code>navigated</code>".
+   "<code>abort</code>".
 
 </div>
 
@@ -1737,11 +1737,11 @@ steps:
 1. [=Assert=]: |traversable|'s [=navigable/active document=] is [=Document/fully active=].
 
 1. If the result of [=waiting for tools to be ready=] given |traversable| is
-   "<code>navigated</code>", then return.
+   "<code>abort</code>", then return.
 
-   Note: If |traversable| navigated to a new {{Document}} while waiting, this observation aborts
-   and implementations will typically [=perform an observation=] again for the new
-   [=navigable/active document=].
+   Note: This happens if |traversable| navigated to a new {{Document}} or was destroyed while
+   waiting. In the navigation case, implementations will typically [=perform an observation=]
+   again for the new [=navigable/active document=].
 
 1. Let |observation| be a new [=observation=].
 
