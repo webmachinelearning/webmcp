@@ -8,7 +8,7 @@
   <meta content="Bikeshed version e0b165ae4, updated Mon Nov 2 15:16:49 2026 -0800" name="generator">
   <link href="https://webmachinelearning.github.io/webmcp" rel="canonical">
   <link href="https://www.w3.org/2008/site/images/favicon.ico" rel="icon">
-  <meta content="aa1b51cf61aef6ed849b0e9e732617fd57872757" name="revision">
+  <meta content="0c3e712f1743638a299cd8e1a4777ceeaec3cbc8" name="revision">
   <meta content="dark light" name="color-scheme">
   <link href="https://www.w3.org/StyleSheets/TR/2021/dark.css" media="(prefers-color-scheme: dark)" rel="stylesheet" type="text/css">
 <style>
@@ -848,7 +848,7 @@ var[data-var-color="6"] { --var-vg: #FFBCF2; }
 </p>
    <h1 class="no-ref p-name" id="title">WebMCP</h1>
    <p id="w3c-state"><a href="https://www.w3.org/standards/types/#CG-DRAFT">Draft Community Group Report</a>,
-    <time class="dt-updated" datetime="2026-11-10">10 November 2026</time></p>
+    <time class="dt-updated" datetime="2026-11-11">11 November 2026</time></p>
    <details open>
     <summary>More details about this document</summary>
     <div data-fill-with="spec-metadata">
@@ -1582,8 +1582,8 @@ is.</p>
     or <code class="idl"><a data-link-type="idl" href="#dom-modelcontexttool-outputschema" id="ref-for-dom-modelcontexttool-outputschema①">outputSchema</a></code> is invalid.</p>
     <dt><code><var>document</var>.<code class="idl"><a data-link-type="idl" href="#dom-document-modelcontext" id="ref-for-dom-document-modelcontext②">modelContext</a></code>.<code class="idl"><a data-link-type="idl" href="#dom-modelcontext-gettools" id="ref-for-dom-modelcontext-gettools①">getTools(options)</a></code></code>
     <dd>
-     <p>Returns a promise that resolves to a list of registered tools from this document and its
-    descendants that are exposed to this document. This API is designed for so-called "in-page"
+     <p>Returns a promise that resolves to a list of registered tools exposed to this document by
+    active documents in the same <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/document-sequences.html#traversable-navigable" id="ref-for-traversable-navigable④">traversable navigable</a>. This API is designed for so-called "in-page"
     agents written in JavaScript, and possibly living in <code><a data-link-type="element" href="https://html.spec.whatwg.org/multipage/iframe-embed-object.html#the-iframe-element" id="ref-for-the-iframe-element①">iframe</a></code>s. The <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#user-agent" id="ref-for-user-agent">user agent</a>’s <a data-link-type="dfn" href="#browser-agent" id="ref-for-browser-agent①">browser agent</a> uses a different internal mechanism to retrieve the tools exposed to it.</p>
     <dt><code><var>document</var>.<code class="idl"><a data-link-type="idl" href="#dom-document-modelcontext" id="ref-for-dom-document-modelcontext③">modelContext</a></code>.<code class="idl"><a data-link-type="idl" href="#dom-modelcontext-executetool" id="ref-for-dom-modelcontext-executetool②">executeTool(tool, inputObject, options)</a></code></code>
     <dd>
@@ -3682,7 +3682,7 @@ let dfnPanelData = {
 "cc890cc1": {"dfnID":"cc890cc1","dfnText":"policy-controlled feature","external":true,"refSections":[{"refs":[{"id":"ref-for-policy-controlled-feature"}],"title":"4.4. Permissions policy integration"},{"refs":[{"id":"ref-for-policy-controlled-feature\u2460"}],"title":"6.3.4.1. Enforcing Same-Origin Isolation via Two-Sided Opt-In"},{"refs":[{"id":"ref-for-policy-controlled-feature\u2461"}],"title":"6.4.1. Disabling WebMCP with Permissions Policy"}],"url":"https://w3c.github.io/webappsec-permissions-policy/#policy-controlled-feature"},
 "cca3cdb2": {"dfnID":"cca3cdb2","dfnText":"AbortSignal","external":true,"refSections":[{"refs":[{"id":"ref-for-abortsignal"}],"title":"4.2.1. ModelContextTool Dictionary"},{"refs":[{"id":"ref-for-abortsignal\u2460"}],"title":"4.2.2. ToolExecuteCallbackOptions Dictionary"},{"refs":[{"id":"ref-for-abortsignal\u2461"},{"id":"ref-for-abortsignal\u2462"}],"title":"4.2.3. ModelContextRegisterToolOptions Dictionary"},{"refs":[{"id":"ref-for-abortsignal\u2463"},{"id":"ref-for-abortsignal\u2464"}],"title":"4.2.5. ModelContextExecuteToolOptions Dictionary"}],"url":"https://dom.spec.whatwg.org/#abortsignal"},
 "d0b4a948": {"dfnID":"d0b4a948","dfnText":"a promise rejected with","external":true,"refSections":[{"refs":[{"id":"ref-for-a-promise-rejected-with"},{"id":"ref-for-a-promise-rejected-with\u2460"},{"id":"ref-for-a-promise-rejected-with\u2461"},{"id":"ref-for-a-promise-rejected-with\u2462"},{"id":"ref-for-a-promise-rejected-with\u2463"},{"id":"ref-for-a-promise-rejected-with\u2464"},{"id":"ref-for-a-promise-rejected-with\u2465"},{"id":"ref-for-a-promise-rejected-with\u2466"},{"id":"ref-for-a-promise-rejected-with\u2467"},{"id":"ref-for-a-promise-rejected-with\u2468"},{"id":"ref-for-a-promise-rejected-with\u2460\u24ea"},{"id":"ref-for-a-promise-rejected-with\u2460\u2460"},{"id":"ref-for-a-promise-rejected-with\u2460\u2461"},{"id":"ref-for-a-promise-rejected-with\u2460\u2462"},{"id":"ref-for-a-promise-rejected-with\u2460\u2463"},{"id":"ref-for-a-promise-rejected-with\u2460\u2464"},{"id":"ref-for-a-promise-rejected-with\u2460\u2465"},{"id":"ref-for-a-promise-rejected-with\u2460\u2466"},{"id":"ref-for-a-promise-rejected-with\u2460\u2467"},{"id":"ref-for-a-promise-rejected-with\u2460\u2468"}],"title":"4.2. ModelContext Interface"}],"url":"https://webidl.spec.whatwg.org/#a-promise-rejected-with"},
-"d0c1b934": {"dfnID":"d0c1b934","dfnText":"traversable navigable","external":true,"refSections":[{"refs":[{"id":"ref-for-traversable-navigable"},{"id":"ref-for-traversable-navigable\u2460"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-traversable-navigable\u2461"},{"id":"ref-for-traversable-navigable\u2462"}],"title":"3.1. Pending tool executions"}],"url":"https://html.spec.whatwg.org/multipage/document-sequences.html#traversable-navigable"},
+"d0c1b934": {"dfnID":"d0c1b934","dfnText":"traversable navigable","external":true,"refSections":[{"refs":[{"id":"ref-for-traversable-navigable"},{"id":"ref-for-traversable-navigable\u2460"}],"title":"3. Supporting concepts"},{"refs":[{"id":"ref-for-traversable-navigable\u2461"},{"id":"ref-for-traversable-navigable\u2462"}],"title":"3.1. Pending tool executions"},{"refs":[{"id":"ref-for-traversable-navigable\u2463"}],"title":"4.2. ModelContext Interface"}],"url":"https://html.spec.whatwg.org/multipage/document-sequences.html#traversable-navigable"},
 "d14a6f26": {"dfnID":"d14a6f26","dfnText":"key","external":true,"refSections":[{"refs":[{"id":"ref-for-map-key"}],"title":"3. Supporting concepts"}],"url":"https://infra.spec.whatwg.org/#map-key"},
 "d25dfb2c": {"dfnID":"d25dfb2c","dfnText":"AbortError","external":true,"refSections":[{"refs":[{"id":"ref-for-aborterror"}],"title":"3. Supporting concepts"}],"url":"https://webidl.spec.whatwg.org/#aborterror"},
 "d8049b98": {"dfnID":"d8049b98","dfnText":"relevant agent","external":true,"refSections":[{"refs":[{"id":"ref-for-relevant-agent"},{"id":"ref-for-relevant-agent\u2460"},{"id":"ref-for-relevant-agent\u2461"}],"title":"3.1. Pending tool executions"},{"refs":[{"id":"ref-for-relevant-agent\u2462"}],"title":"5.2. Page observations"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#relevant-agent"},
