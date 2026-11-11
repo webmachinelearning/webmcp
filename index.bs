@@ -2151,8 +2151,8 @@ page, protecting against malicious scripts or dependencies from using WebMCP API
 
 <h4 id="mitigation-invisible-characters">Handling invisible characters in tool metadata</h4>
 
-**What:** Normalizing or exposing characters in tool metadata that are passed to the model but are
-not visible when the text is displayed.
+**What:** Rejecting tool registrations with invisible characters in metadata, rather than silently
+removing those characters.
 
 **Threats addressed:** [[#metadata-description-attacks]]
 
@@ -2168,24 +2168,46 @@ Tool names are limited to ASCII (see [[#supporting-concepts]]) and are not affec
 ([[#mitigation-restrict-input-lengths]]) do not help, because many of these characters fit within any
 practical limit.
 
-[=Agents=] and guardrails that inspect tool metadata are encouraged to:
+Rejecting a registration lets the developer fix the text rather than having the host silently change
+it. Stripping descriptive text changes what the developer wrote; stripping property names or values
+such as `enum`, `const`, and `default` also changes what the tool accepts or receives. Implementers
+considering registration-time validation are encouraged to:
 <ul>
-  <li>Normalize text before matching on it, by removing or decoding these characters. Matching works
-  on [=code points=], not UTF-16 code units: tag characters are [=surrogate=] pairs, so a check of
-  individual code units does not find them. {{ModelContextTool/description}} and strings in a schema
-  can contain lone surrogates, which are best replaced before any character is removed, since
-  removing a character between two of them can produce a new tag character. Schemas reach the
-  [=agent=] as JSON text, in which lone surrogates are written as `\uXXXX` escapes, so this applies
-  to the parsed schema rather than its JSON text.</li>
-  <li>Use the Unicode
+  <li>Define the rejected character set using the Unicode
   [Default_Ignorable_Code_Point](https://www.unicode.org/reports/tr44/#Default_Ignorable_Code_Point)
-  property as a baseline, instead of a hand-written list of characters.</li>
-  <li>Only remove characters from descriptive text, such as titles and descriptions. Property names
-  and values that are passed to the tool, such as `enum`, `const`, and `default` in a schema, cannot
-  be changed without changing what the tool receives. For those, it is safer to reject the tool, and
-  to show these characters as visible escapes in argument previews.</li>
-  <li>Show the user the same text that is given to the model when asking for approval.</li>
+  property as a baseline, rather than a hand-written list. This includes tag characters, zero-width
+  characters, bidirectional controls, and Hangul fillers. Use the same Unicode version and explicitly
+  defined exceptions across implementations, so the same metadata is not accepted by one browser
+  and rejected by another.</li>
+  <li>Inspect [=code points=], not individual UTF-16 code units. Tag characters are represented by
+  [=surrogate=] pairs, so a per-code-unit range check misses them. Reject lone surrogates in
+  {{ModelContextTool/description}} and parsed schema strings as well, rather than replacing or
+  removing them. The {{ModelContextTool/title}} is a {{USVString}}, whose conversion already
+  replaces lone surrogates.</li>
+  <li>Check {{ModelContextTool/title}}, {{ModelContextTool/description}}, and both schemas. After
+  [=serializing a tool schema=], inspect the parsed JSON recursively, including every object member
+  name and string value, not only schema descriptions. This covers property names and strings nested
+  in `enum`, `const`, and `default`, and resolves `\uXXXX` escapes before checking. Checking the
+  serialized representation also covers changes made by a schema's `toJSON()` method, rather than
+  inspecting only the original JavaScript object. Reject the registration if any checked string
+  contains a disallowed character; do not rewrite the schema.</li>
+  <li>Account for legitimate uses of these characters. A blanket rejection also rejects emoji with
+  U+FE0F VARIATION SELECTOR-16, emoji sequences using U+200D ZERO WIDTH JOINER, the England,
+  Scotland, and Wales flag tag sequences, and spellings that need U+200C ZERO WIDTH NON-JOINER in
+  Persian and Indic languages. If exceptions are chosen, define them in terms of well-formed
+  sequences and their context, not unrestricted permission for those characters: standalone or
+  repeated invisible characters can still carry hidden data.</li>
+  <li>Provide a diagnostic identifying the offending code point (for example, `U+E0061`) or lone
+  surrogate, and its location, such as the title, description, or a path within a schema. Render the
+  offending character as a visible escape, rather than embedding it invisibly in the message, so
+  the developer can locate and fix it.</li>
+  <li>Show the user the same accepted text that is given to the model when asking for approval.
+  Do not sanitize only the approval UI while passing unmodified hidden text to the model.</li>
 </ul>
+
+This guidance does not add a rejection step to {{ModelContext/registerTool()}}. A normative
+registration check would need an interoperable definition of the Unicode version, any exceptions,
+the schema checks, and the rejection behavior.
 
 <h4 id="mitigation-shared-attack-evals">Supporting interoperable probabilistic defense structures through shared attack eval datasets</h4>
 
