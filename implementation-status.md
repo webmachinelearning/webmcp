@@ -6,7 +6,7 @@ This document shows the implementation status of WebMCP across different browser
 
 # Brave
 
-Experimental support is added to [Leo AI chat](https://brave.com/leo/).
+WebMCP is supported in [Leo AI chat](https://brave.com/leo/) as of the [Brave 1.102.2](https://github.com/brave/brave-core/pull/40616#issuecomment-6823128067) release (expected on January 5, 2027).
 
 * [Issue 55232](https://github.com/brave/brave-browser/issues/55232)
 
