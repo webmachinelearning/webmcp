@@ -74,6 +74,8 @@ The feature is gated by the [`"tools"`](https://webmachinelearning.github.io/web
 
 Additionally, tools can specify [`exposedTo`](https://webmachinelearning.github.io/webmcp/#dom-modelcontextregistertooloptions-exposedto) to control which origins can discover them. Whether tool authors in cross origin iframes can explicitly control exposure to the browser's built in agent, for example through a `native-agent` keyword, is an open design question tracked under [Built-in agent exposure by default](https://github.com/webmachinelearning/webmcp/blob/main/README.md#built-in-agent-default-exposure) in the README.
 
+Consumers can use the origin wildcard `"*"` in [`fromOrigins`](https://webmachinelearning.github.io/webmcp/#dom-modelcontextgettooloptions-fromorigins) to query all potentially trustworthy origins in the document's tree. The origin wildcard does not bypass Permissions Policy or the provider's `exposedTo` origin list. Authors are encouraged to use explicit origin lists and treat discovered tool descriptions as untrusted data.
+
 > 15. How do the features in this specification work in the context of a browser's Private Browsing or Incognito mode?
 
 We do not anticipate any differences, but implementers should be aware of how to safely handle private browsing modes. See [Interaction with Private Browsing Modes](https://webmachinelearning.github.io/webmcp/#interaction-with-private-browsing).
@@ -102,6 +104,8 @@ Note: this behavior is not yet spec'd but is the intended direction.
 > 20. Does your spec define when and how new kinds of errors should be raised?
 
 Yes. `registerTool()` throws `InvalidStateError` for inactive documents, duplicate names, or invalid name/description; `NotAllowedError` when the `"tools"` Permissions Policy is disallowed; `SecurityError` for non-trustworthy [`exposedTo`](https://webmachinelearning.github.io/webmcp/#dom-modelcontextregistertooloptions-exposedto) origins; and `TypeError` when `inputSchema` or `outputSchema` serialization fails. These errors only reflect the page's own state and inputs, so they do not leak new information.
+
+The origin wildcard `"*"` in `fromOrigins` is exempt from origin validation. Other entries are validated even when it is present; invalid or non-potentially-trustworthy entries cause `getTools()` to reject with `SecurityError`.
 
 > 21. Does your feature allow sites to learn about the user's use of assistive technology?
 

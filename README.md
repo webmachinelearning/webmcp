@@ -353,7 +353,9 @@ Any document in the tree matching these origins (and allowed to use `tools` perm
 
 Once tools are registered, in-page agents can discover and invoke them using `getTools()` and `executeTool()`.
 
-Calling `document.modelContext.getTools()` returns a promise that resolves with an array of `RegisteredTool` dictionary objects. Each object contains the tool's `name`, `description`, `inputSchema`, `outputSchema`, `origin`, and owner `window`. By default, `getTools()` only returns tools registered by documents same-origin with the caller in the frame tree. To retrieve cross-origin tools, you must explicitly list their origins in the `fromOrigins` option. This array only supports secure origins.
+Calling `document.modelContext.getTools()` returns a promise that resolves with an array of `RegisteredTool` dictionary objects. Each object contains the tool's `name`, `description`, `inputSchema`, `outputSchema`, `origin`, and owner `window`. By default, `getTools()` only returns tools registered by documents same-origin with the caller in the frame tree. To retrieve cross-origin tools, you must explicitly list their origins in the `fromOrigins` option, or use `{ fromOrigins: ["*"] }` to query all potentially trustworthy origins in that tree. The wildcard does not match opaque origins. Entries other than `"*"` must be valid, potentially trustworthy origins.
+
+The origin wildcard does not bypass Permissions Policy or the provider's explicit `exposedTo` origin list. Authors are encouraged to use explicit origin lists and treat discovered tool descriptions as untrusted data. Other entries are still validated even when `"*"` is present.
 
 ```js
 // Discover tools exposed by same-origin frames in the tree (default)
@@ -370,6 +372,11 @@ for (const tool of tools) {
 // same-origin ones):
 const crossOriginTools = await document.modelContext.getTools({
   fromOrigins: ["https://trusted-partner.example"]
+});
+
+// Discover tools from all eligible origins:
+const allOriginTools = await document.modelContext.getTools({
+  fromOrigins: ["*"]
 });
 ```
 

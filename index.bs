@@ -173,6 +173,9 @@ An <dfn>AI platform</dfn> is a provider of agentic assistants such as OpenAI’s
 
 <h2 id="supporting-concepts">Supporting concepts</h2>
 
+An <dfn>origin wildcard</dfn> is the [=string=] "`*`", used in
+{{ModelContextGetToolOptions/fromOrigins}} to request discovery from all eligible origins.
+
 A <dfn>model context</dfn> is a [=struct=] with the following [=struct/items=]:
 
 <dl dfn-for="model context">
@@ -947,9 +950,17 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
 
 1. Let |from origins| be an empty [=list=] of [=origins=].
 
+1. Let |includeAllOrigins| be false.
+
 1. If |options|'s {{ModelContextGetToolOptions/fromOrigins}} [=map/exists=], then:
 
    1. [=list/For each=] |origin| of |options|'s {{ModelContextGetToolOptions/fromOrigins}}:
+
+      1. If |origin| is the [=origin wildcard=], then:
+
+         1. Set |includeAllOrigins| to true.
+
+         1. [=iteration/continue=].
 
       1. Let |parsedURL| be the result of running the [=URL parser=] on |origin|.
 
@@ -980,7 +991,15 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
       1. Let |callerOrigin| be |toolRequestor|'s [=Document/origin=].
 
       1. Let |toolOwnerIsRequested| be true if |targetOrigin| is [=same origin=] with
-         |callerOrigin|, or if |from origins| [=list/contains=] |targetOrigin|; otherwise, false.
+         |callerOrigin|; otherwise, false.
+
+      1. If |includeAllOrigins| is true and |targetOrigin| is [$is origin potentially
+         trustworthy?|potentially trustworthy$], then set |toolOwnerIsRequested| to true.
+
+      1. [=list/For each=] |requestedOrigin| of |from origins|:
+
+         1. If |targetOrigin| is [=same origin=] with |requestedOrigin|, then set
+            |toolOwnerIsRequested| to true and [=iteration/break=].
 
       1. If |toolOwnerIsRequested| is false, then [=iteration/continue=].
 
@@ -1350,6 +1369,10 @@ dictionary ModelContextRegisterToolOptions {
   :: An {{AbortSignal}} that unregisters the tool when aborted.
 </dl>
 
+Issue(#317): Wildcard support in {{ModelContextRegisterToolOptions/exposedTo}} requires separate
+consideration of its security implications. More selective matching using {{URLPattern}} is also
+under consideration.
+
 <h4 id="model-context-get-tool-options">ModelContextGetToolOptions Dictionary</h4>
 
 The {{ModelContextGetToolOptions}} dictionary allows web applications to filter the tools returned
@@ -1363,10 +1386,25 @@ dictionary ModelContextGetToolOptions {
 
 <dl class="domintro">
   : <code><var ignore>options</var>["{{ModelContextGetToolOptions/fromOrigins}}"]</code>
-  :: An array of origins from which to query tools. Documents whose origin appears in this list, or
-     are same-origin with the caller, have their tools queried. An empty list only includes
-     same-origin documents.
+  :: An array of origin strings or the [=origin wildcard=] from which to query tools in the current
+     document's tree. Documents whose origin appears in the array, or are same-origin with the
+     caller, have their tools queried. The [=origin wildcard=] also includes documents with
+     [$is origin potentially trustworthy?|potentially trustworthy$] origins. An omitted or empty
+     array only includes same-origin documents.
 </dl>
+
+Note: Entries other than the [=origin wildcard=] are validated even when it is present. An invalid
+or non-potentially-trustworthy entry causes {{ModelContext/getTools()}} to reject with a
+"{{SecurityError}}" {{DOMException}}.
+
+<div class=example id=origin-wildcard-options>
+  Use the [=origin wildcard=] to discover tools from all eligible origins:
+
+  ```js
+  const tools = await document.modelContext.getTools({ fromOrigins: ["*"] });
+  ```
+
+</div>
 
 <h4 id="model-context-execute-tool-options">ModelContextExecuteToolOptions Dictionary</h4>
 
@@ -2059,7 +2097,8 @@ gates are satisfied:
     a tool to its parent [=origin=] via {{ModelContextRegisterToolOptions/exposedTo}},
     {{ModelContext/getTools()}} only returns tools from [=same origin=] {{Document}}s by default. To
     discover tools from a cross-origin descendant [=navigable=], the calling {{Document}} must also
-    explicitly list the target [=origin=] in {{ModelContextGetToolOptions/fromOrigins}}.
+    explicitly list the target [=origin=] or the [=origin wildcard=] in
+    {{ModelContextGetToolOptions/fromOrigins}}.
   </li>
 </ol>
 
@@ -2096,6 +2135,11 @@ await document.modelContext.registerTool(
   }
 );
 ```
+
+Note: The [=origin wildcard=] does not restrict discovery to origins trusted by the author.
+Authors are encouraged to use explicit origin lists and treat discovered tool descriptions as
+untrusted data. The provider's {{ModelContextRegisterToolOptions/exposedTo}} origin list and the
+"{{tools}}" Permissions Policy still apply.
 
 <h5 id="same-origin-residual-risks">Residual Risks</h5>
 
