@@ -80,7 +80,7 @@ tokens.
 
 ```js
 partial dictionary ToolExecuteCallbackOptions {
-  ModelContextToolInvocation invocation;
+  required ModelContextToolInvocation invocation;
 };
 
 [Exposed=Window, SecureContext]
