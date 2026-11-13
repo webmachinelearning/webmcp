@@ -1800,7 +1800,8 @@ user is interacting with a [=browser agent=] while web content is in view.
 Note: Calling {{ModelContext/waitForToolsUntil()}} only delays [=observations=] that the [=user
 agent=] chooses to perform while a {{Document}}'s [=Document/tools-ready=] is false. Toggling
 [=Document/tools-ready=] does not by itself cause or guarantee that the [=user agent=] will
-[=perform an observation=].
+[=perform an observation=]. The user agent may apply internal heuristics to ensure page
+stability before taking an observation.
 
 
 <h2 id="security-privacy">Security and Privacy Considerations</h2>
