@@ -460,6 +460,9 @@ To <dfn>notify documents of a tool change</dfn> given a {{Document}} |tool owner
         event=] named {{ModelContext/toolchange}} at |targetDocument|'s [=Document/associated
         ModelContext|associated <code>ModelContext</code>=].
 
+Issue(#374): Each call to these steps fires a separate {{ModelContext/toolchange}} event. Consider
+coalescing the events fired for multiple tool registrations and unregistrations.
+
 <div class=example id=notify-task-ordering>
   <p>This algorithm's use of the [=webmcp task source=], and the fact that it runs [=in parallel=],
   means that the timing between firing the {{ModelContext/toolchange}} event, and other tasks queued
@@ -896,8 +899,8 @@ is.
 <div algorithm>
 The <dfn attribute for=ModelContext>toolsReady</dfn> getter steps are:
 
-1. Return [=this=]'s [=relevant global object=]'s [=associated Document|associated
-   <code>Document</code>=]'s [=Document/tools-ready=].
+1. Return [=this=]'s [=ModelContext/associated Document|associated <code>Document</code>=]'s
+   [=Document/tools-ready=].
 
 </div>
 
@@ -1045,9 +1048,8 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
 <div algorithm>
 The <dfn method for=ModelContext>waitForToolsUntil(<var>promise</var>)</dfn> method steps are:
 
-1. Let |global| be [=this=]'s [=relevant global object=].
-
-1. Let |document| be |global|'s [=associated Document|associated <code>Document</code>=].
+1. Let |document| be [=this=]'s [=ModelContext/associated Document|associated
+   <code>Document</code>=].
 
 1. If |document| is not [=Document/fully active=], then [=exception/throw=] an "{{InvalidStateError}}"
    {{DOMException}}.
