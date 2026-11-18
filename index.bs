@@ -521,7 +521,7 @@ To <dfn>update the tools-ready state</dfn> given a {{Document}} |document|, run 
 
 <div algorithm>
 To <dfn>wait for tools to be ready</dfn> given a [=top-level traversable=] |traversable|, returning
-"<code>ready</code>" or "<code>abort</code>", run these steps:
+"<code>ready</code>" or "<code>aborted</code>", run these steps:
 
 1. [=Assert=]: these steps are running [=in parallel=].
 
@@ -769,7 +769,7 @@ Upon creation of the {{Document}} object, its [=Document/associated ModelContext
 {{Document}}'s [=relevant realm=], whose [=ModelContext/associated Document|associated
 <code>Document</code>=] is set to the {{Document}}.
 
-Each {{Document}} object has a <dfn for=Document>tools-ready</dfn> [=boolean=], initially true.
+Each {{Document}} object has a <dfn for=Document>tools ready</dfn> [=boolean=], initially true.
 
 Issue(#328): [=Document/tools-ready=] should be false when the {{Document}} is created, unless the
 {{Document}} is not [=allowed to use=] the "{{tools}}" feature. This gives authors an opportunity to
