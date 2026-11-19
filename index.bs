@@ -546,14 +546,17 @@ To <dfn>wait for tools to be ready</dfn> given a [=top-level traversable=] |trav
 
    1. Return true.
 
-1. If the result of running |areAllReady| is false, then wait until either the result of running
-   |areAllReady| is true, or an [=implementation-defined=] timeout has elapsed since this step
-   began.
+1. [=iteration/While=] true:
 
-   Note: The timeout is measured from when this wait begins. Calling
-   {{ModelContext/waitForToolsUntil()}} with additional promises while a wait is already in progress
-   does not reset or extend the timeout, and calling it after |areAllReady| returns true does not
-   delay an operation that has already been unblocked.
+   1. If the result of running |areAllReady| is true, then [=iteration/break=].
+
+   1. If an [=implementation-defined=] timeout has elapsed since this loop began, then
+      [=iteration/break=].
+
+   Note: The timeout is measured from when this loop begins. Calling
+   {{ModelContext/waitForToolsUntil()}} with additional promises while the loop is running does not
+   reset or extend the timeout, and calling it after the loop exits does not delay an operation that
+   has already been unblocked.
 
 1. Return "<code>ready</code>" if |activeDocument| is [=Document/fully active=]; otherwise
    "<code>aborted</code>".
@@ -1041,18 +1044,6 @@ The <dfn method for=ModelContext>waitForToolsUntil(<var>promise</var>)</dfn> met
 
 1. If |document| is not [=allowed to use=] the "{{tools}}" feature, then [=exception/throw=] a
    "{{NotAllowedError}}" {{DOMException}}.
-
-1. If |promise|.\[[Promise]].\[[PromiseState]] is not `pending`, then:
-
-   1. If |promise|.\[[Promise]].\[[PromiseState]] is `rejected`, then [=mark as handled|mark=]
-      |promise| as handled.
-
-      Note: When |promise| is `pending`, [=promise/react|reacting=] to it in the steps below marks
-      it as handled. If it is already `rejected` when passed in, returning early skips
-      [=promise/react=], so we explicitly mark it as handled here to prevent an
-      `unhandledrejection` event from firing.
-
-   1. Return.
 
 1. Let |context| be [=this=]'s [=ModelContext/internal context=].
 
