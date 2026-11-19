@@ -192,7 +192,6 @@ The detailed proposal will need to answer several issues, including:
  - whether containers such as Map and Set declare their key/value/element types, or how
    otherwise-unconstrained nested structured-cloneable values are represented;
  - how cycles and shared references are handled;
- - strict versus forgiving deserialization of model-produced values;
  - the exact JSON representation of serializable binary types like files,
    images, etc.;
  - payload-size limits and whether browsers may transform large values;
