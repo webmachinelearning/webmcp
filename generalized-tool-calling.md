@@ -111,7 +111,7 @@ should eventually be able to express a contract conceptually like:
 ```js
 window.tools.register({
   name: "set-profile-picture",
-  model: {
+  naturalLanguageProperties: {
     description: "Set the user's profile picture.",
     inputSchema: {
       type: "object",
