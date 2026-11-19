@@ -1051,18 +1051,14 @@ The <dfn method for=ModelContext>waitForToolsUntil(<var>promise</var>)</dfn> met
 
 1. [=Update the tools ready state=] given |document|.
 
-1. Let |settleSteps| be the following steps:
-
-   1. [=set/Remove=] |promise| from |context|'s [=model context/pending tool readiness
-      promises=].
-
-   1. [=Update the tools ready state=] given |document|.
-
 1. [=promise/React=] to |promise|:
 
-   - If |promise| was fulfilled, then run |settleSteps|.
+   - If |promise| was fulfilled or rejected, then:
 
-   - If |promise| was rejected, then run |settleSteps|.
+     1. [=set/Remove=] |promise| from |context|'s [=model context/pending tool readiness
+        promises=].
+
+     1. [=Update the tools ready state=] given |document|.
 
 </div>
 
@@ -1786,7 +1782,7 @@ user is interacting with a [=browser agent=] while web content is in view.
 Note: Calling {{ModelContext/waitForToolsUntil()}} only delays [=observations=] that the [=user
 agent=] chooses to perform while a {{Document}}'s [=Document/tools ready=] is false. Toggling
 [=Document/tools ready=] does not by itself cause or guarantee that the [=user agent=] will
-[=perform an observation=]. The user agent may apply internal heuristics to ensure page
+[=perform an observation=]. The user agent might apply internal heuristics to ensure page
 stability before taking an observation.
 
 
