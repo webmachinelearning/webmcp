@@ -1063,7 +1063,7 @@ The <dfn method for=ModelContext>getTools(<var>options</var>)</dfn> method steps
                Note: This will never throw an exception, because the string stored in the tool
                definition is always a valid JSON string.
 
-            : [=Tool/window=]
+            : [=Tool/source=]
             :: |targetDocument|'s [=relevant global object=]
 
             : [=Tool/origin=]
@@ -1122,7 +1122,7 @@ The <dfn method for=ModelContext>executeTool(<var>tool</var>, <var>inputObject</
 
 1. Let |promise| be [=a new promise=] created in [=this=]'s [=relevant realm=].
 
-1. Let |targetWindow| be |tool|'s [=Tool/window=].
+1. Let |targetWindow| be |tool|'s [=Tool/source=].
 
 1. If |targetWindow| has been garbage collected, or |targetWindow|'s [=associated
    Document|associated <code>Document</code>=] is not [=Document/fully active=], then return [=a
@@ -1438,7 +1438,7 @@ interface Tool {
   readonly attribute DOMString description;
   readonly attribute object? inputSchema;
   readonly attribute object? outputSchema;
-  readonly attribute WindowProxy? window;
+  readonly attribute WindowProxy? source;
   readonly attribute USVString origin;
   readonly attribute object? annotations;
 };
@@ -1469,12 +1469,12 @@ Each {{Tool}} object has the following associated members:
   : <dfn>output schema</dfn>
   :: an {{object}}-or-null.
 
-  : <dfn>window</dfn>
+  : <dfn>source</dfn>
   :: a weak reference to a {{Window}}.
 
      Note: A {{Window}} can only be garbage collected after its associated {{Document}} has been
      destroyed, and a destroyed {{Document}} can never again be [=Document/fully active=]. So
-     whether [=Tool/window=] has been garbage collected is not observable to script, and a {{Tool}}
+     whether [=Tool/source=] has been garbage collected is not observable to script, and a {{Tool}}
      does not keep the document that registered it alive.
 
   : <dfn>origin</dfn>
@@ -1508,9 +1508,9 @@ schema=].
 </div>
 
 <div algorithm>
-The <dfn attribute for=Tool>window</dfn> getter steps are:
+The <dfn attribute for=Tool>source</dfn> getter steps are:
 
-1. Let |window| be [=this=]'s [=Tool/window=].
+1. Let |window| be [=this=]'s [=Tool/source=].
 
 1. If |window| has been garbage collected, or |window|'s [=associated Document|associated
    <code>Document</code>=] is not [=Document/fully active=], then return null.
@@ -1520,7 +1520,7 @@ The <dfn attribute for=Tool>window</dfn> getter steps are:
 Note: This getter returns null, rather than a {{WindowProxy}} whose \[[Window]] is different than
 |window|, once the document that registered the tool has been navigated away from or becomes
 detached. Unconditionally returning the stored |window|'s [=Window/browsing context=]'s
-{{WindowProxy}} would mislead the callers of {{Tool/window}} in those cases, since the proxy would
+{{WindowProxy}} would mislead the callers of {{Tool/source}} in those cases, since the proxy would
 follow multiple {{Window}} objects that have no relationship with the given tool. Note, however,
 a {{WindowProxy}} obtained from this getter is <em>not</em> affected by the checks above, and keeps
 following its browsing context's [=browsing context/active window=] like any other {{WindowProxy}}.
@@ -1560,14 +1560,14 @@ The <dfn attribute for=Tool>annotations</dfn> getter steps are to return [=this=
      provided schema, and [=agents=] may reject outputs that do not validate. It is a deep copy of
      the schema provided at tool registration, via {{ModelContextTool/outputSchema}}.
 
-  : <code><var ignore>tool</var>.{{Tool/window}}</code>
+  : <code><var ignore>tool</var>.{{Tool/source}}</code>
   :: The {{WindowProxy}} of the document that registered the tool, or null if that document is no
      longer [=Document/fully active=], e.g., because it was navigated away from.
 
   : <code><var ignore>tool</var>.{{Tool/origin}}</code>
   :: The origin of the document that registered the tool. This is only meaningful when the tool is
      cross-origin, and the consumer of a tool cannot otherwise get the tool's origin from its
-     {{Tool/window}}. For same-origin tools, this is the same as the tool's {{Tool/window}}'s
+     {{Tool/source}}. For same-origin tools, this is the same as the tool's {{Tool/source}}'s
      {{WindowOrWorkerGlobalScope/origin}}, and the caller's own
      {{Window}}.{{WindowOrWorkerGlobalScope/origin}}.
 
@@ -2242,7 +2242,7 @@ remain:
     untrusted input, and callers must treat cross-origin tool descriptions and return values as
     untrusted data (see [[#prompt-injection]]). Additionally, because {{ModelContext/getTools()}}
     aggregates tools across all descendant frames at the [=origin=] level, callers should inspect
-    {{Tool/origin}} and {{Tool/window}} on each {{Tool}} to disambiguate tools when multiple
+    {{Tool/origin}} and {{Tool/source}} on each {{Tool}} to disambiguate tools when multiple
     subframes or [=origins=] expose tools with the same {{Tool/name}}.
   </li>
   <li>

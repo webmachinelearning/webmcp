@@ -353,7 +353,7 @@ Any document in the tree matching these origins (and allowed to use `tools` perm
 
 Once tools are registered, in-page agents can discover and invoke them using `getTools()` and `executeTool()`.
 
-Calling `document.modelContext.getTools()` returns a promise that resolves with an array of [`Tool`](https://webmachinelearning.github.io/webmcp/#tool) objects. Each `Tool` exposes the tool's `name`, `title`, `description`, `inputSchema`, `outputSchema`, `annotations`, `origin`, and owner `window`. By default, `getTools()` only returns tools registered by documents same-origin with the caller in the frame tree. To retrieve cross-origin tools, you must explicitly list their origins in the `fromOrigins` option. This array only supports secure origins.
+Calling `document.modelContext.getTools()` returns a promise that resolves with an array of [`Tool`](https://webmachinelearning.github.io/webmcp/#tool) objects. Each `Tool` exposes the tool's `name`, `title`, `description`, `inputSchema`, `outputSchema`, `annotations`, `origin`, and `source` (the owner window). By default, `getTools()` only returns tools registered by documents same-origin with the caller in the frame tree. To retrieve cross-origin tools, you must explicitly list their origins in the `fromOrigins` option. This array only supports secure origins.
 
 ```js
 // Discover tools exposed by same-origin frames in the tree (default)
