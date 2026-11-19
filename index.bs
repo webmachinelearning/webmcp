@@ -1051,14 +1051,22 @@ The <dfn method for=ModelContext>waitForToolsUntil(<var>promise</var>)</dfn> met
 
 1. [=Update the tools ready state=] given |document|.
 
+1. Let |settleSteps| be the following steps:
+
+   1. [=set/Remove=] |promise| from |context|'s [=model context/pending tool readiness
+      promises=].
+
+   1. [=Update the tools ready state=] given |document|.
+
 1. [=promise/React=] to |promise|:
 
-   - If |promise| was fulfilled or rejected, then:
+   - If |promise| was fulfilled or rejected, then run |settleSteps|.
 
-     1. [=set/Remove=] |promise| from |context|'s [=model context/pending tool readiness
-        promises=].
+1. [=In parallel=], wait an [=implementation-defined=] amount of time, then [=queue a global task=]
+   on the [=webmcp task source=] given |document|'s [=relevant global object=] to run |settleSteps|.
 
-     1. [=Update the tools ready state=] given |document|.
+   Note: This ensures that a promise which never settles doesn't keep the {{Document}} in the not
+   ready state indefinitely.
 
 </div>
 
