@@ -193,7 +193,8 @@ The detailed proposal will need to answer several issues, including:
    otherwise-unconstrained nested structured-cloneable values are represented;
  - how cycles and shared references are handled;
  - strict versus forgiving deserialization of model-produced values;
- - the exact representation files, images, and other binary values;
+ - the exact JSON representation of serializable binary types like files,
+   images, etc.;
  - payload-size limits and whether browsers may transform large values;
  - the initial allowlist of supported types; and
  - versioning of standardized lowerings.
