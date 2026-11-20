@@ -1850,7 +1850,9 @@ Prompt injection attacks in WebMCP can be categorized by three distinct attack v
 
 <h5 id="metadata-description-attacks">Metadata / Description Attacks (Tool Poisoning)</h5>
 
-Malicious instructions embedded in tool metadata (name, description, parameter descriptions) that manipulate agent behavior.
+Malicious instructions embedded in tool metadata ({{ModelContextTool/name}},
+{{ModelContextTool/title}}, {{ModelContextTool/description}}, {{ModelContextTool/inputSchema}}, and
+{{ModelContextTool/outputSchema}}) that manipulate agent behavior.
 
 <ul>
   <li><strong>Threat Actor</strong>: Malicious websites implementing WebMCP tools</li>
@@ -2282,11 +2284,96 @@ page, protecting against malicious scripts or dependencies from using WebMCP API
 
 <h4 id="mitigation-restrict-input-lengths">Restricting maximum input lengths</h4>
 
-**What:** Restrict the maximum amount of characters
+**What:** Bound the length of tool metadata and schema fields using a normative hard maximum for
+{{ModelContextTool/name}} and non-normative soft maximums for natural-language and schema fields.
 
-**Threats addressed:** [[#metadata-description-attacks]]
+**Threats addressed:** [[#metadata-description-attacks]] and context-window or parser resource
+exhaustion.
 
-**How:** This restriction would not fully solve prompt injection attacks but helps shrink the possible universe of attacks, preventing longer prompts that leverage e.g. repetition and sockpuppetting [[SOCKPUPPETTING]] to convince agents of malicious tasks. The specification already implements a nominal size restriction of 128 characters for the tool {{ModelContextTool/name}} (see [[#supporting-concepts]]), but further work is needed to evaluate the right size limits for titles, names, and other inputs. See [Issue #73](https://github.com/webmachinelearning/webmcp/issues/73).
+**How:** Length bounds do not prevent prompt injection on their own, but they shrink the attack
+surface by limiting room to conceal instructions or mount longer attacks relying on repetition and
+sockpuppetting [[SOCKPUPPETTING]], while reducing context exhaustion. Pair length limits with the
+agent-level defenses in [[#mitigation-agent-level-guardrails]].
+
+The specification normatively enforces a hard maximum of 128 ASCII [=code points=] on
+{{ModelContextTool/name}} during registration (see [[#supporting-concepts]]). Because strict
+registration-time rejections on natural-language and JSON Schema fields can be overly rigid across
+languages, scripts, and evolving model capacities, the table below provides recommended **soft
+maximums**, measured in Unicode [=code points=], across {{ModelContextTool/title}},
+{{ModelContextTool/description}}, {{ModelContextTool/inputSchema}}, and
+{{ModelContextTool/outputSchema}}:
+
+<table>
+  <thead>
+    <tr>
+      <th>Field
+      <th>Recommended Soft Maximum
+      <th>Notes
+  <tbody>
+    <tr>
+      <td>{{ModelContextTool/title}}
+      <td>128 [=code points=]
+      <td>Matches the maximum length of {{ModelContextTool/name}}.
+    <tr>
+      <td>{{ModelContextTool/description}}
+      <td>750 [=code points=]
+      <td>Concise summary of the tool's behavior, side effects, and return value.
+    <tr>
+      <td>Schema identifiers (property names and <code>$defs</code> / <code>definitions</code> keys
+        in {{ModelContextTool/inputSchema}} and {{ModelContextTool/outputSchema}})
+      <td>128 [=code points=]
+      <td>Matches the maximum length of {{ModelContextTool/name}}.
+    <tr>
+      <td>Schema <code>title</code> fields (root, nested schema, and <code>anyOf</code> /
+        <code>oneOf</code> option titles)
+      <td>128 [=code points=]
+      <td>Matches the maximum length of {{ModelContextTool/name}}.
+    <tr>
+      <td>Schema <code>description</code> fields (root, nested schema, and parameter descriptions)
+      <td>500 [=code points=]
+      <td>Focused on format, semantics, and constraints for that schema node or parameter.
+    <tr>
+      <td>Schema <code>enum</code> values
+      <td>128 [=code points=] per value; 1,000 [=code points=] combined per parameter
+      <td>Keep <code>enum</code> lists concise, preferring standard format hints or lookup tools
+        over large enumerations.
+    <tr>
+      <td>Other schema string literals (<code>const</code>, string <code>default</code>,
+        <code>examples</code> entries, and <code>pattern</code> values)
+      <td>128 [=code points=] per value
+      <td>Keep <code>examples</code> lists concise, and keep regex <code>pattern</code> values
+        simple to avoid regular expression denial of service (ReDoS).
+</table>
+
+<ul>
+  <li>
+    <strong>Expectations for site authors and [=agents=]:</strong> A soft maximum establishes a
+    baseline for interoperability. Site authors who stay within these limits—subject to any
+    aggregate tool or schema budgets enforced by an [=agent=]—should expect reliable ingestion
+    across [=agents=] without per-field truncation; tools exceeding them can typically be simplified
+    by deduplicating rules or splitting broad tools into smaller ones. Conversely, [=agents=] are
+    encouraged to accept fields <em>at least</em> up to these soft maximums without truncating or
+    rejecting them, while remaining free to accept longer inputs when their model capacity and
+    security posture permit.
+  </li>
+  <li>
+    <strong>Handling oversized fields:</strong> When a field exceeds an [=agent=]'s threshold,
+    [=user agents=] or [=agents=] can emit developer console diagnostics, decline to expose the tool
+    to the model, or truncate the field. Because partial truncation can drop important safety
+    constraints or alter a tool's stated intent, rejecting an oversized tool definition is generally
+    safer than silently truncating it.
+  </li>
+  <li>
+    <strong>Schema hygiene and aggregate budgets:</strong> Per-field limits alone do not prevent
+    smuggling via auxiliary JSON Schema keywords or resource exhaustion across large schemas.
+    [=Agents=] and [=user agents=] are encouraged to strip <code>$comment</code> and unrecognized
+    schema keywords (such as custom <code>x-*</code> extensions) before exposing schemas to a model,
+    and can also enforce aggregate limits on the number of registered tools per document or
+    [=origin=], parameters or <code>enum</code>/<code>anyOf</code> options per tool, schema nesting
+    depth, and total serialized tool size. (For size and untrusted-content mitigations on runtime
+    tool return values, see [[#output-injection-attacks]] and [[#mitigation-untrusted-annotation]].)
+  </li>
+</ul>
 
 <h4 id="mitigation-shared-attack-evals">Supporting interoperable probabilistic defense structures through shared attack eval datasets</h4>
 
