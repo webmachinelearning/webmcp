@@ -1774,6 +1774,805 @@ group set=], at any time, although implementations typically reserve this operat
 user is interacting with a [=browser agent=] while web content is in view.
 
 
+<h2 id="automation">Automation</h2>
+
+<h3 id="webdriver-bidi">WebDriver BiDi</h3>
+
+<pre class="anchors">
+spec: WEBDRIVER-BIDI; urlPrefix: https://w3c.github.io/webdriver-bidi/
+  type: dfn
+    text: remote end definition; url: protocol-definition
+    text: local end definition; url: protocol-definition
+    text: get shared id for a node; url: get-shared-id-for-a-node
+    text: serialize as a remote value; url: serialize-as-a-remote-value
+    text: current stack trace; url: current-stack-trace
+  type: cddl-type
+    text: browsingContext.BrowsingContext; url: type-browsingContext-Browsingcontext
+    text: script.SharedReference; url: type-script-RemoteReference
+    text: script.StackTrace; url: type-script-StackTrace
+    text: script.RemoteValue; url: type-script-RemoteValue
+    text: EmptyResult; url: emptyresult
+</pre>
+
+<pre class="link-defaults">
+spec:webdriver2; type:dfn; text:success
+</pre>
+
+<p class="note allow-2119" id="fix-sharedreference-anchor">
+  <strong>Suggested fix 1:</strong> The `script.SharedReference` anchor above points to
+  `#type-script-RemoteReference`, the section that defines all the remote reference types.
+  WebDriver BiDi also has a more precise anchor for the type itself,
+  `#cddl-type-scriptsharedreference`. Consider using it.
+</p>
+
+This section defines the <dfn export>webmcp module</dfn>, an extension module of
+[[!WEBDRIVER-BIDI]]. With it, automation clients (test frameworks and agent harnesses) can find the
+tools registered in a [=navigable=], invoke and cancel them, and observe tool registration and tool
+executions, whoever started them.
+
+<div class="note">
+  This section is a draft. The Chromium prototype exposes the module as the vendor extension
+  `goog:webmcp`, so the commands are `goog:webmcp.getTools` and so on, and the events are
+  `goog:webmcp.toolsAdded` and so on. Apart from the prefix, the shapes match the definitions
+  below.
+</div>
+
+<p class="note allow-2119" id="oq-module-home">
+  <strong>Question 1:</strong> Should this module stay in the WebMCP specification, like
+  other extension modules (Permissions, Web Bluetooth, Autofill Event)? Or should it move into
+  WebDriver BiDi? This draft keeps it here, so that it can use WebMCP-internal concepts directly.
+</p>
+
+<h4 id="webdriver-bidi-definition">Definition</h4>
+
+[=remote end definition=]:
+
+<pre class="cddl" data-cddl-module="remote-cddl" data-export>
+WebMCPCommand = (
+  webmcp.CancelInvocation //
+  webmcp.GetTools //
+  webmcp.InvokeTool
+)
+</pre>
+
+[=local end definition=]:
+
+<pre class="cddl" data-cddl-module="local-cddl" data-export>
+WebMCPResult = (
+  webmcp.CancelInvocationResult /
+  webmcp.GetToolsResult /
+  webmcp.InvokeToolResult
+)
+
+WebMCPEvent = (
+  webmcp.ToolInvoked //
+  webmcp.ToolResponded //
+  webmcp.ToolsAdded //
+  webmcp.ToolsRemoved
+)
+</pre>
+
+<h4 id="webdriver-bidi-concepts">Supporting concepts</h4>
+
+A [=tool definition=] has a <dfn for="tool definition">serialized tool id</dfn>, a [=string=] that
+uniquely identifies its [=tool definition/tool id=] to WebDriver BiDi. The same [=tool
+definition/tool id=] always gives the same [=tool definition/serialized tool id=]. Registering a tool
+again under the same [=tool definition/name=] gives it a new [=tool definition/tool id=], and so a
+new [=tool definition/serialized tool id=].
+
+<p class="note allow-2119" id="oq-tool-identity">
+  <strong>Question 2:</strong> This specification identifies each registration by its [=tool
+  definition/tool id=], a [=unique internal value=] that script never sees ({{Tool}} objects carry it
+  internally). This module gives automation a string form of it. Should the
+  [=tool definition/serialized tool id=] be the same for every session, or opaque per session? Should
+  script ever see it? Chromium's CDP already has opaque tool ids, and the prototype passes them
+  through. The CDP command `WebMCP.invokeTool` also accepts invocation by name. That is deprecated
+  and left out of this module on purpose.
+</p>
+
+A [=tool definition=] has a <dfn for="tool definition">registration stack trace</dfn>, a
+[=map=] matching the `script.StackTrace` production, or null. It is initially null. The user agent may set it when the tool is
+registered.
+
+A [=tool definition=] has a <dfn for="tool definition">declaring element</dfn>, an {{Element}}-or-null.
+It is the <{form}> element for tools declared declaratively, and null otherwise.
+
+A [=pending tool execution=] has an <dfn for="pending tool execution">invocation id</dfn>, a
+[=string=] that uniquely identifies the execution's [=unique internal value=] in WebDriver BiDi.
+
+<h4 id="webdriver-bidi-types">Types</h4>
+
+<h5 id="type-webmcp-ToolId">The webmcp.ToolId type</h5>
+
+<pre class="cddl" data-cddl-module="remote-cddl,local-cddl" data-export>
+webmcp.ToolId = text
+</pre>
+
+The `webmcp.ToolId` type holds a [=tool definition/serialized tool id=].
+
+<h5 id="type-webmcp-InvocationId">The webmcp.InvocationId type</h5>
+
+<pre class="cddl" data-cddl-module="remote-cddl,local-cddl" data-export>
+webmcp.InvocationId = text
+</pre>
+
+The `webmcp.InvocationId` type holds the [=pending tool execution/invocation id=] of a [=pending
+tool execution=].
+
+<h5 id="type-webmcp-Annotations">The webmcp.Annotations type</h5>
+
+<pre class="cddl" data-cddl-module="local-cddl" data-export>
+webmcp.Annotations = {
+  ? readOnly: bool,
+  ? untrustedContent: bool,
+  ? consequential: bool,
+  ? debugging: bool,
+  ? autosubmit: bool,
+}
+</pre>
+
+The `webmcp.Annotations` type holds a tool's [=annotations=]. A field that is absent is false.
+
+<p class="note allow-2119" id="oq-annotations">
+  <strong>Question 3:</strong> Should all fields be required booleans, as is more usual
+  in WebDriver BiDi, instead of "absent means false", which mirrors CDP? `autosubmit` describes
+  declarative tools and isn't yet an [=annotations=] item in this specification.
+</p>
+
+<h5 id="type-webmcp-ToolInfo">The webmcp.ToolInfo type</h5>
+
+<pre class="cddl" data-cddl-module="local-cddl" data-export>
+webmcp.ToolInfo = {
+  tool: webmcp.ToolId,
+  context: browsingContext.BrowsingContext,
+  name: text,
+  description: text,
+  ? inputSchema: { * text => any },
+  ? outputSchema: { * text => any },
+  ? annotations: webmcp.Annotations,
+  ? element: script.SharedReference,
+  ? stackTrace: script.StackTrace,
+}
+</pre>
+
+The `webmcp.ToolInfo` type describes a registered tool.
+
+<div algorithm>
+To <dfn>get the tool info</dfn> given a [=session=] |session|, a [=tool definition=] |tool|, and a
+[=navigable=] |navigable|:
+
+1. Let |info| be a new [=map=] with these entries:
+    : "`tool`"
+    :: |tool|'s [=tool definition/serialized tool id=]
+    : "`context`"
+    :: |navigable|'s [=navigable id=]
+    : "`name`"
+    :: |tool|'s [=tool definition/name=]
+    : "`description`"
+    :: |tool|'s [=tool definition/description=]
+
+1. If |tool|'s [=tool definition/input schema=] is not the empty string, [=map/set=]
+   |info|["`inputSchema`"] to the result of [=parse a JSON string to an Infra value|parsing=]
+   |tool|'s [=tool definition/input schema=].
+
+1. If |tool|'s [=tool definition/output schema=] is not the empty string, [=map/set=]
+   |info|["`outputSchema`"] to the result of [=parse a JSON string to an Infra value|parsing=]
+   |tool|'s [=tool definition/output schema=].
+
+1. If |tool|'s [=tool definition/annotations=] is not null, [=map/set=] |info|["`annotations`"]
+   to a [=map=] that has an entry set to true for each [=annotations=] item that is true:
+   "`readOnly`" for the [=annotations/read-only hint=], "`untrustedContent`" for the
+   [=annotations/untrusted content hint=], "`consequential`" for the [=annotations/consequential
+   hint=], and "`debugging`" for [=annotations/debugging=].
+
+1. If |tool|'s [=tool definition/declaring element=] is not null, [=map/set=] |info|["`element`"]
+   to «[ "`sharedId`" → the result of [=get shared id for a node=] given |tool|'s [=tool
+   definition/declaring element=] and |session| ]».
+
+1. If |tool|'s [=tool definition/registration stack trace=] is not null, [=map/set=]
+   |info|["`stackTrace`"] to it.
+
+1. Return |info|.
+
+</div>
+
+<p class="note allow-2119" id="fix-autosubmit">
+  <strong>Suggested fix 2:</strong> `webmcp.Annotations` declares `autosubmit`, but the steps
+  above never set it, so it is never present. Either remove `autosubmit` from the CDDL until
+  declarative tools define it (see Question 3), or add a step that sets
+  `info["annotations"]["autosubmit"]` to true for a declarative tool whose <{form}> submits
+  automatically.
+</p>
+
+<p class="note allow-2119" id="oq-tool-title">
+  <strong>Question 4:</strong> [=tool definition/title=] and [=tool definition/exposed
+  origins=] aren't in `webmcp.ToolInfo`, because Chromium's CDP doesn't expose them yet. Should
+  they be included?
+</p>
+
+<h5 id="type-webmcp-RemovedToolInfo">The webmcp.RemovedToolInfo type</h5>
+
+<pre class="cddl" data-cddl-module="local-cddl" data-export>
+webmcp.RemovedToolInfo = {
+  tool: webmcp.ToolId,
+  name: text,
+}
+</pre>
+
+<h5 id="type-webmcp-InvocationStatus">The webmcp.InvocationStatus type</h5>
+
+<pre class="cddl" data-cddl-module="local-cddl" data-export>
+webmcp.InvocationStatus = "completed" / "canceled" / "error"
+</pre>
+
+<h4 id="webdriver-bidi-commands">Commands</h4>
+
+<h5 id="command-webmcp-getTools">The webmcp.getTools command</h5>
+
+The <dfn export for=commands>webmcp.getTools</dfn> command returns the tools registered in a
+[=navigable=] and its descendants, or in all navigables.
+
+<dl>
+  <dt>Command Type</dt>
+  <dd>
+    <pre class="cddl" data-cddl-module="remote-cddl" data-export>
+    webmcp.GetTools = (
+      method: "webmcp.getTools",
+      params: webmcp.GetToolsParameters
+    )
+
+    webmcp.GetToolsParameters = {
+      ? context: browsingContext.BrowsingContext,
+    }
+    </pre>
+  </dd>
+  <dt>Result Type</dt>
+  <dd>
+    <pre class="cddl" data-cddl-module="local-cddl" data-export>
+    webmcp.GetToolsResult = {
+      tools: [* webmcp.ToolInfo],
+    }
+    </pre>
+  </dd>
+</dl>
+
+<div algorithm="remote end steps for webmcp.getTools">
+The [=remote end steps=] given |session| and |command parameters| are:
+
+1. Let |navigables| be an empty [=list=].
+
+1. If |command parameters| [=map/contains=] "`context`":
+
+    1. Let |navigable| be the result of [=trying=] to [=get a navigable=] with |command
+       parameters|["`context`"].
+
+    1. [=list/Extend=] |navigables| with |navigable|'s [=navigable/active document=]'s
+       [=Document/inclusive descendant navigables=].
+
+1. Otherwise, [=list/for each=] |top-level traversable| of the user agent's
+   [=user agent/top-level traversable set=], [=list/extend=] |navigables| with |top-level traversable|'s
+   [=navigable/active document=]'s [=Document/inclusive descendant navigables=].
+
+1. Let |tools| be an empty [=list=].
+
+1. [=list/For each=] |navigable| of |navigables|:
+
+    1. Let |document| be |navigable|'s [=navigable/active document=].
+
+    1. Let |tool map| be |document|'s [=Document/associated ModelContext|associated
+       <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/tool
+       map=].
+
+    1. [=map/For each=] <var ignore>tool id</var> → |tool| of |tool map|, [=list/append=] the result
+       of [=get the tool info=] given |session|, |tool|, and |navigable| to |tools|.
+
+1. Return [=success=] with data «[ "`tools`" → |tools| ]».
+
+</div>
+
+<p class="note allow-2119" id="oq-replay">
+  <strong>Question 5:</strong> CDP's `WebMCP.enable` replays the existing tools as a
+  `toolsAdded` event. WebDriver BiDi has no enable step: subscribing turns events on, and this
+  command returns the current state. A client is expected to subscribe first and then call
+  `webmcp.getTools`. Is that ordering enough, or should subscribing replay the existing tools as
+  `webmcp.toolsAdded` events?
+</p>
+
+<p class="note allow-2119" id="oq-descendants">
+  <strong>Question 6:</strong> Should `context` select only that navigable, or (as here)
+  that navigable and its descendants? Should the result honor [=tool is exposed to an origin=] and
+  the "{{tools}}" permissions policy, or (as here) return every tool, since automation has
+  privileged access?
+</p>
+
+<h5 id="command-webmcp-invokeTool">The webmcp.invokeTool command</h5>
+
+The <dfn export for=commands>webmcp.invokeTool</dfn> command starts an execution of a registered
+tool. It returns the execution's invocation id without waiting for the execution to finish. The
+outcome is reported with the `webmcp.toolResponded` event.
+
+<dl>
+  <dt>Command Type</dt>
+  <dd>
+    <pre class="cddl" data-cddl-module="remote-cddl" data-export>
+    webmcp.InvokeTool = (
+      method: "webmcp.invokeTool",
+      params: webmcp.InvokeToolParameters
+    )
+
+    webmcp.InvokeToolParameters = {
+      context: browsingContext.BrowsingContext,
+      tool: webmcp.ToolId,
+      input: { * text => any },
+    }
+    </pre>
+  </dd>
+  <dt>Result Type</dt>
+  <dd>
+    <pre class="cddl" data-cddl-module="local-cddl" data-export>
+    webmcp.InvokeToolResult = {
+      invocation: webmcp.InvocationId,
+    }
+    </pre>
+  </dd>
+</dl>
+
+<div algorithm="remote end steps for webmcp.invokeTool">
+The [=remote end steps=] given <var ignore>session</var> and |command parameters| are:
+
+1. Let |navigable| be the result of [=trying=] to [=get a navigable=] with |command
+   parameters|["`context`"].
+
+1. Let |document| be |navigable|'s [=navigable/active document=].
+
+1. Let |tool map| be |document|'s [=Document/associated ModelContext|associated
+   <code>ModelContext</code>=]'s [=ModelContext/internal context=]'s [=model context/tool map=].
+
+1. Let |tool id| be the [=tool definition/tool id=] of the [=tool definition=] in |tool map|'s
+   [=map/values=] whose [=tool definition/serialized tool id=] is |command parameters|["`tool`"].
+   If there is none, return [=error=] with [=error code=] [=invalid argument=].
+
+1. Let |tool| be |tool map|[|tool id|].
+
+1. Let |input| be the result of [=serializing an Infra value to a JSON string=] given |command
+   parameters|["`input`"].
+
+1. Let |uuid| be a new [=unique internal value=], and let |invocation id| be a new, unique
+   [=string=] that identifies |uuid|.
+
+1. Let |traversable| be |navigable|'s [=navigable/traversable navigable=].
+
+1. Let |completion steps| be an algorithm, given a [=string=]-or-null <var ignore>result</var> and
+   a [=tool execution error=]-or-null <var ignore>error</var>, that does nothing.
+
+   Note: The outcome is reported through the [=WebDriver BiDi tool responded=] hook, which runs for
+   every caller.
+
+1. [=In parallel=]:
+
+    1. [=map/Set=] |traversable|'s [=traversable navigable/pending tool executions map=][|uuid|] to
+       a new [=pending tool execution=] whose [=pending tool execution/caller document=] is null,
+       [=pending tool execution/target document=] is |document|, [=pending tool execution/tool
+       name=] is |tool|'s [=tool definition/name=], [=pending tool execution/completion steps=] is
+       |completion steps|, and [=pending tool execution/invocation id=] is |invocation id|.
+
+    1. [=Queue a global task=] on the [=webmcp task source=] given |document|'s [=relevant global
+       object=] to run the [=tool execute steps=] given |tool id|, |document|, |input|,
+       |completion steps|, and |uuid|.
+
+1. Return [=success=] with data «[ "`invocation`" → |invocation id| ]».
+
+</div>
+
+<p class="note allow-2119" id="oq-invoke-await">
+  <strong>Question 7:</strong> Should `webmcp.invokeTool` wait for the result and return
+  it, as `script.callFunction` does, possibly as an option such as `awaitResult`? The prototype
+  matches CDP: it returns at once, and the client waits for `webmcp.toolResponded`.
+</p>
+
+<p class="note allow-2119" id="oq-caller-document">
+  <strong>Question 8:</strong> The [=pending tool execution/caller document=] is a
+  {{Document}} today. A null caller has to be allowed for executions started by automation (and
+  by the [=browser agent=]). Should a [=pending tool execution=] instead record what kind of
+  caller started it? The [=tool execute steps=] already look the tool up by [=tool definition/tool
+  id=], so a tool replaced under the same name between this command and the task running fails
+  with [=tool execution error/tool not found=], instead of running a different registration.
+</p>
+
+<p class="note allow-2119" id="oq-errors">
+  <strong>Question 9:</strong> An unknown tool returns [=invalid argument=]. Should
+  WebDriver BiDi get a dedicated `no such tool` error code (and `no such invocation` for
+  `webmcp.cancelInvocation`)? Should input that doesn't match the tool's [=tool definition/input
+  schema=] be rejected here, or left to the tool?
+</p>
+
+<h5 id="command-webmcp-cancelInvocation">The webmcp.cancelInvocation command</h5>
+
+The <dfn export for=commands>webmcp.cancelInvocation</dfn> command cancels a pending tool
+execution.
+
+<dl>
+  <dt>Command Type</dt>
+  <dd>
+    <pre class="cddl" data-cddl-module="remote-cddl" data-export>
+    webmcp.CancelInvocation = (
+      method: "webmcp.cancelInvocation",
+      params: webmcp.CancelInvocationParameters
+    )
+
+    webmcp.CancelInvocationParameters = {
+      context: browsingContext.BrowsingContext,
+      invocation: webmcp.InvocationId,
+    }
+    </pre>
+  </dd>
+  <dt>Result Type</dt>
+  <dd>
+    <pre class="cddl" data-cddl-module="local-cddl" data-export>
+    webmcp.CancelInvocationResult = EmptyResult
+    </pre>
+  </dd>
+</dl>
+
+<div algorithm="remote end steps for webmcp.cancelInvocation">
+The [=remote end steps=] given <var ignore>session</var> and |command parameters| are:
+
+1. Let |navigable| be the result of [=trying=] to [=get a navigable=] with |command
+   parameters|["`context`"].
+
+1. Let |traversable| be |navigable|'s [=navigable/traversable navigable=].
+
+1. Let |uuid| be the key of the entry in |traversable|'s [=traversable navigable/pending tool
+   executions map=] whose value's [=pending tool execution/invocation id=] is |command
+   parameters|["`invocation`"], and whose value's [=pending tool execution/target document=]'s
+   [=node navigable=] is |navigable|. If there is none, return [=error=] with [=error code=]
+   [=invalid argument=].
+
+1. [=In parallel=], [=cancel a pending tool execution=] given |traversable| and |uuid|.
+
+1. Return [=success=] with data null.
+
+</div>
+
+<p class="note allow-2119" id="oq-cancel-context">
+  <strong>Question 10:</strong> The invocation id alone identifies the execution.
+  `context` is required anyway, so that per-navigable access checks (such as Chromium's restricted
+  sessions) and routing don't need extra state. Is that worth the redundancy? This command can
+  cancel executions started by any caller, not only by this session. Is that what we want?
+</p>
+
+<h4 id="webdriver-bidi-events">Events</h4>
+
+<p class="note allow-2119" id="oq-event-scope">
+  <strong>Question 11:</strong> Each event is scoped to the [=navigable=] whose
+  {{Document}} owns the tool. CDP batches `toolsAdded` across frames in a renderer. This module
+  batches per navigable instead, so that subscriptions and access checks per navigable work.
+  Would one event per tool be simpler for clients?
+</p>
+
+<h5 id="event-webmcp-toolsAdded">The webmcp.toolsAdded event</h5>
+
+<dl>
+  <dt>Event Type</dt>
+  <dd>
+    <pre class="cddl" data-cddl-module="local-cddl" data-export>
+    webmcp.ToolsAdded = (
+      method: "webmcp.toolsAdded",
+      params: webmcp.ToolsAddedParameters
+    )
+
+    webmcp.ToolsAddedParameters = {
+      context: browsingContext.BrowsingContext,
+      tools: [+ webmcp.ToolInfo],
+    }
+    </pre>
+  </dd>
+</dl>
+
+<div algorithm>
+The <dfn export>WebDriver BiDi tools added</dfn> steps given a [=navigable=] |navigable| and a
+[=list=] of [=tool definitions=] |added tools| are:
+
+1. Let |related navigables| be a [=set=] containing |navigable|.
+
+1. [=list/For each=] |session| in the [=set of sessions for which an event is enabled=] given
+   "<code>webmcp.toolsAdded</code>" and |related navigables|:
+
+    1. Let |tools| be the result of running [=get the tool info=] given |session|, each item of
+       |added tools|, and |navigable|.
+
+    1. Let |body| be a [=map=] matching the `webmcp.ToolsAdded` production, with the `params`
+       field set to «[ "`context`" → |navigable|'s [=navigable id=], "`tools`" → |tools| ]».
+
+    1. [=Emit an event=] with |session| and |body|.
+
+</div>
+
+<p class="note allow-2119" id="fix-tools-added-loop">
+  <strong>Suggested fix 3:</strong> "Running get the tool info given |session|, each item of
+  |added tools|, and |navigable|" is loose wording. Write it as an explicit loop: "Let |tools| be
+  an empty list. For each |tool| of |added tools|, append the result of get the tool info given
+  |session|, |tool|, and |navigable| to |tools|."
+</p>
+
+<h5 id="event-webmcp-toolsRemoved">The webmcp.toolsRemoved event</h5>
+
+<dl>
+  <dt>Event Type</dt>
+  <dd>
+    <pre class="cddl" data-cddl-module="local-cddl" data-export>
+    webmcp.ToolsRemoved = (
+      method: "webmcp.toolsRemoved",
+      params: webmcp.ToolsRemovedParameters
+    )
+
+    webmcp.ToolsRemovedParameters = {
+      context: browsingContext.BrowsingContext,
+      tools: [+ webmcp.RemovedToolInfo],
+    }
+    </pre>
+  </dd>
+</dl>
+
+<div algorithm>
+The <dfn export>WebDriver BiDi tools removed</dfn> steps given a [=navigable=] |navigable| and a
+[=list=] of [=tool definitions=] |removed tools| are:
+
+1. Let |tools| be a [=list=] containing, for each |tool| of |removed tools|, «[ "`tool`" → |tool|'s
+   [=tool definition/serialized tool id=], "`name`" → |tool|'s [=tool definition/name=] ]».
+
+1. Let |body| be a [=map=] matching the `webmcp.ToolsRemoved` production, with the `params` field
+   set to «[ "`context`" → |navigable|'s [=navigable id=], "`tools`" → |tools| ]».
+
+1. Let |related navigables| be a [=set=] containing |navigable|.
+
+1. [=list/For each=] |session| in the [=set of sessions for which an event is enabled=] given
+   "<code>webmcp.toolsRemoved</code>" and |related navigables|, [=emit an event=] with |session|
+   and |body|.
+
+</div>
+
+<p class="note allow-2119" id="oq-removed-on-unload">
+  <strong>Question 12:</strong> No `webmcp.toolsRemoved` event is emitted when a
+  {{Document}} is unloaded (navigation or <{iframe}> removal). Clients are expected to drop a
+  navigable's tools on `browsingContext.navigationCommitted` and
+  `browsingContext.contextDestroyed`. Should explicit removal events be emitted instead?
+</p>
+
+<p class="note allow-2119" id="fix-bfcache">
+  <strong>Suggested fix 4:</strong> Question 12 should also cover the back/forward cache. When a
+  {{Document}} is restored from the cache and becomes [=Document/fully active=] again, its tools
+  are back in its tool map, so `webmcp.getTools` returns them. But no `webmcp.toolsAdded` event is
+  sent, so a client that dropped them on navigation won't learn that they're back. The Chromium
+  prototype drops its cache on navigation and returns nothing after a restore, which doesn't match
+  this text either. Suggested fix: when a {{Document}} becomes fully active again, run the
+  [=WebDriver BiDi tools added=] steps for every tool in its tool map. If explicit removal events
+  are chosen for Question 12, also run the [=WebDriver BiDi tools removed=] steps when it stops
+  being fully active.
+</p>
+
+<h5 id="event-webmcp-toolInvoked">The webmcp.toolInvoked event</h5>
+
+<dl>
+  <dt>Event Type</dt>
+  <dd>
+    <pre class="cddl" data-cddl-module="local-cddl" data-export>
+    webmcp.ToolInvoked = (
+      method: "webmcp.toolInvoked",
+      params: webmcp.ToolInvokedParameters
+    )
+
+    webmcp.ToolInvokedParameters = {
+      context: browsingContext.BrowsingContext,
+      invocation: webmcp.InvocationId,
+      input: any,
+      ? tool: webmcp.ToolId,
+      ? name: text,
+    }
+    </pre>
+  </dd>
+</dl>
+
+<div algorithm>
+The <dfn export>WebDriver BiDi tool invoked</dfn> steps given a {{Document}} |target document|, a
+[=pending tool execution/invocation id=] |invocation id|, a [=string=] |input arguments|, and a
+[=tool definition=]-or-null |tool| are:
+
+1. Let |navigable| be |target document|'s [=node navigable=].
+
+1. Let |params| be «[ "`context`" → |navigable|'s [=navigable id=], "`invocation`" → |invocation
+   id| ]».
+
+1. [=map/Set=] |params|["`input`"] to the result of [=parse a JSON string to an Infra
+   value|parsing=] |input arguments|. If that throws, set it to |input arguments| instead.
+
+1. If |tool| is not null, [=map/set=] |params|["`tool`"] to |tool|'s [=tool definition/serialized
+   tool id=], and [=map/set=] |params|["`name`"] to |tool|'s [=tool definition/name=].
+
+1. Let |body| be a [=map=] matching the `webmcp.ToolInvoked` production, with the `params` field
+   set to |params|.
+
+1. Let |related navigables| be a [=set=] containing |navigable|.
+
+1. [=list/For each=] |session| in the [=set of sessions for which an event is enabled=] given
+   "<code>webmcp.toolInvoked</code>" and |related navigables|, [=emit an event=] with |session|
+   and |body|.
+
+</div>
+
+<p class="note allow-2119" id="oq-input-shape">
+  <strong>Question 13:</strong> CDP reports `input` as a JSON string. This module reports
+  the parsed value, and the raw string if it can't be parsed. Should `input` always be a JSON
+  object (and the event skipped or flagged otherwise)? This event is emitted for executions
+  started by anyone: the page ({{ModelContext/executeTool()}}), the [=browser agent=], or
+  WebDriver BiDi. Should it say who started it?
+</p>
+
+<h5 id="event-webmcp-toolResponded">The webmcp.toolResponded event</h5>
+
+<dl>
+  <dt>Event Type</dt>
+  <dd>
+    <pre class="cddl" data-cddl-module="local-cddl" data-export>
+    webmcp.ToolResponded = (
+      method: "webmcp.toolResponded",
+      params: webmcp.ToolRespondedParameters
+    )
+
+    webmcp.ToolRespondedParameters = {
+      context: browsingContext.BrowsingContext,
+      invocation: webmcp.InvocationId,
+      status: webmcp.InvocationStatus,
+      ? output: any,
+      ? errorText: text,
+      ? exception: script.RemoteValue,
+    }
+    </pre>
+  </dd>
+</dl>
+
+<div algorithm>
+The <dfn export>WebDriver BiDi tool responded</dfn> steps given a {{Document}} |target document|, a
+[=pending tool execution/invocation id=] |invocation id|, a [=string=]-or-null |result|, a [=tool
+execution error=]-or-null |error|, and a JavaScript value-or-null |reason| (the rejection reason,
+when |error| is [=tool execution error/tool rejected=]) are:
+
+1. Let |navigable| be |target document|'s [=node navigable=].
+
+1. Let |params| be «[ "`context`" → |navigable|'s [=navigable id=], "`invocation`" → |invocation
+   id| ]».
+
+1. If |error| is null:
+
+    1. [=map/Set=] |params|["`status`"] to "`completed`".
+
+    1. If |result| is not null, [=map/set=] |params|["`output`"] to the result of [=parse a JSON
+       string to an Infra value|parsing=] |result|.
+
+1. Otherwise, if the execution was [=cancel a pending tool execution|canceled=], [=map/set=]
+   |params|["`status`"] to "`canceled`".
+
+1. Otherwise:
+
+    1. [=map/Set=] |params|["`status`"] to "`error`".
+
+    1. [=map/Set=] |params|["`errorText`"] to |error|'s [=tool execution error/corresponding
+       exception name=].
+
+1. Let |related navigables| be a [=set=] containing |navigable|.
+
+1. [=list/For each=] |session| in the [=set of sessions for which an event is enabled=] given
+   "<code>webmcp.toolResponded</code>" and |related navigables|:
+
+    1. If |reason| is not null, [=map/set=] |params|["`exception`"] to the result of [=serialize
+       as a remote value=] given |reason|, an empty [=map=] as the serialization options,
+       "`none`", a new [=map=] as the serialization internal map, |target document|'s
+       [=relevant realm=], and |session|.
+
+    1. Let |body| be a [=map=] matching the `webmcp.ToolResponded` production, with the `params`
+       field set to |params|.
+
+    1. [=Emit an event=] with |session| and |body|.
+
+</div>
+
+<p class="note allow-2119" id="fix-canceled-status">
+  <strong>Suggested fix 5:</strong> The steps above check "if the execution was canceled", but
+  nothing tells them that it was. The integration section below says to run them from [=cancel a
+  pending tool execution=] "with status `canceled`", yet they take no status parameter. Suggested
+  fix: add a boolean |canceled| parameter (false by default), pass true from [=cancel a pending
+  tool execution=], and change the step to "Otherwise, if |canceled| is true". Another option is a
+  "canceled" [=tool execution error=] that cancellation passes as the error.
+</p>
+
+<p class="note allow-2119" id="fix-output-parse">
+  <strong>Suggested fix 6:</strong> Parsing |result| as JSON can throw, which would abort these
+  steps, and the event, partway through. The [=WebDriver BiDi tool invoked=] steps fall back to
+  the raw string when their input can't be parsed. Do the same here: "If that throws, set
+  |params|["`output`"] to |result| instead." Alternatively, report the execution as "`error`".
+</p>
+
+<p class="note allow-2119" id="fix-params-per-session">
+  <strong>Suggested fix 7:</strong> The per-session loop sets |params|["`exception`"] on the one
+  |params| map that every session shares. The value is overwritten for each session, so the
+  result is correct, but a serialized remote value can hold shared ids that belong to one session.
+  For clarity, start each iteration with "Let |session params| be a [=map/clone=] of |params|",
+  then set `exception` on |session params| and use it for the event body.
+</p>
+
+<p class="note allow-2119" id="oq-output-trust">
+  <strong>Question 14:</strong> `output` is content written by the tool, so it is
+  untrusted and can carry [[#prompt-injection|prompt injection]]. Should the event carry the
+  [=annotations/untrusted content hint=] of the tool, or should clients look it up through
+  `webmcp.ToolInfo`? Should `exception` be a full `script.ExceptionDetails` (with line, column, and
+  stack trace) instead of a single `script.RemoteValue`? CDP doesn't report those details today.
+</p>
+
+<h4 id="webdriver-bidi-integration">Integration with existing algorithms</h4>
+
+The following changes to other parts of this specification add the hooks used above.
+
+<p class="note allow-2119" id="oq-hooks">
+  <strong>Question 15:</strong> These are written as explicit calls in this
+  specification's own algorithms, not as monkey patches. Decide whether the hooks should be
+  defined generically, as "tool observers", so that the [=browser agent=] and WebDriver BiDi share
+  them.
+</p>
+
+1. In {{ModelContext/registerTool()}}, after |tool definition| is set in the [=model context/tool
+   map=], with |tool| being |tool definition|:
+    1. Optionally set |tool|'s [=tool definition/registration stack trace=] to the [=current stack
+       trace=].
+    1. Set |tool|'s [=tool definition/declaring element=] to the <{form}> element for declarative
+       tools, and to null otherwise.
+    1. If the relevant {{Document}} is [=Document/fully active=], run the [=WebDriver BiDi tools
+       added=] steps given its [=node navigable=] and «|tool|».
+
+1. In [=model context/unregister a tool=], after the [=map/remove=] step, if |targetDocument| is
+   [=Document/fully active=], run the [=WebDriver BiDi tools removed=] steps given
+   |targetDocument|'s [=node navigable=] and «the [=tool definition=] that was <var ignore>tool map</var>[<var ignore>tool id</var>]».
+
+1. In the [=tool execute steps=], before the step that checks whether |toolMap|[|toolId|]
+   [=map/exists=], run the [=WebDriver BiDi tool invoked=] steps given |targetDocument|, the
+   [=pending tool execution/invocation id=] for |uuid|, <var ignore>inputArguments</var>, and
+   |toolMap|[|toolId|]
+   if it [=map/exists=], or null otherwise.
+
+1. Wherever the [=tool execute steps=] run <var ignore>completionSteps</var>, first run the [=WebDriver BiDi tool
+   responded=] steps given |targetDocument|, the [=pending tool execution/invocation id=] for
+   |uuid|, the result, the error, and, for [=tool execution error/tool rejected=], the rejection
+   reason <var ignore>r</var>. Do the same in [=cancel a pending tool execution=], with status "`canceled`".
+
+1. Every [=pending tool execution=] that this specification creates gets a new, unique [=pending
+   tool execution/invocation id=].
+
+<p class="note allow-2119" id="fix-unregister-hook">
+  <strong>Suggested fix 8:</strong> The [=model context/unregister a tool=] change runs the hook
+  "after the remove step", but then reads "the tool definition that was tool map[tool id]". That
+  entry has already been removed. Suggested fix: before the remove step, "Let |removed tool| be
+  tool map[tool id]". After it, run the [=WebDriver BiDi tools removed=] steps given
+  |targetDocument|'s [=node navigable=] and «|removed tool|».
+</p>
+
+<h4 id="webdriver-bidi-security">Security and privacy considerations</h4>
+
+A WebDriver BiDi session has privileged access. It sees every tool in every [=navigable=],
+whatever [=tool definition/exposed origins=] and the "{{tools}}" permissions policy say. It can
+invoke and cancel any tool, and it sees the input and output of executions started by other
+callers. That is consistent with the rest of WebDriver BiDi, which can already run script in any
+realm.
+
+Tool `output` and the `exception` value are produced by page script. Clients that pass them to a
+language model must treat them as untrusted input. See [[#prompt-injection]].
+
+<p class="note allow-2119" id="oq-restricted">
+  <strong>Question 16:</strong> Chromium's prototype also supports restricted sessions,
+  in which an embedder-granted access control list allows commands and events per top-level
+  navigable. `webmcp.invokeTool` and `webmcp.cancelInvocation` can be allowed per navigable.
+  `webmcp.getTools` without `context` needs a session-wide grant. Should this specification
+  describe such scoping, or leave it to embedders?
+</p>
+
 <h2 id="security-privacy">Security and Privacy Considerations</h2>
 
 *This section is non-normative.*
