@@ -5,7 +5,6 @@ Authors: Dominic Farolino & Khushal Sagar
 This explainer contains design updates to the WebMCP spec, prompted by Mozilla's feedback collected in [issue \#236](https://github.com/webmachinelearning/webmcp/issues/236) and [issue \#237](https://github.com/webmachinelearning/webmcp/issues/237) to support 2 use-cases:
 
 1. Generic Function Calling (Web to Web): The base infrastructure in WebMCP is function calling/RPC. This is currently polyfilled by authors over postMessage with libraries like [comlink](https://github.com/googlechromelabs/comlink).  
-   &nbsp;  
 2. Tools for models/agents (Web to model): Defining APIs which AI models can understand and invoke.
 
 # Generic Function Calling
