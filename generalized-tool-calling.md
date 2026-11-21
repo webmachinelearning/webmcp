@@ -199,6 +199,8 @@ The json-schema supported by inputSchema/outputSchema corresponds to the JSON co
 
 Similar to tool output serialization on success, the DOM exception thrown from ToolManager’s `ToolExecuteCallback` is serialized to the JSON subset. The values used in the exception can are limited to the JSON compatible subset.
 
+Note: While the primary consumer of these properties is agents, deterministic or automation systems could also be built using them ([example](https://bandarra.me/posts/webmcp-macros)). Other naming options like `ToolMetadata` can be considered to account for such use-cases.
+
 # Open Items
 
 * Detailed json-schema subset supported by the spec, extensibility of the subset and schema validation semantics ([WIP](https://gist.github.com/domfarolino/5d847e7a0638fa67a866a4b1c5d7381f)).&nbsp;  
