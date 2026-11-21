@@ -204,7 +204,7 @@ Note: While the primary consumer of these properties is agents, deterministic or
 # Open Items
 
 * Detailed json-schema subset supported by the spec, extensibility of the subset and schema validation semantics ([WIP](https://gist.github.com/domfarolino/5d847e7a0638fa67a866a4b1c5d7381f)).&nbsp;  
-* Data structure for tool output to the model to distinguish success/error cases.
+* Data structure for serialized tool output used by user-agent integrations like built-in agent, [WebDriver](https://www.w3.org/TR/webdriver2/). The structure should ensure success/error cases are explicit.
 
 # Future Work
 
