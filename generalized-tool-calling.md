@@ -210,7 +210,7 @@ Note: While the primary consumer of these properties is agents, deterministic or
 
 ## Worker Integration
 
-This design needs to be extensible to workers going forward. Here’s how the proposed API split will work there:
+This design needs to be extensible to workers going forward. Here’s how the proposed API split could work there:
 
 1. `ToolManager` is added to [`WorkerGlobalScope`](https://html.spec.whatwg.org/multipage/workers.html#the-workerglobalscope-common-interface), so a worker registers tools with `self.toolManager.registerTool(...)`.
 
@@ -235,3 +235,13 @@ Conceptually the user-agent is querying the composed tool-set for the top-level 
 Iframes inside a shadow root are removed from the window's frame list (`window.length`, `window[i]`). This is for encapsulation, not security. If subtree discovery included tools from these frames, it would add a new way for the light DOM to see inside a shadow tree.
 
 Each tool also carries a reference to its source `WindowProxy`. That reference isn't always cross-origin, so for a same-origin frame it gives direct access to the DOM the shadow root was hiding. The closest existing pattern is `postMessage`: a frame inside a shadow tree can already pass its window reference out, but only on purpose. We should likely follow the same principle: by default, subtree discovery doesn't cross shadow boundaries but content inside the shadow tree can opt in to exposing its frames' tools upward.
+
+## Tool Serialization
+A Document often runs functionality in a worker that it also wants to offer to other Documents. Today, every such call has to hop through the Document that brokers it. A Tool is a handle in the consumer's realm to a function in the executor's realm. So the broker could pass its handle to another consumer with postMessage(). This would create a new Tool handle in the receiving realm, bound to the same function. Calls would go directly to the executor.
+
+The design would need to answer these questions:
+- Each tool lists the origins it's exposed to. If a.com can access a tool from b.com, can a.com pass it on to c.com? Probably yes. a.com could already proxy calls by registering its own tool that wraps b.com's, so blocking this would only add friction. The provider's consent then covers "origins I trust, and whoever they choose to share with".
+- How is Tool#source serialized? It is a handle to the context (Window or Worker) that runs the tool. For a handle that arrived through postMessage(), there are three options:
+   - The executor's handle, same as the current design. But this leaks a much larger API surface than the broker intended.
+   - The broker's handle since that's the context that sent the Tool.
+   - Match the handle used by MessageEvent#source.
