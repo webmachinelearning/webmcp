@@ -237,6 +237,7 @@ primitives needed for model-exposed tools. If present, the tool opts-into the fo
 > [`tools` permission policy](https://webmachinelearning.github.io/webmcp/#permissions-policy). This
 > lets developers control separately exposure to the browser's powerful agent. The default value of the
 > policy is `self`.
+> There's an open issue for requiring cross-origin iframes to themselves opt-in to this exposure, see [#389](https://github.com/webmachinelearning/webmcp/issues/389).
 > Exposure to origins and iframes _within_ the web platform is only controlled via `exposedTo`. 
 
 While [serializable objects](http://html.spec.whatwg.org/C#serializable-objects) on the
