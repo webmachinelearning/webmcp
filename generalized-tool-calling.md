@@ -84,6 +84,7 @@ These APIs let a caller find the tools of a target browsing context's active `Do
 ```webidl
 partial interface Window {
   // Added to CrossOriginProperties(Window), like postMessage().
+  // Tool is defined in "Executing a Tool" below.
   [SecureContext] Promise<sequence<Tool>> getTools(optional GetToolsOptions options = {});
 };
 
