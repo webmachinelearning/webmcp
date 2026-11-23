@@ -168,17 +168,18 @@ interface Tool {
 };
 ```
 
-# Tools for models/agents
+## Structured cloneable tool inputs/outputs
 
-Tools exposed to models need the input/output to be converted to a well-defined JSON representation. This is not supported for all [serializable objects](http://html.spec.whatwg.org/multipage/structured-data.html#serializable-objects), the browser serializes these objects for transfer between realms but the format of the serialized representation is an internal detail. Having a well-defined format is necessary to allow third-party agent harnesses to understand the advertised representation and avoids browser-specific encodings becoming de facto protocols.
+WebMCP tool inputs and outputs are currently constrained to JSON. This is reasonable for exclusively
+model-facing tools, but it's an unnatural restriction for generic Web-to-Web tools that we also
+support, that would otherwise be bound by the rich [structured
+serialization](https://html.spec.whatwg.org/C#serializable-objects) protocol the web uses to
+transport objects across realms.
 
-We’ll define a **JSON compatible subset** of serializable objects which can be converted to JSON and can be used with agent exposed tools. Each supported Web type would have a standardized mapping to:
-
-* a valid model-facing JSON Schema;  
-* serialization steps from the Web value to that representation; and  
-* deserialization steps from model-produced JSON back to the Web value.
-
-A new dictionary is added to combine all primitives needed for agent exposed tools. If naturalLanguageProperties is specified, the author opts-in to exposing tools to the user-agent. Because the API provides access to a powerful browser feature (adding tools to the browser’s built-in agent), exposing tools to the user-agent is gated using a new permission policy called “user-agent-tools” with a default allowlist of 'self'. There’s no other way to prevent the user-agent from using these tools and they are still visible to other web consumers based on exposedTo.
+We propose allowing non model-facing tools to support all structured-cloneable types as inputs and
+outputs, like `postMessage()`, and constraining only model-facing tools to JSON-serializable inputs
+and outputs. By default, tools use the rich serializable types as inputs/outputs, and we introduce a
+new dictionary on the tool definition to let the developer express a model-facing tool.
 
 ```js
 dictionary NaturalLanguageProperties {
@@ -195,16 +196,117 @@ dictionary ToolManagerTool {
 };
 ```
 
-The json-schema supported by inputSchema/outputSchema corresponds to the JSON convertible subset. The browser validates that the tool input/output generated at execution time match this json-schema.
+This dictionary, and the `naturalLanguageProperties` property on tool registration, groups all
+primitives needed for model-exposed tools, and:
 
-Similar to tool output serialization on success, the DOM exception thrown from ToolManager’s `ToolExecuteCallback` is serialized to the JSON subset. The values used in the exception can are limited to the JSON compatible subset.
+ - Opt-into the constrained JSON input/output types.
+ - Opt-into exposing the tools to the user-agent, and any powerful agent it delegates to.
 
-Note: While the primary consumer of these properties is agents, deterministic or automation systems could also be built using them ([example](https://bandarra.me/posts/webmcp-macros)). Other naming options like `ToolMetadata` can be considered to account for such use-cases.
+> [!NOTE]
+> Because the API provides access to a powerful browser feature, exposing tools to the user-agent is
+> gated by the "user-agent-tools" permission policy, which will be the new name of our existing
+> [`tools` permission policy](https://webmachinelearning.github.io/webmcp/#permissions-policy). This
+> lets developers control separately exposure to the browser's powerful agent, and exposure to origins
+> and iframes _within_ the web platform via `exposedTo`. 
+
+Note that while [serializable objects](http://html.spec.whatwg.org/C#serializable-objects) on the
+web platform are not automatically JSON-serializable, and thus not suitable as model-facing tool
+inputs/outputs out of the box[^1], many have an obvious JSON representation, such as
+[`ImageData`](https://html.spec.whatwg.org/C#the-imagedata-interface) objects, useful for
+multi-modal tools (see [#41](https://github.com/webmachinelearning/webmcp/issues/41)), and [error
+objects](https://html.spec.whatwg.org/multipage/structured-data.html#structuredserializeinternal:~:text=Otherwise%2C%20if%20value%20has%20an%20%5B%5BErrorData%5D%5D%20internal%20slot%20and%20value%20is%20not%20a%20platform%20object)
+which are widely used across the platform, and thus should be able to be used as WebMCP tool
+outputs.
+
+With this, we also propose expanding the set of input/output types for model-facing tools beyond
+just standard JSON primitives, to include a **JSON-compatible subset** of serializable objects which
+have an obvious JSON representation that our specification will define. Each supported platform
+serializable type would have a standardized mapping to:
+
+* a valid model-facing JSON Schema;  
+* serialization steps from the Web value to that representation; and  
+* deserialization steps from model-produced JSON back to the Web value.
+
+The JSON schema supported by a tool's `inputSchema`/`outputSchema` corresponds to this
+JSON-convertible subset. The browser validates that tool inputs/outputs generated at runtime matches
+this JSON schema, so that tools do not receive or return malformed or mismatching data types.
+
+### Tool error outputs
+
+[Issue #282](https://github.com/webmachinelearning/webmcp/issues/282) asks for a better, structured,
+MCP-like way of signaling a userland "error" to agents. While we could specify a special
+`isError: true`-shaped JSON object that tools return, [much like MCP
+does](https://modelcontextprotocol.io/specification/2026-07-28/server/tools#error-handling:~:text=Tool%20Execution%20Errors%20contain%20actionable%20feedback%20that%20language%20models%20can%20use%20to%20self%2Dcorrect%20and%20retry%20with%20adjusted%20parameters),
+our proposal expands the a tool's input/output types to JSON-compatible serializable objects,
+including native error objects.
+
+This significantly reduces the burden on developers, who would otherwise have to implement a bespoke
+WebMCP error-handling path across all web APIs, that would anticipate the source of all errors,
+"catch" them, extract useful information, and package them in a special "error" JSON object.
+Instead, we let developers express errors in the natural "webby" way that is pervasive across all
+web platform APIs.
+
+Specifically, since DOMException and the native JavaScript `Error` types are both "serializable",
+their standardized JSON lowering can include all of the relevant information that the error object
+contains, packaged up into an appropriate JSON representation derived from the serialization. The
+serialization will exclude any internal details (like stack traces).
+
+> [!WARNING]
+> It's an open question as to whether we want to simply return userland errors
+> exactly as they are to callers, or wrap all of them in a new error interface
+> that's not constructible from JavaScript, like `ToolError` or
+> `ToolRuntimeError`. The only benefit of this would be to make it impossible
+> for a userland tool error from spoofing one of the errors generated by the
+> browser when a tool fails for reasons outside of the tool implementation's
+> control.
+
+With all of this in place, a model-facing tool can be registered like so:
+
+```js
+registerTool({
+  name: "set-profile-picture",
+  naturalLanguageProperties: {
+    description: "Set the user's profile picture.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        image: { /* ImageData */ }
+      },
+      required: ["image"]
+    }
+  },
+  async execute({ image }) {
+    // Any rejections below are automatically JSON-serialized and sent to the model.
+    await App.setProfilePicture({user: App.currentUser, image});
+  }
+});
+```
+
+> [!NOTE] The exact syntax for declaring serializable Web types in JSON schema remains an open
+> question. Possibilities include extending the existing `type` vocabulary or introducing a
+> WebMCP-specific schema keyword.
+
+### Open questions
+
+The detailed proposal will need to answer several issues, including:
+
+ - the syntax used to declare the JSON-compatible serializable Web types in what is otherwise
+   JSON-only schemas;
+ - the initial allowlist of supported JSON-compatible serializable Web types;
+ - whether unstructured containers such as `Map` and `Set` are supported, and how their nested
+   structured-cloneable values are represented, since they may include complicated JavaScript
+   objects with cycles, etc.;
+ - the exact JSON representation of serializable binary types like files,
+   images, etc.; and
+ - payload-size limits and whether browsers may transform large values;
+
+These details are intentionally deferred from this high-level explainer. A separate proposal will
+specify the _exact_ structured-cloneable type system, model-facing JSON representations, prior art,
+security considerations, and conversion algorithms in detail.
 
 # Open Items
 
 * Detailed json-schema subset supported by the spec, extensibility of the subset and schema validation semantics ([WIP](https://gist.github.com/domfarolino/5d847e7a0638fa67a866a4b1c5d7381f)).&nbsp;  
-* Data structure for serialized tool output used by user-agent integrations like built-in agent, [WebDriver](https://www.w3.org/TR/webdriver2/). The structure should ensure success/error cases are explicit.
 
 # Future Work
 
@@ -245,3 +347,8 @@ The design would need to answer these questions:
    - The executor's handle, same as the current design. But this leaks a much larger API surface than the broker intended.
    - The broker's handle since that's the context that sent the Tool.
    - Match the handle used by MessageEvent#source.
+
+[^1]: While model-facing tools use JSON inputs/output
+This is not supported for all , the browser serializes these objects for transfer between realms but the format of the serialized representation is an internal detail. Having a well-defined format is necessary to allow third-party agent harnesses to understand the advertised representation and avoids browser-specific encodings becoming de facto protocols.
+
+
