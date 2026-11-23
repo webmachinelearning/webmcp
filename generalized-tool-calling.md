@@ -168,6 +168,14 @@ interface Tool {
 };
 ```
 
+## Tool schema validation
+
+This section will detail the exact JSON Schema subset supported in tool `inputSchema` and
+`outputSchema`, and outline both the meta schema validation and instance schema validation semantics
+we will enforce. A WIP version of this lives at
+https://gist.github.com/domfarolino/5d847e7a0638fa67a866a4b1c5d7381f and will be migrated to this
+section.
+
 ## Structured cloneable tool inputs/outputs
 
 WebMCP tool inputs and outputs are currently constrained to JSON. This is reasonable for exclusively
@@ -303,10 +311,6 @@ The detailed proposal will need to answer several issues, including:
 These details are intentionally deferred from this high-level explainer. A separate proposal will
 specify the _exact_ structured-cloneable type system, model-facing JSON representations, prior art,
 security considerations, and conversion algorithms in detail.
-
-# Open Items
-
-* Detailed json-schema subset supported by the spec, extensibility of the subset and schema validation semantics ([WIP](https://gist.github.com/domfarolino/5d847e7a0638fa67a866a4b1c5d7381f)).&nbsp;  
 
 # Future Work
 
