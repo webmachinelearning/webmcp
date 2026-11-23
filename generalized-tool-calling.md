@@ -210,7 +210,15 @@ outputs, like `postMessage()`, and constraining only model-facing tools to JSON-
 and outputs. By default, tools use the rich serializable types as inputs/outputs, and we introduce a
 new dictionary on the tool definition to let the developer express a model-facing tool.
 
-```js
+ToolAnnotations properties intentionally don't have a default value so consumers know if a hint wasn't set. See [#53](https://github.com/webmachinelearning/webmcp/issues/53#issuecomment-6664955509).
+```webidl
+dictionary ToolAnnotations {
+  boolean readOnlyHint;
+  boolean untrustedContentHint;
+  boolean consequentialHint;
+  boolean debugging;
+};
+
 dictionary NaturalLanguageProperties {
   USVString title;
   required DOMString description;
@@ -224,7 +232,6 @@ dictionary ToolManagerTool {
   NaturalLanguageProperties naturalLanguageProperties;
 };
 ```
-
 This dictionary, and the `naturalLanguageProperties` property on tool registration, groups all
 primitives needed for model-exposed tools. If present, the tool opts-into the following:
 
@@ -238,7 +245,17 @@ primitives needed for model-exposed tools. If present, the tool opts-into the fo
 > lets developers control separately exposure to the browser's powerful agent. The default value of the
 > policy is `self`.
 > There's an open issue for requiring cross-origin iframes to themselves opt-in to this exposure, see [#389](https://github.com/webmachinelearning/webmcp/issues/389).
-> Exposure to origins and iframes _within_ the web platform is only controlled via `exposedTo`. 
+> Exposure to origins and iframes _within_ the web platform is only controlled via `exposedTo`.
+
+The same information is propagated to the Web tool consumers by expanding the Tool interface:
+
+```webidl
+[Exposed=Window, SecureContext]
+interface Tool {
+   ...
+   readonly attribute object? naturalLanguageProperties;
+};
+```
 
 While [serializable objects](http://html.spec.whatwg.org/C#serializable-objects) on the
 web platform are not automatically JSON-serializable, and thus not suitable as model-facing tool
