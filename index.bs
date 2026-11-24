@@ -528,50 +528,6 @@ To <dfn>update the tools ready state</dfn> given a {{Document}} |document|, run 
 </div>
 
 <div algorithm>
-To <dfn>wait for tools to be ready</dfn> given a [=top-level traversable=] |traversable|, returning
-"<code>ready</code>" or "<code>aborted</code>", run these steps:
-
-1. [=Assert=]: these steps are running [=in parallel=].
-
-1. Let |activeDocument| be |traversable|'s [=navigable/active document=].
-
-1. [=Assert=]: |activeDocument| is [=Document/fully active=].
-
-1. Let |areAllReady| be an algorithm that returns a [=boolean=] by running these steps:
-
-   1. If |activeDocument| is not [=Document/fully active=], then return true.
-
-      Note: If |activeDocument| becomes inactive while waiting (for example, because |traversable|
-      navigated or was destroyed), returning true here immediately unblocks the wait.
-
-   1. [=list/For each=] [=navigable=] |navigable| of |activeDocument|'s [=Document/inclusive
-      descendant navigables=]:
-
-      1. Let |document| be |navigable|'s [=navigable/active document=].
-
-      1. <p id=read-tools-ready>If |document|'s [=Document/tools ready=] is false, then return
-         false.</p>
-
-   1. Return true.
-
-1. [=iteration/While=] true:
-
-   1. If the result of running |areAllReady| is true, then [=iteration/break=].
-
-   1. If an [=implementation-defined=] timeout has elapsed since this loop began, then
-      [=iteration/break=].
-
-   Note: The timeout is measured from when this loop begins. Calling
-   {{ModelContext/waitForToolsUntil()}} with additional promises while the loop is running does not
-   reset or extend the timeout, and calling it after the loop exits does not delay an operation that
-   has already been unblocked.
-
-1. Return "<code>ready</code>" if |activeDocument| is [=Document/fully active=]; otherwise
-   "<code>aborted</code>".
-
-</div>
-
-<div algorithm>
 The <dfn>tool execute steps</dfn>, given a [=unique internal value=] |toolId|, a {{Document}}
 |targetDocument|, a [=string=] |inputArguments|, an algorithm |completionSteps|, and a [=unique
 internal value=] |uuid|, are as follows. The |completionSteps| algorithm takes a [=string=]-or-null
@@ -1834,6 +1790,12 @@ An <dfn>observed tool collection</dfn> is a [=struct=] with the following [=stru
 
   : <dfn>tools</dfn>
   :: a [=list=] of [=tool definition=] [=structs=].
+
+  : <dfn>tools ready</dfn>
+  :: a [=boolean=].
+
+     Note: A [=browser agent=] can use this, along with its own heuristics and timeouts, to decide
+     whether to act on [=observed tool collection/tools=] or wait for a later [=observation=].
 </dl>
 
 Note: An [=observation=] is usually a "snapshot" distillation of a page being presented to the user,
@@ -1850,6 +1812,10 @@ decisions and are outside the scope of this specification.
 
 <hr>
 
+Issue: The [=perform an observation=] algorithm will be reworked as the [=user agent=] side of the
+API surface for consuming tools is worked out. In particular, walking the frame tree should be
+replaced by querying the state of each frame.
+
 <div algorithm>
 To <dfn>perform an observation</dfn> given a [=top-level traversable=] |traversable|, run these
 steps:
@@ -1857,13 +1823,6 @@ steps:
 1. [=Assert=]: This algorithm is running in the [=browser agent=]'s [=AI agent queue=].
 
 1. [=Assert=]: |traversable|'s [=navigable/active document=] is [=Document/fully active=].
-
-1. If the result of [=waiting for tools to be ready=] given |traversable| is
-   "<code>aborted</code>", then return.
-
-   Note: This happens if |traversable| navigated to a new {{Document}} or was destroyed while
-   waiting. In the navigation case, implementations will typically [=perform an observation=]
-   again for the new [=navigable/active document=].
 
 1. Let |observation| be a new [=observation=].
 
@@ -1893,6 +1852,9 @@ steps:
         : [=observed tool collection/tools=]
         :: |tools|
 
+        : [=observed tool collection/tools ready=]
+        :: <span id=read-tools-ready>|document|'s [=Document/tools ready=]</span>
+
      1. Set |observation|'s [=observation/tool map=][|id|] to |observedToolCollection|.
 
 1. Perform any [=implementation-defined=] steps to add anything to |observation| that the [=user
@@ -1919,11 +1881,9 @@ observation=] given any [=top-level browsing context=] in the [=user agent=] [=b
 group set=], at any time, although implementations typically reserve this operation for when the
 user is interacting with a [=browser agent=] while web content is in view.
 
-Note: Calling {{ModelContext/waitForToolsUntil()}} only delays [=observations=] that the [=user
-agent=] chooses to perform while a {{Document}}'s [=Document/tools ready=] is false. Toggling
-[=Document/tools ready=] does not by itself cause or guarantee that the [=user agent=] will
-[=perform an observation=]. The user agent might apply internal heuristics to ensure page
-stability before taking an observation.
+Note: Toggling [=Document/tools ready=] does not by itself cause or guarantee that the [=user
+agent=] will [=perform an observation=]. The user agent might apply internal heuristics to ensure
+page stability before taking an observation.
 
 
 <h2 id="security-privacy">Security and Privacy Considerations</h2>
