@@ -288,6 +288,9 @@ The JSON schema supported by a tool's `inputSchema`/`outputSchema` corresponds t
 JSON-convertible subset. The browser validates that tool inputs/outputs generated at runtime matches
 this JSON schema, so that tools do not receive or return malformed or mismatching data types.
 
+Open Questions
+- [#389](https://github.com/webmachinelearning/webmcp/issues/389): Require cross-origin iframes to opt-in to user-agent tool exposure.
+
 ### Tool error outputs
 
 [Issue #282](https://github.com/webmachinelearning/webmcp/issues/282) asks for a better, structured,
