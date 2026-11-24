@@ -16,7 +16,7 @@ The `modelContext` APIs are split into 3 parts: Managing tool registration and e
 A Document uses `window.toolManager` to register its tools, handle their execution, and control when they are ready. Other naming options are toolHost, toolProvider, toolRegistrar.
 
 **IDL**
-```webidl
+```js
 dictionary ToolManagerTool {
   required DOMString name;
   required ToolExecuteCallback execute;
@@ -79,7 +79,7 @@ window.toolManager.addEventListener("toolcancel", (e) => { … });
 
 These APIs let a caller find the tools of a target browsing context's active `Document` and be notified when these tools change. The caller needs a `WindowProxy` for the target: `iframe.contentWindow`, `window.parent`, `window.top`, `window.opener`, or a popup returned by `window.open()`. [fromOrigins](https://webmachinelearning.github.io/webmcp/#dom-modelcontextgettooloptions-fromorigins) remains the same as the existing spec.
 
-```webidl
+```js
 partial interface Window {
   // Added to CrossOriginProperties(Window), like postMessage().
   // Tool is defined in "Executing a Tool" below.
@@ -119,7 +119,7 @@ interface ToolObserverRecord {
 
 #### EventTarget instead of Observer
 
-```webidl
+```js
 [Exposed=Window, SecureContext]
 interface ToolList : EventTarget {
   constructor(Window target, optional GetToolsOptions options = {});
@@ -140,7 +140,7 @@ interface ToolList : EventTarget {
 
 #### Tool object on Window
 
-```webidl
+```js
 partial interface Window {
   [SecureContext, CrossOrigin] readonly attribute Tools tools;
 };
@@ -172,7 +172,7 @@ interface Tools : EventTarget {
 
 Since DOMException and the native JavaScript \`Error\` types are both [serializable](https://html.spec.whatwg.org/C#serializable-objects), the error thrown from ToolManager’s `ToolExecuteCallback` is propagated to the tool.execute() caller. See #tool-error-outputs for details.
 
-```webidl
+```js
 dictionary ToolExecuteOptions {
   AbortSignal signal;
 };
@@ -211,7 +211,7 @@ and outputs. By default, tools use the rich serializable types as inputs/outputs
 new dictionary on the tool definition to let the developer express a model-facing tool.
 
 ToolAnnotations properties intentionally don't have a default value so consumers know if a hint wasn't set. See [#53](https://github.com/webmachinelearning/webmcp/issues/53#issuecomment-6664955509).
-```webidl
+```js
 dictionary ToolAnnotations {
   boolean readOnlyHint;
   boolean untrustedContentHint;
@@ -249,7 +249,7 @@ primitives needed for model-exposed tools. If present, the tool opts-into the fo
 
 The same information is propagated to the Web tool consumers by expanding the Tool interface:
 
-```webidl
+```js
 [Exposed=Window, SecureContext]
 interface Tool {
    ...
