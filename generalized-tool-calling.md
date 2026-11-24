@@ -75,6 +75,11 @@ window.toolManager.addEventListener("toolactivated", (e) => { … });
 window.toolManager.addEventListener("toolcancel", (e) => { … });
 ```
 
+Open Issues
+- [#126](https://github.com/webmachinelearning/webmcp/issues/126) Do we need toolactivated and toolchange events in v1.
+- [#317](https://github.com/webmachinelearning/webmcp/issues/317) Support wildcard in `exposedTo` to allow all origins access to a tool.
+- [#392](https://github.com/webmachinelearning/webmcp/issues/392) Syntax for inputs to ToolManager.registerTool.
+
 ## Tool discovery
 
 These APIs let a caller find the tools of a target browsing context's active `Document` and be notified when these tools change. The caller needs a `WindowProxy` for the target: `iframe.contentWindow`, `window.parent`, `window.top`, `window.opener`, or a popup returned by `window.open()`. [fromOrigins](https://webmachinelearning.github.io/webmcp/#dom-modelcontextgettooloptions-fromorigins) remains the same as the existing spec.
@@ -114,6 +119,9 @@ interface ToolObserverRecord {
 `getTools()` provides a convenient way to make a single query without constructing an observer.  For a cross-origin target, HTML creates the `getTools` function that the caller receives in the caller's realm so the returned promise and Tools are also in the caller’s realm. For a same-origin target though, the `getTools` that runs is the target `Window`'s own method. This is a problem because the returned promise and Tools would be created in the target’s realm and are destroyed when the target navigates. *The API must consistently return objects in the incumbent’s realm.*
 
 `ToolObserver` is constructed in the caller's realm by design. The observer is bound to the target's browsing context, so it keeps working across same-origin and cross-origin navigations of the target. Following the [observer pattern](https://w3ctag.github.io/design-principles/#events-vs-observers:~:text=The%20Observer%20pattern%20works%20like%20this%3A), `observe()` queues an initial record even when the list is empty, and records are batched and delivered asynchronously. A record is *only* queued when the filtered result changes. This ensures that navigations between Documents which don't expose tools to the caller are not revealed. When the target's browsing context is destroyed (the iframe is removed, or the popup is closed), the observer queues one final record with an empty `tools` list and stops observing that target. The caller can check `record.target.closed` to tell "the target was destroyed" apart from "the target has no tools for me".
+
+Open Issues
+- [#391](https://github.com/webmachinelearning/webmcp/issues/391) Should `getTools()` return a map.
 
 ### Alternatives considered
 
