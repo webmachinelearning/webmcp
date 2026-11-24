@@ -122,6 +122,7 @@ interface ToolObserverRecord {
 
 Open Issues
 - [#391](https://github.com/webmachinelearning/webmcp/issues/391) Should `getTools()` return a map.
+- [#317](https://github.com/webmachinelearning/webmcp/issues/317) Support wildcard in `fromOrigins` to allow tool query from any origin.
 
 ### Alternatives considered
 
