@@ -347,13 +347,15 @@ await document.modelContext.registerTool({
 Any document in the tree matching these origins (and allowed to use `tools` permission) will:
 
 - Receive the `toolchange` event on its `document.modelContext` when the tool is registered or unregistered.
-- Be able to discover and run the tools
+- Be able to discover the tools (for cross-origin discovery, the consumer's `fromOrigins` must include the provider's origin or `"*"`), and run them subject to execution checks.
 
 #### Discovering and running tools: `getTools()` and `executeTool()`
 
 Once tools are registered, in-page agents can discover and invoke them using `getTools()` and `executeTool()`.
 
-Calling `document.modelContext.getTools()` returns a promise that resolves with an array of [`Tool`](https://webmachinelearning.github.io/webmcp/#tool) objects. Each `Tool` exposes the tool's `name`, `title`, `description`, `inputSchema`, `outputSchema`, `annotations`, `origin`, and `source` (the owner window). By default, `getTools()` only returns tools registered by documents same-origin with the caller in the frame tree. To retrieve cross-origin tools, you must explicitly list their origins in the `fromOrigins` option. This array only supports secure origins.
+Calling `document.modelContext.getTools()` returns a promise that resolves with an array of [`Tool`](https://webmachinelearning.github.io/webmcp/#tool) objects. Each `Tool` exposes the tool's `name`, `title`, `description`, `inputSchema`, `outputSchema`, `annotations`, `origin`, and `source` (the owner window). By default, `getTools()` only returns tools registered by documents same-origin with the caller in the frame tree. To retrieve cross-origin tools, you must explicitly list their origins in the `fromOrigins` option, or use `{ fromOrigins: ["*"] }` to query all origins in that tree, including opaque origins. The API's secure-context restriction still applies.
+
+In `fromOrigins`, only the exact `"*"` string is special. It does not bypass Permissions Policy or execution checks. Discovery still requires the provider's explicit `exposedTo` origin list to allow the caller. A wildcard opts into any eligible origin, not just origins trusted by the author; wildcard consumers may discover tools with untrusted descriptions. Prefer explicit origin lists when possible. Other entries are still validated even when `"*"` is present.
 
 ```js
 // Discover tools exposed by same-origin frames in the tree (default)
@@ -371,9 +373,14 @@ for (const tool of tools) {
 const crossOriginTools = await document.modelContext.getTools({
   fromOrigins: ["https://trusted-partner.example"]
 });
+
+// Discover tools exposed to the caller by frames of any origin:
+const allOriginTools = await document.modelContext.getTools({
+  fromOrigins: ["*"]
+});
 ```
 
-An agent executes a discovered `Tool` by passing it and input arguments along to `document.modelContext.executeTool()`. The browser securely mediates the execution, ensuring the [`exposedTo`](https://webmachinelearning.github.io/webmcp/#dom-modelcontextregistertooloptions-exposedto) and [`fromOrigins`](https://webmachinelearning.github.io/webmcp/#dom-modelcontextgettooloptions-fromorigins) agree, and the tool runs in the tool owner's execution context. `Tool` objects can only be obtained from `getTools()`, and each one refers to the specific tool registration it was returned for: if that tool is unregistered, executing the `Tool` fails, even if a new tool is later registered under the same name.
+An agent executes a discovered `Tool` by passing it and input arguments along to `document.modelContext.executeTool()`. The browser securely mediates the execution, checking [`exposedTo`](https://webmachinelearning.github.io/webmcp/#dom-modelcontextregistertooloptions-exposedto) again, and the tool runs in the tool owner's execution context. [`fromOrigins`](https://webmachinelearning.github.io/webmcp/#dom-modelcontextgettooloptions-fromorigins) filters discovery, not execution. `Tool` objects can only be obtained from `getTools()`, and each one refers to the specific tool registration it was returned for: if that tool is unregistered, executing the `Tool` fails, even if a new tool is later registered under the same name.
 
 ```js
 const tools = await document.modelContext.getTools();
