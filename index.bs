@@ -797,8 +797,9 @@ is.
   <dt><code><var ignore>document</var>.{{Document/modelContext}}.{{ModelContext/registerTool(tool, options)}}</code></dt>
   <dd>
     <p>Registers a tool that [=agents=] can invoke. Returns a rejected promise if a tool with the
-    same name is already registered, if the given {{ModelContextTool/name}} or
-    {{ModelContextTool/description}} are empty strings, or if the {{ModelContextTool/inputSchema}}
+    same name is already registered, if the given {{ModelContextTool/name}} is the empty string,
+    if the {{ModelContextTool/description}} is empty or contains only [=ASCII whitespace=],
+    or if the {{ModelContextTool/inputSchema}}
     or {{ModelContextTool/outputSchema}} is invalid.</p>
   </dd>
 
@@ -894,8 +895,9 @@ The <dfn method for=ModelContext>registerTool(<var>tool</var>, <var>options</var
    U+002D (-), or U+002E (.), then return [=a promise rejected with=] an {{InvalidStateError}}
    {{DOMException}}.
 
-1. If |tool|'s {{ModelContextTool/description}} is the empty string, then return [=a promise
-   rejected with=] an {{InvalidStateError}} {{DOMException}}.
+1. If the result of [=strip leading and trailing ASCII whitespace|stripping leading and trailing
+   ASCII whitespace=] from |tool|'s {{ModelContextTool/description}} is the empty string, then
+   return [=a promise rejected with=] an {{InvalidStateError}} {{DOMException}}.
 
 1. Let |stringified input schema| be the result of [=serializing a tool schema=] given |tool|'s
    {{ModelContextTool/inputSchema}} if it [=map/exists=], and undefined otherwise. If
