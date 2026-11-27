@@ -852,13 +852,14 @@ is.
   ```js
   const toolsRegistered = (async () => {
     const config = await fetch('/api/tools-config').then(r => r.json());
-    for (const tool of config.tools) {
-      await document.modelContext.registerTool({
+
+    await Promise.allSettled(config.tools.map(tool =>
+      document.modelContext.registerTool({
         name: tool.name,
         description: tool.description,
         execute: async (input) => { /* ... */ }
-      });
-    }
+      })
+    ));
   })();
 
   document.modelContext.waitForToolsUntil(toolsRegistered);
